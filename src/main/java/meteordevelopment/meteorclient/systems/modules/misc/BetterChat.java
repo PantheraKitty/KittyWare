@@ -86,7 +86,7 @@ public class BetterChat extends Module
         .name("player-heads").description("Displays player heads next to their messages.")
         .defaultValue(true).build());    private final Setting<List<String>> regexFilters = sgFilter.add(new StringListSetting.Builder()
         .name("regex-filter").description("Regex filter used for filtering chat messages.")
-        .visible(filterRegex::get).onChanged(strings -> compileFilterRegexList()).build());
+        .build());
 
 
     // Longer chat
