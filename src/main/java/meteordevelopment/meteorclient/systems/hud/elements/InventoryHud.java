@@ -20,22 +20,25 @@ import net.minecraft.util.Identifier;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class InventoryHud extends HudElement {
-    public static final HudElementInfo<InventoryHud> INFO = new HudElementInfo<>(Hud.GROUP, "inventory", "Displays your inventory.", InventoryHud::new);
-
-    private static final Identifier TEXTURE = MeteorClient.identifier("textures/container.png");
+public class InventoryHud extends HudElement
+{
+    private static final Identifier TEXTURE = MeteorClient.identifier("textures/container.png");    public static final HudElementInfo<InventoryHud> INFO = new HudElementInfo<>(Hud.GROUP, "inventory", "Displays your inventory.", InventoryHud::new);
     private static final Identifier TEXTURE_TRANSPARENT = MeteorClient.identifier("textures/container-transparent.png");
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     private final Setting<Boolean> containers = sgGeneral.add(new BoolSetting.Builder()
         .name("containers")
         .description("Shows the contents of a container when holding them.")
         .defaultValue(false)
         .build()
     );
+    private final ItemStack[] containerItems = new ItemStack[9 * 3];
 
-    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+    private InventoryHud()
+    {
+        super(INFO);
+
+        calculateSize();
+    }    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
         .name("scale")
         .description("The scale.")
         .defaultValue(2)
@@ -45,32 +48,9 @@ public class InventoryHud extends HudElement {
         .build()
     );
 
-    private final Setting<Background> background = sgGeneral.add(new EnumSetting.Builder<Background>()
-        .name("background")
-        .description("Background of inventory viewer.")
-        .defaultValue(Background.Texture)
-        .onChanged(bg -> calculateSize())
-        .build()
-    );
-
-    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
-        .name("background-color")
-        .description("Color of the background.")
-        .defaultValue(new SettingColor(255, 255, 255))
-        .visible(() -> background.get() != Background.None)
-        .build()
-    );
-
-    private final ItemStack[] containerItems = new ItemStack[9 * 3];
-
-    private InventoryHud() {
-        super(INFO);
-
-        calculateSize();
-    }
-
     @Override
-    public void render(HudRenderer renderer) {
+    public void render(HudRenderer renderer)
+    {
         double x = this.x, y = this.y;
 
         ItemStack container = getContainer();
@@ -78,15 +58,19 @@ public class InventoryHud extends HudElement {
         if (hasContainer) Utils.getItemsInContainerItem(container, containerItems);
         Color drawColor = hasContainer ? Utils.getShulkerColor(container) : color.get();
 
-        if (background.get() != Background.None) {
+        if (background.get() != Background.None)
+        {
             drawBackground(renderer, (int) x, (int) y, drawColor);
         }
 
         if (mc.player == null) return;
 
-        renderer.post(() -> {
-            for (int row = 0; row < 3; row++) {
-                for (int i = 0; i < 9; i++) {
+        renderer.post(() ->
+        {
+            for (int row = 0; row < 3; row++)
+            {
+                for (int i = 0; i < 9; i++)
+                {
                     int index = row * 9 + i;
                     ItemStack stack = hasContainer ? containerItems[index] : mc.player.getInventory().getStack(index + 9);
                     if (stack == null) continue;
@@ -98,23 +82,40 @@ public class InventoryHud extends HudElement {
                 }
             }
         });
-    }
+    }    private final Setting<Background> background = sgGeneral.add(new EnumSetting.Builder<Background>()
+        .name("background")
+        .description("Background of inventory viewer.")
+        .defaultValue(Background.Texture)
+        .onChanged(bg -> calculateSize())
+        .build()
+    );
 
-    private void calculateSize() {
+    private void calculateSize()
+    {
         setSize(background.get().width * scale.get(), background.get().height * scale.get());
-    }
+    }    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
+        .name("background-color")
+        .description("Color of the background.")
+        .defaultValue(new SettingColor(255, 255, 255))
+        .visible(() -> background.get() != Background.None)
+        .build()
+    );
 
-    private void drawBackground(HudRenderer renderer, int x, int y, Color color) {
+    private void drawBackground(HudRenderer renderer, int x, int y, Color color)
+    {
         int w = getWidth();
         int h = getHeight();
 
-        switch (background.get()) {
-            case Texture, Outline -> renderer.texture(background.get() == Background.Texture ? TEXTURE : TEXTURE_TRANSPARENT, x, y, w, h, color);
+        switch (background.get())
+        {
+            case Texture, Outline ->
+                renderer.texture(background.get() == Background.Texture ? TEXTURE : TEXTURE_TRANSPARENT, x, y, w, h, color);
             case Flat -> renderer.quad(x, y, w, h, color);
         }
     }
 
-    private ItemStack getContainer() {
+    private ItemStack getContainer()
+    {
         if (isInEditor() || mc.player == null) return null;
 
         ItemStack stack = mc.player.getOffHandStack();
@@ -126,7 +127,8 @@ public class InventoryHud extends HudElement {
         return null;
     }
 
-    public enum Background {
+    public enum Background
+    {
         None(162, 54),
         Texture(176, 67),
         Outline(162, 54),
@@ -134,9 +136,18 @@ public class InventoryHud extends HudElement {
 
         private final int width, height;
 
-        Background(int width, int height) {
+        Background(int width, int height)
+        {
             this.width = width;
             this.height = height;
         }
     }
+
+
+
+
+
+
+
+
 }

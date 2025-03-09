@@ -11,9 +11,11 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WVerticalSeparator;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public class WGonbleWareVerticalSeparator extends WVerticalSeparator implements GonbleWareWidget {
+public class WGonbleWareVerticalSeparator extends WVerticalSeparator implements GonbleWareWidget
+{
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         GonbleWareGuiTheme theme = theme();
         Color colorEdges = theme.separatorEdges.get();
         Color colorCenter = theme.separatorCenter.get();

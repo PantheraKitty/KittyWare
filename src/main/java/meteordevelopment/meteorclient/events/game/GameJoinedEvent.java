@@ -5,10 +5,12 @@
 
 package meteordevelopment.meteorclient.events.game;
 
-public class GameJoinedEvent {
+public class GameJoinedEvent
+{
     private static final GameJoinedEvent INSTANCE = new GameJoinedEvent();
 
-    public static GameJoinedEvent get() {
+    public static GameJoinedEvent get()
+    {
         return INSTANCE;
     }
 }

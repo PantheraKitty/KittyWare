@@ -18,31 +18,55 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Sphere2dMarker extends BaseMarker {
-    private static class Block {
-        public final int x, y, z;
-        public int excludeDir;
-
-        public Block(int x, int y, int z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-    }
-
+public class Sphere2dMarker extends BaseMarker
+{
     public static final String type = "Sphere-2D";
-
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
     private final SettingGroup sgKeybinding = settings.createGroup("Keybinding");
+    private final Setting<Boolean> limitRenderRange = sgRender.add(new BoolSetting.Builder()
+        .name("limit-render-range")
+        .description("Whether to limit rendering range (useful in very large circles)")
+        .defaultValue(false)
+        .build()
+    );
+    private final Setting<Integer> renderRange = sgRender.add(new IntSetting.Builder()
+        .name("render-range")
+        .description("Rendering range")
+        .defaultValue(10)
+        .min(1)
+        .sliderRange(1, 20)
+        .visible(limitRenderRange::get)
+        .build()
+    );
+    private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+        .name("shape-mode")
+        .description("How the shapes are rendered.")
+        .defaultValue(ShapeMode.Both)
+        .build()
+    );
+    private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
+        .name("side-color")
+        .description("The color of the sides of the blocks being rendered.")
+        .defaultValue(new SettingColor(0, 100, 255, 50))
+        .build()
+    );
 
+    // Render
+    private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
+        .name("line-color")
+        .description("The color of the lines of the blocks being rendered.")
+        .defaultValue(new SettingColor(0, 100, 255, 255))
+        .build()
+    );
+    private final List<Block> blocks = new ArrayList<>();
+    private boolean dirty = true, calculating;
     private final Setting<BlockPos> center = sgGeneral.add(new BlockPosSetting.Builder()
         .name("center")
         .description("Center of the sphere")
         .onChanged(bp -> dirty = true)
         .build()
     );
-
     private final Setting<Integer> radius = sgGeneral.add(new IntSetting.Builder()
         .name("radius")
         .description("Radius of the sphere")
@@ -53,6 +77,7 @@ public class Sphere2dMarker extends BaseMarker {
         .build()
     );
 
+    // Keybinding
     private final Setting<Integer> layer = sgGeneral.add(new IntSetting.Builder()
         .name("layer")
         .description("Which layer to render")
@@ -62,83 +87,42 @@ public class Sphere2dMarker extends BaseMarker {
         .onChanged(l -> dirty = true)
         .build()
     );
-
-    // Render
-
-    private final Setting<Boolean> limitRenderRange = sgRender.add(new BoolSetting.Builder()
-        .name("limit-render-range")
-        .description("Whether to limit rendering range (useful in very large circles)")
-        .defaultValue(false)
-        .build()
-    );
-
-    private final Setting<Integer> renderRange = sgRender.add(new IntSetting.Builder()
-        .name("render-range")
-        .description("Rendering range")
-        .defaultValue(10)
-        .min(1)
-        .sliderRange(1, 20)
-        .visible(limitRenderRange::get)
-        .build()
-    );
-
-    private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-        .name("shape-mode")
-        .description("How the shapes are rendered.")
-        .defaultValue(ShapeMode.Both)
-        .build()
-    );
-
-    private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-        .name("side-color")
-        .description("The color of the sides of the blocks being rendered.")
-        .defaultValue(new SettingColor(0, 100, 255, 50))
-        .build()
-    );
-
-    private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-        .name("line-color")
-        .description("The color of the lines of the blocks being rendered.")
-        .defaultValue(new SettingColor(0, 100, 255, 255))
-        .build()
-    );
-
-    // Keybinding
-
     @SuppressWarnings("unused")
     private final Setting<Keybind> nextLayerKey = sgKeybinding.add(new KeybindSetting.Builder()
         .name("next-layer-keybind")
         .description("Keybind to increment layer")
-        .action(() -> {
+        .action(() ->
+        {
             if (isVisible() && layer.get() < radius.get() * 2) layer.set(layer.get() + 1);
         })
         .build()
     );
-
     @SuppressWarnings("unused")
     private final Setting<Keybind> prevLayerKey = sgKeybinding.add(new KeybindSetting.Builder()
         .name("prev-layer-keybind")
         .description("Keybind to increment layer")
-        .action(() -> {
+        .action(() ->
+        {
             if (isVisible()) layer.set(layer.get() - 1);
         })
         .build()
     );
-
-    private final List<Block> blocks = new ArrayList<>();
-    private boolean dirty = true, calculating;
-
-    public Sphere2dMarker() {
+    public Sphere2dMarker()
+    {
         super(type);
     }
 
     @Override
-    protected void render(Render3DEvent event) {
+    protected void render(Render3DEvent event)
+    {
         if (dirty && !calculating) calcCircle();
 
-        synchronized (blocks) {
-            for (Block block : blocks) {
-                if (!limitRenderRange.get() || PlayerUtils.isWithin(block.x, block.y, block.z, renderRange.get())) {
+        synchronized (blocks)
+        {
+            for (Block block : blocks)
+            {
+                if (!limitRenderRange.get() || PlayerUtils.isWithin(block.x, block.y, block.z, renderRange.get()))
+                {
                     event.renderer.box(block.x, block.y, block.z, block.x + 1, block.y + 1, block.z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), block.excludeDir);
                 }
             }
@@ -146,15 +130,18 @@ public class Sphere2dMarker extends BaseMarker {
     }
 
     @Override
-    public String getTypeName() {
+    public String getTypeName()
+    {
         return type;
     }
 
-    private void calcCircle() {
+    private void calcCircle()
+    {
         calculating = true;
         blocks.clear();
 
-        Runnable action = () -> {
+        Runnable action = () ->
+        {
             int cX = center.get().getX();
             int cY = center.get().getY();
             int cZ = center.get().getZ();
@@ -164,10 +151,12 @@ public class Sphere2dMarker extends BaseMarker {
 
             // Calculate 1 octant and transform,mirror,flip the rest
             int dX = 0;
-            while (true) {
+            while (true)
+            {
                 int dZ = (int) Math.round(Math.sqrt(rSq - (dX * dX + dY * dY)));
 
-                synchronized (blocks) {
+                synchronized (blocks)
+                {
                     // First and second octant
                     add(cX + dX, cY + dY, cZ + dZ);
                     add(cX + dZ, cY + dY, cZ + dX);
@@ -192,9 +181,12 @@ public class Sphere2dMarker extends BaseMarker {
             }
 
             // Calculate connected blocks
-            synchronized (blocks) {
-                for (Block block : blocks) {
-                    for (Block b : blocks) {
+            synchronized (blocks)
+            {
+                for (Block block : blocks)
+                {
+                    for (Block b : blocks)
+                    {
                         if (b == block) continue;
 
                         if (b.x == block.x + 1 && b.z == block.z) block.excludeDir |= Dir.EAST;
@@ -213,11 +205,26 @@ public class Sphere2dMarker extends BaseMarker {
         else MeteorExecutor.execute(action);
     }
 
-    private void add(int x, int y, int z) {
-        for (Block b : blocks) {
+    private void add(int x, int y, int z)
+    {
+        for (Block b : blocks)
+        {
             if (b.x == x && b.y == y && b.z == z) return;
         }
 
         blocks.add(new Block(x, y, z));
+    }
+
+    private static class Block
+    {
+        public final int x, y, z;
+        public int excludeDir;
+
+        public Block(int x, int y, int z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
     }
 }

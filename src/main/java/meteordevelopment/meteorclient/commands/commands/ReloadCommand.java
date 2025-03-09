@@ -15,14 +15,18 @@ import meteordevelopment.meteorclient.utils.network.Capes;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
 import net.minecraft.command.CommandSource;
 
-public class ReloadCommand extends Command {
-    public ReloadCommand() {
+public class ReloadCommand extends Command
+{
+    public ReloadCommand()
+    {
         super("reload", "Reloads many systems.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.executes(context ->
+        {
             warning("Reloading systems, this may take a while.");
 
             Systems.load();

@@ -21,7 +21,8 @@ import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
-public class EndermanLook extends Module {
+public class EndermanLook extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Mode> lookMode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -39,25 +40,35 @@ public class EndermanLook extends Module {
         .build()
     );
 
-    public EndermanLook() {
+    public EndermanLook()
+    {
         super(Categories.World, "enderman-look", "Either looks at all Endermen or prevents you from looking at Endermen.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         // if either are true nothing happens when you look at an enderman
-        if (mc.player.getInventory().armor.get(3).isOf(Blocks.CARVED_PUMPKIN.asItem()) || mc.player.getAbilities().creativeMode) return;
+        if (mc.player.getInventory().armor.get(3).isOf(Blocks.CARVED_PUMPKIN.asItem()) || mc.player.getAbilities().creativeMode)
+            return;
 
-        for (Entity entity : mc.world.getEntities()) {
-            if (!(entity instanceof EndermanEntity enderman) || !enderman.isAlive() || !mc.player.canSee(enderman)) continue;
+        for (Entity entity : mc.world.getEntities())
+        {
+            if (!(entity instanceof EndermanEntity enderman) || !enderman.isAlive() || !mc.player.canSee(enderman))
+                continue;
 
-            switch (lookMode.get()) {
-                case Away -> {
-                    if (enderman.isAngry() && stun.get()) Rotations.rotate(Rotations.getYaw(enderman), Rotations.getPitch(enderman, Target.Head), -75, null);
+            switch (lookMode.get())
+            {
+                case Away ->
+                {
+                    if (enderman.isAngry() && stun.get())
+                        Rotations.rotate(Rotations.getYaw(enderman), Rotations.getPitch(enderman, Target.Head), -75, null);
                     else if (angleCheck(enderman)) Rotations.rotate(mc.player.getYaw(), 90, -75, null);
                 }
-                case At -> {
-                    if (!enderman.isAngry()) Rotations.rotate(Rotations.getYaw(enderman), Rotations.getPitch(enderman, Target.Head), -75, null);
+                case At ->
+                {
+                    if (!enderman.isAngry())
+                        Rotations.rotate(Rotations.getYaw(enderman), Rotations.getPitch(enderman, Target.Head), -75, null);
                 }
             }
         }
@@ -66,7 +77,8 @@ public class EndermanLook extends Module {
     /**
      * @see EndermanEntity#isPlayerStaring(PlayerEntity)
      */
-    private boolean angleCheck(EndermanEntity entity) {
+    private boolean angleCheck(EndermanEntity entity)
+    {
         Vec3d vec3d = mc.player.getRotationVec(1.0F).normalize();
         Vec3d vec3d2 = new Vec3d(entity.getX() - mc.player.getX(), entity.getEyeY() - mc.player.getEyeY(), entity.getZ() - mc.player.getZ());
 
@@ -77,7 +89,8 @@ public class EndermanLook extends Module {
         return e > 1.0D - 0.025D / d;
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         At,
         Away
     }

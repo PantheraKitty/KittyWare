@@ -27,31 +27,24 @@ import java.util.*;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class Hud extends System<Hud> implements Iterable<HudElement> {
+public class Hud extends System<Hud> implements Iterable<HudElement>
+{
     public static final HudGroup GROUP = new HudGroup("Meteor");
-
-    public boolean active;
-    public Settings settings = new Settings();
-
     public final Map<String, HudElementInfo<?>> infos = new TreeMap<>();
     private final List<HudElement> elements = new ArrayList<>();
-
+    public boolean active;
+    public Settings settings = new Settings();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgEditor = settings.createGroup("Editor");
-    private final SettingGroup sgKeybind = settings.createGroup("Bind");
-
-    // General
-
     private final Setting<Boolean> customFont = sgGeneral.add(new BoolSetting.Builder()
         .name("custom-font")
         .description("Text will use custom font.")
         .defaultValue(true)
-        .onChanged(aBoolean -> {
+        .onChanged(aBoolean ->
+        {
             for (HudElement element : elements) element.onFontChanged();
         })
         .build()
     );
-
     private final Setting<Boolean> hideInMenus = sgGeneral.add(new BoolSetting.Builder()
         .name("hide-in-menus")
         .description("Hides the meteor hud when in inventory screens or game menus.")
@@ -59,6 +52,7 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         .build()
     );
 
+    // General
     private final Setting<Double> textScale = sgGeneral.add(new DoubleSetting.Builder()
         .name("text-scale")
         .description("Scale of text if not overridden by the element.")
@@ -67,16 +61,13 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         .sliderRange(0.5, 3)
         .build()
     );
-
     public final Setting<List<SettingColor>> textColors = sgGeneral.add(new ColorListSetting.Builder()
         .name("text-colors")
         .description("Colors used for the Text element.")
         .defaultValue(List.of(new SettingColor(), new SettingColor(175, 175, 175), new SettingColor(25, 225, 25), new SettingColor(225, 25, 25)))
         .build()
     );
-
-    // Editor
-
+    private final SettingGroup sgEditor = settings.createGroup("Editor");
     public final Setting<Integer> border = sgEditor.add(new IntSetting.Builder()
         .name("border")
         .description("Space around the edges of the screen.")
@@ -85,6 +76,7 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         .build()
     );
 
+    // Editor
     public final Setting<Integer> snappingRange = sgEditor.add(new IntSetting.Builder()
         .name("snapping-range")
         .description("Snapping range in editor.")
@@ -92,7 +84,7 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         .sliderMax(20)
         .build()
     );
-
+    private final SettingGroup sgKeybind = settings.createGroup("Bind");
     // Keybindings
     @SuppressWarnings("unused")
     private final Setting<Keybind> keybind = sgKeybind.add(new KeybindSetting.Builder()
@@ -104,16 +96,19 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
 
     private boolean resetToDefaultElements;
 
-    public Hud() {
+    public Hud()
+    {
         super("hud");
     }
 
-    public static Hud get() {
+    public static Hud get()
+    {
         return Systems.get(Hud.class);
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         settings.registerColorSettings(null);
 
         register(MeteorTextHud.INFO);
@@ -134,15 +129,18 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         if (isFirstInit) resetToDefaultElements();
     }
 
-    public void register(HudElementInfo<?> info) {
+    public void register(HudElementInfo<?> info)
+    {
         infos.put(info.name, info);
     }
 
-    private void add(HudElement element, int x, int y, XAnchor xAnchor, YAnchor yAnchor) {
+    private void add(HudElement element, int x, int y, XAnchor xAnchor, YAnchor yAnchor)
+    {
         element.box.setPos(x, y);
 
         if (xAnchor == null || yAnchor == null) element.box.updateAnchors();
-        else {
+        else
+        {
             element.box.xAnchor = xAnchor;
             element.box.yAnchor = yAnchor;
         }
@@ -152,39 +150,47 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         elements.add(element);
     }
 
-    public void add(HudElementInfo<?> info, int x, int y, XAnchor xAnchor, YAnchor yAnchor) {
+    public void add(HudElementInfo<?> info, int x, int y, XAnchor xAnchor, YAnchor yAnchor)
+    {
         add(info.create(), x, y, xAnchor, yAnchor);
     }
 
-    public void add(HudElementInfo<?> info, int x, int y) {
+    public void add(HudElementInfo<?> info, int x, int y)
+    {
         add(info, x, y, null, null);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void add(HudElementInfo.Preset preset, int x, int y, XAnchor xAnchor, YAnchor yAnchor) {
+    public void add(HudElementInfo.Preset preset, int x, int y, XAnchor xAnchor, YAnchor yAnchor)
+    {
         HudElement element = preset.info.create();
         preset.callback.accept(element);
         add(element, x, y, xAnchor, yAnchor);
     }
 
-    public void add(HudElementInfo<?>.Preset preset, int x, int y) {
+    public void add(HudElementInfo<?>.Preset preset, int x, int y)
+    {
         add(preset, x, y, null, null);
     }
 
-    void remove(HudElement element) {
+    void remove(HudElement element)
+    {
         element.settings.unregisterColorSettings();
         elements.remove(element);
     }
 
-    public void clear() {
+    public void clear()
+    {
         elements.clear();
     }
 
-    public void resetToDefaultElements() {
+    public void resetToDefaultElements()
+    {
         resetToDefaultElements = true;
     }
 
-    private void resetToDefaultElementsImpl() {
+    private void resetToDefaultElementsImpl()
+    {
         elements.clear();
 
         int h = (int) Math.ceil(HudRenderer.INSTANCE.textHeight(true));
@@ -206,31 +212,37 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (Utils.isLoading()) return;
 
-        if (resetToDefaultElements) {
+        if (resetToDefaultElements)
+        {
             resetToDefaultElementsImpl();
             resetToDefaultElements = false;
         }
 
         if (!(active || HudEditorScreen.isOpen())) return;
 
-        for (HudElement element : elements) {
+        for (HudElement element : elements)
+        {
             if (element.isActive()) element.tick(HudRenderer.INSTANCE);
         }
     }
 
     @EventHandler
-    private void onRender(Render2DEvent event) {
+    private void onRender(Render2DEvent event)
+    {
         if (Utils.isLoading()) return;
 
         if (!active || shouldHideHud()) return;
-        if ((mc.options.hudHidden || mc.inGameHud.getDebugHud().shouldShowDebugHud()) && !HudEditorScreen.isOpen()) return;
+        if ((mc.options.hudHidden || mc.inGameHud.getDebugHud().shouldShowDebugHud()) && !HudEditorScreen.isOpen())
+            return;
 
         HudRenderer.INSTANCE.begin(event.drawContext);
 
-        for (HudElement element : elements) {
+        for (HudElement element : elements)
+        {
             element.updatePos();
 
             if (element.isActive()) element.render(HudRenderer.INSTANCE);
@@ -239,35 +251,42 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         HudRenderer.INSTANCE.end();
     }
 
-    private boolean shouldHideHud() {
+    private boolean shouldHideHud()
+    {
         return hideInMenus.get() && mc.currentScreen != null && !(mc.currentScreen instanceof WidgetScreen);
     }
 
     @EventHandler
-    private void onCustomFontChanged(CustomFontChangedEvent event) {
-        if (customFont.get()) {
+    private void onCustomFontChanged(CustomFontChangedEvent event)
+    {
+        if (customFont.get())
+        {
             for (HudElement element : elements) element.onFontChanged();
         }
     }
 
-    public boolean hasCustomFont() {
+    public boolean hasCustomFont()
+    {
         return customFont.get();
     }
 
-    public double getTextScale() {
+    public double getTextScale()
+    {
         return textScale.get();
     }
 
     @NotNull
     @Override
-    public Iterator<HudElement> iterator() {
+    public Iterator<HudElement> iterator()
+    {
         return elements.iterator();
     }
 
     // Serialization
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putInt("__version__", 1);
@@ -280,8 +299,10 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
     }
 
     @Override
-    public Hud fromTag(NbtCompound tag) {
-        if (!tag.contains("__version__")) {
+    public Hud fromTag(NbtCompound tag)
+    {
+        if (!tag.contains("__version__"))
+        {
             resetToDefaultElements();
             return this;
         }
@@ -292,12 +313,14 @@ public class Hud extends System<Hud> implements Iterable<HudElement> {
         // Elements
         elements.clear();
 
-        for (NbtElement e : tag.getList("elements", NbtElement.COMPOUND_TYPE)) {
+        for (NbtElement e : tag.getList("elements", NbtElement.COMPOUND_TYPE))
+        {
             NbtCompound c = (NbtCompound) e;
             if (!c.contains("name")) continue;
 
             HudElementInfo<?> info = infos.get(c.getString("name"));
-            if (info != null) {
+            if (info != null)
+            {
                 HudElement element = info.create();
                 element.fromTag(c);
                 elements.add(element);

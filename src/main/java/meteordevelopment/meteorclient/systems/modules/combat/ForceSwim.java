@@ -27,103 +27,118 @@ import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForceSwim extends Module {
+public class ForceSwim extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
     // General
 
     private final Setting<List<Block>> blocks = sgGeneral.add(
-            new BlockListSetting.Builder().name("whitelist").description("Which blocks to use.")
-                    .defaultValue(Blocks.OBSIDIAN, Blocks.NETHERITE_BLOCK).build());
+        new BlockListSetting.Builder().name("whitelist").description("Which blocks to use.")
+            .defaultValue(Blocks.OBSIDIAN, Blocks.NETHERITE_BLOCK).build());
 
     private final Setting<Integer> range =
-            sgGeneral.add(new IntSetting.Builder().name("target-range")
-                    .description("The range players can be targeted.").defaultValue(4).build());
+        sgGeneral.add(new IntSetting.Builder().name("target-range")
+            .description("The range players can be targeted.").defaultValue(4).build());
 
     private final Setting<SortPriority> priority =
-            sgGeneral.add(new EnumSetting.Builder<SortPriority>().name("target-priority")
-                    .description("How to select the player to target.")
-                    .defaultValue(SortPriority.LowestHealth).build());
+        sgGeneral.add(new EnumSetting.Builder<SortPriority>().name("target-priority")
+            .description("How to select the player to target.")
+            .defaultValue(SortPriority.LowestHealth).build());
 
     private final Setting<Boolean> pauseEat = sgGeneral.add(new BoolSetting.Builder()
-            .name("pause-eat").description("Pauses while eating.").defaultValue(true).build());
+        .name("pause-eat").description("Pauses while eating.").defaultValue(true).build());
 
     // Render
 
     private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder().name("render")
-            .description("Renders an overlay where blocks will be placed.").defaultValue(true)
-            .build());
+        .description("Renders an overlay where blocks will be placed.").defaultValue(true)
+        .build());
 
     private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("shape-mode").description("How the shapes are rendered.")
-            .defaultValue(ShapeMode.Both).build());
+        .name("shape-mode").description("How the shapes are rendered.")
+        .defaultValue(ShapeMode.Both).build());
 
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-            .name("side-color").description("The side color of the target block rendering.")
-            .defaultValue(new SettingColor(197, 137, 232, 10)).build());
+        .name("side-color").description("The side color of the target block rendering.")
+        .defaultValue(new SettingColor(197, 137, 232, 10)).build());
 
     private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-            .name("line-color").description("The line color of the target block rendering.")
-            .defaultValue(new SettingColor(197, 137, 232)).build());
+        .name("line-color").description("The line color of the target block rendering.")
+        .defaultValue(new SettingColor(197, 137, 232)).build());
 
     private PlayerEntity target;
 
-    public ForceSwim() {
+    public ForceSwim()
+    {
         super(Categories.Combat, "force-swim",
-                "Tries to prevent people from standing up while swiming");
+            "Tries to prevent people from standing up while swiming");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         target = null;
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
 
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        if (target == null || TargetUtils.isBadTarget(target, range.get())) {
+    private void onTick(TickEvent.Pre event)
+    {
+        if (target == null || TargetUtils.isBadTarget(target, range.get()))
+        {
             target = TargetUtils.getPlayerTarget(range.get(), priority.get());
             if (TargetUtils.isBadTarget(target, range.get()))
                 return;
         }
 
-        if (target == null || !target.isCrawling()) {
+        if (target == null || !target.isCrawling())
+        {
             return;
         }
 
-        if (pauseEat.get() && mc.player.isUsingItem()) {
+        if (pauseEat.get() && mc.player.isUsingItem())
+        {
             return;
         }
 
         Item useItem = findUseItem();
 
-        if (useItem == null) {
+        if (useItem == null)
+        {
             return;
         }
 
         List<BlockPos> placePoses = getBlockPoses();
 
-        if (!MeteorClient.BLOCK.beginPlacement(placePoses, useItem)) {
+        if (!MeteorClient.BLOCK.beginPlacement(placePoses, useItem))
+        {
             return;
         }
 
-        placePoses.forEach(blockPos -> {
+        placePoses.forEach(blockPos ->
+        {
             boolean isCrystalBlock = false;
-            for (Direction dir : Direction.Type.HORIZONTAL) {
-                if (blockPos.equals(target.getBlockPos().offset(dir))) {
+            for (Direction dir : Direction.Type.HORIZONTAL)
+            {
+                if (blockPos.equals(target.getBlockPos().offset(dir)))
+                {
                     isCrystalBlock = true;
                 }
             }
 
-            if (isCrystalBlock) {
+            if (isCrystalBlock)
+            {
                 return;
             }
 
@@ -133,10 +148,14 @@ public class ForceSwim extends Module {
         MeteorClient.BLOCK.endPlacement();
     }
 
-    private Item findUseItem() {
-        FindItemResult result = InvUtils.findInHotbar(itemStack -> {
-            for (Block blocks : blocks.get()) {
-                if (blocks.asItem() == itemStack.getItem()) {
+    private Item findUseItem()
+    {
+        FindItemResult result = InvUtils.findInHotbar(itemStack ->
+        {
+            for (Block blocks : blocks.get())
+            {
+                if (blocks.asItem() == itemStack.getItem())
+                {
                     return true;
                 }
             }
@@ -144,26 +163,29 @@ public class ForceSwim extends Module {
             return false;
         });
 
-        if (!result.found()) {
+        if (!result.found())
+        {
             return null;
         }
 
         return mc.player.getInventory().getStack(result.slot()).getItem();
     }
 
-    private List<BlockPos> getBlockPoses() {
+    private List<BlockPos> getBlockPoses()
+    {
         List<BlockPos> list = new ArrayList<>();
 
         Box boundingBox = target.getBoundingBox().expand(0.7, 0.0, 0.7);
         double feetY = target.getY();
 
         Box feetBox = new Box(boundingBox.minX, feetY, boundingBox.minZ, boundingBox.maxX,
-                feetY + 0.1, boundingBox.maxZ);
+            feetY + 0.1, boundingBox.maxZ);
 
         for (BlockPos pos : BlockPos.iterate((int) Math.floor(feetBox.minX),
-                (int) Math.floor(feetBox.minY), (int) Math.floor(feetBox.minZ),
-                (int) Math.floor(feetBox.maxX), (int) Math.floor(feetBox.maxY),
-                (int) Math.floor(feetBox.maxZ))) {
+            (int) Math.floor(feetBox.minY), (int) Math.floor(feetBox.minZ),
+            (int) Math.floor(feetBox.maxX), (int) Math.floor(feetBox.maxY),
+            (int) Math.floor(feetBox.maxZ)))
+        {
 
             list.add(pos.add(0, 1, 0));
         }
@@ -172,36 +194,44 @@ public class ForceSwim extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (!render.get())
             return;
 
-        if (target == null || !target.isCrawling()) {
+        if (target == null || !target.isCrawling())
+        {
             return;
         }
 
         List<BlockPos> poses = getBlockPoses();
 
-        for (BlockPos pos : poses) {
+        for (BlockPos pos : poses)
+        {
             boolean isCrystalBlock = false;
-            for (Direction dir : Direction.Type.HORIZONTAL) {
-                if (pos.equals(target.getBlockPos().offset(dir))) {
+            for (Direction dir : Direction.Type.HORIZONTAL)
+            {
+                if (pos.equals(target.getBlockPos().offset(dir)))
+                {
                     isCrystalBlock = true;
                 }
             }
 
-            if (isCrystalBlock) {
+            if (isCrystalBlock)
+            {
                 continue;
             }
 
-            if (BlockUtils.canPlace(pos, true)) {
+            if (BlockUtils.canPlace(pos, true))
+            {
                 event.renderer.box(pos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
             }
         }
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return EntityUtils.getName(target);
     }
 }

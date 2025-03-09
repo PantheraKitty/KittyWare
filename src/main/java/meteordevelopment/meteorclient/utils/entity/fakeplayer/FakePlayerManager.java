@@ -14,25 +14,31 @@ import java.util.stream.Stream;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class FakePlayerManager {
+public class FakePlayerManager
+{
     private static final List<FakePlayerEntity> ENTITIES = new ArrayList<>();
 
-    private FakePlayerManager() {
+    private FakePlayerManager()
+    {
     }
 
-    public static List<FakePlayerEntity> getFakePlayers() {
+    public static List<FakePlayerEntity> getFakePlayers()
+    {
         return ENTITIES;
     }
 
-    public static FakePlayerEntity get(String name) {
-        for (FakePlayerEntity fp : ENTITIES) {
+    public static FakePlayerEntity get(String name)
+    {
+        for (FakePlayerEntity fp : ENTITIES)
+        {
             if (fp.getName().getString().equals(name)) return fp;
         }
 
         return null;
     }
 
-    public static void add(String name, float health, boolean copyInv) {
+    public static void add(String name, float health, boolean copyInv)
+    {
         if (!Utils.canUpdate()) return;
 
         FakePlayerEntity fakePlayer = new FakePlayerEntity(mc.player, name, health, copyInv);
@@ -40,9 +46,12 @@ public class FakePlayerManager {
         ENTITIES.add(fakePlayer);
     }
 
-    public static void remove(FakePlayerEntity fp) {
-        ENTITIES.removeIf(fp1 -> {
-            if (fp1.getName().getString().equals(fp.getName().getString())) {
+    public static void remove(FakePlayerEntity fp)
+    {
+        ENTITIES.removeIf(fp1 ->
+        {
+            if (fp1.getName().getString().equals(fp.getName().getString()))
+            {
                 fp1.despawn();
                 return true;
             }
@@ -51,27 +60,33 @@ public class FakePlayerManager {
         });
     }
 
-    public static void clear() {
+    public static void clear()
+    {
         if (ENTITIES.isEmpty()) return;
         ENTITIES.forEach(FakePlayerEntity::despawn);
         ENTITIES.clear();
     }
 
-    public static void forEach(Consumer<FakePlayerEntity> action) {
-        for (FakePlayerEntity fakePlayer : ENTITIES) {
+    public static void forEach(Consumer<FakePlayerEntity> action)
+    {
+        for (FakePlayerEntity fakePlayer : ENTITIES)
+        {
             action.accept(fakePlayer);
         }
     }
 
-    public static int count() {
+    public static int count()
+    {
         return ENTITIES.size();
     }
 
-    public static Stream<FakePlayerEntity> stream() {
+    public static Stream<FakePlayerEntity> stream()
+    {
         return ENTITIES.stream();
     }
 
-    public static boolean contains(FakePlayerEntity fp) {
+    public static boolean contains(FakePlayerEntity fp)
+    {
         return ENTITIES.contains(fp);
     }
 }

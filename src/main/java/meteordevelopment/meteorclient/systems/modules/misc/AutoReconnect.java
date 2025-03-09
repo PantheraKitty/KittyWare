@@ -18,7 +18,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-public class AutoReconnect extends Module {
+public class AutoReconnect extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Double> time = sgGeneral.add(new DoubleSetting.Builder()
@@ -32,14 +33,17 @@ public class AutoReconnect extends Module {
 
     public Pair<ServerAddress, ServerInfo> lastServerConnection;
 
-    public AutoReconnect() {
+    public AutoReconnect()
+    {
         super(Categories.Misc, "auto-reconnect", "Automatically reconnects when disconnected from a server.");
         MeteorClient.EVENT_BUS.subscribe(new StaticListener());
     }
 
-    private class StaticListener {
+    private class StaticListener
+    {
         @EventHandler
-        private void onGameJoined(ServerConnectBeginEvent event) {
+        private void onGameJoined(ServerConnectBeginEvent event)
+        {
             lastServerConnection = new ObjectObjectImmutablePair<>(event.address, event.info);
         }
     }

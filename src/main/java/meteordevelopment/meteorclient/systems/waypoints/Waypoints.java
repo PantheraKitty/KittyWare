@@ -31,90 +31,26 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Waypoints extends System<Waypoints> implements Iterable<Waypoint> {
+public class Waypoints extends System<Waypoints> implements Iterable<Waypoint>
+{
     public static final String[] BUILTIN_ICONS = {"square", "circle", "triangle", "star", "diamond", "skull"};
 
     public final Map<String, AbstractTexture> icons = new ConcurrentHashMap<>();
 
     private final List<Waypoint> waypoints = Collections.synchronizedList(new ArrayList<>());
 
-    public Waypoints() {
+    public Waypoints()
+    {
         super(null);
     }
 
-    public static Waypoints get() {
+    public static Waypoints get()
+    {
         return Systems.get(Waypoints.class);
     }
 
-    @Override
-    public void init() {
-        File iconsFolder = new File(new File(MeteorClient.FOLDER, "waypoints"), "icons");
-        iconsFolder.mkdirs();
-
-        for (String builtinIcon : BUILTIN_ICONS) {
-            File iconFile = new File(iconsFolder, builtinIcon + ".png");
-            if (!iconFile.exists()) copyIcon(iconFile);
-        }
-
-        File[] files = iconsFolder.listFiles();
-        if (files == null) return;
-
-        for (File file : files) {
-            if (file.getName().endsWith(".png")) {
-                try {
-                    String name = file.getName().replace(".png", "");
-                    AbstractTexture texture = new NativeImageBackedTexture(NativeImage.read(new FileInputStream(file)));
-                    icons.put(name, texture);
-                }
-                catch (IOException e) {
-                    MeteorClient.LOG.error("Failed to read a waypoint icon", e);
-                }
-            }
-        }
-    }
-
-    /**
-     * Adds a waypoint or saves it if it already exists
-     * @return {@code true} if waypoint already exists
-     */
-    public boolean add(Waypoint waypoint) {
-        if (waypoints.contains(waypoint)) {
-            save();
-            return true;
-        }
-
-        waypoints.add(waypoint);
-        save();
-
-        return false;
-    }
-
-    public boolean remove(Waypoint waypoint) {
-        boolean removed = waypoints.remove(waypoint);
-        if (removed) save();
-
-        return removed;
-    }
-
-    public Waypoint get(String name) {
-        for (Waypoint waypoint : waypoints) {
-            if (waypoint.name.get().equalsIgnoreCase(name)) return waypoint;
-        }
-
-        return null;
-    }
-
-    @EventHandler
-    private void onGameJoined(GameJoinedEvent event) {
-        load();
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    private void onGameDisconnected(GameLeftEvent event) {
-        waypoints.clear();
-    }
-
-    public static boolean checkDimension(Waypoint waypoint) {
+    public static boolean checkDimension(Waypoint waypoint)
+    {
         Dimension playerDim = PlayerUtils.getDimension();
         Dimension waypointDim = waypoint.dimension.get();
 
@@ -128,25 +64,112 @@ public class Waypoints extends System<Waypoints> implements Iterable<Waypoint> {
     }
 
     @Override
-    public File getFile() {
+    public void init()
+    {
+        File iconsFolder = new File(new File(MeteorClient.FOLDER, "waypoints"), "icons");
+        iconsFolder.mkdirs();
+
+        for (String builtinIcon : BUILTIN_ICONS)
+        {
+            File iconFile = new File(iconsFolder, builtinIcon + ".png");
+            if (!iconFile.exists()) copyIcon(iconFile);
+        }
+
+        File[] files = iconsFolder.listFiles();
+        if (files == null) return;
+
+        for (File file : files)
+        {
+            if (file.getName().endsWith(".png"))
+            {
+                try
+                {
+                    String name = file.getName().replace(".png", "");
+                    AbstractTexture texture = new NativeImageBackedTexture(NativeImage.read(new FileInputStream(file)));
+                    icons.put(name, texture);
+                }
+                catch (IOException e)
+                {
+                    MeteorClient.LOG.error("Failed to read a waypoint icon", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a waypoint or saves it if it already exists
+     *
+     * @return {@code true} if waypoint already exists
+     */
+    public boolean add(Waypoint waypoint)
+    {
+        if (waypoints.contains(waypoint))
+        {
+            save();
+            return true;
+        }
+
+        waypoints.add(waypoint);
+        save();
+
+        return false;
+    }
+
+    public boolean remove(Waypoint waypoint)
+    {
+        boolean removed = waypoints.remove(waypoint);
+        if (removed) save();
+
+        return removed;
+    }
+
+    public Waypoint get(String name)
+    {
+        for (Waypoint waypoint : waypoints)
+        {
+            if (waypoint.name.get().equalsIgnoreCase(name)) return waypoint;
+        }
+
+        return null;
+    }
+
+    @EventHandler
+    private void onGameJoined(GameJoinedEvent event)
+    {
+        load();
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    private void onGameDisconnected(GameLeftEvent event)
+    {
+        waypoints.clear();
+    }
+
+    @Override
+    public File getFile()
+    {
         if (!Utils.canUpdate()) return null;
         return new File(new File(MeteorClient.FOLDER, "waypoints"), Utils.getFileWorldName() + ".nbt");
     }
 
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return waypoints.isEmpty();
     }
 
     @Override
-    public @NotNull Iterator<Waypoint> iterator() {
+    public @NotNull Iterator<Waypoint> iterator()
+    {
         return new WaypointIterator();
     }
 
-    private void copyIcon(File file) {
+    private void copyIcon(File file)
+    {
         String path = "/assets/" + MeteorClient.MOD_ID + "/textures/icons/waypoints/" + file.getName();
         InputStream in = Waypoints.class.getResourceAsStream(path);
 
-        if (in == null) {
+        if (in == null)
+        {
             MeteorClient.LOG.error("Failed to read a resource: {}", path);
             return;
         }
@@ -155,38 +178,45 @@ public class Waypoints extends System<Waypoints> implements Iterable<Waypoint> {
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
         tag.put("waypoints", NbtUtils.listToTag(waypoints));
         return tag;
     }
 
     @Override
-    public Waypoints fromTag(NbtCompound tag) {
+    public Waypoints fromTag(NbtCompound tag)
+    {
         waypoints.clear();
 
-        for (NbtElement waypointTag : tag.getList("waypoints", 10)) {
+        for (NbtElement waypointTag : tag.getList("waypoints", 10))
+        {
             waypoints.add(new Waypoint(waypointTag));
         }
 
         return this;
     }
 
-    private final class WaypointIterator implements Iterator<Waypoint> {
+    private final class WaypointIterator implements Iterator<Waypoint>
+    {
         private final Iterator<Waypoint> it = waypoints.iterator();
 
         @Override
-        public boolean hasNext() {
+        public boolean hasNext()
+        {
             return it.hasNext();
         }
 
         @Override
-        public Waypoint next() {
+        public Waypoint next()
+        {
             return it.next();
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             it.remove();
             save();
         }

@@ -23,40 +23,48 @@ import java.util.Optional;
  *
  * @author Crosby
  */
-public record FailedHttpResponse<T>(HttpRequest request, Exception exception) implements HttpResponse<T> {
+public record FailedHttpResponse<T>(HttpRequest request, Exception exception) implements HttpResponse<T>
+{
     @Override
-    public int statusCode() {
+    public int statusCode()
+    {
         return Http.BAD_REQUEST;
     }
 
     @Override
-    public Optional<HttpResponse<T>> previousResponse() {
+    public Optional<HttpResponse<T>> previousResponse()
+    {
         return Optional.empty();
     }
 
     @Override
-    public HttpHeaders headers() {
+    public HttpHeaders headers()
+    {
         return HttpHeaders.of(Map.of(), (s1, s2) -> true);
     }
 
     @Override
-    public T body() {
+    public T body()
+    {
         return null;
     }
 
     @Override
-    public Optional<SSLSession> sslSession() {
+    public Optional<SSLSession> sslSession()
+    {
         return Optional.empty();
     }
 
     @Override
-    public URI uri() {
+    public URI uri()
+    {
         return this.request.uri();
     }
 
     @Nullable
     @Override
-    public HttpClient.Version version() {
+    public HttpClient.Version version()
+    {
         return this.request.version().orElse(null);
     }
 }

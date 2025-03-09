@@ -15,7 +15,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 
-public class TimeChanger extends Module {
+public class TimeChanger extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> time = sgGeneral.add(new DoubleSetting.Builder()
@@ -28,30 +29,36 @@ public class TimeChanger extends Module {
 
     long oldTime;
 
-    public TimeChanger() {
+    public TimeChanger()
+    {
         super(Categories.Render, "time-changer", "Makes you able to set a custom time.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         oldTime = mc.world.getTime();
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         mc.world.setTimeOfDay(oldTime);
     }
 
     @EventHandler
-    private void onPacketReceive(PacketEvent.Receive event) {
-        if (event.packet instanceof WorldTimeUpdateS2CPacket) {
+    private void onPacketReceive(PacketEvent.Receive event)
+    {
+        if (event.packet instanceof WorldTimeUpdateS2CPacket)
+        {
             oldTime = ((WorldTimeUpdateS2CPacket) event.packet).getTime();
             event.cancel();
         }
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         mc.world.setTimeOfDay(time.get().longValue());
     }
 }

@@ -7,31 +7,41 @@ package meteordevelopment.meteorclient.addons;
 
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public abstract class MeteorAddon {
-    /** This field is automatically assigned from fabric.mod.json file. */
-    public String name;
-
-    /** This field is automatically assigned from fabric.mod.json file. */
-    public String[] authors;
-
-    /** This field is automatically assigned from the meteor-client:color property in fabric.mod.json file. */
+public abstract class MeteorAddon
+{
+    /**
+     * This field is automatically assigned from the meteor-client:color property in fabric.mod.json file.
+     */
     public final Color color = new Color(255, 255, 255);
+    /**
+     * This field is automatically assigned from fabric.mod.json file.
+     */
+    public String name;
+    /**
+     * This field is automatically assigned from fabric.mod.json file.
+     */
+    public String[] authors;
 
     public abstract void onInitialize();
 
-    public void onRegisterCategories() {}
+    public void onRegisterCategories()
+    {
+    }
 
     public abstract String getPackage();
 
-    public String getWebsite() {
+    public String getWebsite()
+    {
         return null;
     }
 
-    public GithubRepo getRepo() {
+    public GithubRepo getRepo()
+    {
         return null;
     }
 
-    public String getCommit() {
+    public String getCommit()
+    {
         return null;
     }
 }

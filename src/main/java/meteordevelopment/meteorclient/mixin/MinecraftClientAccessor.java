@@ -25,9 +25,11 @@ import java.net.Proxy;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(MinecraftClient.class)
-public interface MinecraftClientAccessor {
+public interface MinecraftClientAccessor
+{
     @Accessor("currentFps")
-    static int getFps() {
+    static int getFps()
+    {
         return 0;
     }
 
@@ -52,16 +54,16 @@ public interface MinecraftClientAccessor {
     YggdrasilAuthenticationService getAuthenticationService();
 
     @Mutable
+    @Accessor("authenticationService")
+    void setAuthenticationService(YggdrasilAuthenticationService authenticationService);
+
+    @Mutable
     @Accessor
     void setUserApiService(UserApiService apiService);
 
     @Mutable
     @Accessor("sessionService")
     void setSessionService(MinecraftSessionService sessionService);
-
-    @Mutable
-    @Accessor("authenticationService")
-    void setAuthenticationService(YggdrasilAuthenticationService authenticationService);
 
     @Mutable
     @Accessor("skinProvider")

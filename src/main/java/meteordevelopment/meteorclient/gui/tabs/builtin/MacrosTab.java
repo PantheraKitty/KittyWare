@@ -22,28 +22,35 @@ import net.minecraft.client.gui.screen.Screen;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class MacrosTab extends Tab {
-    public MacrosTab() {
+public class MacrosTab extends Tab
+{
+    public MacrosTab()
+    {
         super("Macros");
     }
 
     @Override
-    public TabScreen createScreen(GuiTheme theme) {
+    public TabScreen createScreen(GuiTheme theme)
+    {
         return new MacrosScreen(theme, this);
     }
 
     @Override
-    public boolean isScreen(Screen screen) {
+    public boolean isScreen(Screen screen)
+    {
         return screen instanceof MacrosScreen;
     }
 
-    private static class MacrosScreen extends WindowTabScreen {
-        public MacrosScreen(GuiTheme theme, Tab tab) {
+    private static class MacrosScreen extends WindowTabScreen
+    {
+        public MacrosScreen(GuiTheme theme, Tab tab)
+        {
             super(theme, tab);
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             WTable table = add(theme.table()).expandX().minWidth(400).widget();
             initTable(table);
 
@@ -53,18 +60,21 @@ public class MacrosTab extends Tab {
             create.action = () -> mc.setScreen(new EditMacroScreen(theme, null, this::reload));
         }
 
-        private void initTable(WTable table) {
+        private void initTable(WTable table)
+        {
             table.clear();
             if (Macros.get().isEmpty()) return;
 
-            for (Macro macro : Macros.get()) {
+            for (Macro macro : Macros.get())
+            {
                 table.add(theme.label(macro.name.get() + " (" + macro.keybind.get() + ")"));
 
                 WButton edit = table.add(theme.button(GuiRenderer.EDIT)).expandCellX().right().widget();
                 edit.action = () -> mc.setScreen(new EditMacroScreen(theme, macro, this::reload));
 
                 WMinus remove = table.add(theme.minus()).widget();
-                remove.action = () -> {
+                remove.action = () ->
+                {
                     Macros.get().remove(macro);
                     reload();
                 };
@@ -74,35 +84,43 @@ public class MacrosTab extends Tab {
         }
 
         @Override
-        public boolean toClipboard() {
+        public boolean toClipboard()
+        {
             return NbtUtils.toClipboard(Macros.get());
         }
 
         @Override
-        public boolean fromClipboard() {
+        public boolean fromClipboard()
+        {
             return NbtUtils.fromClipboard(Macros.get());
         }
     }
 
-    private static class EditMacroScreen extends EditSystemScreen<Macro> {
-        public EditMacroScreen(GuiTheme theme, Macro value, Runnable reload) {
+    private static class EditMacroScreen extends EditSystemScreen<Macro>
+    {
+        public EditMacroScreen(GuiTheme theme, Macro value, Runnable reload)
+        {
             super(theme, value, reload);
         }
 
         @Override
-        public Macro create() {
+        public Macro create()
+        {
             return new Macro();
         }
 
         @Override
-        public boolean save() {
+        public boolean save()
+        {
             if (value.name.get().isBlank()
                 || value.messages.get().isEmpty()
                 || !value.keybind.get().isSet()
             ) return false;
 
-            if (isNew) {
-                for (Macro m : Macros.get()) {
+            if (isNew)
+            {
+                for (Macro m : Macros.get())
+                {
                     if (value.equals(m)) return false;
                 }
             }
@@ -114,7 +132,8 @@ public class MacrosTab extends Tab {
         }
 
         @Override
-        public Settings getSettings() {
+        public Settings getSettings()
+        {
             return value.settings;
         }
     }

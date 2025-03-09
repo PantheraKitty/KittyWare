@@ -22,16 +22,20 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Block.class)
-public abstract class BlockMixin extends AbstractBlock implements ItemConvertible {
-    public BlockMixin(Settings settings) {
+public abstract class BlockMixin extends AbstractBlock implements ItemConvertible
+{
+    public BlockMixin(Settings settings)
+    {
         super(settings);
     }
 
     @ModifyReturnValue(method = "shouldDrawSide", at = @At("RETURN"))
-    private static boolean onShouldDrawSide(boolean original, BlockState state, BlockView world, BlockPos pos, Direction side, BlockPos blockPos) {
+    private static boolean onShouldDrawSide(boolean original, BlockState state, BlockView world, BlockPos pos, Direction side, BlockPos blockPos)
+    {
         Xray xray = Modules.get().get(Xray.class);
 
-        if (xray.isActive()) {
+        if (xray.isActive())
+        {
             return xray.modifyDrawSide(state, world, pos, side, original);
         }
 
@@ -39,14 +43,16 @@ public abstract class BlockMixin extends AbstractBlock implements ItemConvertibl
     }
 
     @ModifyReturnValue(method = "getSlipperiness", at = @At("RETURN"))
-    public float getSlipperiness(float original) {
+    public float getSlipperiness(float original)
+    {
         // For some retarded reason Tweakeroo calls this method before meteor is initialized
         if (Modules.get() == null) return original;
 
         Slippy slippy = Modules.get().get(Slippy.class);
         Block block = (Block) (Object) this;
 
-        if (slippy.isActive() && (slippy.listMode.get() == Slippy.ListMode.Whitelist ? slippy.allowedBlocks.get().contains(block) : !slippy.ignoredBlocks.get().contains(block))) {
+        if (slippy.isActive() && (slippy.listMode.get() == Slippy.ListMode.Whitelist ? slippy.allowedBlocks.get().contains(block) : !slippy.ignoredBlocks.get().contains(block)))
+        {
             return slippy.friction.get().floatValue();
         }
 

@@ -11,7 +11,6 @@ import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -31,7 +30,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
 
-public class EChestFarmer extends Module {
+public class EChestFarmer extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
@@ -103,61 +103,72 @@ public class EChestFarmer extends Module {
     private BlockPos target;
     private int startCount;
 
-    public EChestFarmer() {
+    public EChestFarmer()
+    {
         super(Categories.World, "echest-farmer", "Places and breaks EChests to farm obsidian.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         target = null;
         startCount = InvUtils.find(Items.OBSIDIAN).count();
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         InvUtils.swapBack();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         // Finding target pos
-        if (target == null) {
+        if (target == null)
+        {
             if (mc.crosshairTarget == null || mc.crosshairTarget.getType() != HitResult.Type.BLOCK) return;
 
             BlockPos pos = ((BlockHitResult) mc.crosshairTarget).getBlockPos().up();
             BlockState state = mc.world.getBlockState(pos);
 
-            if (state.isReplaceable() || state.getBlock() == Blocks.ENDER_CHEST) {
+            if (state.isReplaceable() || state.getBlock() == Blocks.ENDER_CHEST)
+            {
                 target = ((BlockHitResult) mc.crosshairTarget).getBlockPos().up();
             } else return;
         }
 
         // Disable if the block is too far away
-        if (!PlayerUtils.isWithinReach(target)) {
+        if (!PlayerUtils.isWithinReach(target))
+        {
             error("Target block pos out of reach.");
             target = null;
             return;
         }
 
         // Toggle if obby amount reached
-        if (selfToggle.get() && InvUtils.find(Items.OBSIDIAN).count() - (ignoreExisting.get() ? startCount : 0) >= amount.get()) {
+        if (selfToggle.get() && InvUtils.find(Items.OBSIDIAN).count() - (ignoreExisting.get() ? startCount : 0) >= amount.get())
+        {
             InvUtils.swapBack();
             toggle();
             return;
         }
 
         // Break existing echest at target pos
-        if (mc.world.getBlockState(target).getBlock() == Blocks.ENDER_CHEST) {
+        if (mc.world.getBlockState(target).getBlock() == Blocks.ENDER_CHEST)
+        {
             double bestScore = -1;
             int bestSlot = -1;
 
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < 9; i++)
+            {
                 ItemStack itemStack = mc.player.getInventory().getStack(i);
                 if (Utils.hasEnchantment(itemStack, Enchantments.SILK_TOUCH)) continue;
 
                 double score = itemStack.getMiningSpeedMultiplier(Blocks.ENDER_CHEST.getDefaultState());
 
-                if (score > bestScore) {
+                if (score > bestScore)
+                {
                     bestScore = score;
                     bestSlot = i;
                 }
@@ -170,10 +181,12 @@ public class EChestFarmer extends Module {
         }
 
         // Place echest if the target pos is empty
-        if (mc.world.getBlockState(target).isReplaceable()) {
+        if (mc.world.getBlockState(target).isReplaceable())
+        {
             FindItemResult echest = InvUtils.findInHotbar(Items.ENDER_CHEST);
 
-            if (!echest.found()) {
+            if (!echest.found())
+            {
                 error("No Echests in hotbar, disabling");
                 toggle();
                 return;
@@ -184,7 +197,8 @@ public class EChestFarmer extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (target == null || !render.get()) return;
 
         Box box = SHAPE.getBoundingBoxes().getFirst();

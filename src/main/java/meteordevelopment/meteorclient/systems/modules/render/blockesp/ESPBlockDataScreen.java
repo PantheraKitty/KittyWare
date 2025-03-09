@@ -12,12 +12,14 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.block.Block;
 
-public class ESPBlockDataScreen extends WindowScreen {
+public class ESPBlockDataScreen extends WindowScreen
+{
     private final ESPBlockData blockData;
     private final Block block;
     private final BlockDataSetting<ESPBlockData> setting;
 
-    public ESPBlockDataScreen(GuiTheme theme, ESPBlockData blockData, Block block, BlockDataSetting<ESPBlockData> setting) {
+    public ESPBlockDataScreen(GuiTheme theme, ESPBlockData blockData, Block block, BlockDataSetting<ESPBlockData> setting)
+    {
         super(theme, "Configure Block");
 
         this.blockData = blockData;
@@ -26,7 +28,8 @@ public class ESPBlockDataScreen extends WindowScreen {
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         Settings settings = new Settings();
         SettingGroup sgGeneral = settings.getDefaultGroup();
         SettingGroup sgTracer = settings.createGroup("Tracer");
@@ -36,7 +39,8 @@ public class ESPBlockDataScreen extends WindowScreen {
             .description("How the shape is rendered.")
             .defaultValue(ShapeMode.Lines)
             .onModuleActivated(shapeModeSetting -> shapeModeSetting.set(blockData.shapeMode))
-            .onChanged(shapeMode -> {
+            .onChanged(shapeMode ->
+            {
                 blockData.shapeMode = shapeMode;
                 changed(blockData, block, setting);
             })
@@ -48,7 +52,8 @@ public class ESPBlockDataScreen extends WindowScreen {
             .description("Color of lines.")
             .defaultValue(new SettingColor(0, 255, 200))
             .onModuleActivated(settingColorSetting -> settingColorSetting.set(blockData.lineColor))
-            .onChanged(settingColor -> {
+            .onChanged(settingColor ->
+            {
                 blockData.lineColor.set(settingColor);
                 changed(blockData, block, setting);
             })
@@ -60,7 +65,8 @@ public class ESPBlockDataScreen extends WindowScreen {
             .description("Color of sides.")
             .defaultValue(new SettingColor(0, 255, 200, 25))
             .onModuleActivated(settingColorSetting -> settingColorSetting.set(blockData.sideColor))
-            .onChanged(settingColor -> {
+            .onChanged(settingColor ->
+            {
                 blockData.sideColor.set(settingColor);
                 changed(blockData, block, setting);
             })
@@ -72,7 +78,8 @@ public class ESPBlockDataScreen extends WindowScreen {
             .description("If tracer line is allowed to this block.")
             .defaultValue(true)
             .onModuleActivated(booleanSetting -> booleanSetting.set(blockData.tracer))
-            .onChanged(aBoolean -> {
+            .onChanged(aBoolean ->
+            {
                 blockData.tracer = aBoolean;
                 changed(blockData, block, setting);
             })
@@ -84,7 +91,8 @@ public class ESPBlockDataScreen extends WindowScreen {
             .description("Color of tracer line.")
             .defaultValue(new SettingColor(0, 255, 200, 125))
             .onModuleActivated(settingColorSetting -> settingColorSetting.set(blockData.tracerColor))
-            .onChanged(settingColor -> {
+            .onChanged(settingColor ->
+            {
                 blockData.tracerColor = settingColor;
                 changed(blockData, block, setting);
             })
@@ -95,8 +103,10 @@ public class ESPBlockDataScreen extends WindowScreen {
         add(theme.settings(settings)).expandX();
     }
 
-    private void changed(ESPBlockData blockData, Block block, BlockDataSetting<ESPBlockData> setting) {
-        if (!blockData.isChanged() && block != null && setting != null) {
+    private void changed(ESPBlockData blockData, Block block, BlockDataSetting<ESPBlockData> setting)
+    {
+        if (!blockData.isChanged() && block != null && setting != null)
+        {
             setting.get().put(block, blockData);
             setting.onChanged();
         }

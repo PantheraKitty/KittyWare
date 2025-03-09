@@ -16,7 +16,8 @@ import meteordevelopment.meteorclient.utils.world.Dimension;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.nbt.NbtCompound;
 
-public abstract class BaseMarker implements ISerializable<BaseMarker> {
+public abstract class BaseMarker implements ISerializable<BaseMarker>
+{
     public final Settings settings = new Settings();
 
     protected final SettingGroup sgBase = settings.createGroup("Base");
@@ -47,57 +48,72 @@ public abstract class BaseMarker implements ISerializable<BaseMarker> {
         .build()
     );
 
-    public BaseMarker(String name) {
+    public BaseMarker(String name)
+    {
         this.name.set(name);
 
         dimension.set(PlayerUtils.getDimension());
     }
 
-    protected void render(Render3DEvent event) {}
+    protected void render(Render3DEvent event)
+    {
+    }
 
-    protected void tick() {}
+    protected void tick()
+    {
+    }
 
-    public Screen getScreen(GuiTheme theme) {
+    public Screen getScreen(GuiTheme theme)
+    {
         return new MarkerScreen(theme, this);
     }
 
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         return null;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name.get();
     }
 
-    public String getTypeName() {
+    public String getTypeName()
+    {
         return null;
     }
 
-    public boolean isActive() {
+    public boolean isActive()
+    {
         return active.get();
     }
 
-    public boolean isVisible() {
+    public boolean isVisible()
+    {
         return isActive() && PlayerUtils.getDimension() == dimension.get();
     }
 
-    public Dimension getDimension() {
+    public Dimension getDimension()
+    {
         return dimension.get();
     }
 
-    public void toggle() {
+    public void toggle()
+    {
         active.set(!active.get());
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
         tag.put("settings", settings.toTag());
         return tag;
     }
 
     @Override
-    public BaseMarker fromTag(NbtCompound tag) {
+    public BaseMarker fromTag(NbtCompound tag)
+    {
         NbtCompound settingsTag = (NbtCompound) tag.get("settings");
         if (settingsTag != null) settings.fromTag(settingsTag);
 

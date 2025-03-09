@@ -1,14 +1,5 @@
 package meteordevelopment.meteorclient.systems.modules.combat;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -25,13 +16,7 @@ import meteordevelopment.meteorclient.mixin.SimpleEntityLookupAccessor;
 import meteordevelopment.meteorclient.mixin.WorldAccessor;
 import meteordevelopment.meteorclient.mixininterface.IBox;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
-import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.ColorSetting;
-import meteordevelopment.meteorclient.settings.DoubleSetting;
-import meteordevelopment.meteorclient.settings.EnumSetting;
-import meteordevelopment.meteorclient.settings.KeybindSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -61,218 +46,174 @@ import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 import net.minecraft.world.entity.SimpleEntityLookup;
 
-public class AutoCrystal extends Module {
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
+
+public class AutoCrystal extends Module
+{
+    public final List<Entity> forceBreakCrystals = new ArrayList<>();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgPlace = settings.createGroup("Place");
     private final SettingGroup sgFacePlace = settings.createGroup("Face Place");
     private final SettingGroup sgBreak = settings.createGroup("Break");
-
     private final SettingGroup sgSwitch = settings.createGroup("Switch");
-
     private final SettingGroup sgRotate = settings.createGroup("Rotate");
     private final SettingGroup sgSwing = settings.createGroup("Swing");
-
     private final SettingGroup sgRange = settings.createGroup("Range");
-
     private final SettingGroup sgRender = settings.createGroup("Render");
-
     // -- General -- //
     private final Setting<Boolean> placeCrystals = sgGeneral.add(new BoolSetting.Builder()
-            .name("place").description("Places crystals.").defaultValue(true).build());
-
+        .name("place").description("Places crystals.").defaultValue(true).build());
     private final Setting<Boolean> pauseEatPlace =
-            sgGeneral.add(new BoolSetting.Builder().name("pause-eat-place")
-                    .description("Pauses placing when eating").defaultValue(true).build());
-
+        sgGeneral.add(new BoolSetting.Builder().name("pause-eat-place")
+            .description("Pauses placing when eating").defaultValue(true).build());
     private final Setting<Boolean> breakCrystals = sgGeneral.add(new BoolSetting.Builder()
-            .name("break").description("Breaks crystals.").defaultValue(true).build());
-
+        .name("break").description("Breaks crystals.").defaultValue(true).build());
     private final Setting<Boolean> pauseEatBreak =
-            sgGeneral.add(new BoolSetting.Builder().name("pause-eat-break")
-                    .description("Pauses placing when breaking").defaultValue(false).build());
-
+        sgGeneral.add(new BoolSetting.Builder().name("pause-eat-break")
+            .description("Pauses placing when breaking").defaultValue(false).build());
     private final Setting<Boolean> ignoreNakeds =
-            sgGeneral.add(new BoolSetting.Builder().name("ignore-nakeds")
-                    .description("Ignore players with no items.").defaultValue(true).build());
-
+        sgGeneral.add(new BoolSetting.Builder().name("ignore-nakeds")
+            .description("Ignore players with no items.").defaultValue(true).build());
     // -- Place -- //
     private final Setting<Double> placeSpeedLimit =
-            sgPlace.add(new DoubleSetting.Builder().name("place-speed-limit")
-                    .description("Maximum number of crystals to place every second.")
-                    .defaultValue(40).min(0).sliderRange(0, 40).build());
-
+        sgPlace.add(new DoubleSetting.Builder().name("place-speed-limit")
+            .description("Maximum number of crystals to place every second.")
+            .defaultValue(40).min(0).sliderRange(0, 40).build());
     private final Setting<Double> minPlace = sgPlace.add(new DoubleSetting.Builder()
-            .name("min-place").description("Minimum enemy damage to place.").defaultValue(8).min(0)
-            .sliderRange(0, 20).build());
-
+        .name("min-place").description("Minimum enemy damage to place.").defaultValue(8).min(0)
+        .sliderRange(0, 20).build());
     private final Setting<Double> maxPlace = sgPlace.add(
-            new DoubleSetting.Builder().name("max-place").description("Max self damage to place.")
-                    .defaultValue(20).min(0).sliderRange(0, 20).build());
-
+        new DoubleSetting.Builder().name("max-place").description("Max self damage to place.")
+            .defaultValue(20).min(0).sliderRange(0, 20).build());
     private final Setting<Boolean> antiSurroundPlace = sgPlace.add(new BoolSetting.Builder()
-            .name("anti-surround")
-            .description(
-                    "Ignores auto-mine blocks from calculations to place outside of their surround.")
-            .defaultValue(true).build());
-
+        .name("anti-surround")
+        .description(
+            "Ignores auto-mine blocks from calculations to place outside of their surround.")
+        .defaultValue(true).build());
     private final Setting<Double> placeDelay = sgPlace.add(new DoubleSetting.Builder()
-            .name("place-delay")
-            .description("The number of seconds to wait to retry placing a crystal at a position.")
-            .defaultValue(0.05).min(0).sliderMax(0.6).build());
-
+        .name("place-delay")
+        .description("The number of seconds to wait to retry placing a crystal at a position.")
+        .defaultValue(0.05).min(0).sliderMax(0.6).build());
     // -- Face Place -- //
     private final Setting<Boolean> facePlaceMissingArmor =
-            sgFacePlace.add(new BoolSetting.Builder().name("face-place-missing-armor")
-                    .description("Face places on missing armor").defaultValue(true).build());
-
+        sgFacePlace.add(new BoolSetting.Builder().name("face-place-missing-armor")
+            .description("Face places on missing armor").defaultValue(true).build());
     private final Setting<Keybind> forceFacePlaceKeybind =
-            sgFacePlace.add(new KeybindSetting.Builder().name("force-face-place")
-                    .description("Keybind to force face place").build());
-
+        sgFacePlace.add(new KeybindSetting.Builder().name("force-face-place")
+            .description("Keybind to force face place").build());
     private final Setting<Boolean> slowPlace = sgFacePlace.add(new BoolSetting.Builder()
-            .name("slow-place").description("Slowly places crystals at lower damages.")
-            .defaultValue(true).build());
-
+        .name("slow-place").description("Slowly places crystals at lower damages.")
+        .defaultValue(true).build());
     private final Setting<Double> slowPlaceMinDamage = sgFacePlace.add(new DoubleSetting.Builder()
-            .name("slow-place-min-place").description("Minimum damage to slow place.")
-            .defaultValue(4).min(0).sliderRange(0, 20).visible(() -> slowPlace.get()).build());
-
+        .name("slow-place-min-place").description("Minimum damage to slow place.")
+        .defaultValue(4).min(0).sliderRange(0, 20).visible(() -> slowPlace.get()).build());
     private final Setting<Double> slowPlaceMaxDamage = sgFacePlace.add(new DoubleSetting.Builder()
-            .name("slow-place-max-place").description("Maximum damage to slow place.")
-            .defaultValue(8).min(0).sliderRange(0, 20).visible(() -> slowPlace.get()).build());
-
+        .name("slow-place-max-place").description("Maximum damage to slow place.")
+        .defaultValue(8).min(0).sliderRange(0, 20).visible(() -> slowPlace.get()).build());
     private final Setting<Double> slowPlaceSpeed = sgFacePlace.add(new DoubleSetting.Builder()
-            .name("slow-place-speed").description("Speed at which to slow place.").defaultValue(2)
-            .min(0).sliderRange(0, 20).visible(() -> slowPlace.get()).build());
-
+        .name("slow-place-speed").description("Speed at which to slow place.").defaultValue(2)
+        .min(0).sliderRange(0, 20).visible(() -> slowPlace.get()).build());
     // -- Break -- //
     private final Setting<Double> breakSpeedLimit =
-            sgBreak.add(new DoubleSetting.Builder().name("break-speed-limit")
-                    .description("Maximum number of crystals to break every second.")
-                    .defaultValue(60).min(0).sliderRange(0, 60).build());
-
+        sgBreak.add(new DoubleSetting.Builder().name("break-speed-limit")
+            .description("Maximum number of crystals to break every second.")
+            .defaultValue(60).min(0).sliderRange(0, 60).build());
     private final Setting<Boolean> packetBreak = sgBreak.add(new BoolSetting.Builder()
-            .name("packet-break").description("Breaks when the crystal packet arrives")
-            .defaultValue(true).build());
-
+        .name("packet-break").description("Breaks when the crystal packet arrives")
+        .defaultValue(true).build());
     private final Setting<Double> minBreak = sgBreak.add(new DoubleSetting.Builder()
-            .name("min-break").description("Minimum enemy damage to break.").defaultValue(3).min(0)
-            .sliderRange(0, 20).build());
-
+        .name("min-break").description("Minimum enemy damage to break.").defaultValue(3).min(0)
+        .sliderRange(0, 20).build());
     private final Setting<Double> maxBreak = sgBreak.add(
-            new DoubleSetting.Builder().name("max-break").description("Max self damage to break.")
-                    .defaultValue(20).min(0).sliderRange(0, 20).build());
-
+        new DoubleSetting.Builder().name("max-break").description("Max self damage to break.")
+            .defaultValue(20).min(0).sliderRange(0, 20).build());
     private final Setting<Double> breakDelay =
-            sgBreak.add(new DoubleSetting.Builder().name("break-delay")
-                    .description("The number of seconds to wait to retry breaking a crystal.")
-                    .defaultValue(0.05).min(0).sliderMax(0.6).build());
-
+        sgBreak.add(new DoubleSetting.Builder().name("break-delay")
+            .description("The number of seconds to wait to retry breaking a crystal.")
+            .defaultValue(0.05).min(0).sliderMax(0.6).build());
     // -- Switch -- //
     private final Setting<SwitchMode> switchMode =
-            sgSwitch.add(new EnumSetting.Builder<SwitchMode>().name("switch-mode")
-                    .description("Mode for switching to crystal in main hand.")
-                    .defaultValue(SwitchMode.Auto).build());
-
+        sgSwitch.add(new EnumSetting.Builder<SwitchMode>().name("switch-mode")
+            .description("Mode for switching to crystal in main hand.")
+            .defaultValue(SwitchMode.Auto).build());
     // -- Rotate -- //
     private final Setting<Boolean> rotatePlace =
-            sgRotate.add(new BoolSetting.Builder().name("rotate-place")
-                    .description("Rotates server-side towards the crystals when placed.")
-                    .defaultValue(false).build());
-
+        sgRotate.add(new BoolSetting.Builder().name("rotate-place")
+            .description("Rotates server-side towards the crystals when placed.")
+            .defaultValue(false).build());
     private final Setting<Boolean> rotateBreak =
-            sgRotate.add(new BoolSetting.Builder().name("rotate-break")
-                    .description("Rotates server-side towards the crystals when broken.")
-                    .defaultValue(true).build());
-
+        sgRotate.add(new BoolSetting.Builder().name("rotate-break")
+            .description("Rotates server-side towards the crystals when broken.")
+            .defaultValue(true).build());
     // -- Swing -- //
     private final Setting<SwingMode> breakSwingMode =
-            sgSwing.add(new EnumSetting.Builder<SwingMode>().name("break-swing-mode")
-                    .description("Mode for swinging your hand when breaking")
-                    .defaultValue(SwingMode.None).build());
-
+        sgSwing.add(new EnumSetting.Builder<SwingMode>().name("break-swing-mode")
+            .description("Mode for swinging your hand when breaking")
+            .defaultValue(SwingMode.None).build());
     private final Setting<SwingMode> placeSwingMode =
-            sgSwing.add(new EnumSetting.Builder<SwingMode>().name("place-swing-mode")
-                    .description("Mode for swinging your hand when placing")
-                    .defaultValue(SwingMode.None).build());
-
+        sgSwing.add(new EnumSetting.Builder<SwingMode>().name("place-swing-mode")
+            .description("Mode for swinging your hand when placing")
+            .defaultValue(SwingMode.None).build());
     // -- Range -- //
     private final Setting<Double> placeRange = sgRange.add(new DoubleSetting.Builder()
-            .name("place-range").description("Maximum distance to place crystals for")
-            .defaultValue(4.0).build());
-
+        .name("place-range").description("Maximum distance to place crystals for")
+        .defaultValue(4.0).build());
     private final Setting<Double> breakRange = sgRange.add(new DoubleSetting.Builder()
-            .name("break-range").description("Maximum distance to break crystals for")
-            .defaultValue(4.0).build());
-
+        .name("break-range").description("Maximum distance to break crystals for")
+        .defaultValue(4.0).build());
     // -- Render -- //
     private final Setting<RenderMode> renderMode =
-            sgRender.add(new EnumSetting.Builder<RenderMode>().name("render-mode")
-                    .description("Mode for rendering.").defaultValue(RenderMode.DelayDraw).build());
-
+        sgRender.add(new EnumSetting.Builder<RenderMode>().name("render-mode")
+            .description("Mode for rendering.").defaultValue(RenderMode.DelayDraw).build());
     // Simple mode
     private final Setting<ShapeMode> simpleShapeMode =
-            sgRender.add(new EnumSetting.Builder<ShapeMode>().name("simple-shape-mode")
-                    .description("How the shapes are rendered.").defaultValue(ShapeMode.Both)
-                    .visible(() -> renderMode.get() == RenderMode.Simple).build());
-
+        sgRender.add(new EnumSetting.Builder<ShapeMode>().name("simple-shape-mode")
+            .description("How the shapes are rendered.").defaultValue(ShapeMode.Both)
+            .visible(() -> renderMode.get() == RenderMode.Simple).build());
     private final Setting<SettingColor> simpleColor =
-            sgRender.add(new ColorSetting.Builder().name("simple-color")
-                    .description("Color to render place delays in").defaultValue(Color.RED.a(40))
-                    .visible(() -> renderMode.get() == RenderMode.Simple).build());
-
+        sgRender.add(new ColorSetting.Builder().name("simple-color")
+            .description("Color to render place delays in").defaultValue(Color.RED.a(40))
+            .visible(() -> renderMode.get() == RenderMode.Simple).build());
     private final Setting<Double> simpleDrawTime = sgRender.add(new DoubleSetting.Builder()
-            .name("simple-draw-time").description("How long to draw the box").defaultValue(0.15)
-            .min(0).sliderMax(1.0).visible(() -> renderMode.get() == RenderMode.Simple).build());
-
+        .name("simple-draw-time").description("How long to draw the box").defaultValue(0.15)
+        .min(0).sliderMax(1.0).visible(() -> renderMode.get() == RenderMode.Simple).build());
     // Delay mode
     private final Setting<ShapeMode> placeDelayShapeMode =
-            sgRender.add(new EnumSetting.Builder<ShapeMode>().name("place-delay-shape-mode")
-                    .description("How the shapes are rendered.").defaultValue(ShapeMode.Both)
-                    .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
-
+        sgRender.add(new EnumSetting.Builder<ShapeMode>().name("place-delay-shape-mode")
+            .description("How the shapes are rendered.").defaultValue(ShapeMode.Both)
+            .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
     private final Setting<SettingColor> placeDelayColor = sgRender.add(new ColorSetting.Builder()
-            .name("place-delay-color").description("Color to render place delays in")
-            .defaultValue(new Color(110, 0, 255, 40))
-            .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
-
+        .name("place-delay-color").description("Color to render place delays in")
+        .defaultValue(new Color(110, 0, 255, 40))
+        .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
     private final Setting<Double> placeDelayFadeTime = sgRender.add(new DoubleSetting.Builder()
-            .name("place-delay-fade-time").description("How long to fade the box").defaultValue(0.7)
-            .min(0.0).sliderMax(2.0).visible(() -> renderMode.get() == RenderMode.DelayDraw)
-            .build());
-
+        .name("place-delay-fade-time").description("How long to fade the box").defaultValue(0.7)
+        .min(0.0).sliderMax(2.0).visible(() -> renderMode.get() == RenderMode.DelayDraw)
+        .build());
     private final Setting<ShapeMode> breakDelayShapeMode =
-            sgRender.add(new EnumSetting.Builder<ShapeMode>().name("break-delay-shape-mode")
-                    .description("How the shapes are rendered.").defaultValue(ShapeMode.Both)
-                    .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
-
-    private final Setting<SettingColor> breakDelayColor =
-            sgRender.add(new ColorSetting.Builder().name("break-delay-color")
-                    .description("Color to render break delays in").defaultValue(Color.BLACK.a(0))
-                    .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
-
-    private final Setting<Double> breakDelayFadeTime = sgRender.add(new DoubleSetting.Builder()
-            .name("break-delay-fade-time").description("How long to fade the box").defaultValue(0.4)
-            .min(0.0).sliderMax(2.0).visible(() -> renderMode.get() == RenderMode.DelayDraw)
-            .build());
-
-    private final Setting<Double> breakDelayFadeExponent = sgRender.add(new DoubleSetting.Builder()
-            .name("break-delay-fade-exponent").description("Adds an exponent to the fade")
-            .defaultValue(1.6).min(0.2).sliderMax(4.0)
+        sgRender.add(new EnumSetting.Builder<ShapeMode>().name("break-delay-shape-mode")
+            .description("How the shapes are rendered.").defaultValue(ShapeMode.Both)
             .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
-
-    public final List<Entity> forceBreakCrystals = new ArrayList<>();
-
+    private final Setting<SettingColor> breakDelayColor =
+        sgRender.add(new ColorSetting.Builder().name("break-delay-color")
+            .description("Color to render break delays in").defaultValue(Color.BLACK.a(0))
+            .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
+    private final Setting<Double> breakDelayFadeTime = sgRender.add(new DoubleSetting.Builder()
+        .name("break-delay-fade-time").description("How long to fade the box").defaultValue(0.4)
+        .min(0.0).sliderMax(2.0).visible(() -> renderMode.get() == RenderMode.DelayDraw)
+        .build());
+    private final Setting<Double> breakDelayFadeExponent = sgRender.add(new DoubleSetting.Builder()
+        .name("break-delay-fade-exponent").description("Adds an exponent to the fade")
+        .defaultValue(1.6).min(0.2).sliderMax(4.0)
+        .visible(() -> renderMode.get() == RenderMode.DelayDraw).build());
     private final Pool<PlacePosition> placePositionPool = new Pool<>(PlacePosition::new);
     private final List<PlacePosition> _placePositions = new ArrayList<>();
     private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
@@ -301,14 +242,65 @@ public class AutoCrystal extends Module {
     private Timer simpleRenderTimer = new Timer();
 
     private AutoMine autoMine;
+    private Set<BlockPos> _calcIgnoreSet = new HashSet<>();
+    private Set<BlockPos> _preplaceSet = new HashSet<>();
 
-    public AutoCrystal() {
+    public AutoCrystal()
+    {
         super(Categories.Combat, "auto-crystal", "Automatically places and attacks crystals.");
     }
 
+    public static Direction getPlaceOnDirection(BlockPos pos)
+    {
+        if (pos == null)
+        {
+            return null;
+        }
+
+        Direction best = null;
+        if (MeteorClient.mc.world != null && MeteorClient.mc.player != null)
+        {
+            double cDist = -1;
+            for (Direction dir : Direction.values())
+            {
+
+                // Can't place on air lol
+                /*
+                 * if (MeteorClient.mc.world.getBlockState(pos.offset(dir)).isAir()) { continue; }
+                 */
+
+                // Only accepts if closer than last accepted direction
+                double dist = getDistanceForDir(pos, dir);
+                if (dist >= 0 && (cDist < 0 || dist < cDist))
+                {
+                    best = dir;
+                    cDist = dist;
+                }
+            }
+        }
+        return best;
+    }
+
+    private static double getDistanceForDir(BlockPos pos, Direction dir)
+    {
+        if (MeteorClient.mc.player == null)
+        {
+            return 0.0;
+        }
+
+        Vec3d vec = new Vec3d(pos.getX() + dir.getOffsetX() / 2f,
+            pos.getY() + dir.getOffsetY() / 2f, pos.getZ() + dir.getOffsetZ() / 2f);
+        Vec3d dist = MeteorClient.mc.player.getEyePos().add(-vec.x, -vec.y, -vec.z);
+
+        // Len squared for optimization
+        return dist.lengthSquared();
+    }
+
     @Override
-    public void onActivate() {
-        if (autoMine == null) {
+    public void onActivate()
+    {
+        if (autoMine == null)
+        {
             autoMine = Modules.get().get(AutoMine.class);
         }
 
@@ -324,12 +316,16 @@ public class AutoCrystal extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        synchronized (deadPlayers) {
-            deadPlayers.removeIf(uuid -> {
+    private void onTick(TickEvent.Post event)
+    {
+        synchronized (deadPlayers)
+        {
+            deadPlayers.removeIf(uuid ->
+            {
                 PlayerEntity entity = mc.world.getPlayerByUuid(uuid);
 
-                if (entity == null || entity.isDead()) {
+                if (entity == null || entity.isDead())
+                {
                     return false;
                 }
 
@@ -338,11 +334,13 @@ public class AutoCrystal extends Module {
         }
     }
 
-    private void update(Render3DEvent event) {
+    private void update(Render3DEvent event)
+    {
         if (mc.player == null || mc.world == null || mc.world.getPlayers().isEmpty())
             return;
 
-        if (autoMine == null) {
+        if (autoMine == null)
+        {
             autoMine = Modules.get().get(AutoMine.class);
         }
 
@@ -352,64 +350,81 @@ public class AutoCrystal extends Module {
         _placePositions.clear();
 
         PlacePosition bestPlacePos = null;
-        synchronized (deadPlayers) {
-            if (placeCrystals.get() && !(pauseEatPlace.get() && mc.player.isUsingItem())) {
+        synchronized (deadPlayers)
+        {
+            if (placeCrystals.get() && !(pauseEatPlace.get() && mc.player.isUsingItem()))
+            {
                 cachedValidPlaceSpots();
 
-                for (PlayerEntity player : mc.world.getPlayers()) {
-                    if (player == mc.player) {
+                for (PlayerEntity player : mc.world.getPlayers())
+                {
+                    if (player == mc.player)
+                    {
                         continue;
                     }
 
-                    if (deadPlayers.contains(player.getUuid())) {
+                    if (deadPlayers.contains(player.getUuid()))
+                    {
                         continue;
                     }
 
-                    if (Friends.get().isFriend(player)) {
+                    if (Friends.get().isFriend(player))
+                    {
                         continue;
                     }
 
-                    if (player.isDead()) {
+                    if (player.isDead())
+                    {
                         continue;
                     }
 
-                    if (ignoreNakeds.get()) {
+                    if (ignoreNakeds.get())
+                    {
                         if (player.getInventory().armor.get(0).isEmpty()
-                                && player.getInventory().armor.get(1).isEmpty()
-                                && player.getInventory().armor.get(2).isEmpty()
-                                && player.getInventory().armor.get(3).isEmpty())
+                            && player.getInventory().armor.get(1).isEmpty()
+                            && player.getInventory().armor.get(2).isEmpty()
+                            && player.getInventory().armor.get(3).isEmpty())
                             continue;
                     }
 
-                    if (player.squaredDistanceTo(mc.player.getEyePos()) > 12 * 12) {
+                    if (player.squaredDistanceTo(mc.player.getEyePos()) > 12 * 12)
+                    {
                         continue;
                     }
 
                     PlacePosition testPos = findBestPlacePosition(player);
 
                     if (testPos != null
-                            && (bestPlacePos == null || testPos.damage > bestPlacePos.damage)) {
+                        && (bestPlacePos == null || testPos.damage > bestPlacePos.damage))
+                    {
                         bestPlacePos = testPos;
                     }
                 }
 
                 long currentTime = System.currentTimeMillis();
 
-                if (bestPlacePos != null) {
-                    if (bestPlacePos.isSlowPlace) {
+                if (bestPlacePos != null)
+                {
+                    if (bestPlacePos.isSlowPlace)
+                    {
                         if (((double) (currentTime - lastSlowPlaceTimeMS)) / 1000.0 > 1.0
-                                / slowPlaceSpeed.get()) {
+                            / slowPlaceSpeed.get())
+                        {
                             if (placeCrystal(bestPlacePos.blockPos.down(),
-                                    bestPlacePos.placeDirection)) {
+                                bestPlacePos.placeDirection))
+                            {
                                 lastSlowPlaceTimeMS = currentTime;
                             }
                         }
-                    } else {
+                    } else
+                    {
                         if (breakSpeedLimit.get() == 0 || ((double) (currentTime - lastPlaceTimeMS))
-                                / 1000.0 > 1.0 / placeSpeedLimit.get()) {
+                            / 1000.0 > 1.0 / placeSpeedLimit.get())
+                        {
 
                             if (placeCrystal(bestPlacePos.blockPos.down(),
-                                    bestPlacePos.placeDirection)) {
+                                bestPlacePos.placeDirection))
+                            {
                                 lastPlaceTimeMS = currentTime;
                             }
                         }
@@ -417,31 +432,37 @@ public class AutoCrystal extends Module {
                 }
             }
 
-            if (breakCrystals.get() && !(pauseEatBreak.get() && mc.player.isUsingItem())) {
-                for (Entity entity : mc.world.getEntities()) {
+            if (breakCrystals.get() && !(pauseEatBreak.get() && mc.player.isUsingItem()))
+            {
+                for (Entity entity : mc.world.getEntities())
+                {
                     if (!(entity instanceof EndCrystalEntity))
                         continue;
 
-                    if (!inBreakRange(entity.getPos())) {
+                    if (!inBreakRange(entity.getPos()))
+                    {
                         continue;
                     }
 
-                    if (!shouldBreakCrystal(entity)) {
+                    if (!shouldBreakCrystal(entity))
+                    {
                         continue;
                     }
 
                     long currentTime = System.currentTimeMillis();
 
                     boolean speedCheck =
-                            breakSpeedLimit.get() == 0 || ((double) (currentTime - lastBreakTimeMS))
-                                    / 1000.0 > 1.0 / breakSpeedLimit.get();
+                        breakSpeedLimit.get() == 0 || ((double) (currentTime - lastBreakTimeMS))
+                            / 1000.0 > 1.0 / breakSpeedLimit.get();
 
-                    if (!speedCheck) {
+                    if (!speedCheck)
+                    {
                         break;
                     }
 
                     if (!breakCrystal(entity) && rotateBreak.get()
-                            && !MeteorClient.ROTATION.lookingAt(entity.getBoundingBox())) {
+                        && !MeteorClient.ROTATION.lookingAt(entity.getBoundingBox()))
+                    {
                         break;
                     }
                 }
@@ -449,39 +470,47 @@ public class AutoCrystal extends Module {
         }
     }
 
-    public boolean placeCrystal(BlockPos pos, Direction dir) {
-        if (pos == null || mc.player == null) {
+    public boolean placeCrystal(BlockPos pos, Direction dir)
+    {
+        if (pos == null || mc.player == null)
+        {
             return false;
         }
 
         BlockPos crystaBlockPos = pos.up();
 
         Box box = new Box(crystaBlockPos.getX(), crystaBlockPos.getY(), crystaBlockPos.getZ(),
-                crystaBlockPos.getX() + 1, crystaBlockPos.getY() + 2, crystaBlockPos.getZ() + 1);
+            crystaBlockPos.getX() + 1, crystaBlockPos.getY() + 2, crystaBlockPos.getZ() + 1);
 
         if (intersectsWithEntity(box,
-                entity -> !entity.isSpectator() && !explodedCrystals.contains(entity.getId()))) {
+            entity -> !entity.isSpectator() && !explodedCrystals.contains(entity.getId())))
+        {
             return false;
         }
 
         FindItemResult result = InvUtils.findInHotbar(Items.END_CRYSTAL);
 
-        if (!result.found()) {
+        if (!result.found())
+        {
             return false;
         }
 
-        if (rotatePlace.get()) {
+        if (rotatePlace.get())
+        {
             MeteorClient.ROTATION.requestRotation(pos.toCenterPos().add(0, 0.5, 0), 10);
 
-            if (!MeteorClient.ROTATION.lookingAt(new Box(pos))) {
+            if (!MeteorClient.ROTATION.lookingAt(new Box(pos)))
+            {
                 return false;
             }
         }
 
         long currentTime = System.currentTimeMillis();
 
-        if (crystalPlaceDelays.containsKey(pos)) {
-            if ((currentTime - crystalPlaceDelays.get(pos)) / 1000.0 < placeDelay.get()) {
+        if (crystalPlaceDelays.containsKey(pos))
+        {
+            if ((currentTime - crystalPlaceDelays.get(pos)) / 1000.0 < placeDelay.get())
+            {
                 return false;
             }
         }
@@ -492,33 +521,43 @@ public class AutoCrystal extends Module {
         silentInvSlot = result.slot();
         selectedSlot = mc.player.getInventory().selectedSlot;
         didSilentSwap = false;
-        switch (switchMode.get()) {
-            case SilentHotbar -> {
+        switch (switchMode.get())
+        {
+            case SilentHotbar ->
+            {
                 InvUtils.swap(result.slot(), true);
             }
-            case Auto -> {
+            case Auto ->
+            {
                 // If we're eating from our main hand, force silent swap
-                if (mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND) {
+                if (mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND)
+                {
                     InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
                     didSilentSwap = true;
-                } else {
+                } else
+                {
                     // Otherwise, hotbar swap if it's in our hotbar, and only silent swap when it's
                     // not
-                    if (result.isHotbar()) {
+                    if (result.isHotbar())
+                    {
                         InvUtils.swap(result.slot(), true);
-                    } else if (silentInvSlot != mc.player.getInventory().selectedSlot) {
+                    } else if (silentInvSlot != mc.player.getInventory().selectedSlot)
+                    {
                         InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
                         didSilentSwap = true;
                     }
                 }
             }
-            case SilentSwap -> {
-                if (silentInvSlot != mc.player.getInventory().selectedSlot) {
+            case SilentSwap ->
+            {
+                if (silentInvSlot != mc.player.getInventory().selectedSlot)
+                {
                     InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
                     didSilentSwap = true;
                 }
             }
-            case None -> {
+            case None ->
+            {
                 // Fall
             }
         }
@@ -530,11 +569,11 @@ public class AutoCrystal extends Module {
 
         Vec3d eyes = mc.player.getEyePos();
         boolean inside = eyes.x > pos.getX() && eyes.x < pos.getX() + 1 && eyes.y > pos.getY()
-                && eyes.y < pos.getY() + 1 && eyes.z > pos.getZ() && eyes.z < pos.getZ() + 1;
+            && eyes.y < pos.getY() + 1 && eyes.z > pos.getZ() && eyes.z < pos.getZ() + 1;
 
         int s = mc.world.getPendingUpdateManager().incrementSequence().getSequence();
         mc.player.networkHandler.sendPacket(new PlayerInteractBlockC2SPacket(hand,
-                new BlockHitResult(pos.toCenterPos(), dir, pos, inside), s));
+            new BlockHitResult(pos.toCenterPos(), dir, pos, inside), s));
 
         if (placeSwingMode.get().client())
             mc.player.swingHand(hand);
@@ -542,14 +581,19 @@ public class AutoCrystal extends Module {
         if (placeSwingMode.get().packet())
             mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(hand));
 
-        switch (switchMode.get()) {
+        switch (switchMode.get())
+        {
             case SilentHotbar -> InvUtils.swapBack();
-            case None -> {
+            case None ->
+            {
             }
-            default -> {
-                if (didSilentSwap) {
+            default ->
+            {
+                if (didSilentSwap)
+                {
                     InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
-                } else {
+                } else
+                {
                     InvUtils.swapBack();
                 }
             }
@@ -558,28 +602,35 @@ public class AutoCrystal extends Module {
         return true;
     }
 
-    public boolean breakCrystal(Entity entity) {
+    public boolean breakCrystal(Entity entity)
+    {
         return breakCrystal(entity, false);
     }
 
-    public boolean breakCrystal(Entity entity, boolean overrideRotate) {
-        if (mc.player == null) {
+    public boolean breakCrystal(Entity entity, boolean overrideRotate)
+    {
+        if (mc.player == null)
+        {
             return false;
         }
 
-        if (!overrideRotate && rotateBreak.get()) {
+        if (!overrideRotate && rotateBreak.get())
+        {
             MeteorClient.ROTATION.requestRotation(entity.getPos(), 10);
 
-            if (!MeteorClient.ROTATION.lookingAt(entity.getBoundingBox())) {
+            if (!MeteorClient.ROTATION.lookingAt(entity.getBoundingBox()))
+            {
                 return false;
             }
         }
 
         long currentTime = System.currentTimeMillis();
 
-        if (crystalBreakDelays.containsKey(entity.getId())) {
+        if (crystalBreakDelays.containsKey(entity.getId()))
+        {
             if ((currentTime - crystalBreakDelays.get(entity.getId())) / 1000.0 < breakDelay
-                    .get()) {
+                .get())
+            {
                 return false;
             }
         }
@@ -592,7 +643,7 @@ public class AutoCrystal extends Module {
         crystalRenderBreakDelays.put(breakRender, currentTime);
 
         PlayerInteractEntityC2SPacket packet =
-                PlayerInteractEntityC2SPacket.attack(entity, mc.player.isSneaking());
+            PlayerInteractEntityC2SPacket.attack(entity, mc.player.isSneaking());
 
         mc.getNetworkHandler().sendPacket(packet);
 
@@ -609,9 +660,8 @@ public class AutoCrystal extends Module {
         return true;
     }
 
-    private Set<BlockPos> _calcIgnoreSet = new HashSet<>();
-
-    private PlacePosition findBestPlacePosition(PlayerEntity target) {
+    private PlacePosition findBestPlacePosition(PlayerEntity target)
+    {
         // Optimization to not spam allocs because java sucks
         PlacePosition bestPos = placePositionPool.get();
         _placePositions.add(bestPos);
@@ -633,24 +683,32 @@ public class AutoCrystal extends Module {
         boolean set = false;
 
         _calcIgnoreSet.clear();
-        if (antiSurroundPlace.get()) {
+        if (antiSurroundPlace.get())
+        {
             SilentMine silentMine = Modules.get().get(SilentMine.class);
-            if (silentMine.isActive()) {
-                if (silentMine.getDelayedDestroyBlockPos() != null) {
+            if (silentMine.isActive())
+            {
+                if (silentMine.getDelayedDestroyBlockPos() != null)
+                {
                     _calcIgnoreSet.add(silentMine.getDelayedDestroyBlockPos());
                 }
 
-                if (silentMine.getRebreakBlockPos() != null) {
+                if (silentMine.getRebreakBlockPos() != null)
+                {
                     _calcIgnoreSet.add(silentMine.getRebreakBlockPos());
                 }
             }
         }
 
-        for (int x = -r; x <= r; x++) {
-            for (int y = -r; y <= r; y++) {
-                for (int z = -r; z <= r; z++) {
+        for (int x = -r; x <= r; x++)
+        {
+            for (int y = -r; y <= r; y++)
+            {
+                for (int z = -r; z <= r; z++)
+                {
                     if (!cachedValidSpots
-                            .get((x + r) * ((2 * r) * (2 * r)) + (y + r) * (2 * r) + (z + r))) {
+                        .get((x + r) * ((2 * r) * (2 * r)) + (y + r) * (2 * r) + (z + r)))
+                    {
                         continue;
                     }
 
@@ -658,32 +716,37 @@ public class AutoCrystal extends Module {
                     BlockPos downPos = downMutablePos.set(ex + x, ey + y - 1, ez + z);
 
                     double targetDamage =
-                            DamageUtils.newCrystalDamage(target, target.getBoundingBox(),
-                                    new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5),
-                                    _calcIgnoreSet);
+                        DamageUtils.newCrystalDamage(target, target.getBoundingBox(),
+                            new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5),
+                            _calcIgnoreSet);
 
                     boolean shouldFacePlace = false;
 
-                    if (facePlaceMissingArmor.get()) {
+                    if (facePlaceMissingArmor.get())
+                    {
                         if (target.getInventory().armor.get(0).isEmpty()
-                                || target.getInventory().armor.get(1).isEmpty()
-                                || target.getInventory().armor.get(2).isEmpty()
-                                || target.getInventory().armor.get(3).isEmpty()) {
+                            || target.getInventory().armor.get(1).isEmpty()
+                            || target.getInventory().armor.get(2).isEmpty()
+                            || target.getInventory().armor.get(3).isEmpty())
+                        {
                             shouldFacePlace = true;
                         }
                     }
 
-                    if (forceFacePlaceKeybind.get().isPressed()) {
+                    if (forceFacePlaceKeybind.get().isPressed())
+                    {
                         shouldFacePlace = true;
                     }
 
                     boolean shouldSet = targetDamage >= (shouldFacePlace ? 1.0 : minPlace.get())
-                            && targetDamage > bestPos.damage;
+                        && targetDamage > bestPos.damage;
                     boolean isSlowPlace = false;
 
-                    if (slowPlace.get() && targetDamage > bestPos.damage) {
+                    if (slowPlace.get() && targetDamage > bestPos.damage)
+                    {
                         if (targetDamage <= slowPlaceMaxDamage.get()
-                                && targetDamage >= slowPlaceMinDamage.get()) {
+                            && targetDamage >= slowPlaceMinDamage.get())
+                        {
                             shouldSet = true;
                             isSlowPlace = true;
                         }
@@ -691,11 +754,13 @@ public class AutoCrystal extends Module {
 
                     Direction dir = getPlaceOnDirection(downPos);
 
-                    if (dir == null) {
+                    if (dir == null)
+                    {
                         dir = Direction.UP;
                     }
 
-                    if (shouldSet) {
+                    if (shouldSet)
+                    {
                         bestPos.blockPos = pos.toImmutable();
                         bestPos.placeDirection = dir;
                         bestPos.damage = targetDamage;
@@ -708,14 +773,17 @@ public class AutoCrystal extends Module {
         }
 
         // Return null if we never actually found a good position
-        if (set) {
+        if (set)
+        {
             return bestPos;
-        } else {
+        } else
+        {
             return null;
         }
     }
 
-    private void cachedValidPlaceSpots() {
+    private void cachedValidPlaceSpots()
+    {
         int r = (int) Math.floor(placeRange.get());
 
         BlockPos eyePos = BlockPos.ofFloored(mc.player.getEyePos());
@@ -725,14 +793,18 @@ public class AutoCrystal extends Module {
         Box box = new Box(0, 0, 0, 0, 0, 0);
 
         _calcIgnoreSet.clear();
-        if (antiSurroundPlace.get()) {
+        if (antiSurroundPlace.get())
+        {
             SilentMine silentMine = Modules.get().get(SilentMine.class);
-            if (silentMine.isActive()) {
-                if (silentMine.getDelayedDestroyBlockPos() != null) {
+            if (silentMine.isActive())
+            {
+                if (silentMine.getDelayedDestroyBlockPos() != null)
+                {
                     _calcIgnoreSet.add(silentMine.getDelayedDestroyBlockPos());
                 }
 
-                if (silentMine.getRebreakBlockPos() != null) {
+                if (silentMine.getRebreakBlockPos() != null)
+                {
                     _calcIgnoreSet.add(silentMine.getRebreakBlockPos());
                 }
             }
@@ -740,18 +812,23 @@ public class AutoCrystal extends Module {
 
         // Reset the list
         cachedValidSpots.clear();
-        while (cachedValidSpots.size() < (2 * r + 1) * (2 * r + 1) * (2 * r + 1)) {
+        while (cachedValidSpots.size() < (2 * r + 1) * (2 * r + 1) * (2 * r + 1))
+        {
             cachedValidSpots.add(false);
         }
 
-        for (int x = -r; x <= r; x++) {
-            for (int y = -r; y <= r; y++) {
-                for (int z = -r; z <= r; z++) {
+        for (int x = -r; x <= r; x++)
+        {
+            for (int y = -r; y <= r; y++)
+            {
+                for (int z = -r; z <= r; z++)
+                {
                     BlockPos pos = mutablePos.set(ex + x, ey + y, ez + z);
                     BlockState state = mc.world.getBlockState(pos);
 
                     // Check if there's an air block to place the crystal in
-                    if (!state.isAir()) {
+                    if (!state.isAir())
+                    {
                         continue;
                     }
 
@@ -761,43 +838,47 @@ public class AutoCrystal extends Module {
 
                     // We can only place on obsidian and bedrock
                     if (downState.isAir()
-                            || (downBlock != Blocks.OBSIDIAN && downBlock != Blocks.BEDROCK)) {
+                        || (downBlock != Blocks.OBSIDIAN && downBlock != Blocks.BEDROCK))
+                    {
                         continue;
                     }
 
                     // Range check
-                    if (!inPlaceRange(downPos)) {
+                    if (!inPlaceRange(downPos))
+                    {
                         continue;
                     }
 
                     // Check if the crystal intersects with any players/crystals/whatever
                     ((IBox) box).set(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1,
-                            pos.getY() + 2, pos.getZ() + 1);
+                        pos.getY() + 2, pos.getZ() + 1);
 
-                    if (intersectsWithEntities(box)) {
+                    if (intersectsWithEntities(box))
+                    {
                         continue;
                     }
 
                     double selfDamage =
-                            DamageUtils.newCrystalDamage(mc.player, mc.player.getBoundingBox(),
-                                    new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5),
-                                    _calcIgnoreSet);
+                        DamageUtils.newCrystalDamage(mc.player, mc.player.getBoundingBox(),
+                            new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5),
+                            _calcIgnoreSet);
 
-                    if (selfDamage > maxPlace.get()) {
+                    if (selfDamage > maxPlace.get())
+                    {
                         continue;
                     }
 
                     cachedValidSpots
-                            .set((x + r) * ((2 * r) * (2 * r)) + (y + r) * (2 * r) + (z + r), true);
+                        .set((x + r) * ((2 * r) * (2 * r)) + (y + r) * (2 * r) + (z + r), true);
                 }
             }
         }
     }
 
-    private Set<BlockPos> _preplaceSet = new HashSet<>();
-
-    public void preplaceCrystal(BlockPos pos) {
-        if (!mc.world.getBlockState(pos).isAir()) {
+    public void preplaceCrystal(BlockPos pos)
+    {
+        if (!mc.world.getBlockState(pos).isAir())
+        {
             return;
         }
 
@@ -806,25 +887,28 @@ public class AutoCrystal extends Module {
         Block downBlock = downState.getBlock();
 
         // We can only place on obsidian and bedrock
-        if (downState.isAir() || (downBlock != Blocks.OBSIDIAN && downBlock != Blocks.BEDROCK)) {
+        if (downState.isAir() || (downBlock != Blocks.OBSIDIAN && downBlock != Blocks.BEDROCK))
+        {
             return;
         }
 
         Direction dir = getPlaceOnDirection(downPos);
 
-        if (dir == null) {
+        if (dir == null)
+        {
             return;
         }
 
         // Range check
         if (!inPlaceRange(downPos)
-                || !inBreakRange(new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5))) {
+            || !inBreakRange(new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5)))
+        {
             return;
         }
 
         // Check if the crystal intersects with any players/crystals/whatever
         Box box = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 2,
-                pos.getZ() + 1);
+            pos.getZ() + 1);
 
         if (intersectsWithEntities(box))
             return;
@@ -833,69 +917,82 @@ public class AutoCrystal extends Module {
         _preplaceSet.add(pos);
 
         double selfDamage = DamageUtils.newCrystalDamage(mc.player, mc.player.getBoundingBox(),
-                new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5), _preplaceSet);
+            new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5), _preplaceSet);
 
-        if (selfDamage > maxPlace.get()) {
+        if (selfDamage > maxPlace.get())
+        {
             return;
         }
 
         placeCrystal(downPos, dir);
     }
 
-    public boolean inPlaceRange(BlockPos blockPos) {
+    public boolean inPlaceRange(BlockPos blockPos)
+    {
         Vec3d from = mc.player.getEyePos();
 
         return blockPos.toCenterPos().distanceTo(from) <= placeRange.get();
     }
 
-    public boolean inBreakRange(Vec3d pos) {
+    public boolean inBreakRange(Vec3d pos)
+    {
         Vec3d from = mc.player.getEyePos();
 
         return pos.distanceTo(from) <= breakRange.get();
     }
 
-    public boolean shouldBreakCrystal(Entity entity) {
+    public boolean shouldBreakCrystal(Entity entity)
+    {
         boolean damageCheck = false;
 
         double selfDamage = DamageUtils.newCrystalDamage(mc.player, mc.player.getBoundingBox(),
-                entity.getPos(), null);
+            entity.getPos(), null);
 
-        if (selfDamage > maxBreak.get()) {
+        if (selfDamage > maxBreak.get())
+        {
             return false;
         }
 
-        for (PlayerEntity player : mc.world.getPlayers()) {
-            if (player == mc.player) {
+        for (PlayerEntity player : mc.world.getPlayers())
+        {
+            if (player == mc.player)
+            {
                 continue;
             }
 
-            if (deadPlayers.contains(player.getUuid())) {
+            if (deadPlayers.contains(player.getUuid()))
+            {
                 continue;
             }
 
-            if (player.isDead()) {
+            if (player.isDead())
+            {
                 continue;
             }
 
-            if (Friends.get().isFriend(player)) {
+            if (Friends.get().isFriend(player))
+            {
                 continue;
             }
 
-            if (player.squaredDistanceTo(mc.player.getEyePos()) > 14 * 14) {
+            if (player.squaredDistanceTo(mc.player.getEyePos()) > 14 * 14)
+            {
                 continue;
             }
 
             double targetDamage = DamageUtils.newCrystalDamage(player, player.getBoundingBox(),
-                    entity.getPos(), null);
+                entity.getPos(), null);
 
-            if (targetDamage >= minBreak.get()) {
+            if (targetDamage >= minBreak.get())
+            {
                 damageCheck = true;
 
                 break;
             }
         }
 
-        if (!damageCheck) {
+        if (!damageCheck)
+        {
             return false;
         }
 
@@ -903,36 +1000,43 @@ public class AutoCrystal extends Module {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onEntity(EntityAddedEvent event) {
+    private void onEntity(EntityAddedEvent event)
+    {
         Entity entity = event.entity;
-        if (!(entity instanceof EndCrystalEntity)) {
+        if (!(entity instanceof EndCrystalEntity))
+        {
             return;
         }
 
         BlockPos blockPos = entity.getBlockPos().down();
-        if (crystalPlaceDelays.containsKey(blockPos)) {
+        if (crystalPlaceDelays.containsKey(blockPos))
+        {
             crystalPlaceDelays.remove(blockPos);
         }
 
-        if (breakCrystals.get() && packetBreak.get()) {
+        if (breakCrystals.get() && packetBreak.get())
+        {
             if (!(entity instanceof EndCrystalEntity))
                 return;
 
-            if (!inBreakRange(entity.getPos())) {
+            if (!inBreakRange(entity.getPos()))
+            {
                 return;
             }
 
-            if (!shouldBreakCrystal(entity)) {
+            if (!shouldBreakCrystal(entity))
+            {
                 return;
             }
 
             long currentTime = System.currentTimeMillis();
 
             boolean speedCheck =
-                    breakSpeedLimit.get() == 0 || ((double) (currentTime - lastBreakTimeMS))
-                            / 1000.0 > 1.0 / breakSpeedLimit.get();
+                breakSpeedLimit.get() == 0 || ((double) (currentTime - lastBreakTimeMS))
+                    / 1000.0 > 1.0 / breakSpeedLimit.get();
 
-            if (!speedCheck) {
+            if (!speedCheck)
+            {
                 return;
             }
 
@@ -941,13 +1045,15 @@ public class AutoCrystal extends Module {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST + 1)
-    private void onRender3D(Render3DEvent event) {
+    private void onRender3D(Render3DEvent event)
+    {
         if (!isActive())
             return;
 
         update(event);
 
-        switch (renderMode.get()) {
+        switch (renderMode.get())
+        {
             case Simple -> drawSimple(event);
             case DelayDraw -> drawDelay(event);
             case Debug -> drawDebug(event);
@@ -955,26 +1061,33 @@ public class AutoCrystal extends Module {
     }
 
     @EventHandler
-    private void onPlayerDeath(PlayerDeathEvent.Death event) {
+    private void onPlayerDeath(PlayerDeathEvent.Death event)
+    {
         if (event.getPlayer() == null || event.getPlayer() == mc.player)
             return;
 
-        synchronized (deadPlayers) {
+        synchronized (deadPlayers)
+        {
             deadPlayers.add(event.getPlayer().getUuid());
         }
     }
 
-    private void drawSimple(Render3DEvent event) {
-        if (simpleRenderPos != null && !simpleRenderTimer.passedS(simpleDrawTime.get())) {
+    private void drawSimple(Render3DEvent event)
+    {
+        if (simpleRenderPos != null && !simpleRenderTimer.passedS(simpleDrawTime.get()))
+        {
             event.renderer.box(simpleRenderPos, simpleColor.get(), simpleColor.get(),
-                    simpleShapeMode.get(), 0);
+                simpleShapeMode.get(), 0);
         }
     }
 
-    private void drawDelay(Render3DEvent event) {
+    private void drawDelay(Render3DEvent event)
+    {
         long currentTime = System.currentTimeMillis();
-        for (Map.Entry<BlockPos, Long> placeDelay : crystalRenderPlaceDelays.entrySet()) {
-            if (currentTime - placeDelay.getValue() > placeDelayFadeTime.get() * 1000) {
+        for (Map.Entry<BlockPos, Long> placeDelay : crystalRenderPlaceDelays.entrySet())
+        {
+            if (currentTime - placeDelay.getValue() > placeDelayFadeTime.get() * 1000)
+            {
                 continue;
             }
 
@@ -983,19 +1096,22 @@ public class AutoCrystal extends Module {
             double timeCompletion = time / placeDelayFadeTime.get();
 
             renderBoxSized(event, placeDelay.getKey(), 1.0, 1 - timeCompletion,
-                    placeDelayColor.get(), placeDelayColor.get(), placeDelayShapeMode.get());
+                placeDelayColor.get(), placeDelayColor.get(), placeDelayShapeMode.get());
         }
 
-        for (Map.Entry<CrystalBreakRender, Long> breakDelay : crystalRenderBreakDelays.entrySet()) {
-            if (currentTime - breakDelay.getValue() > breakDelayFadeTime.get() * 1000) {
+        for (Map.Entry<CrystalBreakRender, Long> breakDelay : crystalRenderBreakDelays.entrySet())
+        {
+            if (currentTime - breakDelay.getValue() > breakDelayFadeTime.get() * 1000)
+            {
                 continue;
             }
 
             CrystalBreakRender render = breakDelay.getKey();
 
-            if (render.parts == null && render.entity != null) {
+            if (render.parts == null && render.entity != null)
+            {
                 render.parts = WireframeEntityRenderer.cloneEntityForRendering(event, render.entity,
-                        render.pos);
+                    render.pos);
                 render.entity = null;
             }
 
@@ -1004,14 +1120,15 @@ public class AutoCrystal extends Module {
             double timeCompletion = time / breakDelayFadeTime.get();
 
             Color color = breakDelayColor.get().copy().a((int) (breakDelayColor.get().a
-                    * Math.pow(1 - timeCompletion, breakDelayFadeExponent.get())));
+                * Math.pow(1 - timeCompletion, breakDelayFadeExponent.get())));
 
             WireframeEntityRenderer.render(event, render.pos, render.parts, 1.0, color, color,
-                    breakDelayShapeMode.get());
+                breakDelayShapeMode.get());
         }
     }
 
-    private void drawDebug(Render3DEvent event) {
+    private void drawDebug(Render3DEvent event)
+    {
         int r = (int) Math.floor(placeRange.get());
 
         BlockPos eyePos = BlockPos.ofFloored(mc.player.getEyePos());
@@ -1019,15 +1136,19 @@ public class AutoCrystal extends Module {
         int ey = eyePos.getY();
         int ez = eyePos.getZ();
 
-        for (int x = -r; x <= r; x++) {
-            for (int y = -r; y <= r; y++) {
-                for (int z = -r; z <= r; z++) {
+        for (int x = -r; x <= r; x++)
+        {
+            for (int y = -r; y <= r; y++)
+            {
+                for (int z = -r; z <= r; z++)
+                {
                     if (cachedValidSpots
-                            .get((x + r) * ((2 * r) * (2 * r)) + (y + r) * (2 * r) + (z + r))) {
+                        .get((x + r) * ((2 * r) * (2 * r)) + (y + r) * (2 * r) + (z + r)))
+                    {
                         BlockPos pos = mutablePos.set(ex + x, ey + y, ez + z);
 
                         event.renderer.box(pos, simpleColor.get(), simpleColor.get(),
-                                simpleShapeMode.get(), 0);
+                            simpleShapeMode.get(), 0);
                     }
                 }
             }
@@ -1035,13 +1156,14 @@ public class AutoCrystal extends Module {
     }
 
     private void renderBoxSized(Render3DEvent event, BlockPos blockPos, double size, double alpha,
-            Color sideColor, Color lineColor, ShapeMode shapeMode) {
+                                Color sideColor, Color lineColor, ShapeMode shapeMode)
+    {
         Box orig = new Box(0, 0, 0, 1.0, 1.0, 1.0);
 
         double shrinkFactor = 1d - size;
 
         Box box = orig.shrink(orig.getLengthX() * shrinkFactor, orig.getLengthY() * shrinkFactor,
-                orig.getLengthZ() * shrinkFactor);
+            orig.getLengthZ() * shrinkFactor);
 
         double xShrink = (orig.getLengthX() * shrinkFactor) / 2;
         double yShrink = (orig.getLengthY() * shrinkFactor) / 2;
@@ -1055,27 +1177,30 @@ public class AutoCrystal extends Module {
         double z2 = blockPos.getZ() + box.maxZ + zShrink;
 
         event.renderer.box(x1, y1, z1, x2, y2, z2, sideColor.copy().a((int) (sideColor.a * alpha)),
-                sideColor.copy().a((int) (lineColor.a * alpha)), shapeMode, 0);
+            sideColor.copy().a((int) (lineColor.a * alpha)), shapeMode, 0);
     }
 
-    private boolean intersectsWithEntities(Box box) {
+    private boolean intersectsWithEntities(Box box)
+    {
         return intersectsWithEntity(box,
-                entity -> !entity.isSpectator() && !explodedCrystals.contains(entity.getId()));
+            entity -> !entity.isSpectator() && !explodedCrystals.contains(entity.getId()));
     }
 
-    public boolean intersectsWithEntity(Box box, Predicate<Entity> predicate) {
+    public boolean intersectsWithEntity(Box box, Predicate<Entity> predicate)
+    {
         EntityLookup<Entity> entityLookup = ((WorldAccessor) mc.world).getEntityLookup();
 
         // Fast implementation using SimpleEntityLookup that returns on the first
         // intersecting
         // entity
-        if (entityLookup instanceof SimpleEntityLookup<Entity> simpleEntityLookup) {
+        if (entityLookup instanceof SimpleEntityLookup<Entity> simpleEntityLookup)
+        {
             SectionedEntityCache<Entity> cache =
-                    ((SimpleEntityLookupAccessor) simpleEntityLookup).getCache();
+                ((SimpleEntityLookupAccessor) simpleEntityLookup).getCache();
             LongSortedSet trackedPositions =
-                    ((SectionedEntityCacheAccessor) cache).getTrackedPositions();
+                ((SectionedEntityCacheAccessor) cache).getTrackedPositions();
             Long2ObjectMap<EntityTrackingSection<Entity>> trackingSections =
-                    ((SectionedEntityCacheAccessor) cache).getTrackingSections();
+                ((SectionedEntityCacheAccessor) cache).getTrackingSections();
 
             int i = ChunkSectionPos.getSectionCoord(box.minX - 2);
             int j = ChunkSectionPos.getSectionCoord(box.minY - 2);
@@ -1084,27 +1209,32 @@ public class AutoCrystal extends Module {
             int m = ChunkSectionPos.getSectionCoord(box.maxY + 2);
             int n = ChunkSectionPos.getSectionCoord(box.maxZ + 2);
 
-            for (int o = i; o <= l; o++) {
+            for (int o = i; o <= l; o++)
+            {
                 long p = ChunkSectionPos.asLong(o, 0, 0);
                 long q = ChunkSectionPos.asLong(o, -1, -1);
                 LongBidirectionalIterator longIterator =
-                        trackedPositions.subSet(p, q + 1).iterator();
+                    trackedPositions.subSet(p, q + 1).iterator();
 
-                while (longIterator.hasNext()) {
+                while (longIterator.hasNext())
+                {
                     long r = longIterator.nextLong();
                     int s = ChunkSectionPos.unpackY(r);
                     int t = ChunkSectionPos.unpackZ(r);
 
-                    if (s >= j && s <= m && t >= k && t <= n) {
+                    if (s >= j && s <= m && t >= k && t <= n)
+                    {
                         EntityTrackingSection<Entity> entityTrackingSection =
-                                trackingSections.get(r);
+                            trackingSections.get(r);
 
                         if (entityTrackingSection != null
-                                && entityTrackingSection.getStatus().shouldTrack()) {
+                            && entityTrackingSection.getStatus().shouldTrack())
+                        {
                             for (Entity entity : ((EntityTrackingSectionAccessor) entityTrackingSection)
-                                    .<Entity>getCollection()) {
+                                .<Entity>getCollection())
+                            {
                                 if (entity.getBoundingBox().intersects(box)
-                                        && predicate.test(entity))
+                                    && predicate.test(entity))
                                     return true;
                             }
                         }
@@ -1120,7 +1250,8 @@ public class AutoCrystal extends Module {
         // implementation is changed
         AtomicBoolean found = new AtomicBoolean(false);
 
-        entityLookup.forEachIntersects(box, entity -> {
+        entityLookup.forEachIntersects(box, entity ->
+        {
             if (!found.get() && predicate.test(entity))
                 found.set(true);
         });
@@ -1128,53 +1259,41 @@ public class AutoCrystal extends Module {
         return found.get();
     }
 
-    public static Direction getPlaceOnDirection(BlockPos pos) {
-        if (pos == null) {
-            return null;
-        }
-
-        Direction best = null;
-        if (MeteorClient.mc.world != null && MeteorClient.mc.player != null) {
-            double cDist = -1;
-            for (Direction dir : Direction.values()) {
-
-                // Can't place on air lol
-                /*
-                 * if (MeteorClient.mc.world.getBlockState(pos.offset(dir)).isAir()) { continue; }
-                 */
-
-                // Only accepts if closer than last accepted direction
-                double dist = getDistanceForDir(pos, dir);
-                if (dist >= 0 && (cDist < 0 || dist < cDist)) {
-                    best = dir;
-                    cDist = dist;
-                }
-            }
-        }
-        return best;
-    }
-
-    private static double getDistanceForDir(BlockPos pos, Direction dir) {
-        if (MeteorClient.mc.player == null) {
-            return 0.0;
-        }
-
-        Vec3d vec = new Vec3d(pos.getX() + dir.getOffsetX() / 2f,
-                pos.getY() + dir.getOffsetY() / 2f, pos.getZ() + dir.getOffsetZ() / 2f);
-        Vec3d dist = MeteorClient.mc.player.getEyePos().add(-vec.x, -vec.y, -vec.z);
-
-        // Len squared for optimization
-        return dist.lengthSquared();
-    }
-
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         long currentTime = System.currentTimeMillis();
         return String.format("%d",
-                crystalBreakDelays.values().stream().filter(x -> currentTime - x <= 1000).count());
+            crystalBreakDelays.values().stream().filter(x -> currentTime - x <= 1000).count());
     }
 
-    private class PlacePosition {
+    private enum SwitchMode
+    {
+        None, SilentHotbar, SilentSwap, Auto
+    }
+
+    public enum SwingMode
+    {
+        Both, Packet, Client, None;
+
+        public boolean packet()
+        {
+            return this == Packet || this == Both;
+        }
+
+        public boolean client()
+        {
+            return this == Client || this == Both;
+        }
+    }
+
+    private enum RenderMode
+    {
+        DelayDraw, Simple, Debug
+    }
+
+    private class PlacePosition
+    {
         public BlockPos blockPos;
 
         public Direction placeDirection;
@@ -1184,31 +1303,12 @@ public class AutoCrystal extends Module {
         public boolean isSlowPlace = false;
     }
 
-    private class CrystalBreakRender {
+    private class CrystalBreakRender
+    {
         public Vec3d pos;
 
         public List<RenderablePart> parts;
 
         public Entity entity;
-    }
-
-    private enum SwitchMode {
-        None, SilentHotbar, SilentSwap, Auto
-    }
-
-    public enum SwingMode {
-        Both, Packet, Client, None;
-
-        public boolean packet() {
-            return this == Packet || this == Both;
-        }
-
-        public boolean client() {
-            return this == Client || this == Both;
-        }
-    }
-
-    private enum RenderMode {
-        DelayDraw, Simple, Debug
     }
 }

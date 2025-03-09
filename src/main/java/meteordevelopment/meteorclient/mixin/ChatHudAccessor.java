@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.List;
 
 @Mixin(ChatHud.class)
-public interface ChatHudAccessor {
+public interface ChatHudAccessor
+{
     @Accessor("visibleMessages")
     List<ChatHudLine.Visible> getVisibleMessages();
 

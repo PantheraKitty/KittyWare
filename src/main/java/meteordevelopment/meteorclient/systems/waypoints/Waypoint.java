@@ -22,20 +22,23 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Waypoint implements ISerializable<Waypoint> {
+public class Waypoint implements ISerializable<Waypoint>
+{
     public final Settings settings = new Settings();
-
+    public final UUID uuid;
     private final SettingGroup sgVisual = settings.createGroup("Visual");
-    private final SettingGroup sgPosition = settings.createGroup("Position");
-
     public Setting<String> name = sgVisual.add(new StringSetting.Builder()
         .name("name")
         .description("The name of the waypoint.")
         .defaultValue("Home")
         .build()
     );
-
-    public Setting<String> icon = sgVisual.add(new ProvidedStringSetting.Builder()
+    public Setting<SettingColor> color = sgVisual.add(new ColorSetting.Builder()
+        .name("color")
+        .description("The color of the waypoint.")
+        .defaultValue(MeteorClient.ADDON.color.toSetting())
+        .build()
+    );    public Setting<String> icon = sgVisual.add(new ProvidedStringSetting.Builder()
         .name("icon")
         .description("The icon of the waypoint.")
         .defaultValue("Square")
@@ -43,35 +46,25 @@ public class Waypoint implements ISerializable<Waypoint> {
         .onChanged(v -> validateIcon())
         .build()
     );
-
-    public Setting<SettingColor> color = sgVisual.add(new ColorSetting.Builder()
-        .name("color")
-        .description("The color of the waypoint.")
-        .defaultValue(MeteorClient.ADDON.color.toSetting())
-        .build()
-    );
-
     public Setting<Boolean> visible = sgVisual.add(new BoolSetting.Builder()
         .name("visible")
         .description("Whether to show the waypoint.")
         .defaultValue(true)
         .build()
     );
-
     public Setting<Integer> maxVisible = sgVisual.add(new IntSetting.Builder()
         .name("max-visible-distance")
         .description("How far away to render the waypoint.")
         .defaultValue(5000)
         .build()
     );
-
     public Setting<Double> scale = sgVisual.add(new DoubleSetting.Builder()
         .name("scale")
         .description("The scale of the waypoint.")
         .defaultValue(1)
         .build()
     );
-
+    private final SettingGroup sgPosition = settings.createGroup("Position");
     public Setting<BlockPos> pos = sgPosition.add(new BlockPosSetting.Builder()
         .name("location")
         .description("The location of the waypoint.")
@@ -94,13 +87,13 @@ public class Waypoint implements ISerializable<Waypoint> {
         .build()
     );
 
-    public final UUID uuid;
-
-    private Waypoint() {
+    private Waypoint()
+    {
         uuid = UUID.randomUUID();
     }
 
-    public Waypoint(NbtElement tag) {
+    public Waypoint(NbtElement tag)
+    {
         NbtCompound nbt = (NbtCompound) tag;
 
         if (nbt.containsUuid("uuid")) uuid = nbt.getUuid("uuid");
@@ -109,7 +102,8 @@ public class Waypoint implements ISerializable<Waypoint> {
         fromTag(nbt);
     }
 
-    public void renderIcon(double x, double y, double a, double size) {
+    public void renderIcon(double x, double y, double a, double size)
+    {
         AbstractTexture texture = Waypoints.get().icons.get(icon.get());
         if (texture == null) return;
 
@@ -124,55 +118,108 @@ public class Waypoint implements ISerializable<Waypoint> {
         color.get().a = preA;
     }
 
-    public BlockPos getPos() {
+    public BlockPos getPos()
+    {
         Dimension dim = dimension.get();
         BlockPos pos = this.pos.get();
 
         Dimension currentDim = PlayerUtils.getDimension();
         if (dim == currentDim || dim.equals(Dimension.End)) return this.pos.get();
 
-        return switch (dim) {
+        return switch (dim)
+        {
             case Overworld -> new BlockPos(pos.getX() / 8, pos.getY(), pos.getZ() / 8);
             case Nether -> new BlockPos(pos.getX() * 8, pos.getY(), pos.getZ() * 8);
             default -> null;
         };
     }
 
-    private void validateIcon() {
+    private void validateIcon()
+    {
         Map<String, AbstractTexture> icons = Waypoints.get().icons;
 
         AbstractTexture texture = icons.get(icon.get());
-        if (texture == null && !icons.isEmpty()) {
+        if (texture == null && !icons.isEmpty())
+        {
             icon.set(icons.keySet().iterator().next());
         }
     }
 
-    public static class Builder {
+    @Override
+    public NbtCompound toTag()
+    {
+        NbtCompound tag = new NbtCompound();
+
+        tag.putUuid("uuid", uuid);
+        tag.put("settings", settings.toTag());
+
+        return tag;
+    }
+
+    @Override
+    public Waypoint fromTag(NbtCompound tag)
+    {
+        if (tag.contains("settings"))
+        {
+            settings.fromTag(tag.getCompound("settings"));
+        }
+
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Waypoint waypoint = (Waypoint) o;
+        return Objects.equals(uuid, waypoint.uuid);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(uuid);
+    }
+
+    @Override
+    public String toString()
+    {
+        return name.get();
+    }
+
+    public static class Builder
+    {
         private String name = "", icon = "";
         private BlockPos pos = BlockPos.ORIGIN;
         private Dimension dimension = Dimension.Overworld;
 
-        public Builder name(String name) {
+        public Builder name(String name)
+        {
             this.name = name;
             return this;
         }
 
-        public Builder icon(String icon) {
+        public Builder icon(String icon)
+        {
             this.icon = icon;
             return this;
         }
 
-        public Builder pos(BlockPos pos) {
+        public Builder pos(BlockPos pos)
+        {
             this.pos = pos;
             return this;
         }
 
-        public Builder dimension(Dimension dimension) {
+        public Builder dimension(Dimension dimension)
+        {
             this.dimension = dimension;
             return this;
         }
 
-        public Waypoint build() {
+        public Waypoint build()
+        {
             Waypoint waypoint = new Waypoint();
 
             if (!name.equals(waypoint.name.getDefaultValue())) waypoint.name.set(name);
@@ -184,40 +231,5 @@ public class Waypoint implements ISerializable<Waypoint> {
         }
     }
 
-    @Override
-    public NbtCompound toTag() {
-        NbtCompound tag = new NbtCompound();
 
-        tag.putUuid("uuid", uuid);
-        tag.put("settings", settings.toTag());
-
-        return tag;
-    }
-
-    @Override
-    public Waypoint fromTag(NbtCompound tag) {
-        if (tag.contains("settings")) {
-            settings.fromTag(tag.getCompound("settings"));
-        }
-
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Waypoint waypoint = (Waypoint) o;
-        return Objects.equals(uuid, waypoint.uuid);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(uuid);
-    }
-
-    @Override
-    public String toString() {
-        return name.get();
-    }
 }

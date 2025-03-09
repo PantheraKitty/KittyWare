@@ -31,7 +31,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public class ComponentMapReader {
+public class ComponentMapReader
+{
     private static final DynamicCommandExceptionType UNKNOWN_COMPONENT_EXCEPTION = new DynamicCommandExceptionType(
         id -> Text.stringifiedTranslatable("arguments.item.component.unknown", id)
     );
@@ -44,56 +45,91 @@ public class ComponentMapReader {
     );
     private final DynamicOps<NbtElement> nbtOps;
 
-    public ComponentMapReader(CommandRegistryAccess commandRegistryAccess) {
+    public ComponentMapReader(CommandRegistryAccess commandRegistryAccess)
+    {
         this.nbtOps = commandRegistryAccess.getOps(NbtOps.INSTANCE);
     }
 
-    public ComponentMap consume(StringReader reader) throws CommandSyntaxException {
+    public ComponentMap consume(StringReader reader) throws CommandSyntaxException
+    {
         int cursor = reader.getCursor();
 
-        try {
+        try
+        {
             return new Reader(reader, nbtOps).read();
-        } catch (CommandSyntaxException e) {
+        }
+        catch (CommandSyntaxException e)
+        {
             reader.setCursor(cursor);
             throw e;
         }
     }
 
-    public CompletableFuture<Suggestions> getSuggestions(SuggestionsBuilder builder) {
+    public CompletableFuture<Suggestions> getSuggestions(SuggestionsBuilder builder)
+    {
         StringReader stringReader = new StringReader(builder.getInput());
         stringReader.setCursor(builder.getStart());
         Reader reader = new Reader(stringReader, nbtOps);
 
-        try {
+        try
+        {
             reader.read();
-        } catch (CommandSyntaxException ignored) {
+        }
+        catch (CommandSyntaxException ignored)
+        {
         }
 
         return reader.suggestor.apply(builder.createOffset(stringReader.getCursor()));
     }
 
-    private static class Reader {
+    private static class Reader
+    {
         private static final Function<SuggestionsBuilder, CompletableFuture<Suggestions>> SUGGEST_DEFAULT = SuggestionsBuilder::buildFuture;
         private final StringReader reader;
         private final DynamicOps<NbtElement> nbtOps;
         public Function<SuggestionsBuilder, CompletableFuture<Suggestions>> suggestor = this::suggestBracket;
 
-        public Reader(StringReader reader, DynamicOps<NbtElement> nbtOps) {
+        public Reader(StringReader reader, DynamicOps<NbtElement> nbtOps)
+        {
             this.reader = reader;
             this.nbtOps = nbtOps;
         }
 
-        public ComponentMap read() throws CommandSyntaxException {
+        public static ComponentType<?> readComponentType(StringReader reader) throws CommandSyntaxException
+        {
+            if (!reader.canRead())
+            {
+                throw COMPONENT_EXPECTED_EXCEPTION.createWithContext(reader);
+            } else
+            {
+                int i = reader.getCursor();
+                Identifier identifier = Identifier.fromCommandInput(reader);
+                ComponentType<?> dataComponentType = Registries.DATA_COMPONENT_TYPE.get(identifier);
+                if (dataComponentType != null && !dataComponentType.shouldSkipSerialization())
+                {
+                    return dataComponentType;
+                } else
+                {
+                    reader.setCursor(i);
+                    throw UNKNOWN_COMPONENT_EXCEPTION.createWithContext(reader, identifier);
+                }
+            }
+        }
+
+        public ComponentMap read() throws CommandSyntaxException
+        {
             ComponentMap.Builder builder = ComponentMap.builder();
 
             reader.expect('[');
             suggestor = this::suggestComponentType;
             Set<ComponentType<?>> set = new ReferenceArraySet<>();
 
-            while(reader.canRead() && reader.peek() != ']') {
+            while (reader.canRead() && reader.peek() != ']')
+            {
                 reader.skipWhitespace();
                 ComponentType<?> dataComponentType = readComponentType(reader);
-                if (!set.add(dataComponentType)) {
+                if (!set.add(dataComponentType))
+                {
                     throw REPEATED_COMPONENT_EXCEPTION.create(dataComponentType);
                 }
 
@@ -105,14 +141,16 @@ public class ComponentMapReader {
                 this.readComponentValue(reader, builder, dataComponentType);
                 reader.skipWhitespace();
                 suggestor = this::suggestEndOfComponent;
-                if (!reader.canRead() || reader.peek() != ',') {
+                if (!reader.canRead() || reader.peek() != ',')
+                {
                     break;
                 }
 
                 reader.skip();
                 reader.skipWhitespace();
                 suggestor = this::suggestComponentType;
-                if (!reader.canRead()) {
+                if (!reader.canRead())
+                {
                     throw COMPONENT_EXPECTED_EXCEPTION.createWithContext(reader);
                 }
             }
@@ -123,27 +161,14 @@ public class ComponentMapReader {
             return builder.build();
         }
 
-        public static ComponentType<?> readComponentType(StringReader reader) throws CommandSyntaxException {
-            if (!reader.canRead()) {
-                throw COMPONENT_EXPECTED_EXCEPTION.createWithContext(reader);
-            } else {
-                int i = reader.getCursor();
-                Identifier identifier = Identifier.fromCommandInput(reader);
-                ComponentType<?> dataComponentType = Registries.DATA_COMPONENT_TYPE.get(identifier);
-                if (dataComponentType != null && !dataComponentType.shouldSkipSerialization()) {
-                    return dataComponentType;
-                } else {
-                    reader.setCursor(i);
-                    throw UNKNOWN_COMPONENT_EXCEPTION.createWithContext(reader, identifier);
-                }
-            }
-        }
-
-        private CompletableFuture<Suggestions> suggestComponentType(SuggestionsBuilder builder) {
+        private CompletableFuture<Suggestions> suggestComponentType(SuggestionsBuilder builder)
+        {
             String string = builder.getRemaining().toLowerCase(Locale.ROOT);
-            CommandSource.forEachMatching(Registries.DATA_COMPONENT_TYPE.getEntrySet(), string, entry -> entry.getKey().getValue(), entry -> {
+            CommandSource.forEachMatching(Registries.DATA_COMPONENT_TYPE.getEntrySet(), string, entry -> entry.getKey().getValue(), entry ->
+            {
                 ComponentType<?> dataComponentType = entry.getValue();
-                if (dataComponentType.getCodec() != null) {
+                if (dataComponentType.getCodec() != null)
+                {
                     Identifier identifier = entry.getKey().getValue();
                     builder.suggest(identifier.toString() + "=");
                 }
@@ -151,26 +176,32 @@ public class ComponentMapReader {
             return builder.buildFuture();
         }
 
-        private <T> void readComponentValue(StringReader reader, ComponentMap.Builder builder, ComponentType<T> type) throws CommandSyntaxException {
+        private <T> void readComponentValue(StringReader reader, ComponentMap.Builder builder, ComponentType<T> type) throws CommandSyntaxException
+        {
             int i = reader.getCursor();
             NbtElement nbtElement = new StringNbtReader(reader).parseElement();
             DataResult<T> dataResult = type.getCodecOrThrow().parse(this.nbtOps, nbtElement);
-            builder.add(type, dataResult.getOrThrow(error -> {
+            builder.add(type, dataResult.getOrThrow(error ->
+            {
                 reader.setCursor(i);
                 return MALFORMED_COMPONENT_EXCEPTION.createWithContext(reader, type.toString(), error);
             }));
         }
 
-        private CompletableFuture<Suggestions> suggestBracket(SuggestionsBuilder builder) {
-            if (builder.getRemaining().isEmpty()) {
+        private CompletableFuture<Suggestions> suggestBracket(SuggestionsBuilder builder)
+        {
+            if (builder.getRemaining().isEmpty())
+            {
                 builder.suggest(String.valueOf('['));
             }
 
             return builder.buildFuture();
         }
 
-        private CompletableFuture<Suggestions> suggestEndOfComponent(SuggestionsBuilder builder) {
-            if (builder.getRemaining().isEmpty()) {
+        private CompletableFuture<Suggestions> suggestEndOfComponent(SuggestionsBuilder builder)
+        {
+            if (builder.getRemaining().isEmpty())
+            {
                 builder.suggest(String.valueOf(','));
                 builder.suggest(String.valueOf(']'));
             }
@@ -178,8 +209,10 @@ public class ComponentMapReader {
             return builder.buildFuture();
         }
 
-        private CompletableFuture<Suggestions> suggestEqual(SuggestionsBuilder builder) {
-            if (builder.getRemaining().isEmpty()) {
+        private CompletableFuture<Suggestions> suggestEqual(SuggestionsBuilder builder)
+        {
+            if (builder.getRemaining().isEmpty())
+            {
                 builder.suggest(String.valueOf('='));
             }
 

@@ -7,146 +7,177 @@ package meteordevelopment.meteorclient.gui.utils;
 
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 
-public class Cell<T extends WWidget> {
+public class Cell<T extends WWidget>
+{
     private final T widget;
 
     public double x, y;
     public double width, height;
-
+    public boolean expandCellX;
     private AlignmentX alignX = AlignmentX.Left;
     private AlignmentY alignY = AlignmentY.Top;
-
     private double padTop, padRight, padBottom, padLeft;
     private double marginTop;
-
     private boolean expandWidgetX;
     private boolean expandWidgetY;
 
-    public boolean expandCellX;
-
-    public Cell(T widget) {
+    public Cell(T widget)
+    {
         this.widget = widget;
     }
 
-    public T widget() {
+    public T widget()
+    {
         return widget;
     }
 
-    public void move(double deltaX, double deltaY) {
+    public void move(double deltaX, double deltaY)
+    {
         x += deltaX;
         y += deltaY;
 
         widget.move(deltaX, deltaY);
     }
 
-    public Cell<T> minWidth(double width) {
+    public Cell<T> minWidth(double width)
+    {
         widget.minWidth = width;
         return this;
     }
 
     // Alignment
 
-    public Cell<T> centerX() {
+    public Cell<T> centerX()
+    {
         alignX = AlignmentX.Center;
         return this;
     }
 
-    public Cell<T> right() {
+    public Cell<T> right()
+    {
         alignX = AlignmentX.Right;
         return this;
     }
 
-    public Cell<T> centerY() {
+    public Cell<T> centerY()
+    {
         alignY = AlignmentY.Center;
         return this;
     }
 
-    public Cell<T> bottom() {
+    public Cell<T> bottom()
+    {
         alignY = AlignmentY.Bottom;
         return this;
     }
 
-    public Cell<T> center() {
+    public Cell<T> center()
+    {
         alignX = AlignmentX.Center;
         alignY = AlignmentY.Center;
         return this;
     }
 
-    public Cell<T> top() {
+    public Cell<T> top()
+    {
         alignY = AlignmentY.Top;
         return this;
     }
 
     // Padding
 
-    public Cell<T> padTop(double pad) {
+    public Cell<T> padTop(double pad)
+    {
         padTop = pad;
         return this;
     }
-    public Cell<T> padRight(double pad) {
+
+    public Cell<T> padRight(double pad)
+    {
         padRight = pad;
         return this;
     }
-    public Cell<T> padBottom(double pad) {
+
+    public Cell<T> padBottom(double pad)
+    {
         padBottom = pad;
         return this;
     }
-    public Cell<T> padLeft(double pad) {
+
+    public Cell<T> padLeft(double pad)
+    {
         padLeft = pad;
         return this;
     }
 
-    public Cell<T> padHorizontal(double pad) {
+    public Cell<T> padHorizontal(double pad)
+    {
         padRight = padLeft = pad;
         return this;
     }
-    public Cell<T> padVertical(double pad) {
+
+    public Cell<T> padVertical(double pad)
+    {
         padTop = padBottom = pad;
         return this;
     }
-    public Cell<T> pad(double pad) {
+
+    public Cell<T> pad(double pad)
+    {
         padTop = padRight = padBottom = padLeft = pad;
         return this;
     }
 
-    public double padTop() {
+    public double padTop()
+    {
         return s(padTop);
     }
-    public double padRight() {
+
+    public double padRight()
+    {
         return s(padRight);
     }
-    public double padBottom() {
+
+    public double padBottom()
+    {
         return s(padBottom);
     }
-    public double padLeft() {
+
+    public double padLeft()
+    {
         return s(padLeft);
     }
 
     // Margin
 
-    public Cell<T> marginTop(double m) {
+    public Cell<T> marginTop(double m)
+    {
         marginTop = m;
         return this;
     }
 
     // Expand
 
-    public Cell<T> expandWidgetX() {
+    public Cell<T> expandWidgetX()
+    {
         expandWidgetX = true;
         return this;
     }
 
-    public Cell<T> expandWidgetY() {
+    public Cell<T> expandWidgetY()
+    {
         expandWidgetY = true;
         return this;
     }
 
-    public Cell<T> expandCellX() {
+    public Cell<T> expandCellX()
+    {
         expandCellX = true;
         return this;
     }
 
-    public Cell<T> expandX() {
+    public Cell<T> expandX()
+    {
         expandWidgetX = true;
         expandCellX = true;
         return this;
@@ -154,23 +185,30 @@ public class Cell<T extends WWidget> {
 
     // Other
 
-    public void alignWidget() {
-        if (expandWidgetX) {
+    public void alignWidget()
+    {
+        if (expandWidgetX)
+        {
             widget.x = x;
             widget.width = width;
-        } else {
-            switch (alignX) {
+        } else
+        {
+            switch (alignX)
+            {
                 case Left -> widget.x = x;
                 case Center -> widget.x = x + width / 2 - widget.width / 2;
                 case Right -> widget.x = x + width - widget.width;
             }
         }
 
-        if (expandWidgetY) {
+        if (expandWidgetY)
+        {
             widget.y = y;
             widget.height = height;
-        } else {
-            switch (alignY) {
+        } else
+        {
+            switch (alignY)
+            {
                 case Top -> widget.y = y + s(marginTop);
                 case Center -> widget.y = y + height / 2 - widget.height / 2;
                 case Bottom -> widget.y = y + height - widget.height;
@@ -178,7 +216,8 @@ public class Cell<T extends WWidget> {
         }
     }
 
-    private double s(double value) {
+    private double s(double value)
+    {
         return widget.theme.scale(value);
     }
 }

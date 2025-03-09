@@ -14,53 +14,61 @@ import java.util.List;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @SuppressWarnings("unchecked") // cant instantiate a Prompt directly so this is fine
-public abstract class Prompt<T> {
+public abstract class Prompt<T>
+{
     final GuiTheme theme;
     final Screen parent;
-
-    String title = "";
     final List<String> messages = new ArrayList<>();
+    String title = "";
     boolean dontShowAgainCheckboxVisible = true;
     String id = null;
 
-    protected Prompt(GuiTheme theme, Screen parent) {
+    protected Prompt(GuiTheme theme, Screen parent)
+    {
         this.theme = theme;
         this.parent = parent;
     }
 
-    public T title(String title) {
+    public T title(String title)
+    {
         this.title = title;
         return (T) this;
     }
 
-    public T message(String message) {
+    public T message(String message)
+    {
         this.messages.add(message);
         return (T) this;
     }
 
-    public T message(String message, Object... args) {
+    public T message(String message, Object... args)
+    {
         this.messages.add(String.format(message, args));
         return (T) this;
     }
 
-    public T dontShowAgainCheckboxVisible(boolean visible) {
+    public T dontShowAgainCheckboxVisible(boolean visible)
+    {
         this.dontShowAgainCheckboxVisible = visible;
         return (T) this;
     }
 
-    public T id(String from) {
+    public T id(String from)
+    {
         this.id = from;
         return (T) this;
     }
 
-    public boolean show() {
+    public boolean show()
+    {
         if (id == null) this.id(this.title);
         if (Config.get().dontShowAgainPrompts.contains(id)) return false;
 
-        if (!RenderSystem.isOnRenderThread()) {
+        if (!RenderSystem.isOnRenderThread())
+        {
             RenderSystem.recordRenderCall(() -> mc.setScreen(new PromptScreen(theme)));
-        }
-        else {
+        } else
+        {
             mc.setScreen(new PromptScreen(theme));
         }
 
@@ -69,22 +77,26 @@ public abstract class Prompt<T> {
 
     abstract void initialiseWidgets(PromptScreen screen);
 
-    protected class PromptScreen extends WindowScreen {
+    protected class PromptScreen extends WindowScreen
+    {
         WCheckbox dontShowAgainCheckbox;
         WHorizontalList list;
 
-        public PromptScreen(GuiTheme theme) {
+        public PromptScreen(GuiTheme theme)
+        {
             super(theme, Prompt.this.title);
 
             this.parent = Prompt.this.parent;
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             for (String line : messages) add(theme.label(line)).expandX();
             add(theme.horizontalSeparator()).expandX();
 
-            if (dontShowAgainCheckboxVisible) {
+            if (dontShowAgainCheckboxVisible)
+            {
                 WHorizontalList checkboxContainer = add(theme.horizontalList()).expandX().widget();
                 dontShowAgainCheckbox = checkboxContainer.add(theme.checkbox(false)).widget();
                 checkboxContainer.add(theme.label("Don't show this again.")).expandX();

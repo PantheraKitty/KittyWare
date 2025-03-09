@@ -9,7 +9,8 @@ import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.utils.BaseWidget;
 
-public abstract class WWidget implements BaseWidget {
+public abstract class WWidget implements BaseWidget
+{
     public boolean visible = true;
     public boolean highlight = false;
     public boolean deactivate = false;
@@ -25,25 +26,31 @@ public abstract class WWidget implements BaseWidget {
     public boolean mouseOver;
     protected double mouseOverTimer;
 
-    public void init() {}
+    public void init()
+    {
+    }
 
-    public void move(double deltaX, double deltaY) {
+    public void move(double deltaX, double deltaY)
+    {
         x = Math.round(x + deltaX);
         y = Math.round(y + deltaY);
     }
 
     @Override
-    public GuiTheme getTheme() {
+    public GuiTheme getTheme()
+    {
         return theme;
     }
 
-    public double pad() {
+    public double pad()
+    {
         return theme.pad();
     }
 
     // Layout
 
-    public void calculateSize() {
+    public void calculateSize()
+    {
         onCalculateSize();
 
         double minWidth = theme.scale(this.minWidth);
@@ -53,31 +60,36 @@ public abstract class WWidget implements BaseWidget {
         height = Math.round(height);
     }
 
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
 
     }
 
-    public void calculateWidgetPositions() {
+    public void calculateWidgetPositions()
+    {
         x = Math.round(x);
         y = Math.round(y);
 
         onCalculateWidgetPositions();
     }
 
-    protected void onCalculateWidgetPositions() {
+    protected void onCalculateWidgetPositions()
+    {
 
     }
 
     // Rendering
 
-    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         if (!visible) return true;
 
-        if (isOver(mouseX, mouseY)) {
+        if (isOver(mouseX, mouseY))
+        {
             mouseOverTimer += delta;
             if (mouseOverTimer >= 1 && tooltip != null) renderer.tooltip(tooltip);
-        }
-        else {
+        } else
+        {
             mouseOverTimer = 0;
         }
 
@@ -85,58 +97,97 @@ public abstract class WWidget implements BaseWidget {
         return false;
     }
 
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {}
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
+    }
 
     // Events
 
-    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean used) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean used)
+    {
         return onMouseClicked(mouseX, mouseY, button, used);
     }
-    public boolean onMouseClicked(double mouseX, double mouseY, int button, boolean used) { return false; }
 
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean onMouseClicked(double mouseX, double mouseY, int button, boolean used)
+    {
+        return false;
+    }
+
+    public boolean mouseReleased(double mouseX, double mouseY, int button)
+    {
         return onMouseReleased(mouseX, mouseY, button);
     }
-    public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 
-    public void mouseMoved(double mouseX, double mouseY, double lastMouseX, double lastMouseY) {
+    public boolean onMouseReleased(double mouseX, double mouseY, int button)
+    {
+        return false;
+    }
+
+    public void mouseMoved(double mouseX, double mouseY, double lastMouseX, double lastMouseY)
+    {
         mouseOver = isOver(mouseX, mouseY);
         onMouseMoved(mouseX, mouseY, lastMouseX, lastMouseY);
     }
-    public void onMouseMoved(double mouseX, double mouseY, double lastMouseX, double lastMouseY) {}
 
-    public boolean mouseScrolled(double amount) {
+    public void onMouseMoved(double mouseX, double mouseY, double lastMouseX, double lastMouseY)
+    {
+    }
+
+    public boolean mouseScrolled(double amount)
+    {
         return onMouseScrolled(amount);
     }
-    public boolean onMouseScrolled(double amount) { return false; }
 
-    public boolean keyPressed(int key, int mods) {
+    public boolean onMouseScrolled(double amount)
+    {
+        return false;
+    }
+
+    public boolean keyPressed(int key, int mods)
+    {
         return onKeyPressed(key, mods);
     }
-    public boolean onKeyPressed(int key, int mods) { return false; }
 
-    public boolean keyRepeated(int key, int mods) {
+    public boolean onKeyPressed(int key, int mods)
+    {
+        return false;
+    }
+
+    public boolean keyRepeated(int key, int mods)
+    {
         return onKeyRepeated(key, mods);
     }
-    public boolean onKeyRepeated(int key, int mods) { return false; }
 
-    public boolean charTyped(char c) {
+    public boolean onKeyRepeated(int key, int mods)
+    {
+        return false;
+    }
+
+    public boolean charTyped(char c)
+    {
         return onCharTyped(c);
     }
-    public boolean onCharTyped(char c) { return false; }
+
+    public boolean onCharTyped(char c)
+    {
+        return false;
+    }
 
     // Other
 
-    public void invalidate() {
+    public void invalidate()
+    {
         WWidget root = getRoot();
         if (root != null) root.invalidate();
     }
 
-    protected WWidget getRoot() {
+    protected WWidget getRoot()
+    {
         return parent != null ? parent.getRoot() : (this instanceof WRoot ? this : null);
     }
 
-    public boolean isOver(double x, double y) {
+    public boolean isOver(double x, double y)
+    {
         return x >= this.x && x <= this.x + width && y >= this.y && y <= this.y + height;
     }
 }

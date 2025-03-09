@@ -10,14 +10,17 @@ import net.minecraft.client.gui.screen.Screen;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public abstract class Tab {
+public abstract class Tab
+{
     public final String name;
 
-    public Tab(String name) {
+    public Tab(String name)
+    {
         this.name = name;
     }
 
-    public void openScreen(GuiTheme theme) {
+    public void openScreen(GuiTheme theme)
+    {
         TabScreen screen = this.createScreen(theme);
         screen.addDirect(theme.topBar()).top().centerX();
         mc.setScreen(screen);

@@ -37,14 +37,23 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 @Mixin(HandledScreen.class)
-public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen implements ScreenHandlerProvider<T> {
+public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen implements ScreenHandlerProvider<T>
+{
+    @Unique
+    private static final ItemStack[] ITEMS = new ItemStack[27];
     @Shadow
     protected Slot focusedSlot;
-
     @Shadow
     protected int x;
     @Shadow
     protected int y;
+    @Shadow
+    private boolean doubleClicking;
+
+    public HandledScreenMixin(Text title)
+    {
+        super(title);
+    }
 
     @Shadow
     @Nullable
@@ -54,26 +63,18 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
     public abstract T getScreenHandler();
 
     @Shadow
-    private boolean doubleClicking;
-
-    @Shadow
     protected abstract void onMouseClick(Slot slot, int invSlot, int clickData, SlotActionType actionType);
 
     @Shadow
     public abstract void close();
 
-    @Unique
-    private static final ItemStack[] ITEMS = new ItemStack[27];
-
-    public HandledScreenMixin(Text title) {
-        super(title);
-    }
-
     @Inject(method = "init", at = @At("TAIL"))
-    private void onInit(CallbackInfo info) {
+    private void onInit(CallbackInfo info)
+    {
         InventoryTweaks invTweaks = Modules.get().get(InventoryTweaks.class);
 
-        if (invTweaks.isActive() && invTweaks.showButtons() && invTweaks.canSteal(getScreenHandler())) {
+        if (invTweaks.isActive() && invTweaks.showButtons() && invTweaks.canSteal(getScreenHandler()))
+        {
             addDrawableChild(
                 new ButtonWidget.Builder(Text.literal("Steal"), button -> invTweaks.steal(getScreenHandler()))
                     .position(x, y - 22)
@@ -92,24 +93,30 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
 
     // Inventory Tweaks
     @Inject(method = "mouseDragged", at = @At("TAIL"))
-    private void onMouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> info) {
-        if (button != GLFW_MOUSE_BUTTON_LEFT || doubleClicking || !Modules.get().get(InventoryTweaks.class).mouseDragItemMove()) return;
+    private void onMouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> info)
+    {
+        if (button != GLFW_MOUSE_BUTTON_LEFT || doubleClicking || !Modules.get().get(InventoryTweaks.class).mouseDragItemMove())
+            return;
 
         Slot slot = getSlotAt(mouseX, mouseY);
-        if (slot != null && slot.hasStack() && hasShiftDown()) onMouseClick(slot, slot.id, button, SlotActionType.QUICK_MOVE);
+        if (slot != null && slot.hasStack() && hasShiftDown())
+            onMouseClick(slot, slot.id, button, SlotActionType.QUICK_MOVE);
     }
 
     // Middle click open
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+    private void mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir)
+    {
         BetterTooltips toolips = Modules.get().get(BetterTooltips.class);
 
-        if (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE && focusedSlot != null && !focusedSlot.getStack().isEmpty() && mc.player.currentScreenHandler.getCursorStack().isEmpty() && toolips.middleClickOpen()) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE && focusedSlot != null && !focusedSlot.getStack().isEmpty() && mc.player.currentScreenHandler.getCursorStack().isEmpty() && toolips.middleClickOpen())
+        {
             ItemStack itemStack = focusedSlot.getStack();
-            if (Utils.hasItems(itemStack) || itemStack.getItem() == Items.ENDER_CHEST) {
+            if (Utils.hasItems(itemStack) || itemStack.getItem() == Items.ENDER_CHEST)
+            {
                 cir.setReturnValue(Utils.openContainer(focusedSlot.getStack(), ITEMS, false));
-            }
-            else if (itemStack.get(DataComponentTypes.WRITTEN_BOOK_CONTENT) != null || itemStack.get(DataComponentTypes.WRITABLE_BOOK_CONTENT) != null) {
+            } else if (itemStack.get(DataComponentTypes.WRITTEN_BOOK_CONTENT) != null || itemStack.get(DataComponentTypes.WRITABLE_BOOK_CONTENT) != null)
+            {
                 close();
                 mc.setScreen(new BookScreen(BookScreen.Contents.create(itemStack)));
                 cir.setReturnValue(true);
@@ -119,7 +126,8 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
 
     // Item Highlight
     @Inject(method = "drawSlot", at = @At("HEAD"))
-    private void onDrawSlot(DrawContext context, Slot slot, CallbackInfo ci) {
+    private void onDrawSlot(DrawContext context, Slot slot, CallbackInfo ci)
+    {
         int color = Modules.get().get(ItemHighlight.class).getColor(slot.getStack());
         if (color != -1) context.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, color);
     }

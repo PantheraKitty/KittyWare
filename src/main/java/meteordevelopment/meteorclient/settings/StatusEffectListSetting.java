@@ -18,46 +18,59 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class StatusEffectListSetting extends Setting<List<StatusEffect>> {
-    public StatusEffectListSetting(String name, String description, List<StatusEffect> defaultValue, Consumer<List<StatusEffect>> onChanged, Consumer<Setting<List<StatusEffect>>> onModuleActivated, IVisible visible) {
+public class StatusEffectListSetting extends Setting<List<StatusEffect>>
+{
+    public StatusEffectListSetting(String name, String description, List<StatusEffect> defaultValue, Consumer<List<StatusEffect>> onChanged, Consumer<Setting<List<StatusEffect>>> onModuleActivated, IVisible visible)
+    {
         super(name, description, defaultValue, onChanged, onModuleActivated, visible);
     }
 
     @Override
-    public void resetImpl() {
+    public void resetImpl()
+    {
         value = new ArrayList<>(defaultValue);
     }
 
     @Override
-    protected List<StatusEffect> parseImpl(String str) {
+    protected List<StatusEffect> parseImpl(String str)
+    {
         String[] values = str.split(",");
         List<StatusEffect> effects = new ArrayList<>(values.length);
 
-        try {
-            for (String value : values) {
+        try
+        {
+            for (String value : values)
+            {
                 StatusEffect effect = parseId(Registries.STATUS_EFFECT, value);
                 if (effect != null) effects.add(effect);
             }
-        } catch (Exception ignored) {}
+        }
+        catch (Exception ignored)
+        {
+        }
 
         return effects;
     }
 
     @Override
-    protected boolean isValueValid(List<StatusEffect> value) {
+    protected boolean isValueValid(List<StatusEffect> value)
+    {
         return true;
     }
 
     @Override
-    public Iterable<Identifier> getIdentifierSuggestions() {
+    public Iterable<Identifier> getIdentifierSuggestions()
+    {
         return Registries.STATUS_EFFECT.getIds();
     }
 
     @Override
-    public NbtCompound save(NbtCompound tag) {
+    public NbtCompound save(NbtCompound tag)
+    {
         NbtList valueTag = new NbtList();
 
-        for (StatusEffect effect : get()) {
+        for (StatusEffect effect : get())
+        {
             Identifier id = Registries.STATUS_EFFECT.getId(effect);
             if (id != null) valueTag.add(NbtString.of(id.toString()));
         }
@@ -67,11 +80,13 @@ public class StatusEffectListSetting extends Setting<List<StatusEffect>> {
     }
 
     @Override
-    public List<StatusEffect> load(NbtCompound tag) {
+    public List<StatusEffect> load(NbtCompound tag)
+    {
         get().clear();
 
         NbtList valueTag = tag.getList("value", 8);
-        for (NbtElement tagI : valueTag) {
+        for (NbtElement tagI : valueTag)
+        {
             StatusEffect effect = Registries.STATUS_EFFECT.get(Identifier.of(tagI.asString()));
             if (effect != null) get().add(effect);
         }
@@ -79,17 +94,21 @@ public class StatusEffectListSetting extends Setting<List<StatusEffect>> {
         return get();
     }
 
-    public static class Builder extends SettingBuilder<Builder, List<StatusEffect>, StatusEffectListSetting> {
-        public Builder() {
+    public static class Builder extends SettingBuilder<Builder, List<StatusEffect>, StatusEffectListSetting>
+    {
+        public Builder()
+        {
             super(new ArrayList<>(0));
         }
 
-        public Builder defaultValue(StatusEffect... defaults) {
+        public Builder defaultValue(StatusEffect... defaults)
+        {
             return defaultValue(defaults != null ? Arrays.asList(defaults) : new ArrayList<>());
         }
 
         @Override
-        public StatusEffectListSetting build() {
+        public StatusEffectListSetting build()
+        {
             return new StatusEffectListSetting(name, description, defaultValue, onChanged, onModuleActivated, visible);
         }
     }

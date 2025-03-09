@@ -13,7 +13,8 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.Potions;
 import net.minecraft.registry.entry.RegistryEntry;
 
-public enum MyPotion {
+public enum MyPotion
+{
     Swiftness(Potions.SWIFTNESS, Items.NETHER_WART, Items.SUGAR),
     SwiftnessLong(Potions.LONG_SWIFTNESS, Items.NETHER_WART, Items.SUGAR, Items.REDSTONE),
     SwiftnessStrong(Potions.STRONG_SWIFTNESS, Items.NETHER_WART, Items.SUGAR, Items.GLOWSTONE_DUST),
@@ -69,7 +70,8 @@ public enum MyPotion {
     public final ItemStack potion;
     public final Item[] ingredients;
 
-    MyPotion(RegistryEntry<Potion> potion, Item... ingredients) {
+    MyPotion(RegistryEntry<Potion> potion, Item... ingredients)
+    {
         this.potion = PotionContentsComponent.createStack(Items.POTION, potion);
         this.ingredients = ingredients;
     }

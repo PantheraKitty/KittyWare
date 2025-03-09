@@ -16,34 +16,40 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
-public class ContainerTooltipComponent implements TooltipComponent, MeteorTooltipData {
+public class ContainerTooltipComponent implements TooltipComponent, MeteorTooltipData
+{
     private static final Identifier TEXTURE_CONTAINER_BACKGROUND = MeteorClient.identifier("textures/container.png");
 
     private final ItemStack[] items;
     private final Color color;
 
-    public ContainerTooltipComponent(ItemStack[] items, Color color) {
+    public ContainerTooltipComponent(ItemStack[] items, Color color)
+    {
         this.items = items;
         this.color = color;
     }
 
     @Override
-    public TooltipComponent getComponent() {
+    public TooltipComponent getComponent()
+    {
         return this;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight()
+    {
         return 67;
     }
 
     @Override
-    public int getWidth(TextRenderer textRenderer) {
+    public int getWidth(TextRenderer textRenderer)
+    {
         return 176;
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
+    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context)
+    {
 
         // Background
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
@@ -54,11 +60,13 @@ public class ContainerTooltipComponent implements TooltipComponent, MeteorToolti
         //Contents
         int row = 0;
         int i = 0;
-        for (ItemStack itemStack : items) {
+        for (ItemStack itemStack : items)
+        {
             RenderUtils.drawItem(context, itemStack, x + 8 + i * 18, y + 7 + row * 18, 1, true);
 
             i++;
-            if (i >= 9) {
+            if (i >= 9)
+            {
                 i = 0;
                 row++;
             }

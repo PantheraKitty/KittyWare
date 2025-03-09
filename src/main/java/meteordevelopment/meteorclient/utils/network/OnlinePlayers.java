@@ -5,23 +5,28 @@
 
 package meteordevelopment.meteorclient.utils.network;
 
-public class OnlinePlayers {
+public class OnlinePlayers
+{
     private static long lastPingTime;
 
-    private OnlinePlayers() {
+    private OnlinePlayers()
+    {
     }
 
-    public static void update() {
+    public static void update()
+    {
         long time = System.currentTimeMillis();
 
-        if (time - lastPingTime > 5 * 60 * 1000) {
+        if (time - lastPingTime > 5 * 60 * 1000)
+        {
             MeteorExecutor.execute(() -> Http.post("https://meteorclient.com/api/online/ping").ignoreExceptions().send());
 
             lastPingTime = time;
         }
     }
 
-    public static void leave() {
+    public static void leave()
+    {
         MeteorExecutor.execute(() -> Http.post("https://meteorclient.com/api/online/leave").ignoreExceptions().send());
     }
 }

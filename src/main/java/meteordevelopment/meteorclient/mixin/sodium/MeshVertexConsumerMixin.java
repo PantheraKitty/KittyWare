@@ -15,14 +15,17 @@ import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(value = MeshVertexConsumerProvider.MeshVertexConsumer.class, remap = false)
-public abstract class MeshVertexConsumerMixin implements VertexConsumer, VertexBufferWriter {
+public abstract class MeshVertexConsumerMixin implements VertexConsumer, VertexBufferWriter
+{
     @Override
-    public void push(MemoryStack stack, long ptr, int count, VertexFormat format) {
+    public void push(MemoryStack stack, long ptr, int count, VertexFormat format)
+    {
         int positionOffset = format.getOffset(VertexFormatElement.POSITION);
 
         if (positionOffset == -1) return;
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             long positionPtr = ptr + (long) format.getVertexSizeByte() * i + positionOffset;
 
             float x = MemoryUtil.memGetFloat(positionPtr);

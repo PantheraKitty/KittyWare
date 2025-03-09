@@ -18,23 +18,30 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractBlockRenderContext.class)
-public abstract class AbstractBlockRenderContextMixin {
-    @Final @Shadow(remap = false) protected BlockRenderInfo blockInfo;
+public abstract class AbstractBlockRenderContextMixin
+{
+    @Final
+    @Shadow(remap = false)
+    protected BlockRenderInfo blockInfo;
 
     @Inject(method = "renderQuad", at = @At(value = "INVOKE", target = "Lnet/fabricmc/fabric/impl/client/indigo/renderer/render/AbstractBlockRenderContext;bufferQuad(Lnet/fabricmc/fabric/impl/client/indigo/renderer/mesh/MutableQuadViewImpl;Lnet/minecraft/client/render/VertexConsumer;)V"), cancellable = true)
-    private void onBufferQuad(MutableQuadViewImpl quad, CallbackInfo ci) {
+    private void onBufferQuad(MutableQuadViewImpl quad, CallbackInfo ci)
+    {
         int alpha = Xray.getAlpha(blockInfo.blockState, blockInfo.blockPos);
 
         if (alpha == 0) ci.cancel();
-        else if (alpha != -1) {
-            for (int i = 0; i < 4; i++) {
+        else if (alpha != -1)
+        {
+            for (int i = 0; i < 4; i++)
+            {
                 quad.color(i, rewriteQuadAlpha(quad.color(i), alpha));
             }
         }
     }
 
     @Unique
-    private int rewriteQuadAlpha(int color, int alpha) {
+    private int rewriteQuadAlpha(int color, int alpha)
+    {
         return ((alpha & 0xFF) << 24) | (color & 0x00FFFFFF);
     }
 }

@@ -1,6 +1,5 @@
 package meteordevelopment.meteorclient.systems.modules.world;
 
-import java.util.*;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -17,8 +16,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.BlockPos.Mutable;
+import net.minecraft.util.math.Vec3d;
+
+import java.util.*;
 
 public final class Filler extends Module
 {
@@ -188,7 +189,7 @@ public final class Filler extends Module
                     .a((int) ((lineColor.get()).a * (1.0 - timeCompletion)));
 
                 event.renderer.box(entry.getKey(), fadedSideColor, fadedLineColor,
-                     shapeMode.get(), 0);
+                    shapeMode.get(), 0);
             }
         }
     }

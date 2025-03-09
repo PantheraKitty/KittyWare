@@ -8,15 +8,18 @@ package meteordevelopment.meteorclient.renderer;
 import meteordevelopment.meteorclient.utils.PreInit;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class PostProcessRenderer {
-    private static Mesh mesh;
+public class PostProcessRenderer
+{
     private static final MatrixStack matrices = new MatrixStack();
+    private static Mesh mesh;
 
-    private PostProcessRenderer() {
+    private PostProcessRenderer()
+    {
     }
 
     @PreInit
-    public static void init() {
+    public static void init()
+    {
         mesh = new Mesh(DrawMode.Triangles, Mesh.Attrib.Vec2);
         mesh.begin();
 
@@ -30,15 +33,18 @@ public class PostProcessRenderer {
         mesh.end();
     }
 
-    public static void beginRender() {
+    public static void beginRender()
+    {
         mesh.beginRender(matrices);
     }
 
-    public static void render() {
+    public static void render()
+    {
         mesh.render(matrices);
     }
 
-    public static void endRender() {
+    public static void endRender()
+    {
         mesh.endRender();
     }
 }

@@ -9,14 +9,17 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WTopBar;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public class WGonbleWareTopBar extends WTopBar implements GonbleWareWidget {
+public class WGonbleWareTopBar extends WTopBar implements GonbleWareWidget
+{
     @Override
-    protected Color getButtonColor(boolean pressed, boolean hovered) {
+    protected Color getButtonColor(boolean pressed, boolean hovered)
+    {
         return theme().backgroundColor.get(pressed, hovered);
     }
 
     @Override
-    protected Color getNameColor() {
+    protected Color getNameColor()
+    {
         return theme().textColor.get();
     }
 }

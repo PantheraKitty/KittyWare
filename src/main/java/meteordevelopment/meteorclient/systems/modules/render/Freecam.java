@@ -39,18 +39,11 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;
 import org.lwjgl.glfw.GLFW;
 
-public class Freecam extends Module {
+public class Freecam extends Module
+{
+    public final Vector3d pos = new Vector3d();
+    public final Vector3d prevPos = new Vector3d();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
-    private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
-        .name("speed")
-        .description("Your speed while in freecam.")
-        .onChanged(aDouble -> speedValue = aDouble)
-        .defaultValue(1.0)
-        .min(0.0)
-        .build()
-    );
-
     private final Setting<Double> speedScrollSensitivity = sgGeneral.add(new DoubleSetting.Builder()
         .name("speed-scroll-sensitivity")
         .description("Allows you to change speed value using scroll wheel. 0 to disable.")
@@ -59,80 +52,78 @@ public class Freecam extends Module {
         .sliderMax(2)
         .build()
     );
-
     private final Setting<Boolean> toggleOnDamage = sgGeneral.add(new BoolSetting.Builder()
         .name("toggle-on-damage")
         .description("Disables freecam when you take damage.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> toggleOnDeath = sgGeneral.add(new BoolSetting.Builder()
         .name("toggle-on-death")
         .description("Disables freecam when you die.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> toggleOnLog = sgGeneral.add(new BoolSetting.Builder()
         .name("toggle-on-log")
         .description("Disables freecam when you disconnect from a server.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> reloadChunks = sgGeneral.add(new BoolSetting.Builder()
         .name("reload-chunks")
         .description("Disables cave culling.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> renderHands = sgGeneral.add(new BoolSetting.Builder()
         .name("show-hands")
         .description("Whether or not to render your hands in freecam.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
         .name("rotate")
         .description("Rotates to the block or entity you are looking at.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> staticView = sgGeneral.add(new BoolSetting.Builder()
         .name("static")
         .description("Disables settings that move the view.")
         .defaultValue(true)
         .build()
     );
-
-    public final Vector3d pos = new Vector3d();
-    public final Vector3d prevPos = new Vector3d();
-
-    private Perspective perspective;
-    private double speedValue;
-
     public float yaw, pitch;
     public float prevYaw, prevPitch;
-
+    private Perspective perspective;
+    private double speedValue;
+    private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
+        .name("speed")
+        .description("Your speed while in freecam.")
+        .onChanged(aDouble -> speedValue = aDouble)
+        .defaultValue(1.0)
+        .min(0.0)
+        .build()
+    );
     private double fovScale;
     private boolean bobView;
 
     private boolean forward, backward, right, left, up, down;
 
-    public Freecam() {
+    public Freecam()
+    {
         super(Categories.Render, "freecam", "Allows the camera to move away from the player.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         fovScale = mc.options.getFovEffectScale().getValue();
         bobView = mc.options.getBobView().getValue();
-        if (staticView.get()) {
-            mc.options.getFovEffectScale().setValue((double)0);
+        if (staticView.get())
+        {
+            mc.options.getFovEffectScale().setValue((double) 0);
             mc.options.getBobView().setValue(false);
         }
         yaw = mc.player.getYaw();
@@ -144,7 +135,8 @@ public class Freecam extends Module {
         Utils.set(pos, mc.gameRenderer.getCamera().getPos());
         Utils.set(prevPos, mc.gameRenderer.getCamera().getPos());
 
-        if (mc.options.getPerspective() == Perspective.THIRD_PERSON_FRONT) {
+        if (mc.options.getPerspective() == Perspective.THIRD_PERSON_FRONT)
+        {
             yaw += 180;
             pitch *= -1;
         }
@@ -164,17 +156,20 @@ public class Freecam extends Module {
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         if (reloadChunks.get()) mc.worldRenderer.reload();
         mc.options.setPerspective(perspective);
-        if (staticView.get()) {
+        if (staticView.get())
+        {
             mc.options.getFovEffectScale().setValue(fovScale);
             mc.options.getBobView().setValue(bobView);
         }
     }
 
     @EventHandler
-    private void onOpenScreen(OpenScreenEvent event) {
+    private void onOpenScreen(OpenScreenEvent event)
+    {
         unpress();
 
         prevPos.set(pos);
@@ -182,7 +177,8 @@ public class Freecam extends Module {
         prevPitch = pitch;
     }
 
-    private void unpress() {
+    private void unpress()
+    {
         mc.options.forwardKey.setPressed(false);
         mc.options.backKey.setPressed(false);
         mc.options.rightKey.setPressed(false);
@@ -192,7 +188,8 @@ public class Freecam extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (mc.cameraEntity.isInsideWall()) mc.getCameraEntity().noClip = true;
         if (!perspective.isFirstPerson()) mc.options.setPerspective(Perspective.FIRST_PERSON);
 
@@ -202,18 +199,22 @@ public class Freecam extends Module {
         double velY = 0;
         double velZ = 0;
 
-        if (rotate.get()) {
+        if (rotate.get())
+        {
             BlockPos crossHairPos;
             Vec3d crossHairPosition;
 
-            if (mc.crosshairTarget instanceof EntityHitResult) {
+            if (mc.crosshairTarget instanceof EntityHitResult)
+            {
                 crossHairPos = ((EntityHitResult) mc.crosshairTarget).getEntity().getBlockPos();
                 Rotations.rotate(Rotations.getYaw(crossHairPos), Rotations.getPitch(crossHairPos), 0, null);
-            } else {
+            } else
+            {
                 crossHairPosition = mc.crosshairTarget.getPos();
                 crossHairPos = ((BlockHitResult) mc.crosshairTarget).getBlockPos();
 
-                if (!mc.world.getBlockState(crossHairPos).isAir()) {
+                if (!mc.world.getBlockState(crossHairPos).isAir())
+                {
                     Rotations.rotate(Rotations.getYaw(crossHairPosition), Rotations.getPitch(crossHairPosition), 0, null);
                 }
             }
@@ -223,39 +224,46 @@ public class Freecam extends Module {
         if (mc.options.sprintKey.isPressed()) s = 1;
 
         boolean a = false;
-        if (this.forward) {
+        if (this.forward)
+        {
             velX += forward.x * s * speedValue;
             velZ += forward.z * s * speedValue;
             a = true;
         }
-        if (this.backward) {
+        if (this.backward)
+        {
             velX -= forward.x * s * speedValue;
             velZ -= forward.z * s * speedValue;
             a = true;
         }
 
         boolean b = false;
-        if (this.right) {
+        if (this.right)
+        {
             velX += right.x * s * speedValue;
             velZ += right.z * s * speedValue;
             b = true;
         }
-        if (this.left) {
+        if (this.left)
+        {
             velX -= right.x * s * speedValue;
             velZ -= right.z * s * speedValue;
             b = true;
         }
 
-        if (a && b) {
+        if (a && b)
+        {
             double diagonal = 1 / Math.sqrt(2);
             velX *= diagonal;
             velZ *= diagonal;
         }
 
-        if (this.up) {
+        if (this.up)
+        {
             velY += s * speedValue;
         }
-        if (this.down) {
+        if (this.down)
+        {
             velY -= s * speedValue;
         }
 
@@ -264,37 +272,39 @@ public class Freecam extends Module {
     }
 
     @EventHandler
-    public void onKey(KeyEvent event) {
+    public void onKey(KeyEvent event)
+    {
         if (Input.isKeyPressed(GLFW.GLFW_KEY_F3)) return;
         if (checkGuiMove()) return;
 
         boolean cancel = true;
 
-        if (mc.options.forwardKey.matchesKey(event.key, 0)) {
+        if (mc.options.forwardKey.matchesKey(event.key, 0))
+        {
             forward = event.action != KeyAction.Release;
             mc.options.forwardKey.setPressed(false);
-        }
-        else if (mc.options.backKey.matchesKey(event.key, 0)) {
+        } else if (mc.options.backKey.matchesKey(event.key, 0))
+        {
             backward = event.action != KeyAction.Release;
             mc.options.backKey.setPressed(false);
-        }
-        else if (mc.options.rightKey.matchesKey(event.key, 0)) {
+        } else if (mc.options.rightKey.matchesKey(event.key, 0))
+        {
             right = event.action != KeyAction.Release;
             mc.options.rightKey.setPressed(false);
-        }
-        else if (mc.options.leftKey.matchesKey(event.key, 0)) {
+        } else if (mc.options.leftKey.matchesKey(event.key, 0))
+        {
             left = event.action != KeyAction.Release;
             mc.options.leftKey.setPressed(false);
-        }
-        else if (mc.options.jumpKey.matchesKey(event.key, 0)) {
+        } else if (mc.options.jumpKey.matchesKey(event.key, 0))
+        {
             up = event.action != KeyAction.Release;
             mc.options.jumpKey.setPressed(false);
-        }
-        else if (mc.options.sneakKey.matchesKey(event.key, 0)) {
+        } else if (mc.options.sneakKey.matchesKey(event.key, 0))
+        {
             down = event.action != KeyAction.Release;
             mc.options.sneakKey.setPressed(false);
-        }
-        else {
+        } else
+        {
             cancel = false;
         }
 
@@ -302,36 +312,38 @@ public class Freecam extends Module {
     }
 
     @EventHandler
-    private void onMouseButton(MouseButtonEvent event) {
+    private void onMouseButton(MouseButtonEvent event)
+    {
         if (checkGuiMove()) return;
 
         boolean cancel = true;
 
-        if (mc.options.forwardKey.matchesMouse(event.button)) {
+        if (mc.options.forwardKey.matchesMouse(event.button))
+        {
             forward = event.action != KeyAction.Release;
             mc.options.forwardKey.setPressed(false);
-        }
-        else if (mc.options.backKey.matchesMouse(event.button)) {
+        } else if (mc.options.backKey.matchesMouse(event.button))
+        {
             backward = event.action != KeyAction.Release;
             mc.options.backKey.setPressed(false);
-        }
-        else if (mc.options.rightKey.matchesMouse(event.button)) {
+        } else if (mc.options.rightKey.matchesMouse(event.button))
+        {
             right = event.action != KeyAction.Release;
             mc.options.rightKey.setPressed(false);
-        }
-        else if (mc.options.leftKey.matchesMouse(event.button)) {
+        } else if (mc.options.leftKey.matchesMouse(event.button))
+        {
             left = event.action != KeyAction.Release;
             mc.options.leftKey.setPressed(false);
-        }
-        else if (mc.options.jumpKey.matchesMouse(event.button)) {
+        } else if (mc.options.jumpKey.matchesMouse(event.button))
+        {
             up = event.action != KeyAction.Release;
             mc.options.jumpKey.setPressed(false);
-        }
-        else if (mc.options.sneakKey.matchesMouse(event.button)) {
+        } else if (mc.options.sneakKey.matchesMouse(event.button))
+        {
             down = event.action != KeyAction.Release;
             mc.options.sneakKey.setPressed(false);
-        }
-        else {
+        } else
+        {
             cancel = false;
         }
 
@@ -339,8 +351,10 @@ public class Freecam extends Module {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    private void onMouseScroll(MouseScrollEvent event) {
-        if (speedScrollSensitivity.get() > 0 && mc.currentScreen == null) {
+    private void onMouseScroll(MouseScrollEvent event)
+    {
+        if (speedScrollSensitivity.get() > 0 && mc.currentScreen == null)
+        {
             speedValue += event.value * 0.25 * (speedScrollSensitivity.get() * speedValue);
             if (speedValue < 0.1) speedValue = 0.1;
 
@@ -349,47 +363,56 @@ public class Freecam extends Module {
     }
 
     @EventHandler
-    private void onChunkOcclusion(ChunkOcclusionEvent event) {
+    private void onChunkOcclusion(ChunkOcclusionEvent event)
+    {
         event.cancel();
     }
 
     @EventHandler
-    private void onDamage(DamageEvent event) {
+    private void onDamage(DamageEvent event)
+    {
         if (event.entity.getUuid() == null) return;
         if (!event.entity.getUuid().equals(mc.player.getUuid())) return;
 
-        if (toggleOnDamage.get()) {
+        if (toggleOnDamage.get())
+        {
             toggle();
             info("Toggled off because you took damage.");
         }
     }
 
     @EventHandler
-    private void onGameLeft(GameLeftEvent event) {
+    private void onGameLeft(GameLeftEvent event)
+    {
         if (!toggleOnLog.get()) return;
 
         toggle();
     }
 
     @EventHandler
-    private void onPacketReceive(PacketEvent.Receive event)  {
-        if (event.packet instanceof DeathMessageS2CPacket packet) {
+    private void onPacketReceive(PacketEvent.Receive event)
+    {
+        if (event.packet instanceof DeathMessageS2CPacket packet)
+        {
             Entity entity = mc.world.getEntityById(packet.playerId());
-            if (entity == mc.player && toggleOnDeath.get()) {
+            if (entity == mc.player && toggleOnDeath.get())
+            {
                 toggle();
                 info("Toggled off because you died.");
             }
         }
     }
 
-    private boolean checkGuiMove() {
+    private boolean checkGuiMove()
+    {
         // TODO: This is very bad but you all can cope :cope:
         GUIMove guiMove = Modules.get().get(GUIMove.class);
         if (mc.currentScreen != null && !guiMove.isActive()) return true;
         return (mc.currentScreen != null && guiMove.isActive() && guiMove.skip());
     }
 
-    public void changeLookDirection(double deltaX, double deltaY) {
+    public void changeLookDirection(double deltaX, double deltaY)
+    {
         prevYaw = yaw;
         prevPitch = pitch;
 
@@ -399,24 +422,33 @@ public class Freecam extends Module {
         pitch = MathHelper.clamp(pitch, -90, 90);
     }
 
-    public boolean renderHands() {
+    public boolean renderHands()
+    {
         return !isActive() || renderHands.get();
     }
 
-    public double getX(float tickDelta) {
+    public double getX(float tickDelta)
+    {
         return MathHelper.lerp(tickDelta, prevPos.x, pos.x);
     }
-    public double getY(float tickDelta) {
+
+    public double getY(float tickDelta)
+    {
         return MathHelper.lerp(tickDelta, prevPos.y, pos.y);
     }
-    public double getZ(float tickDelta) {
+
+    public double getZ(float tickDelta)
+    {
         return MathHelper.lerp(tickDelta, prevPos.z, pos.z);
     }
 
-    public double getYaw(float tickDelta) {
+    public double getYaw(float tickDelta)
+    {
         return MathHelper.lerp(tickDelta, prevYaw, yaw);
     }
-    public double getPitch(float tickDelta) {
+
+    public double getPitch(float tickDelta)
+    {
         return MathHelper.lerp(tickDelta, prevPitch, pitch);
     }
 }

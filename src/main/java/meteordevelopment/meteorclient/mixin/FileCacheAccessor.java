@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.nio.file.Path;
 
 @Mixin(PlayerSkinProvider.FileCache.class)
-public interface FileCacheAccessor {
+public interface FileCacheAccessor
+{
     @Accessor
     Path getDirectory();
 }

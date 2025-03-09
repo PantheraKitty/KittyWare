@@ -14,33 +14,41 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
 
-public class Texture {
+public class Texture
+{
     public int width, height;
     private int id;
     private boolean valid;
 
-    public Texture(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag) {
-        if (RenderSystem.isOnRenderThread()) {
+    public Texture(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag)
+    {
+        if (RenderSystem.isOnRenderThread())
+        {
             upload(width, height, data, format, filterMin, filterMag);
-        }
-        else {
+        } else
+        {
             RenderSystem.recordRenderCall(() -> upload(width, height, data, format, filterMin, filterMag));
         }
     }
 
-    public Texture() {}
+    public Texture()
+    {
+    }
 
-    protected void upload(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag) {
+    protected void upload(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag)
+    {
         ByteBuffer buffer = BufferUtils.createByteBuffer(data.length).put(data);
 
         upload(width, height, buffer, format, filterMin, filterMag, false);
     }
 
-    public void upload(int width, int height, ByteBuffer buffer, Format format, Filter filterMin, Filter filterMag, boolean wrapClamp) {
+    public void upload(int width, int height, ByteBuffer buffer, Format format, Filter filterMin, Filter filterMag, boolean wrapClamp)
+    {
         this.width = width;
         this.height = height;
 
-        if (!valid) {
+        if (!valid)
+        {
             id = GL.genTexture();
             valid = true;
         }
@@ -56,34 +64,43 @@ public class Texture {
         ((Buffer) buffer).rewind();
         GL.textureImage2D(GL_TEXTURE_2D, 0, format.toOpenGL(), width, height, 0, format.toOpenGL(), GL_UNSIGNED_BYTE, buffer);
 
-        if (filterMin == Filter.LinearMipmapLinear || filterMag == Filter.LinearMipmapLinear) {
+        if (filterMin == Filter.LinearMipmapLinear || filterMag == Filter.LinearMipmapLinear)
+        {
             GL.generateMipmap(GL_TEXTURE_2D);
         }
     }
 
-    public boolean isValid() {
+    public boolean isValid()
+    {
         return valid;
     }
 
-    public void bind(int slot) {
+    public void bind(int slot)
+    {
         GL.bindTexture(id, slot);
     }
-    public void bind() {
+
+    public void bind()
+    {
         bind(0);
     }
 
-    public void dispose() {
+    public void dispose()
+    {
         GL.deleteTexture(id);
         valid = false;
     }
 
-    public enum Format {
+    public enum Format
+    {
         A,
         RGB,
         RGBA;
 
-        public int toOpenGL() {
-            return switch (this) {
+        public int toOpenGL()
+        {
+            return switch (this)
+            {
                 case A -> GL_RED;
                 case RGB -> GL_RGB;
                 case RGBA -> GL_RGBA;
@@ -91,13 +108,16 @@ public class Texture {
         }
     }
 
-    public enum Filter {
+    public enum Filter
+    {
         Nearest,
         Linear,
         LinearMipmapLinear;
 
-        public int toOpenGL() {
-            return switch (this) {
+        public int toOpenGL()
+        {
+            return switch (this)
+            {
                 case Nearest -> GL_NEAREST;
                 case Linear -> GL_LINEAR;
                 case LinearMipmapLinear -> GL_LINEAR_MIPMAP_LINEAR;

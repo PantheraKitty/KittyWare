@@ -20,7 +20,8 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.math.Vec3d;
 
-public class Flight extends Module {
+public class Flight extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgAntiKick = settings.createGroup("Anti Kick"); //Pog
 
@@ -28,28 +29,13 @@ public class Flight extends Module {
         .name("mode")
         .description("The mode for Flight.")
         .defaultValue(Mode.Abilities)
-        .onChanged(mode -> {
+        .onChanged(mode ->
+        {
             if (!isActive() || !Utils.canUpdate()) return;
             abilitiesOff();
         })
         .build()
     );
-
-    private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
-        .name("speed")
-        .description("Your speed when flying.")
-        .defaultValue(0.1)
-        .min(0.0)
-        .build()
-    );
-
-    private final Setting<Boolean> verticalSpeedMatch = sgGeneral.add(new BoolSetting.Builder()
-        .name("vertical-speed-match")
-        .description("Matches your vertical speed to your horizontal speed, otherwise uses vanilla ratio.")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<Boolean> noSneak = sgGeneral.add(new BoolSetting.Builder()
         .name("no-sneak")
         .description("Prevents you from sneaking while flying.")
@@ -57,7 +43,19 @@ public class Flight extends Module {
         .visible(() -> mode.get() == Mode.Velocity)
         .build()
     );
-
+    private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
+        .name("speed")
+        .description("Your speed when flying.")
+        .defaultValue(0.1)
+        .min(0.0)
+        .build()
+    );
+    private final Setting<Boolean> verticalSpeedMatch = sgGeneral.add(new BoolSetting.Builder()
+        .name("vertical-speed-match")
+        .description("Matches your vertical speed to your horizontal speed, otherwise uses vanilla ratio.")
+        .defaultValue(false)
+        .build()
+    );
     private final Setting<AntiKickMode> antiKickMode = sgAntiKick.add(new EnumSetting.Builder<AntiKickMode>()
         .name("mode")
         .description("The mode for anti kick.")
@@ -73,7 +71,7 @@ public class Flight extends Module {
         .sliderMax(200)
         .build()
     );
-
+    private int delayLeft = delay.get();
     // Anti Kick
     private final Setting<Integer> offTime = sgAntiKick.add(new IntSetting.Builder()
         .name("off-time")
@@ -83,20 +81,21 @@ public class Flight extends Module {
         .sliderRange(1, 20)
         .build()
     );
-
-    private int delayLeft = delay.get();
     private int offLeft = offTime.get();
     private boolean flip;
     private float lastYaw;
     private double lastPacketY = Double.MAX_VALUE;
 
-    public Flight() {
+    public Flight()
+    {
         super(Categories.Movement, "flight", "FLYYYY! No Fall is recommended with this module.");
     }
 
     @Override
-    public void onActivate() {
-        if (mode.get() == Mode.Abilities && !mc.player.isSpectator()) {
+    public void onActivate()
+    {
+        if (mode.get() == Mode.Abilities && !mc.player.isSpectator())
+        {
             mc.player.getAbilities().flying = true;
             if (mc.player.getAbilities().creativeMode) return;
             mc.player.getAbilities().allowFlying = true;
@@ -104,16 +103,20 @@ public class Flight extends Module {
     }
 
     @Override
-    public void onDeactivate() {
-        if (mode.get() == Mode.Abilities && !mc.player.isSpectator()) {
+    public void onDeactivate()
+    {
+        if (mode.get() == Mode.Abilities && !mc.player.isSpectator())
+        {
             abilitiesOff();
         }
     }
 
     @EventHandler
-    private void onPreTick(TickEvent.Pre event) {
+    private void onPreTick(TickEvent.Pre event)
+    {
         float currentYaw = mc.player.getYaw();
-        if (mc.player.fallDistance >= 3f && currentYaw == lastYaw && mc.player.getVelocity().length() < 0.003d) {
+        if (mc.player.fallDistance >= 3f && currentYaw == lastYaw && mc.player.getVelocity().length() < 0.003d)
+        {
             mc.player.setYaw(currentYaw + (flip ? 1 : -1));
             flip = !flip;
         }
@@ -121,26 +124,33 @@ public class Flight extends Module {
     }
 
     @EventHandler
-    private void onPostTick(TickEvent.Post event) {
+    private void onPostTick(TickEvent.Post event)
+    {
         if (delayLeft > 0) delayLeft--;
 
-        if (offLeft <= 0 && delayLeft <= 0) {
+        if (offLeft <= 0 && delayLeft <= 0)
+        {
             delayLeft = delay.get();
             offLeft = offTime.get();
 
-            if (antiKickMode.get() == AntiKickMode.Packet) {
+            if (antiKickMode.get() == AntiKickMode.Packet)
+            {
                 // Resend movement packets
                 ((ClientPlayerEntityAccessor) mc.player).setTicksSinceLastPositionPacketSent(20);
             }
-        } else if (delayLeft <= 0) {
+        } else if (delayLeft <= 0)
+        {
             boolean shouldReturn = false;
 
-            if (antiKickMode.get() == AntiKickMode.Normal) {
-                if (mode.get() == Mode.Abilities) {
+            if (antiKickMode.get() == AntiKickMode.Normal)
+            {
+                if (mode.get() == Mode.Abilities)
+                {
                     abilitiesOff();
                     shouldReturn = true;
                 }
-            } else if (antiKickMode.get() == AntiKickMode.Packet && offLeft == offTime.get()) {
+            } else if (antiKickMode.get() == AntiKickMode.Packet && offLeft == offTime.get())
+            {
                 // Resend movement packets
                 ((ClientPlayerEntityAccessor) mc.player).setTicksSinceLastPositionPacketSent(20);
             }
@@ -152,8 +162,10 @@ public class Flight extends Module {
 
         if (mc.player.getYaw() != lastYaw) mc.player.setYaw(lastYaw);
 
-        switch (mode.get()) {
-            case Velocity -> {
+        switch (mode.get())
+        {
+            case Velocity ->
+            {
                 mc.player.getAbilities().flying = false;
                 mc.player.setVelocity(0, 0, 0);
                 Vec3d playerVelocity = mc.player.getVelocity();
@@ -162,11 +174,13 @@ public class Flight extends Module {
                 if (mc.options.sneakKey.isPressed())
                     playerVelocity = playerVelocity.subtract(0, speed.get() * (verticalSpeedMatch.get() ? 10f : 5f), 0);
                 mc.player.setVelocity(playerVelocity);
-                if (noSneak.get()) {
+                if (noSneak.get())
+                {
                     mc.player.setOnGround(false);
                 }
             }
-            case Abilities -> {
+            case Abilities ->
+            {
                 if (mc.player.isSpectator()) return;
                 mc.player.getAbilities().setFlySpeed(speed.get().floatValue());
                 mc.player.getAbilities().flying = true;
@@ -176,14 +190,17 @@ public class Flight extends Module {
         }
     }
 
-    private void antiKickPacket(PlayerMoveC2SPacket packet, double currentY) {
+    private void antiKickPacket(PlayerMoveC2SPacket packet, double currentY)
+    {
         // maximum time we can be "floating" is 80 ticks, so 4 seconds max
         if (this.delayLeft <= 0 && this.lastPacketY != Double.MAX_VALUE &&
-            shouldFlyDown(currentY, this.lastPacketY) && isEntityOnAir(mc.player)) {
+            shouldFlyDown(currentY, this.lastPacketY) && isEntityOnAir(mc.player))
+        {
             // actual check is for >= -0.03125D, but we have to do a bit more than that
             // due to the fact that it's a bigger or *equal* to, and not just a bigger than
             ((PlayerMoveC2SPacketAccessor) packet).setY(lastPacketY - 0.03130D);
-        } else {
+        } else
+        {
             lastPacketY = currentY;
         }
     }
@@ -192,17 +209,21 @@ public class Flight extends Module {
      * @see ServerPlayNetworkHandler#onPlayerMove(PlayerMoveC2SPacket)
      */
     @EventHandler
-    private void onSendPacket(PacketEvent.Send event) {
+    private void onSendPacket(PacketEvent.Send event)
+    {
         if (!(event.packet instanceof PlayerMoveC2SPacket packet) || antiKickMode.get() != AntiKickMode.Packet) return;
 
         double currentY = packet.getY(Double.MAX_VALUE);
-        if (currentY != Double.MAX_VALUE) {
+        if (currentY != Double.MAX_VALUE)
+        {
             antiKickPacket(packet, currentY);
-        } else {
+        } else
+        {
             // if the packet is a LookAndOnGround packet or an OnGroundOnly packet then we need to
             // make it a Full packet or a PositionAndOnGround packet respectively, so it has a Y value
             PlayerMoveC2SPacket fullPacket;
-            if (packet.changesLook()) {
+            if (packet.changesLook())
+            {
                 fullPacket = new PlayerMoveC2SPacket.Full(
                     mc.player.getX(),
                     mc.player.getY(),
@@ -211,7 +232,8 @@ public class Flight extends Module {
                     packet.getPitch(0),
                     packet.isOnGround()
                 );
-            } else {
+            } else
+            {
                 fullPacket = new PlayerMoveC2SPacket.PositionAndOnGround(
                     mc.player.getX(),
                     mc.player.getY(),
@@ -225,13 +247,16 @@ public class Flight extends Module {
         }
     }
 
-    private boolean shouldFlyDown(double currentY, double lastY) {
-        if (currentY >= lastY) {
+    private boolean shouldFlyDown(double currentY, double lastY)
+    {
+        if (currentY >= lastY)
+        {
             return true;
         } else return lastY - currentY < 0.03130D;
     }
 
-    private void abilitiesOff() {
+    private void abilitiesOff()
+    {
         mc.player.getAbilities().flying = false;
         mc.player.getAbilities().setFlySpeed(0.05f);
         if (mc.player.getAbilities().creativeMode) return;
@@ -239,27 +264,32 @@ public class Flight extends Module {
     }
 
     // Copied from ServerPlayNetworkHandler#isEntityOnAir
-    private boolean isEntityOnAir(Entity entity) {
+    private boolean isEntityOnAir(Entity entity)
+    {
         return entity.getWorld().getStatesInBox(entity.getBoundingBox().expand(0.0625).stretch(0.0, -0.55, 0.0)).allMatch(AbstractBlock.AbstractBlockState::isAir);
     }
 
-    public float getOffGroundSpeed() {
+    public float getOffGroundSpeed()
+    {
         // All the multiplication below is to get the speed to roughly match the speed you get when using vanilla fly
 
         if (!isActive() || mode.get() != Mode.Velocity) return -1;
         return speed.get().floatValue() * (mc.player.isSprinting() ? 15f : 10f);
     }
 
-    public boolean noSneak() {
+    public boolean noSneak()
+    {
         return isActive() && mode.get() == Mode.Velocity && noSneak.get();
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Abilities,
         Velocity
     }
 
-    public enum AntiKickMode {
+    public enum AntiKickMode
+    {
         Normal,
         Packet,
         None

@@ -10,13 +10,16 @@ import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
 import meteordevelopment.meteorclient.systems.accounts.types.TheAlteningAccount;
 
-public class AddAlteningAccountScreen extends AddAccountScreen {
-    public AddAlteningAccountScreen(GuiTheme theme, AccountsScreen parent) {
+public class AddAlteningAccountScreen extends AddAccountScreen
+{
+    public AddAlteningAccountScreen(GuiTheme theme, AccountsScreen parent)
+    {
         super(theme, "Add The Altening Account", parent);
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         WTable t = add(theme.table()).widget();
 
         // Token
@@ -27,8 +30,10 @@ public class AddAlteningAccountScreen extends AddAccountScreen {
 
         // Add
         add = t.add(theme.button("Add")).expandX().widget();
-        add.action = () -> {
-            if (!token.get().isEmpty()) {
+        add.action = () ->
+        {
+            if (!token.get().isEmpty())
+            {
                 AccountsScreen.addAccount(this, parent, new TheAlteningAccount(token.get()));
             }
         };

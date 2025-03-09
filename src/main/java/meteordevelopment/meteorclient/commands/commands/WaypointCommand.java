@@ -19,25 +19,32 @@ import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
-public class WaypointCommand extends Command {
-    public WaypointCommand() {
+public class WaypointCommand extends Command
+{
+    public WaypointCommand()
+    {
         super("waypoint", "Manages waypoints.", "wp");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.then(literal("list").executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.then(literal("list").executes(context ->
+        {
             if (Waypoints.get().isEmpty()) error("No created waypoints.");
-            else {
+            else
+            {
                 info(Formatting.WHITE + "Created Waypoints:");
-                for (Waypoint waypoint : Waypoints.get()) {
+                for (Waypoint waypoint : Waypoints.get())
+                {
                     info("Name: (highlight)'%s'(default), Dimension: (highlight)%s(default), Pos: (highlight)%s(default)", waypoint.name.get(), waypoint.dimension.get(), waypointPos(waypoint));
                 }
             }
             return SINGLE_SUCCESS;
         }));
 
-        builder.then(literal("get").then(argument("waypoint", WaypointArgumentType.create()).executes(context -> {
+        builder.then(literal("get").then(argument("waypoint", WaypointArgumentType.create()).executes(context ->
+        {
             Waypoint waypoint = WaypointArgumentType.get(context);
             info("Name: " + Formatting.WHITE + waypoint.name.get());
             info("Actual Dimension: " + Formatting.WHITE + waypoint.dimension.get());
@@ -54,7 +61,8 @@ public class WaypointCommand extends Command {
             .then(argument("waypoint", StringArgumentType.greedyString()).executes(context -> addWaypoint(context, false)))
         );
 
-        builder.then(literal("delete").then(argument("waypoint", WaypointArgumentType.create()).executes(context -> {
+        builder.then(literal("delete").then(argument("waypoint", WaypointArgumentType.create()).executes(context ->
+        {
             Waypoint waypoint = WaypointArgumentType.get(context);
 
             info("The waypoint (highlight)'%s'(default) has been deleted.", waypoint.name.get());
@@ -64,7 +72,8 @@ public class WaypointCommand extends Command {
             return SINGLE_SUCCESS;
         })));
 
-        builder.then(literal("toggle").then(argument("waypoint", WaypointArgumentType.create()).executes(context -> {
+        builder.then(literal("toggle").then(argument("waypoint", WaypointArgumentType.create()).executes(context ->
+        {
             Waypoint waypoint = WaypointArgumentType.get(context);
             waypoint.visible.set(!waypoint.visible.get());
 
@@ -73,15 +82,18 @@ public class WaypointCommand extends Command {
         })));
     }
 
-    private String waypointPos(Waypoint waypoint) {
+    private String waypointPos(Waypoint waypoint)
+    {
         return "X: " + waypoint.pos.get().getX() + " Z: " + waypoint.pos.get().getZ();
     }
 
-    private String waypointFullPos(Waypoint waypoint) {
+    private String waypointFullPos(Waypoint waypoint)
+    {
         return "X: " + waypoint.pos.get().getX() + ", Y: " + waypoint.pos.get().getY() + ", Z: " + waypoint.pos.get().getZ();
     }
 
-    private int addWaypoint(CommandContext<CommandSource> context, boolean withCoords) {
+    private int addWaypoint(CommandContext<CommandSource> context, boolean withCoords)
+    {
         if (mc.player == null) return -1;
 
         BlockPos pos = withCoords ? context.getArgument("pos", PosArgument.class).toAbsoluteBlockPos(mc.player.getCommandSource()) : mc.player.getBlockPos().up(2);

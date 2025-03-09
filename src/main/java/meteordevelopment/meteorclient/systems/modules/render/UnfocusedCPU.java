@@ -11,7 +11,8 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 
-public class UnfocusedCPU extends Module {
+public class UnfocusedCPU extends Module
+{
     private final SettingGroup sgGeneral = this.settings.getDefaultGroup();
 
     public final Setting<Integer> fps = sgGeneral.add(new IntSetting.Builder()
@@ -23,7 +24,8 @@ public class UnfocusedCPU extends Module {
         .build()
     );
 
-    public UnfocusedCPU() {
+    public UnfocusedCPU()
+    {
         super(Categories.Render, "unfocused-cpu", "Limits FPS when your Minecraft window is not focused.");
     }
 }

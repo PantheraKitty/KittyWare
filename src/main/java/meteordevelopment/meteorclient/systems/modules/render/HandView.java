@@ -17,42 +17,21 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Vector3d;
 
-public class HandView extends Module {
+public class HandView extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgMainHand = settings.createGroup("Main Hand");
-    private final SettingGroup sgOffHand = settings.createGroup("Off Hand");
-    private final SettingGroup sgArm = settings.createGroup("Arm");
-
-    // General
-
-    private final Setting<Boolean> followRotations = sgGeneral.add(new BoolSetting.Builder()
-        .name("server-rotations")
-        .description("Makes your hands follow your serverside rotations.")
-        .defaultValue(false)
-        .build()
-    );
-
     public final Setting<Boolean> oldAnimations = sgGeneral.add(new BoolSetting.Builder()
         .name("old-animations")
         .description("Changes hit animations to those like 1.8")
         .defaultValue(false)
         .build()
     );
-
     public final Setting<Boolean> showSwapping = sgGeneral.add(new BoolSetting.Builder()
         .name("show-swapping")
         .description("Whether or not to show the item swapping animation")
         .defaultValue(true)
         .build()
     );
-
-    private final Setting<Boolean> disableFoodAnimation = sgGeneral.add(new BoolSetting.Builder()
-        .name("disable-eating-animation")
-        .description("Disables the eating animation. Potentially desirable if it goes offscreen.")
-        .defaultValue(false)
-        .build()
-    );
-
     public final Setting<SwingMode> swingMode = sgGeneral.add(new EnumSetting.Builder<SwingMode>()
         .name("swing-mode")
         .description("Modifies your client & server hand swinging.")
@@ -60,6 +39,7 @@ public class HandView extends Module {
         .build()
     );
 
+    // General
     public final Setting<Integer> swingSpeed = sgGeneral.add(new IntSetting.Builder()
         .name("swing-speed")
         .description("The swing speed of your hands.")
@@ -68,7 +48,6 @@ public class HandView extends Module {
         .sliderMax(20)
         .build()
     );
-
     public final Setting<Double> mainSwing = sgGeneral.add(new DoubleSetting.Builder()
         .name("main-hand-progress")
         .description("The swing progress of your main hand.")
@@ -77,7 +56,6 @@ public class HandView extends Module {
         .sliderMax(1)
         .build()
     );
-
     public final Setting<Double> offSwing = sgGeneral.add(new DoubleSetting.Builder()
         .name("off-hand-progress")
         .description("The swing progress of your off hand.")
@@ -86,9 +64,23 @@ public class HandView extends Module {
         .sliderMax(1)
         .build()
     );
+    private final SettingGroup sgMainHand = settings.createGroup("Main Hand");
+    private final SettingGroup sgOffHand = settings.createGroup("Off Hand");
+    private final SettingGroup sgArm = settings.createGroup("Arm");
+    private final Setting<Boolean> followRotations = sgGeneral.add(new BoolSetting.Builder()
+        .name("server-rotations")
+        .description("Makes your hands follow your serverside rotations.")
+        .defaultValue(false)
+        .build()
+    );
+    private final Setting<Boolean> disableFoodAnimation = sgGeneral.add(new BoolSetting.Builder()
+        .name("disable-eating-animation")
+        .description("Disables the eating animation. Potentially desirable if it goes offscreen.")
+        .defaultValue(false)
+        .build()
+    );
 
     // Main Hand
-
     private final Setting<Vector3d> scaleMain = sgMainHand.add(new Vector3dSetting.Builder()
         .name("scale")
         .description("The scale of your main hand.")
@@ -171,22 +163,26 @@ public class HandView extends Module {
         .build()
     );
 
-    public HandView() {
+    public HandView()
+    {
         super(Categories.Render, "hand-view", "Alters the way items are rendered in your hands.");
     }
 
     @EventHandler
-    private void onHeldItemRender(HeldItemRendererEvent event) {
-        if (Rotations.rotating && followRotations.get()) {
+    private void onHeldItemRender(HeldItemRendererEvent event)
+    {
+        if (Rotations.rotating && followRotations.get())
+        {
             applyServerRotations(event.matrix);
         }
 
-        if (event.hand == Hand.MAIN_HAND) {
+        if (event.hand == Hand.MAIN_HAND)
+        {
             rotate(event.matrix, rotMain.get());
             scale(event.matrix, scaleMain.get());
             translate(event.matrix, posMain.get());
-        }
-        else {
+        } else
+        {
             rotate(event.matrix, rotOff.get());
             scale(event.matrix, scaleOff.get());
             translate(event.matrix, posOff.get());
@@ -194,44 +190,53 @@ public class HandView extends Module {
     }
 
     @EventHandler
-    private void onRenderArm(ArmRenderEvent event) {
+    private void onRenderArm(ArmRenderEvent event)
+    {
         rotate(event.matrix, rotArm.get());
         scale(event.matrix, scaleArm.get());
         translate(event.matrix, posArm.get());
     }
 
-    private void rotate(MatrixStack matrix, Vector3d rotation) {
+    private void rotate(MatrixStack matrix, Vector3d rotation)
+    {
         matrix.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) rotation.x));
         matrix.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((float) rotation.y));
         matrix.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation.z));
     }
 
-    private void scale(MatrixStack matrix, Vector3d scale) {
+    private void scale(MatrixStack matrix, Vector3d scale)
+    {
         matrix.scale((float) scale.x, (float) scale.y, (float) scale.z);
     }
 
-    private void translate(MatrixStack matrix, Vector3d translation) {
+    private void translate(MatrixStack matrix, Vector3d translation)
+    {
         matrix.translate((float) translation.x, (float) translation.y, (float) translation.z);
     }
 
-    private void applyServerRotations(MatrixStack matrix) {
+    private void applyServerRotations(MatrixStack matrix)
+    {
         matrix.multiply(RotationAxis.POSITIVE_X.rotationDegrees(mc.player.getPitch() - Rotations.serverPitch));
         matrix.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(mc.player.getYaw() - Rotations.serverYaw));
     }
 
-    public boolean oldAnimations() {
+    public boolean oldAnimations()
+    {
         return isActive() && oldAnimations.get();
     }
 
-    public boolean showSwapping() {
+    public boolean showSwapping()
+    {
         return isActive() && showSwapping.get();
     }
 
-    public boolean disableFoodAnimation() {
+    public boolean disableFoodAnimation()
+    {
         return isActive() && disableFoodAnimation.get();
     }
 
-    public enum SwingMode {
+    public enum SwingMode
+    {
         Offhand,
         Mainhand,
         None

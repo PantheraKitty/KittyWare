@@ -25,23 +25,29 @@ import java.util.Optional;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class ChamsShader extends EntityShader {
-    private static final String[] FILE_FORMATS = { "png", "jpg" };
+public class ChamsShader extends EntityShader
+{
+    private static final String[] FILE_FORMATS = {"png", "jpg"};
 
     private static Texture IMAGE_TEX;
     private static Chams chams;
 
-    public ChamsShader() {
+    public ChamsShader()
+    {
         MeteorClient.EVENT_BUS.subscribe(ChamsShader.class);
     }
 
     @PostInit
-    public static void load() {
-        try {
+    public static void load()
+    {
+        try
+        {
             ByteBuffer data = null;
-            for (String fileFormat : FILE_FORMATS) {
+            for (String fileFormat : FILE_FORMATS)
+            {
                 Optional<Resource> optional = mc.getResourceManager().getResource(MeteorClient.identifier("textures/chams." + fileFormat));
-                if (optional.isEmpty() || optional.get().getInputStream() == null) {
+                if (optional.isEmpty() || optional.get().getInputStream() == null)
+                {
                     continue;
                 }
 
@@ -52,7 +58,8 @@ public class ChamsShader extends EntityShader {
 
             data.rewind();
 
-            try (MemoryStack stack = MemoryStack.stackPush()) {
+            try (MemoryStack stack = MemoryStack.stackPush())
+            {
                 IntBuffer width = stack.mallocInt(1);
                 IntBuffer height = stack.mallocInt(1);
                 IntBuffer comp = stack.mallocInt(1);
@@ -67,34 +74,40 @@ public class ChamsShader extends EntityShader {
                 STBImage.stbi_set_flip_vertically_on_load(false);
             }
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
     @EventHandler
-    private static void onResourcePacksReloaded(ResourcePacksReloadedEvent event) {
+    private static void onResourcePacksReloaded(ResourcePacksReloadedEvent event)
+    {
         load();
     }
 
     @Override
-    protected void setUniforms() {
+    protected void setUniforms()
+    {
         shader.set("u_Color", chams.shaderColor.get());
 
-        if (chams.isShader() && chams.shader.get() == Chams.Shader.Image && IMAGE_TEX != null && IMAGE_TEX.isValid()) {
+        if (chams.isShader() && chams.shader.get() == Chams.Shader.Image && IMAGE_TEX != null && IMAGE_TEX.isValid())
+        {
             IMAGE_TEX.bind(1);
             shader.set("u_TextureI", 1);
         }
     }
 
     @Override
-    protected boolean shouldDraw() {
+    protected boolean shouldDraw()
+    {
         if (chams == null) chams = Modules.get().get(Chams.class);
         return chams.isShader();
     }
 
     @Override
-    public boolean shouldDraw(Entity entity) {
+    public boolean shouldDraw(Entity entity)
+    {
         if (!shouldDraw()) return false;
         return chams.entities.get().contains(entity.getType()) && (entity != mc.player || !chams.ignoreSelfDepth.get());
     }

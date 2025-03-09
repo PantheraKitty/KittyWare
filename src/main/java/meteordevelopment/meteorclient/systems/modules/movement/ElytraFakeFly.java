@@ -4,11 +4,7 @@ import meteordevelopment.meteorclient.events.entity.player.PlayerMoveEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.mixininterface.IVec3d;
-import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.DoubleSetting;
-import meteordevelopment.meteorclient.settings.EnumSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
@@ -28,44 +24,36 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
-public class ElytraFakeFly extends Module {
+public class ElytraFakeFly extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgBoost = settings.createGroup("Boost");
-
-    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>().name("mode")
-            .description("Determines how to fake fly").defaultValue(Mode.Chestplate).build());
-
     public final Setting<Double> fireworkDelay =
-            sgGeneral.add(new DoubleSetting.Builder().name("firework-delay")
-                    .description("Length of a firework.").defaultValue(2.1).min(0).max(5).build());
-
+        sgGeneral.add(new DoubleSetting.Builder().name("firework-delay")
+            .description("Length of a firework.").defaultValue(2.1).min(0).max(5).build());
     public final Setting<Double> horizontalSpeed = sgGeneral.add(new DoubleSetting.Builder()
-            .name("horizontal-speed").description("Controls how fast will you go horizontally.")
-            .defaultValue(50).min(0).max(100).build());
-
+        .name("horizontal-speed").description("Controls how fast will you go horizontally.")
+        .defaultValue(50).min(0).max(100).build());
     public final Setting<Double> verticalSpeed = sgGeneral.add(new DoubleSetting.Builder()
-            .name("vertical-speed").description("Controls how fast will you go veritcally.")
-            .defaultValue(30).min(0).max(100).build());
-
+        .name("vertical-speed").description("Controls how fast will you go veritcally.")
+        .defaultValue(30).min(0).max(100).build());
     public final Setting<Double> accelTime =
-            sgGeneral.add(new DoubleSetting.Builder().name("accel-time")
-                    .description("Controls how fast will you accelerate and decelerate in second")
-                    .defaultValue(0.25).min(0.01).max(2).build());
-
+        sgGeneral.add(new DoubleSetting.Builder().name("accel-time")
+            .description("Controls how fast will you accelerate and decelerate in second")
+            .defaultValue(0.25).min(0.01).max(2).build());
+    private final SettingGroup sgBoost = settings.createGroup("Boost");
     public final Setting<Boolean> sprintToBoost = sgBoost.add(new BoolSetting.Builder()
-            .name("sprint-to-boost").description("Allows you to hold sprint to go extra fast")
-            .defaultValue(true).build());
-
+        .name("sprint-to-boost").description("Allows you to hold sprint to go extra fast")
+        .defaultValue(true).build());
     public final Setting<Double> sprintToBoostMaxSpeed =
-            sgBoost.add(new DoubleSetting.Builder().name("boost-max-speed")
-                    .description("Controls how fast will can go at maximum boost speed")
-                    .defaultValue(100).min(50).sliderMax(300).build());
-
+        sgBoost.add(new DoubleSetting.Builder().name("boost-max-speed")
+            .description("Controls how fast will can go at maximum boost speed")
+            .defaultValue(100).min(50).sliderMax(300).build());
     public final Setting<Double> boostAccelTime = sgBoost.add(new DoubleSetting.Builder()
-            .name("boost-accel-time")
-            .description("Conbtrols how fast you will accelerate and decelerate when boosting")
-            .defaultValue(0.5).min(0.01).sliderMax(2).build());
-
+        .name("boost-accel-time")
+        .description("Conbtrols how fast you will accelerate and decelerate when boosting")
+        .defaultValue(0.5).min(0.01).sliderMax(2).build());
+    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>().name("mode")
+        .description("Determines how to fake fly").defaultValue(Mode.Chestplate).build());
     private int fireworkTicksLeft = 0;
     private boolean needsFirework = false;
     private Vec3d lastMovement = Vec3d.ZERO;
@@ -75,13 +63,15 @@ public class ElytraFakeFly extends Module {
     private long timeOfLastRubberband = 0;
     private Vec3d lastRubberband = Vec3d.ZERO;
 
-    public ElytraFakeFly() {
+    public ElytraFakeFly()
+    {
         super(Categories.Movement, "elytra-fakefly",
-                "Gives you more control over your elytra but funnier.");
+            "Gives you more control over your elytra but funnier.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         needsFirework = getIsUsingFirework();
         currentVelocity = mc.player.getVelocity();
 
@@ -90,21 +80,24 @@ public class ElytraFakeFly extends Module {
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         PlayerUtils.silentSwapEquipChestplate();
 
         // Force a sync of the sneaking
         mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(mc.player,
-                ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
+            ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
         mc.player.setSneaking(false);
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         boolean isUsingFirework = getIsUsingFirework();
 
         // No fireworks, don't do anything
-        if (!isUsingFirework && !InvUtils.find(Items.FIREWORK_ROCKET).found()) {
+        if (!isUsingFirework && !InvUtils.find(Items.FIREWORK_ROCKET).found())
+        {
             return;
         }
 
@@ -113,34 +106,40 @@ public class ElytraFakeFly extends Module {
         double yaw = Math.toRadians(mc.player.getYaw());
         double pitch = Math.toRadians(mc.player.getPitch());
         Vec3d direction = new Vec3d(-Math.sin(yaw) * Math.cos(pitch), -Math.sin(pitch),
-                Math.cos(yaw) * Math.cos(pitch)).normalize();
+            Math.cos(yaw) * Math.cos(pitch)).normalize();
 
-        if (mc.options.forwardKey.isPressed()) {
+        if (mc.options.forwardKey.isPressed())
+        {
             desiredVelocity = desiredVelocity.add(
-                    direction.multiply(getHorizontalSpeed() / 20, 0, getHorizontalSpeed() / 20));
+                direction.multiply(getHorizontalSpeed() / 20, 0, getHorizontalSpeed() / 20));
         }
 
-        if (mc.options.backKey.isPressed()) {
+        if (mc.options.backKey.isPressed())
+        {
             desiredVelocity = desiredVelocity.add(
-                    direction.multiply(-getHorizontalSpeed() / 20, 0, -getHorizontalSpeed() / 20));
+                direction.multiply(-getHorizontalSpeed() / 20, 0, -getHorizontalSpeed() / 20));
         }
 
-        if (mc.options.leftKey.isPressed()) {
+        if (mc.options.leftKey.isPressed())
+        {
             desiredVelocity = desiredVelocity
-                    .add(direction.multiply(getHorizontalSpeed() / 20, 0, getHorizontalSpeed() / 20)
-                            .rotateY((float) Math.PI / 2));
+                .add(direction.multiply(getHorizontalSpeed() / 20, 0, getHorizontalSpeed() / 20)
+                    .rotateY((float) Math.PI / 2));
         }
 
-        if (mc.options.rightKey.isPressed()) {
+        if (mc.options.rightKey.isPressed())
+        {
             desiredVelocity = desiredVelocity
-                    .add(direction.multiply(getHorizontalSpeed() / 20, 0, getHorizontalSpeed() / 20)
-                            .rotateY(-(float) Math.PI / 2));
+                .add(direction.multiply(getHorizontalSpeed() / 20, 0, getHorizontalSpeed() / 20)
+                    .rotateY(-(float) Math.PI / 2));
         }
 
-        if (mc.options.jumpKey.isPressed()) {
+        if (mc.options.jumpKey.isPressed())
+        {
             desiredVelocity = desiredVelocity.add(0, verticalSpeed.get() / 20, 0);
         }
-        if (mc.options.sneakKey.isPressed()) {
+        if (mc.options.sneakKey.isPressed())
+        {
             desiredVelocity = desiredVelocity.add(0, -verticalSpeed.get() / 20, 0);
         }
 
@@ -154,10 +153,11 @@ public class ElytraFakeFly extends Module {
 
         // Accelerate or decelerate toward desired velocity
         currentVelocity =
-                new Vec3d(mc.player.getVelocity().x, currentVelocity.y, mc.player.getVelocity().z);
+            new Vec3d(mc.player.getVelocity().x, currentVelocity.y, mc.player.getVelocity().z);
         Vec3d velocityDifference = desiredVelocity.subtract(currentVelocity);
         double maxDelta = (getHorizontalSpeed() / 20) / (getHorizontalAccelTime() * 20);
-        if (velocityDifference.lengthSquared() > maxDelta * maxDelta) {
+        if (velocityDifference.lengthSquared() > maxDelta * maxDelta)
+        {
             velocityDifference = velocityDifference.normalize().multiply(maxDelta);
         }
         currentVelocity = currentVelocity.add(velocityDifference);
@@ -168,71 +168,85 @@ public class ElytraFakeFly extends Module {
         double playerFeetY = boundingBox.minY;
 
         Box groundBox = new Box(boundingBox.minX, playerFeetY - 0.1, boundingBox.minZ,
-                boundingBox.maxX, playerFeetY, boundingBox.maxZ);
+            boundingBox.maxX, playerFeetY, boundingBox.maxZ);
 
         for (BlockPos pos : BlockPos.iterate((int) Math.floor(groundBox.minX),
-                (int) Math.floor(groundBox.minY), (int) Math.floor(groundBox.minZ),
-                (int) Math.floor(groundBox.maxX), (int) Math.floor(groundBox.maxY),
-                (int) Math.floor(groundBox.maxZ))) {
+            (int) Math.floor(groundBox.minY), (int) Math.floor(groundBox.minZ),
+            (int) Math.floor(groundBox.maxX), (int) Math.floor(groundBox.maxY),
+            (int) Math.floor(groundBox.maxZ)))
+        {
             BlockState blockState = mc.world.getBlockState(pos);
 
             // Skip air or non-solid blocks
-            if (!blockState.isSolidBlock(mc.world, pos)) {
+            if (!blockState.isSolidBlock(mc.world, pos))
+            {
                 continue;
             }
 
             double blockTopY = pos.getY() + 1.0;
             double distanceToBlock = playerFeetY - blockTopY;
 
-            if (distanceToBlock >= 0 && distanceToBlock < 0.1) {
-                if (currentVelocity.y < 0) {
+            if (distanceToBlock >= 0 && distanceToBlock < 0.1)
+            {
+                if (currentVelocity.y < 0)
+                {
                     currentVelocity = new Vec3d(currentVelocity.x, 0.1, currentVelocity.z);
                 }
             }
         }
 
         if (fireworkTicksLeft < ((int) (fireworkDelay.get() * 20.0) - 3) && fireworkTicksLeft > 3
-                && !isUsingFirework) {
+            && !isUsingFirework)
+        {
             fireworkTicksLeft = 0;
         }
 
         PlayerUtils.silentSwapEquipElytra();
 
         mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(mc.player,
-                ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+            ClientCommandC2SPacket.Mode.START_FALL_FLYING));
 
-        if (fireworkTicksLeft <= 0) {
+        if (fireworkTicksLeft <= 0)
+        {
             needsFirework = true;
         }
 
-        if (needsFirework) {
-            if (currentVelocity.length() > 1e-7) {
+        if (needsFirework)
+        {
+            if (currentVelocity.length() > 1e-7)
+            {
                 useFirework();
                 needsFirework = false;
             }
         }
 
-        if (fireworkTicksLeft >= 0) {
+        if (fireworkTicksLeft >= 0)
+        {
             fireworkTicksLeft--;
         }
 
-        if (mode.get() == Mode.Chestplate) {
+        if (mode.get() == Mode.Chestplate)
+        {
             PlayerUtils.silentSwapEquipChestplate();
         }
     }
 
     @EventHandler
-    private void onPlayerMove(PlayerMoveEvent event) {
-        if (!isActive()) {
+    private void onPlayerMove(PlayerMoveEvent event)
+    {
+        if (!isActive())
+        {
             return;
         }
 
         // No fireworks, don't do anything
-        if (!getIsUsingFirework() && !InvUtils.find(Items.FIREWORK_ROCKET).found()) {
+        if (!getIsUsingFirework() && !InvUtils.find(Items.FIREWORK_ROCKET).found())
+        {
             return;
         }
 
-        if (lastMovement == null) {
+        if (lastMovement == null)
+        {
             lastMovement = event.movement;
         }
 
@@ -245,29 +259,37 @@ public class ElytraFakeFly extends Module {
     }
 
     @EventHandler
-    private void onPacketSend(PacketEvent.Send event) {
+    private void onPacketSend(PacketEvent.Send event)
+    {
 
     }
 
     @EventHandler
-    public void onPacketReceive(PacketEvent.Receive event) {
-        if (event.packet instanceof PlayerPositionLookS2CPacket packet) {
-            if (packet.getFlags().contains(PositionFlag.X)) {
+    public void onPacketReceive(PacketEvent.Receive event)
+    {
+        if (event.packet instanceof PlayerPositionLookS2CPacket packet)
+        {
+            if (packet.getFlags().contains(PositionFlag.X))
+            {
                 currentVelocity = new Vec3d(packet.getX(), currentVelocity.y, currentVelocity.z);
             }
 
-            if (packet.getFlags().contains(PositionFlag.Y)) {
+            if (packet.getFlags().contains(PositionFlag.Y))
+            {
                 currentVelocity = new Vec3d(currentVelocity.x, packet.getY(), currentVelocity.z);
             }
 
-            if (packet.getFlags().contains(PositionFlag.Z)) {
+            if (packet.getFlags().contains(PositionFlag.Z))
+            {
                 currentVelocity = new Vec3d(currentVelocity.x, currentVelocity.y, packet.getZ());
             }
 
             if (!packet.getFlags().contains(PositionFlag.X)
-                    && !packet.getFlags().contains(PositionFlag.Y)
-                    && !packet.getFlags().contains(PositionFlag.Z)) {
-                if (System.currentTimeMillis() - timeOfLastRubberband < 100) {
+                && !packet.getFlags().contains(PositionFlag.Y)
+                && !packet.getFlags().contains(PositionFlag.Z))
+            {
+                if (System.currentTimeMillis() - timeOfLastRubberband < 100)
+                {
                     currentVelocity = new Vec3d(packet.getX(), packet.getY(), packet.getZ()).subtract(lastRubberband);
                 }
 
@@ -277,12 +299,16 @@ public class ElytraFakeFly extends Module {
         }
     }
 
-    private boolean getIsUsingFirework() {
+    private boolean getIsUsingFirework()
+    {
         boolean usingFirework = false;
 
-        for (Entity entity : mc.world.getEntities()) {
-            if (entity instanceof FireworkRocketEntity firework) {
-                if (firework.getOwner() != null && firework.getOwner().equals(mc.player)) {
+        for (Entity entity : mc.world.getEntities())
+        {
+            if (entity instanceof FireworkRocketEntity firework)
+            {
+                if (firework.getOwner() != null && firework.getOwner().equals(mc.player))
+                {
                     usingFirework = true;
                 }
             }
@@ -291,28 +317,34 @@ public class ElytraFakeFly extends Module {
         return usingFirework;
     }
 
-    public boolean isFlying() {
+    public boolean isFlying()
+    {
         return isActive();
     }
 
-    
-    private void useFirework() {
+
+    private void useFirework()
+    {
         fireworkTicksLeft = (int) (fireworkDelay.get() * 20.0);
 
         int hotbarSilentSwapSlot = -1;
         int inventorySilentSwapSlot = -1;
 
         FindItemResult itemResult = InvUtils.findInHotbar(Items.FIREWORK_ROCKET);
-        if (!itemResult.found()) {
+        if (!itemResult.found())
+        {
             FindItemResult invResult = InvUtils.find(Items.FIREWORK_ROCKET);
 
-            if (!invResult.found()) {
+            if (!invResult.found())
+            {
                 return;
             }
 
 
-            FindItemResult hotbarSlotToSwapToResult = InvUtils.findInHotbar(x -> {
-                if (x.getItem() == Items.TOTEM_OF_UNDYING) {
+            FindItemResult hotbarSlotToSwapToResult = InvUtils.findInHotbar(x ->
+            {
+                if (x.getItem() == Items.TOTEM_OF_UNDYING)
+                {
                     return false;
                 }
                 return true;
@@ -320,23 +352,26 @@ public class ElytraFakeFly extends Module {
 
             inventorySilentSwapSlot = invResult.slot();
             hotbarSilentSwapSlot =
-                    hotbarSlotToSwapToResult.found() ? hotbarSlotToSwapToResult.slot() : 0;
+                hotbarSlotToSwapToResult.found() ? hotbarSlotToSwapToResult.slot() : 0;
 
             mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                    inventorySilentSwapSlot, hotbarSilentSwapSlot, SlotActionType.SWAP, mc.player);
+                inventorySilentSwapSlot, hotbarSilentSwapSlot, SlotActionType.SWAP, mc.player);
 
             // Re-search in hotbar
             itemResult = InvUtils.findInHotbar(Items.FIREWORK_ROCKET);
         }
 
-        if (!itemResult.found()) {
+        if (!itemResult.found())
+        {
             return;
         }
 
-        if (itemResult.isOffhand()) {
+        if (itemResult.isOffhand())
+        {
             mc.interactionManager.interactItem(mc.player, Hand.OFF_HAND);
             mc.player.swingHand(Hand.OFF_HAND);
-        } else {
+        } else
+        {
             InvUtils.swap(itemResult.slot(), true);
 
             mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
@@ -345,35 +380,40 @@ public class ElytraFakeFly extends Module {
             InvUtils.swapBack();
         }
 
-        if (inventorySilentSwapSlot != -1 && hotbarSilentSwapSlot != -1) {
+        if (inventorySilentSwapSlot != -1 && hotbarSilentSwapSlot != -1)
+        {
             mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId,
-                    inventorySilentSwapSlot, hotbarSilentSwapSlot, SlotActionType.SWAP, mc.player);
+                inventorySilentSwapSlot, hotbarSilentSwapSlot, SlotActionType.SWAP, mc.player);
         }
     }
 
-    private double getHorizontalSpeed() {
-        if (mc.options.sprintKey.isPressed()) {
+    private double getHorizontalSpeed()
+    {
+        if (mc.options.sprintKey.isPressed())
+        {
             double horizontalVelocity = currentVelocity.horizontalLength();
             // Constantly accelerate
             return Math.clamp(horizontalVelocity * 1.3 * 20, horizontalSpeed.get(),
-                    sprintToBoostMaxSpeed.get());
+                sprintToBoostMaxSpeed.get());
         }
 
         return horizontalSpeed.get();
     }
 
-    private double getHorizontalAccelTime() {
+    private double getHorizontalAccelTime()
+    {
 
-        if (currentVelocity.horizontalLength() > horizontalSpeed.get()) {
+        if (currentVelocity.horizontalLength() > horizontalSpeed.get())
+        {
             return boostAccelTime.get();
         }
 
         return accelTime.get();
     }
 
-    
 
-    public enum Mode {
+    public enum Mode
+    {
         Chestplate, Elytra
     }
 }

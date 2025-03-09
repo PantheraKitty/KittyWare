@@ -45,7 +45,8 @@ import java.util.PrimitiveIterator;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class BookBot extends Module {
+public class BookBot extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -104,17 +105,17 @@ public class BookBot extends Module {
         .visible(sign::get)
         .build()
     );
-
-    private File file = new File(MeteorClient.FOLDER, "bookbot.txt");
     private final PointerBuffer filters;
-
+    private File file = new File(MeteorClient.FOLDER, "bookbot.txt");
     private int delayTimer, bookCount;
     private Random random;
 
-    public BookBot() {
+    public BookBot()
+    {
         super(Categories.Misc, "book-bot", "Automatically writes in books.");
 
-        if (!file.exists()) {
+        if (!file.exists())
+        {
             file = null;
         }
 
@@ -127,14 +128,16 @@ public class BookBot extends Module {
     }
 
     @Override
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         WHorizontalList list = theme.horizontalList();
 
         WButton selectFile = list.add(theme.button("Select File")).widget();
 
         WLabel fileName = list.add(theme.label((file != null && file.exists()) ? file.getName() : "No file selected.")).widget();
 
-        selectFile.action = () -> {
+        selectFile.action = () ->
+        {
             String path = TinyFileDialogs.tinyfd_openFileDialog(
                 "Select File",
                 new File(MeteorClient.FOLDER, "bookbot.txt").getAbsolutePath(),
@@ -143,7 +146,8 @@ public class BookBot extends Module {
                 false
             );
 
-            if (path != null) {
+            if (path != null)
+            {
                 file = new File(path);
                 fileName.set(file.getName());
             }
@@ -153,8 +157,10 @@ public class BookBot extends Module {
     }
 
     @Override
-    public void onActivate() {
-        if ((file == null || !file.exists()) && mode.get() == Mode.File) {
+    public void onActivate()
+    {
+        if ((file == null || !file.exists()) && mode.get() == Mode.File)
+        {
             info("No file selected, please select a file in the GUI.");
             toggle();
             return;
@@ -166,8 +172,10 @@ public class BookBot extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        Predicate<ItemStack> bookPredicate = i -> {
+    private void onTick(TickEvent.Post event)
+    {
+        Predicate<ItemStack> bookPredicate = i ->
+        {
             WritableBookContentComponent component = i.get(DataComponentTypes.WRITABLE_BOOK_CONTENT);
             return i.getItem() == Items.WRITABLE_BOOK && (component != null || component.pages().isEmpty());
         };
@@ -175,19 +183,22 @@ public class BookBot extends Module {
         FindItemResult writableBook = InvUtils.find(bookPredicate);
 
         // Check if there is a book to write
-        if (!writableBook.found()) {
+        if (!writableBook.found())
+        {
             toggle();
             return;
         }
 
         // Move the book into hand
-        if (!InvUtils.testInMainHand(bookPredicate)) {
+        if (!InvUtils.testInMainHand(bookPredicate))
+        {
             InvUtils.move().from(writableBook.slot()).toHotbar(mc.player.getInventory().selectedSlot);
             return;
         }
 
         // Check delay
-        if (delayTimer > 0) {
+        if (delayTimer > 0)
+        {
             delayTimer--;
             return;
         }
@@ -197,7 +208,8 @@ public class BookBot extends Module {
 
         // Write book
 
-        if (mode.get() == Mode.Random) {
+        if (mode.get() == Mode.Random)
+        {
             int origin = onlyAscii.get() ? 0x21 : 0x0800;
             int bound = onlyAscii.get() ? 0x7E : 0x10FFFF;
 
@@ -207,16 +219,19 @@ public class BookBot extends Module {
                     .filter(i -> !Character.isWhitespace(i) && i != '\r' && i != '\n')
                     .iterator()
             );
-        } else if (mode.get() == Mode.File) {
+        } else if (mode.get() == Mode.File)
+        {
             // Ignore if somehow the file got deleted
-            if ((file == null || !file.exists()) && mode.get() == Mode.File) {
+            if ((file == null || !file.exists()) && mode.get() == Mode.File)
+            {
                 info("No file selected, please select a file in the GUI.");
                 toggle();
                 return;
             }
 
             // Handle the file being empty
-            if (file.length() == 0) {
+            if (file.length() == 0)
+            {
                 MutableText message = Text.literal("");
                 message.append(Text.literal("The bookbot file is empty! ").formatted(Formatting.RED));
                 message.append(Text.literal("Click here to edit it.")
@@ -231,11 +246,13 @@ public class BookBot extends Module {
             }
 
             // Read each line of the file and construct a string with the needed line breaks
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file)))
+            {
                 StringBuilder file = new StringBuilder();
 
                 String line;
-                while ((line = reader.readLine()) != null) {
+                while ((line = reader.readLine()) != null)
+                {
                     file.append(line).append('\n');
                 }
 
@@ -243,13 +260,16 @@ public class BookBot extends Module {
 
                 // Write the file string to a book
                 writeBook(file.toString().chars().iterator());
-            } catch (IOException ignored) {
+            }
+            catch (IOException ignored)
+            {
                 error("Failed to read the file.");
             }
         }
     }
 
-    private void writeBook(PrimitiveIterator.OfInt chars) {
+    private void writeBook(PrimitiveIterator.OfInt chars)
+    {
         ArrayList<String> pages = new ArrayList<>();
         ArrayList<RawFilteredPair<Text>> filteredPages = new ArrayList<>();
         TextHandler.WidthRetriever widthRetriever = ((TextHandlerAccessor) mc.textRenderer.getTextHandler()).getWidthRetriever();
@@ -263,33 +283,40 @@ public class BookBot extends Module {
 
         float lineWidth = 0;
 
-        while (chars.hasNext()) {
+        while (chars.hasNext())
+        {
             int c = chars.nextInt();
 
-            if (c == '\r' || c == '\n') {
+            if (c == '\r' || c == '\n')
+            {
                 page.append('\n');
                 lineWidth = 0;
                 lineIndex++;
-            } else {
+            } else
+            {
                 float charWidth = widthRetriever.getWidth(c, Style.EMPTY);
 
                 // Reached end of line
-                if (lineWidth + charWidth > 114f) {
+                if (lineWidth + charWidth > 114f)
+                {
                     page.append('\n');
                     lineWidth = charWidth;
                     lineIndex++;
                     // Wrap to next line, unless wrapping to next page
                     if (lineIndex != 14) page.appendCodePoint(c);
-                } else if (lineWidth == 0f && c == ' ') {
+                } else if (lineWidth == 0f && c == ' ')
+                {
                     continue; // Prevent leading space from text wrapping
-                } else {
+                } else
+                {
                     lineWidth += charWidth;
                     page.appendCodePoint(c);
                 }
             }
 
             // Reached end of page
-            if (lineIndex == 14) {
+            if (lineIndex == 14)
+            {
                 filteredPages.add(RawFilteredPair.of(Text.of(page.toString())));
                 pages.add(page.toString());
                 page.setLength(0);
@@ -300,14 +327,16 @@ public class BookBot extends Module {
                 if (pageIndex == maxPages) break;
 
                 // Wrap to next page
-                if (c != '\r' && c != '\n') {
+                if (c != '\r' && c != '\n')
+                {
                     page.appendCodePoint(c);
                 }
             }
         }
 
         // No more characters, end current page
-        if (!page.isEmpty() && pageIndex != maxPages) {
+        if (!page.isEmpty() && pageIndex != maxPages)
+        {
             filteredPages.add(RawFilteredPair.of(Text.of(page.toString())));
             pages.add(page.toString());
         }
@@ -326,10 +355,12 @@ public class BookBot extends Module {
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = super.toTag();
 
-        if (file != null && file.exists()) {
+        if (file != null && file.exists())
+        {
             tag.putString("file", file.getAbsolutePath());
         }
 
@@ -337,15 +368,18 @@ public class BookBot extends Module {
     }
 
     @Override
-    public Module fromTag(NbtCompound tag) {
-        if (tag.contains("file")) {
+    public Module fromTag(NbtCompound tag)
+    {
+        if (tag.contains("file"))
+        {
             file = new File(tag.getString("file"));
         }
 
         return super.fromTag(tag);
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         File,
         Random
     }

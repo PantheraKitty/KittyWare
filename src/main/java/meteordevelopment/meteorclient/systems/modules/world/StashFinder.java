@@ -35,7 +35,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class StashFinder extends Module {
+public class StashFinder extends Module
+{
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -82,17 +83,20 @@ public class StashFinder extends Module {
 
     public List<Chunk> chunks = new ArrayList<>();
 
-    public StashFinder() {
+    public StashFinder()
+    {
         super(Categories.World, "stash-finder", "Searches loaded chunks for storage blocks. Saves to <your minecraft folder>/meteor-client");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         load();
     }
 
     @EventHandler
-    private void onChunkData(ChunkDataEvent event) {
+    private void onChunkData(ChunkDataEvent event)
+    {
         // Check the distance.
         double chunkXAbs = Math.abs(event.chunk().getPos().x * 16);
         double chunkZAbs = Math.abs(event.chunk().getPos().z * 16);
@@ -100,7 +104,8 @@ public class StashFinder extends Module {
 
         Chunk chunk = new Chunk(event.chunk().getPos());
 
-        for (BlockEntity blockEntity : event.chunk().getBlockEntities().values()) {
+        for (BlockEntity blockEntity : event.chunk().getBlockEntities().values())
+        {
             if (!storageBlocks.get().contains(blockEntity.getType())) continue;
 
             if (blockEntity instanceof ChestBlockEntity) chunk.chests++;
@@ -112,7 +117,8 @@ public class StashFinder extends Module {
             else if (blockEntity instanceof HopperBlockEntity) chunk.hoppers++;
         }
 
-        if (chunk.getTotal() >= minimumStorageCount.get()) {
+        if (chunk.getTotal() >= minimumStorageCount.get())
+        {
             Chunk prevChunk = null;
             int i = chunks.indexOf(chunk);
 
@@ -122,11 +128,15 @@ public class StashFinder extends Module {
             saveJson();
             saveCsv();
 
-            if (sendNotifications.get() && (!chunk.equals(prevChunk) || !chunk.countsEqual(prevChunk))) {
-                switch (notificationMode.get()) {
-                    case Chat -> info("Found stash at (highlight)%s(default), (highlight)%s(default).", chunk.x, chunk.z);
+            if (sendNotifications.get() && (!chunk.equals(prevChunk) || !chunk.countsEqual(prevChunk)))
+            {
+                switch (notificationMode.get())
+                {
+                    case Chat ->
+                        info("Found stash at (highlight)%s(default), (highlight)%s(default).", chunk.x, chunk.z);
                     case Toast -> mc.getToastManager().add(new MeteorToast(Items.CHEST, title, "Found Stash!"));
-                    case Both -> {
+                    case Both ->
+                    {
                         info("Found stash at (highlight)%s(default), (highlight)%s(default).", chunk.x, chunk.z);
                         mc.getToastManager().add(new MeteorToast(Items.CHEST, title, "Found Stash!"));
                     }
@@ -136,7 +146,8 @@ public class StashFinder extends Module {
     }
 
     @Override
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         // Sort
         chunks.sort(Comparator.comparingInt(value -> -value.getTotal()));
 
@@ -148,7 +159,8 @@ public class StashFinder extends Module {
         WTable table = new WTable();
         if (!chunks.isEmpty()) list.add(table);
 
-        clear.action = () -> {
+        clear.action = () ->
+        {
             chunks.clear();
             table.clear();
         };
@@ -159,8 +171,10 @@ public class StashFinder extends Module {
         return list;
     }
 
-    private void fillTable(GuiTheme theme, WTable table) {
-        for (Chunk chunk : chunks) {
+    private void fillTable(GuiTheme theme, WTable table)
+    {
+        for (Chunk chunk : chunks)
+        {
             table.add(theme.label("Pos: " + chunk.x + ", " + chunk.z));
             table.add(theme.label("Total: " + chunk.getTotal()));
 
@@ -171,8 +185,10 @@ public class StashFinder extends Module {
             gotoBtn.action = () -> PathManagers.get().moveTo(new BlockPos(chunk.x, 0, chunk.z), true);
 
             WMinus delete = table.add(theme.minus()).widget();
-            delete.action = () -> {
-                if (chunks.remove(chunk)) {
+            delete.action = () ->
+            {
+                if (chunks.remove(chunk))
+                {
                     table.clear();
                     fillTable(theme, table);
 
@@ -185,34 +201,44 @@ public class StashFinder extends Module {
         }
     }
 
-    private void load() {
+    private void load()
+    {
         boolean loaded = false;
 
         // Try to load json
         File file = getJsonFile();
-        if (file.exists()) {
-            try {
+        if (file.exists())
+        {
+            try
+            {
                 FileReader reader = new FileReader(file);
-                chunks = GSON.fromJson(reader, new TypeToken<List<Chunk>>() {}.getType());
+                chunks = GSON.fromJson(reader, new TypeToken<List<Chunk>>()
+                {
+                }.getType());
                 reader.close();
 
                 for (Chunk chunk : chunks) chunk.calculatePos();
 
                 loaded = true;
-            } catch (Exception ignored) {
+            }
+            catch (Exception ignored)
+            {
                 if (chunks == null) chunks = new ArrayList<>();
             }
         }
 
         // Try to load csv
         file = getCsvFile();
-        if (!loaded && file.exists()) {
-            try {
+        if (!loaded && file.exists())
+        {
+            try
+            {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 reader.readLine();
 
                 String line;
-                while ((line = reader.readLine()) != null) {
+                while ((line = reader.readLine()) != null)
+                {
                     String[] values = line.split(" ");
                     Chunk chunk = new Chunk(new ChunkPos(Integer.parseInt(values[0]), Integer.parseInt(values[1])));
 
@@ -227,14 +253,18 @@ public class StashFinder extends Module {
                 }
 
                 reader.close();
-            } catch (Exception ignored) {
+            }
+            catch (Exception ignored)
+            {
                 if (chunks == null) chunks = new ArrayList<>();
             }
         }
     }
 
-    private void saveCsv() {
-        try {
+    private void saveCsv()
+    {
+        try
+        {
             File file = getCsvFile();
             file.getParentFile().mkdirs();
             Writer writer = new FileWriter(file);
@@ -243,78 +273,95 @@ public class StashFinder extends Module {
             for (Chunk chunk : chunks) chunk.write(writer);
 
             writer.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    private void saveJson() {
-        try {
+    private void saveJson()
+    {
+        try
+        {
             File file = getJsonFile();
             file.getParentFile().mkdirs();
             Writer writer = new FileWriter(file);
             GSON.toJson(chunks, writer);
             writer.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    private File getJsonFile() {
+    private File getJsonFile()
+    {
         return new File(new File(new File(MeteorClient.FOLDER, "stashes"), Utils.getFileWorldName()), "stashes.json");
     }
 
-    private File getCsvFile() {
+    private File getCsvFile()
+    {
         return new File(new File(new File(MeteorClient.FOLDER, "stashes"), Utils.getFileWorldName()), "stashes.csv");
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return String.valueOf(chunks.size());
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Chat,
         Toast,
         Both
     }
 
-    public static class Chunk {
+    public static class Chunk
+    {
         private static final StringBuilder sb = new StringBuilder();
 
         public ChunkPos chunkPos;
         public transient int x, z;
         public int chests, barrels, shulkers, enderChests, furnaces, dispensersDroppers, hoppers;
 
-        public Chunk(ChunkPos chunkPos) {
+        public Chunk(ChunkPos chunkPos)
+        {
             this.chunkPos = chunkPos;
 
             calculatePos();
         }
 
-        public void calculatePos() {
+        public void calculatePos()
+        {
             x = chunkPos.x * 16 + 8;
             z = chunkPos.z * 16 + 8;
         }
 
-        public int getTotal() {
+        public int getTotal()
+        {
             return chests + barrels + shulkers + enderChests + furnaces + dispensersDroppers + hoppers;
         }
 
-        public void write(Writer writer) throws IOException {
+        public void write(Writer writer) throws IOException
+        {
             sb.setLength(0);
             sb.append(x).append(',').append(z).append(',');
             sb.append(chests).append(',').append(barrels).append(',').append(shulkers).append(',').append(enderChests).append(',').append(furnaces).append(',').append(dispensersDroppers).append(',').append(hoppers).append('\n');
             writer.write(sb.toString());
         }
 
-        public boolean countsEqual(Chunk c) {
+        public boolean countsEqual(Chunk c)
+        {
             if (c == null) return false;
             return chests != c.chests || barrels != c.barrels || shulkers != c.shulkers || enderChests != c.enderChests || furnaces != c.furnaces || dispensersDroppers != c.dispensersDroppers || hoppers != c.hoppers;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(Object o)
+        {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Chunk chunk = (Chunk) o;
@@ -322,22 +369,26 @@ public class StashFinder extends Module {
         }
 
         @Override
-        public int hashCode() {
+        public int hashCode()
+        {
             return Objects.hash(chunkPos);
         }
     }
 
-    private static class ChunkScreen extends WindowScreen {
+    private static class ChunkScreen extends WindowScreen
+    {
         private final Chunk chunk;
 
-        public ChunkScreen(GuiTheme theme, Chunk chunk) {
+        public ChunkScreen(GuiTheme theme, Chunk chunk)
+        {
             super(theme, "Chunk at " + chunk.x + ", " + chunk.z);
 
             this.chunk = chunk;
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             WTable t = add(theme.table()).expandX().widget();
 
             // Total

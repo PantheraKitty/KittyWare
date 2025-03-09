@@ -11,7 +11,8 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 
-public class Sneak extends Module {
+public class Sneak extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -21,19 +22,23 @@ public class Sneak extends Module {
         .build()
     );
 
-    public Sneak() {
-        super (Categories.Movement, "sneak", "Sneaks for you");
+    public Sneak()
+    {
+        super(Categories.Movement, "sneak", "Sneaks for you");
     }
 
-    public boolean doPacket() {
+    public boolean doPacket()
+    {
         return isActive() && !mc.player.getAbilities().flying && mode.get() == Mode.Packet;
     }
 
-    public boolean doVanilla() {
+    public boolean doVanilla()
+    {
         return isActive() && !mc.player.getAbilities().flying && mode.get() == Mode.Vanilla;
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Packet,
         Vanilla
     }

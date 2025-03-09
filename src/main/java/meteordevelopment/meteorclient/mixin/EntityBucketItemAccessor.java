@@ -11,7 +11,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(EntityBucketItem.class)
-public interface EntityBucketItemAccessor {
+public interface EntityBucketItemAccessor
+{
     @Accessor("entityType")
     EntityType<?> getEntityType();
 }

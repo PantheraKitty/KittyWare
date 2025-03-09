@@ -13,9 +13,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.function.Supplier;
 
 @Mixin(Registries.class)
-public abstract class RegistriesMixin {
+public abstract class RegistriesMixin
+{
     @Redirect(method = "create(Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/registry/MutableRegistry;Lnet/minecraft/registry/Registries$Initializer;)Lnet/minecraft/registry/MutableRegistry;", at = @At(value = "INVOKE", target = "Lnet/minecraft/Bootstrap;ensureBootstrapped(Ljava/util/function/Supplier;)V"))
-    private static void ignoreBootstrap(Supplier<String> callerGetter) {
+    private static void ignoreBootstrap(Supplier<String> callerGetter)
+    {
         // nothing
     }
 }

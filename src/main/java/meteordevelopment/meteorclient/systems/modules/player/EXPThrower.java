@@ -17,34 +17,41 @@ import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.item.Items;
 
-public class EXPThrower extends Module {
+public class EXPThrower extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> throwsPerTick = sgGeneral.add(new IntSetting.Builder()
-            .name("throws-per-tick").description("Number of xp bottles to throw every tick.")
-            .defaultValue(1).min(1).sliderMax(5).build());
+        .name("throws-per-tick").description("Number of xp bottles to throw every tick.")
+        .defaultValue(1).min(1).sliderMax(5).build());
 
-    public EXPThrower() {
+    public EXPThrower()
+    {
         super(Categories.Player, "exp-thrower",
-                "Automatically throws XP bottles from your hotbar.");
+            "Automatically throws XP bottles from your hotbar.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         FindItemResult exp = InvUtils.findInHotbar(Items.EXPERIENCE_BOTTLE);
         if (!exp.found() || mc.player.isUsingItem())
             return;
 
         MeteorClient.ROTATION.requestRotation(mc.player.getYaw(), 90, 0);
 
-        if (exp.getHand() != null) {
-            for (int i = 0; i < throwsPerTick.get(); i++) {
+        if (exp.getHand() != null)
+        {
+            for (int i = 0; i < throwsPerTick.get(); i++)
+            {
                 mc.interactionManager.interactItem(mc.player, exp.getHand());
             }
-        } else {
+        } else
+        {
             InvUtils.swap(exp.slot(), true);
 
-            for (int i = 0; i < throwsPerTick.get(); i++) {
+            for (int i = 0; i < throwsPerTick.get(); i++)
+            {
                 mc.interactionManager.interactItem(mc.player, exp.getHand());
             }
 

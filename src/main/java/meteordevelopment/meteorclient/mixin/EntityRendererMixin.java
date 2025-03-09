@@ -31,12 +31,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityRenderer.class)
-public abstract class EntityRendererMixin<T extends Entity> implements IEntityRenderer {
+public abstract class EntityRendererMixin<T extends Entity> implements IEntityRenderer
+{
     @Shadow
     public abstract Identifier getTexture(Entity entity);
 
     @Inject(method = "renderLabelIfPresent", at = @At("HEAD"), cancellable = true)
-    private void onRenderLabel(T entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float tickDelta, CallbackInfo ci) {
+    private void onRenderLabel(T entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float tickDelta, CallbackInfo ci)
+    {
         if (PostProcessShaders.rendering) ci.cancel();
         if (Modules.get().get(NoRender.class).noNametags()) ci.cancel();
         if (!(entity instanceof PlayerEntity)) return;
@@ -45,23 +47,27 @@ public abstract class EntityRendererMixin<T extends Entity> implements IEntityRe
     }
 
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
-    private void shouldRender(T entity, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir) {
+    private void shouldRender(T entity, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir)
+    {
         if (Modules.get().get(NoRender.class).noEntity(entity)) cir.cancel();
         if (Modules.get().get(NoRender.class).noFallingBlocks() && entity instanceof FallingBlockEntity) cir.cancel();
     }
 
     @ModifyReturnValue(method = "getSkyLight", at = @At("RETURN"))
-    private int onGetSkyLight(int original) {
+    private int onGetSkyLight(int original)
+    {
         return Math.max(Modules.get().get(Fullbright.class).getLuminance(LightType.SKY), original);
     }
 
     @ModifyReturnValue(method = "getBlockLight", at = @At("RETURN"))
-    private int onGetBlockLight(int original) {
+    private int onGetBlockLight(int original)
+    {
         return Math.max(Modules.get().get(Fullbright.class).getLuminance(LightType.BLOCK), original);
     }
 
     @Override
-    public Identifier getTextureInterface(Entity entity) {
+    public Identifier getTextureInterface(Entity entity)
+    {
         return getTexture(entity);
     }
 }

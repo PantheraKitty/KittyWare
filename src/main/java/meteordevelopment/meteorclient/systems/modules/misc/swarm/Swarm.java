@@ -19,7 +19,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.Util;
 
-public class Swarm extends Module {
+public class Swarm extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -49,18 +50,21 @@ public class Swarm extends Module {
     public SwarmHost host;
     public SwarmWorker worker;
 
-    public Swarm() {
+    public Swarm()
+    {
         super(Categories.Misc, "swarm", "Allows you to control multiple instances of Meteor from one central host.");
     }
 
     @Override
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         WVerticalList list = theme.verticalList();
 
         WHorizontalList b = list.add(theme.horizontalList()).expandX().widget();
 
         WButton start = b.add(theme.button("Start")).expandX().widget();
-        start.action = () -> {
+        start.action = () ->
+        {
             if (!isActive()) return;
 
             close();
@@ -78,63 +82,80 @@ public class Swarm extends Module {
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return mode.get().name();
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         close();
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         close();
     }
 
-    public void close() {
-        try {
-            if (host != null) {
+    public void close()
+    {
+        try
+        {
+            if (host != null)
+            {
                 host.disconnect();
                 host = null;
             }
-            if (worker != null) {
+            if (worker != null)
+            {
                 worker.disconnect();
                 worker = null;
             }
-        } catch (Exception ignored) {}
+        }
+        catch (Exception ignored)
+        {
+        }
     }
 
     @EventHandler
-    private void onGameLeft(GameLeftEvent event) {
+    private void onGameLeft(GameLeftEvent event)
+    {
         toggle();
     }
 
     @EventHandler
-    private void onGameJoin(GameJoinedEvent event) {
+    private void onGameJoin(GameJoinedEvent event)
+    {
         toggle();
     }
 
     @Override
-    public void toggle() {
+    public void toggle()
+    {
         close();
         super.toggle();
     }
 
-    public boolean isHost() {
+    public boolean isHost()
+    {
         return mode.get() == Mode.Host && host != null && !host.isInterrupted();
     }
 
-    public boolean isWorker() {
+    public boolean isWorker()
+    {
         return mode.get() == Mode.Worker && worker != null && !worker.isInterrupted();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (isWorker()) worker.tick();
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Host,
         Worker
     }

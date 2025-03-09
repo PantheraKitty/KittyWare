@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LivingEntity.class)
-public interface LivingEntityAccessor {
+public interface LivingEntityAccessor
+{
     @Invoker("swimUpward")
     void swimUpwards(TagKey<Fluid> fluid);
 

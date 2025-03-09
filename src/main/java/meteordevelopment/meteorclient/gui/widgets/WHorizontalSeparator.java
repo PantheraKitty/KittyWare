@@ -5,16 +5,19 @@
 
 package meteordevelopment.meteorclient.gui.widgets;
 
-public abstract class WHorizontalSeparator extends WWidget {
+public abstract class WHorizontalSeparator extends WWidget
+{
     protected String text;
     protected double textWidth;
 
-    public WHorizontalSeparator(String text) {
+    public WHorizontalSeparator(String text)
+    {
         this.text = text;
     }
 
     @Override
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
         if (text != null) textWidth = theme.textWidth(text);
 
         width = 1;

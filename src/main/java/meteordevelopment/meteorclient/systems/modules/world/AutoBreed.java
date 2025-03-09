@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class AutoBreed extends Module {
+public class AutoBreed extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
@@ -59,22 +60,27 @@ public class AutoBreed extends Module {
 
     private final List<Entity> animalsFed = new ArrayList<>();
 
-    public AutoBreed() {
+    public AutoBreed()
+    {
         super(Categories.World, "auto-breed", "Automatically breeds specified animals.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         animalsFed.clear();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        for (Entity entity : mc.world.getEntities()) {
+    private void onTick(TickEvent.Pre event)
+    {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (!(entity instanceof AnimalEntity animal)) continue;
 
             if (!entities.get().contains(animal.getType())
-                || !switch (mobAgeFilter.get()) {
+                || !switch (mobAgeFilter.get())
+            {
                 case Baby -> animal.isBaby();
                 case Adult -> !animal.isBaby();
                 case Both -> true;
@@ -84,7 +90,8 @@ public class AutoBreed extends Module {
                 || !animal.isBreedingItem(hand.get() == Hand.MAIN_HAND ? mc.player.getMainHandStack() : mc.player.getOffHandStack()))
                 continue;
 
-            Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100, () -> {
+            Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100, () ->
+            {
                 mc.interactionManager.interactEntity(mc.player, animal, hand.get());
                 mc.player.swingHand(hand.get());
                 animalsFed.add(animal);
@@ -94,7 +101,8 @@ public class AutoBreed extends Module {
         }
     }
 
-    public enum EntityAge {
+    public enum EntityAge
+    {
         Baby,
         Adult,
         Both

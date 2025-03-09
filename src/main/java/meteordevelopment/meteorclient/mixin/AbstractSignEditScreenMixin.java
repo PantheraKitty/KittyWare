@@ -15,30 +15,36 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.stream.Stream;
 
 @Mixin(AbstractSignEditScreen.class)
-public abstract class AbstractSignEditScreenMixin {
+public abstract class AbstractSignEditScreenMixin
+{
     @ModifyExpressionValue(method = "<init>(Lnet/minecraft/block/entity/SignBlockEntity;ZZLnet/minecraft/text/Text;)V", at = @At(value = "INVOKE", target = "Ljava/util/stream/IntStream;mapToObj(Ljava/util/function/IntFunction;)Ljava/util/stream/Stream;"))
-    private Stream<Text> modifyTranslatableText(Stream<Text> original) {
+    private Stream<Text> modifyTranslatableText(Stream<Text> original)
+    {
         return original.map(this::modifyText);
     }
 
     // based on https://github.com/JustAlittleWolf/ModDetectionPreventer
     @Unique
-    private Text modifyText(Text message) {
+    private Text modifyText(Text message)
+    {
         MutableText modified = MutableText.of(message.getContent());
 
-        if (message.getContent() instanceof KeybindTextContent content) {
+        if (message.getContent() instanceof KeybindTextContent content)
+        {
             String key = content.getKey();
 
             if (key.contains("meteor-client")) modified = MutableText.of(new PlainTextContent.Literal(key));
         }
-        if (message.getContent() instanceof TranslatableTextContent content) {
+        if (message.getContent() instanceof TranslatableTextContent content)
+        {
             String key = content.getKey();
 
             if (key.contains("meteor-client")) modified = MutableText.of(new PlainTextContent.Literal(key));
         }
 
         modified.setStyle(message.getStyle());
-        for (Text sibling : message.getSiblings()) {
+        for (Text sibling : message.getSiblings())
+        {
             modified.append(modifyText(sibling));
         }
 

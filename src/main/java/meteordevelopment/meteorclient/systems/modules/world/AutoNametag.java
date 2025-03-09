@@ -26,7 +26,8 @@ import net.minecraft.util.Hand;
 import java.util.Iterator;
 import java.util.Set;
 
-public class AutoNametag extends Module {
+public class AutoNametag extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
@@ -70,28 +71,33 @@ public class AutoNametag extends Module {
     private Entity target;
     private boolean offHand;
 
-    public AutoNametag() {
+    public AutoNametag()
+    {
         super(Categories.World, "auto-nametag", "Automatically uses nametags on entities without a nametag. WILL nametag ALL entities in the specified distance.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         entityCooldowns.clear();
     }
 
     @EventHandler
-    private void onTickPre(TickEvent.Pre event) {
+    private void onTickPre(TickEvent.Pre event)
+    {
         // Find nametag in hotbar
         FindItemResult findNametag = InvUtils.findInHotbar(Items.NAME_TAG);
 
-        if (!findNametag.found()) {
+        if (!findNametag.found())
+        {
             error("No Nametag in Hotbar");
             toggle();
             return;
         }
 
         // Target
-        target = TargetUtils.get(entity -> {
+        target = TargetUtils.get(entity ->
+        {
             if (!PlayerUtils.isWithin(entity, range.get())) return false;
             if (!entities.get().contains(entity.getType())) return false;
 
@@ -115,8 +121,10 @@ public class AutoNametag extends Module {
     }
 
     @EventHandler
-    private void onTickPost(TickEvent.Post event) {
-        for (Iterator<Entity> it = entityCooldowns.keySet().iterator(); it.hasNext(); ) {
+    private void onTickPost(TickEvent.Post event)
+    {
+        for (Iterator<Entity> it = entityCooldowns.keySet().iterator(); it.hasNext(); )
+        {
             Entity entity = it.next();
             int cooldown = entityCooldowns.getInt(entity) - 1;
 
@@ -125,7 +133,8 @@ public class AutoNametag extends Module {
         }
     }
 
-    private void interact() {
+    private void interact()
+    {
         mc.interactionManager.interactEntity(mc.player, target, offHand ? Hand.OFF_HAND : Hand.MAIN_HAND);
         InvUtils.swapBack();
 

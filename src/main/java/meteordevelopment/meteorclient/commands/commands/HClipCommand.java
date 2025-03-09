@@ -12,18 +12,23 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
-public class HClipCommand extends Command {
-    public HClipCommand() {
+public class HClipCommand extends Command
+{
+    public HClipCommand()
+    {
         super("hclip", "Lets you clip through blocks horizontally.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.then(argument("blocks", DoubleArgumentType.doubleArg()).executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.then(argument("blocks", DoubleArgumentType.doubleArg()).executes(context ->
+        {
             double blocks = context.getArgument("blocks", Double.class);
             Vec3d forward = Vec3d.fromPolar(0, mc.player.getYaw()).normalize();
 
-            if (mc.player.hasVehicle()) {
+            if (mc.player.hasVehicle())
+            {
                 Entity vehicle = mc.player.getVehicle();
                 vehicle.setPosition(vehicle.getX() + forward.x * blocks, vehicle.getY(), vehicle.getZ() + forward.z * blocks);
             }

@@ -18,7 +18,8 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class Breadcrumbs extends Module {
+public class Breadcrumbs extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
@@ -53,12 +54,14 @@ public class Breadcrumbs extends Module {
 
     private DimensionType lastDimension;
 
-    public Breadcrumbs() {
+    public Breadcrumbs()
+    {
         super(Categories.Render, "breadcrumbs", "Displays a trail behind where you have walked.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         section = sectionPool.get();
         section.set1();
 
@@ -66,22 +69,27 @@ public class Breadcrumbs extends Module {
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         for (Section section : sections) sectionPool.free(section);
         sections.clear();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if (lastDimension != mc.world.getDimension()) {
+    private void onTick(TickEvent.Post event)
+    {
+        if (lastDimension != mc.world.getDimension())
+        {
             for (Section sec : sections) sectionPool.free(sec);
             sections.clear();
         }
 
-        if (isFarEnough(section.x1, section.y1, section.z1)) {
+        if (isFarEnough(section.x1, section.y1, section.z1))
+        {
             section.set2();
 
-            if (sections.size() >= maxSections.get()) {
+            if (sections.size() >= maxSections.get())
+            {
                 Section section = sections.poll();
                 if (section != null) sectionPool.free(section);
             }
@@ -95,11 +103,14 @@ public class Breadcrumbs extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         int iLast = -1;
 
-        for (Section section : sections) {
-            if (iLast == -1) {
+        for (Section section : sections)
+        {
+            if (iLast == -1)
+            {
                 iLast = event.renderer.lines.vec3(section.x1, section.y1, section.z1).color(color.get()).next();
             }
 
@@ -109,27 +120,32 @@ public class Breadcrumbs extends Module {
         }
     }
 
-    private boolean isFarEnough(double x, double y, double z) {
+    private boolean isFarEnough(double x, double y, double z)
+    {
         return Math.abs(mc.player.getX() - x) >= sectionLength.get() || Math.abs(mc.player.getY() - y) >= sectionLength.get() || Math.abs(mc.player.getZ() - z) >= sectionLength.get();
     }
 
-    private class Section {
+    private class Section
+    {
         public float x1, y1, z1;
         public float x2, y2, z2;
 
-        public void set1() {
+        public void set1()
+        {
             x1 = (float) mc.player.getX();
             y1 = (float) mc.player.getY();
             z1 = (float) mc.player.getZ();
         }
 
-        public void set2() {
+        public void set2()
+        {
             x2 = (float) mc.player.getX();
             y2 = (float) mc.player.getY();
             z2 = (float) mc.player.getZ();
         }
 
-        public void render(Render3DEvent event) {
+        public void render(Render3DEvent event)
+        {
             event.renderer.line(x1, y1, z1, x2, y2, z2, color.get());
         }
     }

@@ -34,9 +34,10 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
 
-public class TunnelESP extends Module {
+public class TunnelESP extends Module
+{
     private static final BlockPos.Mutable BP = new BlockPos.Mutable();
-    private static final Direction[] DIRECTIONS = { Direction.EAST, Direction.NORTH, Direction.SOUTH, Direction.WEST };
+    private static final Direction[] DIRECTIONS = {Direction.EAST, Direction.NORTH, Direction.SOUTH, Direction.WEST};
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
@@ -78,32 +79,39 @@ public class TunnelESP extends Module {
 
     private final Long2ObjectMap<TChunk> chunks = new Long2ObjectOpenHashMap<>();
 
-    public TunnelESP() {
+    public TunnelESP()
+    {
         super(Categories.Render, "tunnel-esp", "Highlights tunnels.");
     }
 
-    @Override
-    public void onDeactivate() {
-        chunks.clear();
-    }
-
-    private static int pack(int x, int y, int z) {
+    private static int pack(int x, int y, int z)
+    {
         return ((x & 0xFF) << 24) | ((y & 0xFFFF) << 8) | (z & 0xFF);
     }
 
-    private static byte getPackedX(int p) {
+    private static byte getPackedX(int p)
+    {
         return (byte) (p >> 24 & 0xFF);
     }
 
-    private static short getPackedY(int p) {
+    private static short getPackedY(int p)
+    {
         return (short) (p >> 8 & 0xFFFF);
     }
 
-    private static byte getPackedZ(int p) {
+    private static byte getPackedZ(int p)
+    {
         return (byte) (p & 0xFF);
     }
 
-    private void searchChunk(Chunk chunk, TChunk tChunk) {
+    @Override
+    public void onDeactivate()
+    {
+        chunks.clear();
+    }
+
+    private void searchChunk(Chunk chunk, TChunk tChunk)
+    {
         // Prepare variables
         Context ctx = new Context();
         IntSet set = new IntOpenHashSet();
@@ -115,11 +123,14 @@ public class TunnelESP extends Module {
         int endZ = chunk.getPos().getEndZ();
 
         // Search for first set of tunnels
-        for (int x = startX; x <= endX; x++) {
-            for (int z = startZ; z <= endZ; z++) {
+        for (int x = startX; x <= endX; x++)
+        {
+            for (int z = startZ; z <= endZ; z++)
+            {
                 int height = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE).get(x - startX, z - startZ);
 
-                for (short y = (short) mc.world.getBottomY(); y < height; y++) {
+                for (short y = (short) mc.world.getBottomY(); y < height; y++)
+                {
                     if (isTunnel(ctx, x, y, z)) set.add(pack(x - startX, y, z - startZ));
                 }
             }
@@ -128,7 +139,8 @@ public class TunnelESP extends Module {
         // Remove tunnels which are 1 block long
         IntSet positions = new IntOpenHashSet();
 
-        for (IntIterator it = set.iterator(); it.hasNext();) {
+        for (IntIterator it = set.iterator(); it.hasNext(); )
+        {
             int packed = it.nextInt();
 
             byte x = getPackedX(packed);
@@ -136,11 +148,14 @@ public class TunnelESP extends Module {
             byte z = getPackedZ(packed);
 
             if (x == 0 || x == 15 || z == 0 || z == 15) positions.add(packed);
-            else {
+            else
+            {
                 boolean has = false;
 
-                for (Direction dir : DIRECTIONS) {
-                    if (set.contains(pack(x + dir.getOffsetX(), y, z + dir.getOffsetZ()))) {
+                for (Direction dir : DIRECTIONS)
+                {
+                    if (set.contains(pack(x + dir.getOffsetX(), y, z + dir.getOffsetZ())))
+                    {
                         has = true;
                         break;
                     }
@@ -153,7 +168,8 @@ public class TunnelESP extends Module {
         tChunk.positions = positions;
     }
 
-    private boolean isTunnel(Context ctx, int x, int y, int z) {
+    private boolean isTunnel(Context ctx, int x, int y, int z)
+    {
         if (!canWalkIn(ctx, x, y, z)) return false;
 
         TunnelSide s1 = getTunnelSide(ctx, x + 1, y, z);
@@ -171,13 +187,15 @@ public class TunnelESP extends Module {
         return (s1 == TunnelSide.Walkable && s2 == TunnelSide.Walkable && s3 == TunnelSide.FullyBlocked && s4 == TunnelSide.FullyBlocked) || (s1 == TunnelSide.FullyBlocked && s2 == TunnelSide.FullyBlocked && s3 == TunnelSide.Walkable && s4 == TunnelSide.Walkable);
     }
 
-    private TunnelSide getTunnelSide(Context ctx, int x, int y, int z) {
+    private TunnelSide getTunnelSide(Context ctx, int x, int y, int z)
+    {
         if (canWalkIn(ctx, x, y, z)) return TunnelSide.Walkable;
         if (!canWalkThrough(ctx, x, y, z) && !canWalkThrough(ctx, x, y + 1, z)) return TunnelSide.FullyBlocked;
         return TunnelSide.PartiallyBlocked;
     }
 
-    private boolean canWalkOn(Context ctx, int x, int y, int z) {
+    private boolean canWalkOn(Context ctx, int x, int y, int z)
+    {
         BlockState state = ctx.get(x, y, z);
 
         if (state.isAir()) return false;
@@ -186,7 +204,8 @@ public class TunnelESP extends Module {
         return !state.getCollisionShape(mc.world, BP.set(x, y, z)).isEmpty();
     }
 
-    private boolean canWalkThrough(Context ctx, int x, int y, int z) {
+    private boolean canWalkThrough(Context ctx, int x, int y, int z)
+    {
         BlockState state = ctx.get(x, y, z);
 
         if (state.isAir()) return true;
@@ -195,7 +214,8 @@ public class TunnelESP extends Module {
         return state.getCollisionShape(mc.world, BP.set(x, y, z)).isEmpty();
     }
 
-    private boolean canWalkIn(Context ctx, int x, int y, int z) {
+    private boolean canWalkIn(Context ctx, int x, int y, int z)
+    {
         if (!canWalkOn(ctx, x, y - 1, z)) return false;
         if (!canWalkThrough(ctx, x, y, z)) return false;
         if (canWalkThrough(ctx, x, y + 2, z)) return false;
@@ -203,16 +223,20 @@ public class TunnelESP extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        synchronized (chunks) {
+    private void onTick(TickEvent.Post event)
+    {
+        synchronized (chunks)
+        {
             for (TChunk tChunk : chunks.values()) tChunk.marked = false;
             int added = 0;
 
-            for (Chunk chunk : Utils.chunks(true)) {
+            for (Chunk chunk : Utils.chunks(true))
+            {
                 long key = ChunkPos.toLong(chunk.getPos().x, chunk.getPos().z);
 
                 if (chunks.containsKey(key)) chunks.get(key).marked = true;
-                else if (added < 48) {
+                else if (added < 48)
+                {
                     TChunk tChunk = new TChunk(chunk.getPos().x, chunk.getPos().z);
                     chunks.put(tChunk.getKey(), tChunk);
 
@@ -226,89 +250,59 @@ public class TunnelESP extends Module {
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
-        synchronized (chunks) {
+    private void onRender3D(Render3DEvent event)
+    {
+        synchronized (chunks)
+        {
             for (TChunk chunk : chunks.values()) chunk.render(event.renderer);
         }
     }
 
-    private boolean chunkContains(TChunk chunk, int x, int y, int z) {
+    private boolean chunkContains(TChunk chunk, int x, int y, int z)
+    {
         int key;
 
-        if (x == -1) {
+        if (x == -1)
+        {
             chunk = chunks.get(ChunkPos.toLong(chunk.x - 1, chunk.z));
             key = pack(15, y, z);
-        }
-        else if (x == 16) {
+        } else if (x == 16)
+        {
             chunk = chunks.get(ChunkPos.toLong(chunk.x + 1, chunk.z));
             key = pack(0, y, z);
-        }
-        else if (z == -1) {
+        } else if (z == -1)
+        {
             chunk = chunks.get(ChunkPos.toLong(chunk.x, chunk.z - 1));
             key = pack(x, y, 15);
-        }
-        else if (z == 16) {
+        } else if (z == 16)
+        {
             chunk = chunks.get(ChunkPos.toLong(chunk.x, chunk.z + 1));
             key = pack(x, y, 0);
-        }
-        else key = pack(x, y, z);
+        } else key = pack(x, y, z);
 
         return chunk != null && chunk.positions != null && chunk.positions.contains(key);
     }
 
-    private class TChunk {
-        private final int x, z;
-        public IntSet positions;
-
-        public boolean marked;
-
-        public TChunk(int x, int z) {
-            this.x = x;
-            this.z = z;
-            this.marked = true;
-        }
-
-        public void render(Renderer3D renderer) {
-            if (positions == null) return;
-
-            // Manual iteration to avoid boxing
-            for (IntIterator it = positions.iterator(); it.hasNext();) {
-                int pos = it.nextInt();
-
-                int x = getPackedX(pos);
-                int y = getPackedY(pos);
-                int z = getPackedZ(pos);
-
-                int excludeDir = 0;
-
-                if (connected.get()) {
-                    for (Direction dir : DIRECTIONS) {
-                        if (chunkContains(this, x + dir.getOffsetX(), y, z + dir.getOffsetZ())) excludeDir |= Dir.get(dir);
-                    }
-                }
-
-                x += this.x * 16;
-                z += this.z * 16;
-
-                renderer.box(x, y, z, x + 1, y + height.get(), z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), excludeDir);
-            }
-        }
-
-        public long getKey() {
-            return ChunkPos.toLong(x, z);
-        }
+    private enum TunnelSide
+    {
+        Walkable,
+        PartiallyBlocked,
+        FullyBlocked
     }
 
-    private static class Context {
+    private static class Context
+    {
         private final World world;
 
         private Chunk lastChunk;
 
-        public Context() {
+        public Context()
+        {
             this.world = MeteorClient.mc.world;
         }
 
-        public BlockState get(int x, int y, int z) {
+        public BlockState get(int x, int y, int z)
+        {
             if (world.isOutOfHeightLimit(y)) return Blocks.VOID_AIR.getDefaultState();
 
             int cx = x >> 4;
@@ -329,9 +323,54 @@ public class TunnelESP extends Module {
         }
     }
 
-    private enum TunnelSide {
-        Walkable,
-        PartiallyBlocked,
-        FullyBlocked
+    private class TChunk
+    {
+        private final int x, z;
+        public IntSet positions;
+
+        public boolean marked;
+
+        public TChunk(int x, int z)
+        {
+            this.x = x;
+            this.z = z;
+            this.marked = true;
+        }
+
+        public void render(Renderer3D renderer)
+        {
+            if (positions == null) return;
+
+            // Manual iteration to avoid boxing
+            for (IntIterator it = positions.iterator(); it.hasNext(); )
+            {
+                int pos = it.nextInt();
+
+                int x = getPackedX(pos);
+                int y = getPackedY(pos);
+                int z = getPackedZ(pos);
+
+                int excludeDir = 0;
+
+                if (connected.get())
+                {
+                    for (Direction dir : DIRECTIONS)
+                    {
+                        if (chunkContains(this, x + dir.getOffsetX(), y, z + dir.getOffsetZ()))
+                            excludeDir |= Dir.get(dir);
+                    }
+                }
+
+                x += this.x * 16;
+                z += this.z * 16;
+
+                renderer.box(x, y, z, x + 1, y + height.get(), z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), excludeDir);
+            }
+        }
+
+        public long getKey()
+        {
+            return ChunkPos.toLong(x, z);
+        }
     }
 }

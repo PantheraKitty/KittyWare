@@ -13,13 +13,14 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
 
-public class GrimDisabler extends Module {
+public class GrimDisabler extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<HorizontalDisablerMode> horizontalDisblerMode = sgGeneral
-            .add(new EnumSetting.Builder<HorizontalDisablerMode>().name("horizontal-disabler-mode")
-                    .description("Determines mode of disabler for horizontal movement")
-                    .defaultValue(HorizontalDisablerMode.YawOverflow).build());
+        .add(new EnumSetting.Builder<HorizontalDisablerMode>().name("horizontal-disabler-mode")
+            .description("Determines mode of disabler for horizontal movement")
+            .defaultValue(HorizontalDisablerMode.YawOverflow).build());
 
     /*private final Setting<Boolean> horizontalDisablerElytraFly =
             sgGeneral.add(new BoolSetting.Builder().name("horizontal-disabler-elytra-fly")
@@ -30,13 +31,15 @@ public class GrimDisabler extends Module {
 
     private boolean fallFlyingBoostState = false;
 
-    public GrimDisabler() {
+    public GrimDisabler()
+    {
         super(Categories.Movement, "grim-disabler",
-                "Disables the Grim anti-cheat. Allows use of modules such as Speed and ClickTp");
+            "Disables the Grim anti-cheat. Allows use of modules such as Speed and ClickTp");
     }
 
     @EventHandler
-    public void onPreMove(SendMovementPacketsEvent.Pre event) {
+    public void onPreMove(SendMovementPacketsEvent.Pre event)
+    {
         // WIP Elytra
         /*if (horizontalDisablerActive.get() && horizontalDisablerElytraFly.get()) {
             boolean wearingElytra = false;
@@ -55,49 +58,59 @@ public class GrimDisabler extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         // TODO ?
     }
 
-    public boolean isInElytraFlyState() {
+    public boolean isInElytraFlyState()
+    {
         return isActive() && fallFlyingBoostState;
     }
 
-    public boolean shouldSetYawOverflowRotation() {
+    public boolean shouldSetYawOverflowRotation()
+    {
         return isActive() && horizontalDisblerMode.get() == HorizontalDisablerMode.YawOverflow/*  && !isInElytraFlyState()*/;
     }
 
-    private void stopFallFlying() {
-        if (!mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem().equals(Items.ELYTRA)) {
+    private void stopFallFlying()
+    {
+        if (!mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem().equals(Items.ELYTRA))
+        {
             return;
         }
 
         // Unequip and requipt elytra
         mc.interactionManager.clickSlot(mc.player.currentScreenHandler.syncId, 6, 0,
-                SlotActionType.PICKUP, mc.player);
+            SlotActionType.PICKUP, mc.player);
         mc.interactionManager.clickSlot(mc.player.currentScreenHandler.syncId, 6, 0,
-                SlotActionType.PICKUP, mc.player);
+            SlotActionType.PICKUP, mc.player);
     }
 
-    private void startFallFlying() {
-        if (!mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem().equals(Items.ELYTRA)) {
+    private void startFallFlying()
+    {
+        if (!mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem().equals(Items.ELYTRA))
+        {
             return;
         }
 
         mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(mc.player,
-                ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+            ClientCommandC2SPacket.Mode.START_FALL_FLYING));
     }
 
     @Override
-    public String getInfoString() {
-        if (horizontalDisblerMode.get() == HorizontalDisablerMode.None) {
+    public String getInfoString()
+    {
+        if (horizontalDisblerMode.get() == HorizontalDisablerMode.None)
+        {
             return "";
         }
 
         return String.format("%s", horizontalDisblerMode.get().toString());
     }
 
-    public enum HorizontalDisablerMode {
+    public enum HorizontalDisablerMode
+    {
         None, YawOverflow
     }
 }

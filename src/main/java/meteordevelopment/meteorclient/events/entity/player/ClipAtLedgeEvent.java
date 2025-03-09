@@ -5,29 +5,36 @@
 
 package meteordevelopment.meteorclient.events.entity.player;
 
-public class ClipAtLedgeEvent {
+public class ClipAtLedgeEvent
+{
     private static final ClipAtLedgeEvent INSTANCE = new ClipAtLedgeEvent();
 
     private boolean set, clip;
 
-    public void reset() {
+    public static ClipAtLedgeEvent get()
+    {
+        INSTANCE.reset();
+        return INSTANCE;
+    }
+
+    public void reset()
+    {
         set = false;
     }
 
-    public void setClip(boolean clip) {
-        set = true;
-        this.clip = clip;
-    }
-
-    public boolean isSet() {
+    public boolean isSet()
+    {
         return set;
     }
-    public boolean isClip() {
+
+    public boolean isClip()
+    {
         return clip;
     }
 
-    public static ClipAtLedgeEvent get() {
-        INSTANCE.reset();
-        return INSTANCE;
+    public void setClip(boolean clip)
+    {
+        set = true;
+        this.clip = clip;
     }
 }

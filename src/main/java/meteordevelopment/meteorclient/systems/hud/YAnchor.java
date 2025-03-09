@@ -5,7 +5,8 @@
 
 package meteordevelopment.meteorclient.systems.hud;
 
-public enum YAnchor {
+public enum YAnchor
+{
     Top,
     Center,
     Bottom

@@ -17,17 +17,20 @@ import org.objectweb.asm.tree.*;
 // Future compatibility
 // Future uses @ModifyConstant which does not chain when multiple mods do it and mixins / mixinextra can't target throw
 // statements. So using a custom ASM transformer we wrap the throw statement inside another if statement.
-public class PacketInflaterTransformer extends AsmTransformer {
+public class PacketInflaterTransformer extends AsmTransformer
+{
     private final MethodInfo decodeMethod;
 
-    public PacketInflaterTransformer() {
+    public PacketInflaterTransformer()
+    {
         super(mapClassName("net/minecraft/class_2532"));
 
         decodeMethod = new MethodInfo("net/minecraft/class_2532", "decode", new Descriptor("Lio/netty/channel/ChannelHandlerContext;", "Lio/netty/buffer/ByteBuf;", "Ljava/util/List;", "V"), true);
     }
 
     @Override
-    public void transform(ClassNode klass) {
+    public void transform(ClassNode klass)
+    {
         MethodNode method = getMethod(klass, decodeMethod);
         if (method == null) error("[Meteor Client] Could not find method PacketInflater.decode()");
 
@@ -35,11 +38,14 @@ public class PacketInflaterTransformer extends AsmTransformer {
         LabelNode label = new LabelNode(new Label());
 
         //noinspection DataFlowIssue
-        for (AbstractInsnNode insn : method.instructions) {
-            if (insn instanceof TypeInsnNode typeInsn && typeInsn.getOpcode() == Opcodes.NEW && typeInsn.desc.equals("io/netty/handler/codec/DecoderException")) {
+        for (AbstractInsnNode insn : method.instructions)
+        {
+            if (insn instanceof TypeInsnNode typeInsn && typeInsn.getOpcode() == Opcodes.NEW && typeInsn.desc.equals("io/netty/handler/codec/DecoderException"))
+            {
                 newCount++;
 
-                if (newCount == 2) {
+                if (newCount == 2)
+                {
                     InsnList list = new InsnList();
 
                     list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "meteordevelopment/meteorclient/systems/modules/Modules", "get", "()Lmeteordevelopment/meteorclient/systems/modules/Modules;", false));
@@ -50,8 +56,8 @@ public class PacketInflaterTransformer extends AsmTransformer {
 
                     method.instructions.insertBefore(insn, list);
                 }
-            }
-            else if (newCount == 2 && insn.getOpcode() == Opcodes.ATHROW) {
+            } else if (newCount == 2 && insn.getOpcode() == Opcodes.ATHROW)
+            {
                 method.instructions.insert(insn, label);
                 return;
             }

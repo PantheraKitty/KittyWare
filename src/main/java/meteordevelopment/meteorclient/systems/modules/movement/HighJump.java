@@ -13,7 +13,8 @@ import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 
-public class HighJump extends Module {
+public class HighJump extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> multiplier = sgGeneral.add(new DoubleSetting.Builder()
@@ -24,12 +25,14 @@ public class HighJump extends Module {
         .build()
     );
 
-    public HighJump() {
+    public HighJump()
+    {
         super(Categories.Movement, "high-jump", "Makes you jump higher than normal.");
     }
 
     @EventHandler
-    private void onJumpVelocityMultiplier(JumpVelocityMultiplierEvent event) {
+    private void onJumpVelocityMultiplier(JumpVelocityMultiplierEvent event)
+    {
         event.multiplier *= multiplier.get();
     }
 }

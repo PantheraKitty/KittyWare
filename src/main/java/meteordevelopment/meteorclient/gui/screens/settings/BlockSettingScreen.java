@@ -18,7 +18,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.registry.Registries;
 import org.apache.commons.lang3.StringUtils;
 
-public class BlockSettingScreen extends WindowScreen {
+public class BlockSettingScreen extends WindowScreen
+{
     private final BlockSetting setting;
 
     private WTable table;
@@ -26,17 +27,20 @@ public class BlockSettingScreen extends WindowScreen {
     private WTextBox filter;
     private String filterText = "";
 
-    public BlockSettingScreen(GuiTheme theme, BlockSetting setting) {
+    public BlockSettingScreen(GuiTheme theme, BlockSetting setting)
+    {
         super(theme, "Select Block");
 
         this.setting = setting;
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         filter = add(theme.textBox("")).minWidth(400).expandX().widget();
         filter.setFocused(true);
-        filter.action = () -> {
+        filter.action = () ->
+        {
             filterText = filter.get().trim();
 
             table.clear();
@@ -48,8 +52,10 @@ public class BlockSettingScreen extends WindowScreen {
         initTable();
     }
 
-    private void initTable() {
-        for (Block block : Registries.BLOCK) {
+    private void initTable()
+    {
+        for (Block block : Registries.BLOCK)
+        {
             if (setting.filter != null && !setting.filter.test(block)) continue;
             if (skipValue(block)) continue;
 
@@ -58,7 +64,8 @@ public class BlockSettingScreen extends WindowScreen {
             table.add(item);
 
             WButton select = table.add(theme.button("Select")).expandCellX().right().widget();
-            select.action = () -> {
+            select.action = () ->
+            {
                 setting.set(block);
                 close();
             };
@@ -67,7 +74,8 @@ public class BlockSettingScreen extends WindowScreen {
         }
     }
 
-    protected boolean skipValue(Block value) {
+    protected boolean skipValue(Block value)
+    {
         return value == Blocks.AIR || Registries.BLOCK.getId(value).getPath().endsWith("_wall_banner");
     }
 }

@@ -11,38 +11,37 @@ import meteordevelopment.meteorclient.gui.tabs.Tabs;
 import meteordevelopment.meteorclient.gui.utils.Cell;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
-import meteordevelopment.meteorclient.gui.widgets.containers.WSection;
 import meteordevelopment.meteorclient.gui.widgets.containers.WVerticalList;
 import meteordevelopment.meteorclient.gui.widgets.containers.WWindow;
 import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
-import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.misc.NbtUtils;
 import net.minecraft.item.Items;
-import java.security.KeyStore.Entry;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static meteordevelopment.meteorclient.utils.Utils.getWindowHeight;
 import static meteordevelopment.meteorclient.utils.Utils.getWindowWidth;
-import static meteordevelopment.meteorclient.utils.Utils.screenToOpen;
 
-public class ModulesScreen extends TabScreen {
-    private WCategoryController controller;
+public class ModulesScreen extends TabScreen
+{
     private final Map<Module, WWidget> moduleWidges = new HashMap<>();
     private final Map<Category, Integer> searchCategoryBuckets = new HashMap<>();
+    private WCategoryController controller;
 
-    public ModulesScreen(GuiTheme theme) {
+    public ModulesScreen(GuiTheme theme)
+    {
         super(theme, Tabs.get().getFirst());
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         controller = add(new WCategoryController()).widget();
 
         // Help
@@ -52,20 +51,23 @@ public class ModulesScreen extends TabScreen {
     }
 
     @Override
-    protected void init() {
+    protected void init()
+    {
         super.init();
         controller.refresh();
     }
 
     // Category
 
-    protected WWindow createCategory(WContainer c, Category category) {
+    protected WWindow createCategory(WContainer c, Category category)
+    {
         WWindow w = theme.window(category.name);
         w.id = category.name;
         w.padding = 0;
         w.spacing = 0;
 
-        if (theme.categoryIcons()) {
+        if (theme.categoryIcons())
+        {
             w.beforeHeaderInit = wContainer -> wContainer.add(theme.item(category.icon)).pad(2);
         }
 
@@ -74,7 +76,8 @@ public class ModulesScreen extends TabScreen {
         w.view.hasScrollBar = false;
         w.view.spacing = 0;
 
-        for (Module module : Modules.get().getGroup(category)) {
+        for (Module module : Modules.get().getGroup(category))
+        {
             WWidget wid = theme.module(module);
 
             w.add(wid).expandX();
@@ -88,39 +91,49 @@ public class ModulesScreen extends TabScreen {
     // Search
 
     public void searchSetHighlight(String text, Map<Module, Integer> modules, Module module,
-            WWidget widget) {
-        if (text.isEmpty()) {
+                                   WWidget widget)
+    {
+        if (text.isEmpty())
+        {
             widget.highlight = false;
             widget.deactivate = false;
             return;
         }
 
-        if (modules.containsKey(module)) {
+        if (modules.containsKey(module))
+        {
             int score = modules.get(module);
 
-            if (score < 10) {
+            if (score < 10)
+            {
                 widget.highlight = true;
                 widget.deactivate = false;
-            } else {
+            } else
+            {
                 widget.highlight = false;
                 widget.deactivate = true;
             }
-        } else {
+        } else
+        {
             widget.highlight = false;
             widget.deactivate = true;
         }
     }
 
-    protected void runSearchW(String text) {
+    protected void runSearchW(String text)
+    {
         searchCategoryBuckets.clear();
         Map<Module, Integer> modules = Modules.get().searchTitles(text);
 
-        if (modules.isEmpty()) {
+        if (modules.isEmpty())
+        {
             return;
         }
 
-        for (Map.Entry<Module, WWidget> moduleWidget : moduleWidges.entrySet()) {
-            if (modules.isEmpty()) {
+        for (Map.Entry<Module, WWidget> moduleWidget : moduleWidges.entrySet())
+        {
+            if (modules.isEmpty())
+            {
                 continue;
             }
 
@@ -128,13 +141,15 @@ public class ModulesScreen extends TabScreen {
         }
     }
 
-    protected WWindow createSearch(WContainer c) {
+    protected WWindow createSearch(WContainer c)
+    {
         WWindow w = theme.window("Search");
         w.id = "search";
 
-        if (theme.categoryIcons()) {
+        if (theme.categoryIcons())
+        {
             w.beforeHeaderInit = wContainer -> wContainer
-                    .add(theme.item(Items.COMPASS.getDefaultStack())).pad(2);
+                .add(theme.item(Items.COMPASS.getDefaultStack())).pad(2);
         }
 
         c.add(w);
@@ -145,7 +160,8 @@ public class ModulesScreen extends TabScreen {
 
         WTextBox text = w.add(theme.textBox("")).minWidth(140).expandX().widget();
         text.setFocused(true);
-        text.action = () -> {
+        text.action = () ->
+        {
             runSearchW(text.get());
         };
 
@@ -154,7 +170,8 @@ public class ModulesScreen extends TabScreen {
 
     // Favorites
 
-    protected Cell<WWindow> createFavorites(WContainer c) {
+    protected Cell<WWindow> createFavorites(WContainer c)
+    {
         boolean hasFavorites = Modules.get().getAll().stream().anyMatch(module -> module.favorite);
         if (!hasFavorites)
             return null;
@@ -164,9 +181,10 @@ public class ModulesScreen extends TabScreen {
         w.padding = 0;
         w.spacing = 0;
 
-        if (theme.categoryIcons()) {
+        if (theme.categoryIcons())
+        {
             w.beforeHeaderInit = wContainer -> wContainer
-                    .add(theme.item(Items.NETHER_STAR.getDefaultStack())).pad(2);
+                .add(theme.item(Items.NETHER_STAR.getDefaultStack())).pad(2);
         }
 
         Cell<WWindow> cell = c.add(w);
@@ -178,18 +196,22 @@ public class ModulesScreen extends TabScreen {
         return cell;
     }
 
-    protected boolean createFavoritesW(WWindow w) {
+    protected boolean createFavoritesW(WWindow w)
+    {
         List<Module> modules = new ArrayList<>();
 
-        for (Module module : Modules.get().getAll()) {
-            if (module.favorite) {
+        for (Module module : Modules.get().getAll())
+        {
+            if (module.favorite)
+            {
                 modules.add(module);
             }
         }
 
         modules.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.name, o2.name));
 
-        for (Module module : modules) {
+        for (Module module : modules)
+        {
             w.add(theme.module(module)).expandX();
         }
 
@@ -197,27 +219,34 @@ public class ModulesScreen extends TabScreen {
     }
 
     @Override
-    public boolean toClipboard() {
+    public boolean toClipboard()
+    {
         return NbtUtils.toClipboard(Modules.get());
     }
 
     @Override
-    public boolean fromClipboard() {
+    public boolean fromClipboard()
+    {
         return NbtUtils.fromClipboard(Modules.get());
     }
 
     @Override
-    public void reload() {}
+    public void reload()
+    {
+    }
 
     // Stuff
 
-    protected class WCategoryController extends WContainer {
+    protected class WCategoryController extends WContainer
+    {
         public final List<WWindow> windows = new ArrayList<>();
         private Cell<WWindow> favorites;
 
         @Override
-        public void init() {
-            for (Category category : Modules.loopCategories()) {
+        public void init()
+        {
+            for (Category category : Modules.loopCategories())
+            {
                 windows.add(createCategory(this, category));
             }
 
@@ -226,15 +255,19 @@ public class ModulesScreen extends TabScreen {
             refresh();
         }
 
-        protected void refresh() {
-            if (favorites == null) {
+        protected void refresh()
+        {
+            if (favorites == null)
+            {
                 favorites = createFavorites(this);
                 if (favorites != null)
                     windows.add(favorites.widget());
-            } else {
+            } else
+            {
                 favorites.widget().clear();
 
-                if (!createFavoritesW(favorites.widget())) {
+                if (!createFavoritesW(favorites.widget()))
+                {
                     remove(favorites);
                     windows.remove(favorites.widget());
                     favorites = null;
@@ -243,28 +276,33 @@ public class ModulesScreen extends TabScreen {
         }
 
         @Override
-        protected void onCalculateWidgetPositions() {
+        protected void onCalculateWidgetPositions()
+        {
             double pad = theme.scale(4);
             double h = theme.scale(40);
 
             double x = this.x + pad;
             double y = this.y;
 
-            for (Cell<?> cell : cells) {
+            for (Cell<?> cell : cells)
+            {
                 double windowWidth = getWindowWidth();
                 double windowHeight = getWindowHeight();
 
-                if (x + cell.width > windowWidth) {
+                if (x + cell.width > windowWidth)
+                {
                     x = x + pad;
                     y += h;
                 }
 
-                if (x > windowWidth) {
+                if (x > windowWidth)
+                {
                     x = windowWidth / 2.0 - cell.width / 2.0;
                     if (x < 0)
                         x = 0;
                 }
-                if (y > windowHeight) {
+                if (y > windowHeight)
+                {
                     y = windowHeight / 2.0 - cell.height / 2.0;
                     if (y < 0)
                         y = 0;

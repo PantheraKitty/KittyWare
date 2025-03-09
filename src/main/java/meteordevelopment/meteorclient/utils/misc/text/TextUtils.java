@@ -18,11 +18,14 @@ import java.util.*;
 /**
  * Some utilities for {@link Text}
  */
-public class TextUtils {
-    private TextUtils() {
+public class TextUtils
+{
+    private TextUtils()
+    {
     }
 
-    public static List<ColoredText> toColoredTextList(Text text) {
+    public static List<ColoredText> toColoredTextList(Text text)
+    {
         Deque<ColoredText> stack = new ArrayDeque<>();
         List<ColoredText> coloredTexts = new ArrayList<>();
         preOrderTraverse(text, stack, coloredTexts);
@@ -36,9 +39,11 @@ public class TextUtils {
      * @param orderedText the {@link OrderedText} to parse.
      * @return The {@link Text} equivalent of the {@link OrderedText} parameter.
      */
-    public static MutableText parseOrderedText(OrderedText orderedText) {
+    public static MutableText parseOrderedText(OrderedText orderedText)
+    {
         MutableText parsedText = Text.empty();
-        orderedText.accept((i, style, codePoint) -> {
+        orderedText.accept((i, style, codePoint) ->
+        {
             parsedText.append(Text.literal(new String(Character.toChars(codePoint))).setStyle(style));
             return true;
         });
@@ -51,9 +56,11 @@ public class TextUtils {
      * @param text the {@link Text} to scan through
      * @return You know what it returns. Read the docs! Also, returns white if the internal {@link Object2IntMap.Entry} is null
      */
-    public static Color getMostPopularColor(Text text) {
+    public static Color getMostPopularColor(Text text)
+    {
         Object2IntMap.Entry<Color> biggestEntry = null;
-        for (var entry : getColoredCharacterCount(toColoredTextList(text)).object2IntEntrySet()) {
+        for (var entry : getColoredCharacterCount(toColoredTextList(text)).object2IntEntrySet())
+        {
             if (biggestEntry == null) biggestEntry = entry;
             else if (entry.getIntValue() > biggestEntry.getIntValue()) biggestEntry = entry;
         }
@@ -69,14 +76,18 @@ public class TextUtils {
      * if the argument for this function is fed from the return from {@link #toColoredTextList(Text)}), and the corresponding values being {@link Integer}s
      * representing the number of occurrences of text that bear that color. The order of the keys are in no particular order
      */
-    public static Object2IntMap<Color> getColoredCharacterCount(List<ColoredText> coloredTexts) {
+    public static Object2IntMap<Color> getColoredCharacterCount(List<ColoredText> coloredTexts)
+    {
         Object2IntMap<Color> colorCount = new Object2IntOpenHashMap<>();
 
-        for (ColoredText coloredText : coloredTexts) {
-            if (colorCount.containsKey(coloredText.color())) {
+        for (ColoredText coloredText : coloredTexts)
+        {
+            if (colorCount.containsKey(coloredText.color()))
+            {
                 // Since color was already catalogued, simply update the record by adding the length of the new text segment to the old one
                 colorCount.put(coloredText.color(), colorCount.getInt(coloredText.color()) + coloredText.text().length());
-            } else {
+            } else
+            {
                 // Add new entry to the hashmap
                 colorCount.put(coloredText.color(), coloredText.text().length());
             }
@@ -93,7 +104,8 @@ public class TextUtils {
      * @param stack        An empty stack. This is used by the recursive algorithm to keep track of the parents of the current iteration
      * @param coloredTexts The list of colored text to return
      */
-    private static void preOrderTraverse(Text text, Deque<ColoredText> stack, List<ColoredText> coloredTexts) {
+    private static void preOrderTraverse(Text text, Deque<ColoredText> stack, List<ColoredText> coloredTexts)
+    {
         if (text == null)
             return;
 
@@ -107,14 +119,16 @@ public class TextUtils {
         // with the current element's parent at the top, so simply peek it if possible. If not, there is no parent element,
         // and with no color, use the default of white.
         Color textColor;
-        if (mcTextColor == null) {
+        if (mcTextColor == null)
+        {
             if (stack.isEmpty())
                 // No color defined, use default white
                 textColor = new Color(255, 255, 255);
             else
                 // Use parent color
                 textColor = stack.peek().color();
-        } else {
+        } else
+        {
             // Has a color defined, so use that
             textColor = new Color((text.getStyle().getColor().getRgb()) | 0xFF000000); // Sets alpha to max. Some damn reason Color's packed ctor is in ARGB format, not RGBA
         }

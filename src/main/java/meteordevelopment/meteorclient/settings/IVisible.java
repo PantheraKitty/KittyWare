@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.settings;
 
-public interface IVisible {
+public interface IVisible
+{
     boolean isVisible();
 }

@@ -7,24 +7,28 @@ package meteordevelopment.meteorclient.gui.widgets.containers;
 
 import meteordevelopment.meteorclient.gui.utils.Cell;
 
-public class WHorizontalList extends WContainer {
+public class WHorizontalList extends WContainer
+{
     public double spacing = 3;
 
     protected double calculatedWidth;
     protected int fillXCount;
 
-    protected double spacing() {
+    protected double spacing()
+    {
         return theme.scale(spacing);
     }
 
     @Override
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
         width = 0;
         height = 0;
 
         fillXCount = 0;
 
-        for (int i = 0; i < cells.size(); i++) {
+        for (int i = 0; i < cells.size(); i++)
+        {
             Cell<?> cell = cells.get(i);
 
             if (i > 0) width += spacing();
@@ -39,11 +43,13 @@ public class WHorizontalList extends WContainer {
     }
 
     @Override
-    protected void onCalculateWidgetPositions() {
+    protected void onCalculateWidgetPositions()
+    {
         double x = this.x;
         double fillXWidth = (width - calculatedWidth) / fillXCount;
 
-        for (int i = 0; i < cells.size(); i++) {
+        for (int i = 0; i < cells.size(); i++)
+        {
             Cell<?> cell = cells.get(i);
 
             if (i > 0) x += spacing();

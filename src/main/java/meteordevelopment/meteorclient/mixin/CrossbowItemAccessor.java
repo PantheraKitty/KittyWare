@@ -11,7 +11,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(CrossbowItem.class)
-public interface CrossbowItemAccessor {
+public interface CrossbowItemAccessor
+{
     @Invoker("getSpeed")
-    static float getSpeed(ChargedProjectilesComponent itemStack) { return 0; }
+    static float getSpeed(ChargedProjectilesComponent itemStack)
+    {
+        return 0;
+    }
 }

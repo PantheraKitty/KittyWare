@@ -28,14 +28,16 @@ import net.minecraft.nbt.NbtCompound;
 
 import static meteordevelopment.meteorclient.utils.Utils.getWindowWidth;
 
-public class ModuleScreen extends WindowScreen {
+public class ModuleScreen extends WindowScreen
+{
     private final Module module;
 
     private WContainer settingsContainer;
     private WKeybind keybind;
     private WCheckbox active;
 
-    public ModuleScreen(GuiTheme theme, Module module) {
+    public ModuleScreen(GuiTheme theme, Module module)
+    {
         super(theme, theme.favorite(module.favorite), module.title);
         ((WFavorite) window.icon).action = () -> module.favorite = ((WFavorite) window.icon).checked;
 
@@ -43,12 +45,14 @@ public class ModuleScreen extends WindowScreen {
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         // Description
         add(theme.label(module.description, getWindowWidth() / 2.0));
 
         // Settings
-        if (!module.settings.groups.isEmpty()) {
+        if (!module.settings.groups.isEmpty())
+        {
             settingsContainer = add(theme.verticalList()).expandX().widget();
             settingsContainer.add(theme.settings(module.settings)).expandX();
         }
@@ -56,7 +60,8 @@ public class ModuleScreen extends WindowScreen {
         // Custom widget
         WWidget widget = module.getWidget(theme);
 
-        if (widget != null) {
+        if (widget != null)
+        {
             add(theme.horizontalSeparator()).expandX();
             Cell<WWidget> cell = add(widget);
             if (widget instanceof WContainer) cell.expandX();
@@ -97,48 +102,57 @@ public class ModuleScreen extends WindowScreen {
         // Active
         bottom.add(theme.label("Active: "));
         active = bottom.add(theme.checkbox(module.isActive())).expandCellX().widget();
-        active.action = () -> {
+        active.action = () ->
+        {
             if (module.isActive() != active.checked) module.toggle();
         };
 
-        if (module.addon != null && module.addon != MeteorClient.ADDON) {
+        if (module.addon != null && module.addon != MeteorClient.ADDON)
+        {
             bottom.add(theme.label("From: ")).right().widget();
             bottom.add(theme.label(module.addon.name).color(theme.textSecondaryColor())).right().widget();
         }
     }
 
     @Override
-    public boolean shouldCloseOnEsc() {
+    public boolean shouldCloseOnEsc()
+    {
         return !Modules.get().isBinding();
     }
 
     @Override
-    public void tick() {
+    public void tick()
+    {
         super.tick();
 
         module.settings.tick(settingsContainer, theme);
     }
 
     @EventHandler
-    private void onModuleBindChanged(ModuleBindChangedEvent event) {
+    private void onModuleBindChanged(ModuleBindChangedEvent event)
+    {
         keybind.reset();
     }
 
     @EventHandler
-    private void onActiveModulesChanged(ActiveModulesChangedEvent event) {
+    private void onActiveModulesChanged(ActiveModulesChangedEvent event)
+    {
         this.active.checked = module.isActive();
     }
 
     @Override
-    public boolean toClipboard() {
+    public boolean toClipboard()
+    {
         return NbtUtils.toClipboard(module.title, module.toTagConfig());
     }
 
     @Override
-    public boolean fromClipboard() {
+    public boolean fromClipboard()
+    {
         NbtCompound clipboard = NbtUtils.fromClipboard(module.toTagConfig());
 
-        if (clipboard != null) {
+        if (clipboard != null)
+        {
             module.fromTagConfig(clipboard);
             return true;
         }

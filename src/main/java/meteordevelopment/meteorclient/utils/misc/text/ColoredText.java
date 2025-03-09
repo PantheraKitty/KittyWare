@@ -10,5 +10,6 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 /**
  * Encapsulates a string and the color it should have. See {@link TextUtils}
  */
-public record ColoredText(String text, Color color) {
+public record ColoredText(String text, Color color)
+{
 }

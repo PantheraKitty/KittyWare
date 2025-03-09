@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.mixininterface;
 
-public interface IText {
+public interface IText
+{
     void meteor$invalidateCache();
 }

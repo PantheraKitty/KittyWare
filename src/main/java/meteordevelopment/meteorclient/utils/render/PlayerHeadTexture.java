@@ -19,14 +19,19 @@ import java.nio.IntBuffer;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class PlayerHeadTexture extends Texture {
+public class PlayerHeadTexture extends Texture
+{
     private boolean needsRotate;
 
-    public PlayerHeadTexture(String url) {
+    public PlayerHeadTexture(String url)
+    {
         BufferedImage skin;
-        try {
+        try
+        {
             skin = ImageIO.read(Http.get(url).sendInputStream());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             return;
         }
@@ -35,11 +40,14 @@ public class PlayerHeadTexture extends Texture {
         int[] pixel = new int[4];
 
         int i = 0;
-        for (int x = 8; x < 16; x++) {
-            for (int y = 8; y < 16; y++) {
+        for (int x = 8; x < 16; x++)
+        {
+            for (int y = 8; y < 16; y++)
+            {
                 skin.getData().getPixel(x, y, pixel);
 
-                for (int j = 0; j < 3; j++) {
+                for (int j = 0; j < 3; j++)
+                {
                     head[i] = (byte) pixel[j];
                     i++;
                 }
@@ -47,17 +55,20 @@ public class PlayerHeadTexture extends Texture {
         }
 
         i = 0;
-        for (int x = 40; x < 48; x++) {
-            for (int y = 8; y < 16; y++) {
+        for (int x = 40; x < 48; x++)
+        {
+            for (int y = 8; y < 16; y++)
+            {
                 skin.getData().getPixel(x, y, pixel);
 
-                if (pixel[3] != 0) {
-                    for (int j = 0; j < 3; j++) {
+                if (pixel[3] != 0)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
                         head[i] = (byte) pixel[j];
                         i++;
                     }
-                }
-                else i += 3;
+                } else i += 3;
             }
         }
 
@@ -66,12 +77,15 @@ public class PlayerHeadTexture extends Texture {
         needsRotate = true;
     }
 
-    public PlayerHeadTexture() {
-        try (InputStream inputStream = mc.getResourceManager().getResource(MeteorClient.identifier("textures/steve.png")).get().getInputStream()) {
+    public PlayerHeadTexture()
+    {
+        try (InputStream inputStream = mc.getResourceManager().getResource(MeteorClient.identifier("textures/steve.png")).get().getInputStream())
+        {
             ByteBuffer data = TextureUtil.readResource(inputStream);
             data.rewind();
 
-            try (MemoryStack stack = MemoryStack.stackPush()) {
+            try (MemoryStack stack = MemoryStack.stackPush())
+            {
                 IntBuffer width = stack.mallocInt(1);
                 IntBuffer height = stack.mallocInt(1);
                 IntBuffer comp = stack.mallocInt(1);
@@ -82,18 +96,21 @@ public class PlayerHeadTexture extends Texture {
             }
             MemoryUtil.memFree(data);
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    private void upload(ByteBuffer data) {
+    private void upload(ByteBuffer data)
+    {
         Runnable action = () -> upload(8, 8, data, Texture.Format.RGB, Texture.Filter.Nearest, Texture.Filter.Nearest, false);
         if (RenderSystem.isOnRenderThread()) action.run();
         else RenderSystem.recordRenderCall(action::run);
     }
 
-    public boolean needsRotate() {
+    public boolean needsRotate()
+    {
         return needsRotate;
     }
 }

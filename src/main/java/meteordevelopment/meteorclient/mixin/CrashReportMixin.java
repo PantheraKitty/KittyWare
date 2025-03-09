@@ -21,34 +21,42 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(CrashReport.class)
-public abstract class CrashReportMixin {
+public abstract class CrashReportMixin
+{
     @Inject(method = "addDetails", at = @At("TAIL"))
-    private void onAddDetails(StringBuilder sb, CallbackInfo info) {
+    private void onAddDetails(StringBuilder sb, CallbackInfo info)
+    {
         sb.append("\n\n-- Meteor Client --\n\n");
         sb.append("Version: ").append(MeteorClient.VERSION).append("\n");
-        if (!MeteorClient.DEV_BUILD.isEmpty()) {
+        if (!MeteorClient.DEV_BUILD.isEmpty())
+        {
             sb.append("Dev Build: ").append(MeteorClient.DEV_BUILD).append("\n");
         }
 
-        if (Modules.get() != null) {
+        if (Modules.get() != null)
+        {
             boolean modulesActive = false;
-            for (Category category : Modules.loopCategories()) {
+            for (Category category : Modules.loopCategories())
+            {
                 List<Module> modules = Modules.get().getGroup(category);
                 boolean categoryActive = false;
 
-                for (Module module : modules) {
+                for (Module module : modules)
+                {
                     if (module == null || !module.isActive()) continue;
 
-                    if (!modulesActive) {
+                    if (!modulesActive)
+                    {
                         modulesActive = true;
                         sb.append("\n[[ Active Modules ]]\n");
                     }
 
-                    if (!categoryActive) {
+                    if (!categoryActive)
+                    {
                         categoryActive = true;
                         sb.append("\n[")
-                          .append(category)
-                          .append("]:\n");
+                            .append(category)
+                            .append("]:\n");
                     }
 
                     sb.append(module.name).append("\n");
@@ -58,26 +66,31 @@ public abstract class CrashReportMixin {
 
         }
 
-        if (Hud.get() != null && Hud.get().active) {
+        if (Hud.get() != null && Hud.get().active)
+        {
             boolean hudActive = false;
-            for (HudElement element : Hud.get()) {
+            for (HudElement element : Hud.get())
+            {
                 if (element == null || !element.isActive()) continue;
 
-                if (!hudActive) {
+                if (!hudActive)
+                {
                     hudActive = true;
                     sb.append("\n[[ Active Hud Elements ]]\n");
                 }
 
                 if (!(element instanceof TextHud textHud)) sb.append(element.info.name).append("\n");
-                else {
+                else
+                {
                     sb.append("Text\n{")
-                      .append(textHud.text.get())
-                      .append("}\n");
-                    if (textHud.shown.get() != TextHud.Shown.Always) {
+                        .append(textHud.text.get())
+                        .append("}\n");
+                    if (textHud.shown.get() != TextHud.Shown.Always)
+                    {
                         sb.append("(")
-                          .append(textHud.shown.get())
-                          .append(textHud.condition.get())
-                          .append(")\n");
+                            .append(textHud.shown.get())
+                            .append(textHud.condition.get())
+                            .append(")\n");
                     }
                 }
             }

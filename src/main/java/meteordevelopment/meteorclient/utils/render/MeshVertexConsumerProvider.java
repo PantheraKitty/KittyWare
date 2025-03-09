@@ -10,56 +10,63 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 
-public class MeshVertexConsumerProvider implements IVertexConsumerProvider {
+public class MeshVertexConsumerProvider implements IVertexConsumerProvider
+{
     private final MeshVertexConsumer vertexConsumer;
 
-    public MeshVertexConsumerProvider(Mesh mesh) {
+    public MeshVertexConsumerProvider(Mesh mesh)
+    {
         vertexConsumer = new MeshVertexConsumer(mesh);
     }
 
     @Override
-    public VertexConsumer getBuffer(RenderLayer layer) {
+    public VertexConsumer getBuffer(RenderLayer layer)
+    {
         return vertexConsumer;
     }
 
-    public void setColor(Color color) {
+    public void setColor(Color color)
+    {
         vertexConsumer.fixedColor(color.r, color.g, color.b, color.a);
     }
 
     @Override
-    public void setOffset(int offsetX, int offsetY, int offsetZ) {
+    public void setOffset(int offsetX, int offsetY, int offsetZ)
+    {
         vertexConsumer.setOffset(offsetX, offsetY, offsetZ);
     }
 
-    public static class MeshVertexConsumer implements VertexConsumer {
+    public static class MeshVertexConsumer implements VertexConsumer
+    {
         private final Mesh mesh;
-
-        private int offsetX, offsetY, offsetZ;
-
         private final double[] xs = new double[4];
         private final double[] ys = new double[4];
         private final double[] zs = new double[4];
         private final Color color = new Color();
-
+        private int offsetX, offsetY, offsetZ;
         private int i;
 
-        public MeshVertexConsumer(Mesh mesh) {
+        public MeshVertexConsumer(Mesh mesh)
+        {
             this.mesh = mesh;
         }
 
-        public void setOffset(int offsetX, int offsetY, int offsetZ) {
+        public void setOffset(int offsetX, int offsetY, int offsetZ)
+        {
             this.offsetX = offsetX;
             this.offsetY = offsetY;
             this.offsetZ = offsetZ;
         }
 
         @Override
-        public VertexConsumer vertex(float x, float y, float z) {
+        public VertexConsumer vertex(float x, float y, float z)
+        {
             xs[i] = (double) offsetX + x;
             ys[i] = (double) offsetY + y;
             zs[i] = (double) offsetZ + z;
 
-            if (++i >= 4) {
+            if (++i >= 4)
+            {
                 mesh.quad(
                     mesh.vec3(xs[0], ys[0], zs[0]).color(color).next(),
                     mesh.vec3(xs[1], ys[1], zs[1]).color(color).next(),
@@ -74,31 +81,37 @@ public class MeshVertexConsumerProvider implements IVertexConsumerProvider {
         }
 
         @Override
-        public VertexConsumer color(int red, int green, int blue, int alpha) {
+        public VertexConsumer color(int red, int green, int blue, int alpha)
+        {
             return this;
         }
 
         @Override
-        public VertexConsumer texture(float u, float v) {
+        public VertexConsumer texture(float u, float v)
+        {
             return this;
         }
 
         @Override
-        public VertexConsumer overlay(int u, int v) {
+        public VertexConsumer overlay(int u, int v)
+        {
             return this;
         }
 
         @Override
-        public VertexConsumer light(int u, int v) {
+        public VertexConsumer light(int u, int v)
+        {
             return this;
         }
 
         @Override
-        public VertexConsumer normal(float x, float y, float z) {
+        public VertexConsumer normal(float x, float y, float z)
+        {
             return null;
         }
 
-        public void fixedColor(int red, int green, int blue, int alpha) {
+        public void fixedColor(int red, int green, int blue, int alpha)
+        {
             color.set(red, green, blue, alpha);
         }
     }

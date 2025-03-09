@@ -9,10 +9,13 @@ import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WView;
 
-public class WGonbleWareView extends WView implements GonbleWareWidget {
+public class WGonbleWareView extends WView implements GonbleWareWidget
+{
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
-        if (canScroll && hasScrollBar) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
+        if (canScroll && hasScrollBar)
+        {
             renderer.quad(handleX(), handleY(), handleWidth(), handleHeight(), theme().scrollbarColor.get(handlePressed, handleMouseOver));
         }
     }

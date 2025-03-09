@@ -21,26 +21,24 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class Profile implements ISerializable<Profile> {
+public class Profile implements ISerializable<Profile>
+{
     public final Settings settings = new Settings();
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgSave = settings.createGroup("Save");
-
     public Setting<String> name = sgGeneral.add(new StringSetting.Builder()
         .name("name")
         .description("The name of the profile.")
         .filter(Utils::nameFilter)
         .build()
     );
-
     public Setting<List<String>> loadOnJoin = sgGeneral.add(new StringListSetting.Builder()
         .name("load-on-join")
         .description("Which servers to set this profile as active when joining.")
         .filter(Utils::ipFilter)
         .build()
     );
-
+    private final SettingGroup sgSave = settings.createGroup("Save");
     public Setting<Boolean> hud = sgSave.add(new BoolSetting.Builder()
         .name("hud")
         .description("Whether the profile should save hud.")
@@ -69,12 +67,17 @@ public class Profile implements ISerializable<Profile> {
         .build()
     );
 
-    public Profile() {}
-    public Profile(NbtElement tag) {
+    public Profile()
+    {
+    }
+
+    public Profile(NbtElement tag)
+    {
         fromTag((NbtCompound) tag);
     }
 
-    public void load() {
+    public void load()
+    {
         File folder = getFile();
 
         if (hud.get()) Hud.get().load(folder);
@@ -83,7 +86,8 @@ public class Profile implements ISerializable<Profile> {
         if (waypoints.get()) Waypoints.get().load(folder);
     }
 
-    public void save() {
+    public void save()
+    {
         File folder = getFile();
 
         if (hud.get()) Hud.get().save(folder);
@@ -92,20 +96,26 @@ public class Profile implements ISerializable<Profile> {
         if (waypoints.get()) Waypoints.get().save(folder);
     }
 
-    public void delete() {
-        try {
+    public void delete()
+    {
+        try
+        {
             FileUtils.deleteDirectory(getFile());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    private File getFile() {
+    private File getFile()
+    {
         return new File(Profiles.FOLDER, name.get());
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.put("settings", settings.toTag());
@@ -114,8 +124,10 @@ public class Profile implements ISerializable<Profile> {
     }
 
     @Override
-    public Profile fromTag(NbtCompound tag) {
-        if (tag.contains("settings")) {
+    public Profile fromTag(NbtCompound tag)
+    {
+        if (tag.contains("settings"))
+        {
             settings.fromTag(tag.getCompound("settings"));
         }
 
@@ -123,7 +135,8 @@ public class Profile implements ISerializable<Profile> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Profile profile = (Profile) o;

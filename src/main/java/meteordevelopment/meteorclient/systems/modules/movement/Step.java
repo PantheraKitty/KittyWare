@@ -19,7 +19,8 @@ import net.minecraft.entity.decoration.EndCrystalEntity;
 
 import java.util.OptionalDouble;
 
-public class Step extends Module {
+public class Step extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Double> height = sgGeneral.add(new DoubleSetting.Builder()
@@ -57,12 +58,14 @@ public class Step extends Module {
     private float prevStepHeight;
     private boolean prevPathManagerStep;
 
-    public Step() {
+    public Step()
+    {
         super(Categories.Movement, "step", "Allows you to walk up full blocks instantly.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         prevStepHeight = mc.player.getStepHeight();
 
         prevPathManagerStep = PathManagers.get().getSettings().getStep().get();
@@ -70,38 +73,45 @@ public class Step extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         boolean work = (activeWhen.get() == ActiveWhen.Always) || (activeWhen.get() == ActiveWhen.Sneaking && mc.player.isSneaking()) || (activeWhen.get() == ActiveWhen.NotSneaking && !mc.player.isSneaking());
         mc.player.setBoundingBox(mc.player.getBoundingBox().offset(0, 1, 0));
-        if (work && (!safeStep.get() || (getHealth() > stepHealth.get() && getHealth() - getExplosionDamage() > stepHealth.get()))){
+        if (work && (!safeStep.get() || (getHealth() > stepHealth.get() && getHealth() - getExplosionDamage() > stepHealth.get())))
+        {
             mc.player.getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).setBaseValue(height.get());
-        } else {
+        } else
+        {
             mc.player.getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).setBaseValue(prevStepHeight);
         }
         mc.player.setBoundingBox(mc.player.getBoundingBox().offset(0, -1, 0));
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         mc.player.getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).setBaseValue(prevStepHeight);
 
         PathManagers.get().getSettings().getStep().set(prevPathManagerStep);
     }
 
-    private float getHealth(){
+    private float getHealth()
+    {
         return mc.player.getHealth() + mc.player.getAbsorptionAmount();
     }
 
-    private double getExplosionDamage() {
+    private double getExplosionDamage()
+    {
         OptionalDouble crystalDamage = Streams.stream(mc.world.getEntities())
-                .filter(entity -> entity instanceof EndCrystalEntity)
-                .filter(Entity::isAlive)
-                .mapToDouble(entity -> DamageUtils.crystalDamage(mc.player, entity.getPos()))
-                .max();
+            .filter(entity -> entity instanceof EndCrystalEntity)
+            .filter(Entity::isAlive)
+            .mapToDouble(entity -> DamageUtils.crystalDamage(mc.player, entity.getPos()))
+            .max();
         return crystalDamage.orElse(0.0);
     }
 
-    public enum ActiveWhen {
+    public enum ActiveWhen
+    {
         Always,
         Sneaking,
         NotSneaking

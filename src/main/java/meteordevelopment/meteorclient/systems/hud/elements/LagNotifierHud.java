@@ -14,15 +14,11 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.TickRate;
 
-public class LagNotifierHud extends HudElement {
-    public static final HudElementInfo<LagNotifierHud> INFO = new HudElementInfo<>(Hud.GROUP, "lag-notifier", "Displays if the server is lagging in ticks.", LagNotifierHud::new);
-
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+public class LagNotifierHud extends HudElement
+{
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<LagNotifierHud> INFO = new HudElementInfo<>(Hud.GROUP, "lag-notifier", "Displays if the server is lagging in ticks.", LagNotifierHud::new);
     private final SettingGroup sgScale = settings.createGroup("Scale");
     private final SettingGroup sgBackground = settings.createGroup("Background");
-
-    // General
-
     private final Setting<Boolean> shadow = sgGeneral.add(new BoolSetting.Builder()
         .name("shadow")
         .description("Text shadow.")
@@ -30,43 +26,37 @@ public class LagNotifierHud extends HudElement {
         .build()
     );
 
+    // General
     private final Setting<SettingColor> textColor = sgGeneral.add(new ColorSetting.Builder()
         .name("text-color")
         .description("A.")
         .defaultValue(new SettingColor())
         .build()
     );
-
     private final Setting<SettingColor> color1 = sgGeneral.add(new ColorSetting.Builder()
         .name("color-1")
         .description("First color.")
         .defaultValue(new SettingColor(255, 255, 5))
         .build()
     );
-
     private final Setting<SettingColor> color2 = sgGeneral.add(new ColorSetting.Builder()
         .name("color-2")
         .description("Second color.")
         .defaultValue(new SettingColor(235, 158, 52))
         .build()
     );
-
     private final Setting<SettingColor> color3 = sgGeneral.add(new ColorSetting.Builder()
         .name("color-3")
         .description("Third color.")
         .defaultValue(new SettingColor(225, 45, 45))
         .build()
     );
-
     private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
         .name("border")
         .description("How much space to add around the element.")
         .defaultValue(0)
         .build()
     );
-
-    // Scale
-
     private final Setting<Boolean> customScale = sgScale.add(new BoolSetting.Builder()
         .name("custom-scale")
         .description("Applies custom text scale rather than the global one.")
@@ -74,6 +64,7 @@ public class LagNotifierHud extends HudElement {
         .build()
     );
 
+    // Scale
     private final Setting<Double> scale = sgScale.add(new DoubleSetting.Builder()
         .name("scale")
         .description("Custom scale.")
@@ -83,9 +74,6 @@ public class LagNotifierHud extends HudElement {
         .sliderRange(0.5, 3)
         .build()
     );
-
-    // Background
-
     private final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
         .description("Displays background.")
@@ -93,6 +81,7 @@ public class LagNotifierHud extends HudElement {
         .build()
     );
 
+    // Background
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
         .description("Color used for the background.")
@@ -101,29 +90,35 @@ public class LagNotifierHud extends HudElement {
         .build()
     );
 
-    public LagNotifierHud() {
+    public LagNotifierHud()
+    {
         super(INFO);
     }
 
     @Override
-    public void setSize(double width, double height) {
+    public void setSize(double width, double height)
+    {
         super.setSize(width + border.get() * 2, height + border.get() * 2);
     }
 
     @Override
-    public void render(HudRenderer renderer) {
-        if (background.get()) {
+    public void render(HudRenderer renderer)
+    {
+        if (background.get())
+        {
             renderer.quad(this.x, this.y, getWidth(), getHeight(), backgroundColor.get());
         }
 
-        if (isInEditor()) {
+        if (isInEditor())
+        {
             render(renderer, "4.3", color3.get());
             return;
         }
 
         float timeSinceLastTick = TickRate.INSTANCE.getTimeSinceLastTick();
 
-        if (timeSinceLastTick >= 1f) {
+        if (timeSinceLastTick >= 1f)
+        {
             Color color;
 
             if (timeSinceLastTick > 10) color = color3.get();
@@ -134,7 +129,8 @@ public class LagNotifierHud extends HudElement {
         }
     }
 
-    private void render(HudRenderer renderer, String right, Color rightColor) {
+    private void render(HudRenderer renderer, String right, Color rightColor)
+    {
         double x = this.x + border.get();
         double y = this.y + border.get();
 
@@ -144,7 +140,10 @@ public class LagNotifierHud extends HudElement {
         setSize(x2 - x, renderer.textHeight(shadow.get(), getScale()));
     }
 
-    private double getScale() {
+    private double getScale()
+    {
         return customScale.get() ? scale.get() : -1;
     }
+
+
 }

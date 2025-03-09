@@ -21,22 +21,28 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class MacroArgumentType implements ArgumentType<Macro> {
+public class MacroArgumentType implements ArgumentType<Macro>
+{
     private static final MacroArgumentType INSTANCE = new MacroArgumentType();
     private static final DynamicCommandExceptionType NO_SUCH_MACRO = new DynamicCommandExceptionType(name -> Text.literal("Macro with name " + name + " doesn't exist."));
 
-    public static MacroArgumentType create() {
+    private MacroArgumentType()
+    {
+    }
+
+    public static MacroArgumentType create()
+    {
         return INSTANCE;
     }
 
-    public static Macro get(CommandContext<?> context) {
+    public static Macro get(CommandContext<?> context)
+    {
         return context.getArgument("macro", Macro.class);
     }
 
-    private MacroArgumentType() {}
-
     @Override
-    public Macro parse(StringReader reader) throws CommandSyntaxException {
+    public Macro parse(StringReader reader) throws CommandSyntaxException
+    {
         String argument = reader.readString();
         Macro macro = Macros.get().get(argument);
         if (macro == null) throw NO_SUCH_MACRO.create(argument);
@@ -45,12 +51,14 @@ public class MacroArgumentType implements ArgumentType<Macro> {
     }
 
     @Override
-    public CompletableFuture<Suggestions> listSuggestions(CommandContext context, SuggestionsBuilder builder) {
+    public CompletableFuture<Suggestions> listSuggestions(CommandContext context, SuggestionsBuilder builder)
+    {
         return CommandSource.suggestMatching(Macros.get().getAll().stream().map(macro -> macro.name.get()), builder);
     }
 
     @Override
-    public Collection<String> getExamples() {
+    public Collection<String> getExamples()
+    {
         return Macros.get().getAll().stream().limit(3).map(macro -> macro.name.get()).collect(Collectors.toList());
     }
 }

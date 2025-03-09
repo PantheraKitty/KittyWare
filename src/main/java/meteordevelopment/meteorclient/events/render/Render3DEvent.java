@@ -9,7 +9,8 @@ import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.utils.Utils;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class Render3DEvent {
+public class Render3DEvent
+{
     private static final Render3DEvent INSTANCE = new Render3DEvent();
 
     public MatrixStack matrices;
@@ -18,7 +19,8 @@ public class Render3DEvent {
     public float tickDelta;
     public double offsetX, offsetY, offsetZ;
 
-    public static Render3DEvent get(MatrixStack matrices, Renderer3D renderer, float tickDelta, double offsetX, double offsetY, double offsetZ) {
+    public static Render3DEvent get(MatrixStack matrices, Renderer3D renderer, float tickDelta, double offsetX, double offsetY, double offsetZ)
+    {
         INSTANCE.matrices = matrices;
         INSTANCE.renderer = renderer;
         INSTANCE.frameTime = Utils.frameTime;

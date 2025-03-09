@@ -19,12 +19,14 @@ import java.net.http.HttpResponse;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
-public class CommitsScreen extends WindowScreen {
+public class CommitsScreen extends WindowScreen
+{
     private final MeteorAddon addon;
     private Commit[] commits;
     private int statusCode;
 
-    public CommitsScreen(GuiTheme theme, MeteorAddon addon) {
+    public CommitsScreen(GuiTheme theme, MeteorAddon addon)
+    {
         super(theme, "Commits for " + addon.name);
 
         this.addon = addon;
@@ -32,43 +34,79 @@ public class CommitsScreen extends WindowScreen {
         locked = true;
         lockedAllowClose = true;
 
-        MeteorExecutor.execute(() -> {
+        MeteorExecutor.execute(() ->
+        {
             GithubRepo repo = addon.getRepo();
             Http.Request request = Http.get(String.format("https://api.github.com/repos/%s/compare/%s...%s", repo.getOwnerName(), addon.getCommit(), repo.branch()));
             repo.authenticate(request);
             HttpResponse<Response> res = request.sendJsonResponse(Response.class);
 
-            if (res.statusCode() == Http.SUCCESS) {
+            if (res.statusCode() == Http.SUCCESS)
+            {
                 commits = res.body().commits;
                 taskAfterRender = this::populateCommits;
-            } else {
+            } else
+            {
                 statusCode = res.statusCode();
                 taskAfterRender = this::populateError;
             }
         });
     }
 
+    private static String getMessage(Commit commit)
+    {
+        StringBuilder sb = new StringBuilder(" - ");
+        String message = commit.commit.message;
+
+        for (int i = 0; i < message.length(); i++)
+        {
+            if (i >= 80)
+            {
+                sb.append("...");
+                break;
+            }
+
+            char c = message.charAt(i);
+
+            if (c == '\n')
+            {
+                sb.append("...");
+                break;
+            }
+
+            sb.append(c);
+        }
+
+        return sb.toString();
+    }
+
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         // Only initialize widgets after data arrives
     }
 
-    private void populateHeader(String headerMessage) {
+    private void populateHeader(String headerMessage)
+    {
         WHorizontalList l = add(theme.horizontalList()).expandX().widget();
 
         l.add(theme.label(headerMessage)).expandX();
 
         String website = addon.getWebsite();
-        if (website != null) l.add(theme.button("Website")).widget().action = () -> Util.getOperatingSystem().open(website);
+        if (website != null)
+            l.add(theme.button("Website")).widget().action = () -> Util.getOperatingSystem().open(website);
 
-        l.add(theme.button("GitHub")).widget().action = () -> {
+        l.add(theme.button("GitHub")).widget().action = () ->
+        {
             GithubRepo repo = addon.getRepo();
             Util.getOperatingSystem().open(String.format("https://github.com/%s/tree/%s", repo.getOwnerName(), repo.branch()));
         };
     }
 
-    private void populateError() {
-        String errorMessage = switch (statusCode) {
+    private void populateError()
+    {
+        String errorMessage = switch (statusCode)
+        {
             case Http.BAD_REQUEST -> "Connection dropped";
             case Http.UNAUTHORIZED -> "Unauthorized";
             case Http.FORBIDDEN -> "Rate-limited";
@@ -78,12 +116,14 @@ public class CommitsScreen extends WindowScreen {
 
         populateHeader("There was an error fetching commits: " + errorMessage);
 
-        if (statusCode == Http.UNAUTHORIZED) {
+        if (statusCode == Http.UNAUTHORIZED)
+        {
             add(theme.horizontalSeparator()).padVertical(theme.scale(8)).expandX();
             WHorizontalList l = add(theme.horizontalList()).expandX().widget();
 
             l.add(theme.label("Consider using an authentication token: ")).expandX();
-            l.add(theme.button("Authorization Guide")).widget().action = () -> {
+            l.add(theme.button("Authorization Guide")).widget().action = () ->
+            {
                 Util.getOperatingSystem().open("https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens");
             };
         }
@@ -91,20 +131,23 @@ public class CommitsScreen extends WindowScreen {
         locked = false;
     }
 
-    private void populateCommits() {
+    private void populateCommits()
+    {
         // Top
         String text = "There are %d new commits";
         if (commits.length == 1) text = "There is %d new commit";
         populateHeader(String.format(text, commits.length));
 
         // Commits
-        if (commits.length > 0) {
+        if (commits.length > 0)
+        {
             add(theme.horizontalSeparator()).padVertical(theme.scale(8)).expandX();
 
             WTable t = add(theme.table()).expandX().widget();
             t.horizontalSpacing = 0;
 
-            for (Commit commit : commits) {
+            for (Commit commit : commits)
+            {
                 String date = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(commit.commit.committer.date));
                 t.add(theme.label(date)).top().right().widget().color = theme.textSecondaryColor();
 
@@ -116,44 +159,25 @@ public class CommitsScreen extends WindowScreen {
         locked = false;
     }
 
-    private static String getMessage(Commit commit) {
-        StringBuilder sb = new StringBuilder(" - ");
-        String message = commit.commit.message;
-
-        for (int i = 0; i < message.length(); i++) {
-            if (i >= 80) {
-                sb.append("...");
-                break;
-            }
-
-            char c = message.charAt(i);
-
-            if (c == '\n') {
-                sb.append("...");
-                break;
-            }
-
-            sb.append(c);
-        }
-
-        return sb.toString();
-    }
-
-    private static class Response {
+    private static class Response
+    {
         public Commit[] commits;
     }
 
-    private static class Commit {
+    private static class Commit
+    {
         public String sha;
         public CommitInner commit;
     }
 
-    private static class CommitInner {
+    private static class CommitInner
+    {
         public Committer committer;
         public String message;
     }
 
-    private static class Committer {
+    private static class Committer
+    {
         public String date;
     }
 }

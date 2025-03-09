@@ -25,7 +25,8 @@ import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class AutoAnvil extends Module {
+public class AutoAnvil extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     // General
@@ -95,65 +96,78 @@ public class AutoAnvil extends Module {
     private PlayerEntity target;
     private int timer;
 
-    public AutoAnvil() {
+    public AutoAnvil()
+    {
         super(Categories.Combat, "auto-anvil", "Automatically places anvils above players to destroy helmets.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         timer = 0;
         target = null;
     }
 
     @EventHandler
-    private void onOpenScreen(OpenScreenEvent event) {
+    private void onOpenScreen(OpenScreenEvent event)
+    {
         if (event.screen instanceof AnvilScreen) event.cancel();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         // Head check
-        if (toggleOnBreak.get() && target != null && target.getInventory().getArmorStack(3).isEmpty()) {
+        if (toggleOnBreak.get() && target != null && target.getInventory().getArmorStack(3).isEmpty())
+        {
             error("Target head slot is empty... disabling.");
             toggle();
             return;
         }
 
         // Check distance + alive
-        if (TargetUtils.isBadTarget(target, range.get())) {
+        if (TargetUtils.isBadTarget(target, range.get()))
+        {
             target = TargetUtils.getPlayerTarget(range.get(), priority.get());
             if (TargetUtils.isBadTarget(target, range.get())) return;
         }
 
-        if (placeButton.get()) {
+        if (placeButton.get())
+        {
             FindItemResult floorBlock = InvUtils.findInHotbar(itemStack -> Block.getBlockFromItem(itemStack.getItem()) instanceof AbstractPressurePlateBlock || Block.getBlockFromItem(itemStack.getItem()) instanceof ButtonBlock);
             BlockUtils.place(target.getBlockPos(), floorBlock, rotate.get(), 0, false);
         }
 
-        if (timer >= delay.get()) {
+        if (timer >= delay.get())
+        {
             timer = 0;
 
             FindItemResult anvil = InvUtils.findInHotbar(itemStack -> Block.getBlockFromItem(itemStack.getItem()) instanceof AnvilBlock);
             if (!anvil.found()) return;
 
-            for (int i = height.get(); i > 1; i--) {
+            for (int i = height.get(); i > 1; i--)
+            {
                 BlockPos blockPos = target.getBlockPos().up().add(0, i, 0);
 
-                for (int j = 0; j < i; j++) {
-                    if (!mc.world.getBlockState(target.getBlockPos().up(j + 1)).isReplaceable()) {
+                for (int j = 0; j < i; j++)
+                {
+                    if (!mc.world.getBlockState(target.getBlockPos().up(j + 1)).isReplaceable())
+                    {
                         break;
                     }
                 }
 
                 if (BlockUtils.place(blockPos, anvil, rotate.get(), 0) && !multiPlace.get()) break;
             }
-        } else {
+        } else
+        {
             timer++;
         }
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return EntityUtils.getName(target);
     }
 }

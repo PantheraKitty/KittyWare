@@ -21,31 +21,38 @@ import java.util.function.Predicate;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class TargetUtils {
+public class TargetUtils
+{
     private static final List<Entity> ENTITIES = new ArrayList<>();
 
-    private TargetUtils() {
+    private TargetUtils()
+    {
     }
 
     @Nullable
-    public static Entity get(Predicate<Entity> isGood, SortPriority sortPriority) {
+    public static Entity get(Predicate<Entity> isGood, SortPriority sortPriority)
+    {
         ENTITIES.clear();
         getList(ENTITIES, isGood, sortPriority, 1);
-        if (!ENTITIES.isEmpty()) {
+        if (!ENTITIES.isEmpty())
+        {
             return ENTITIES.getFirst();
         }
 
         return null;
     }
 
-    public static void getList(List<Entity> targetList, Predicate<Entity> isGood, SortPriority sortPriority, int maxCount) {
+    public static void getList(List<Entity> targetList, Predicate<Entity> isGood, SortPriority sortPriority, int maxCount)
+    {
         targetList.clear();
 
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (entity != null && isGood.test(entity)) targetList.add(entity);
         }
 
-        FakePlayerManager.forEach(fp -> {
+        FakePlayerManager.forEach(fp ->
+        {
             if (fp != null && isGood.test(fp)) targetList.add(fp);
         });
 
@@ -55,9 +62,11 @@ public class TargetUtils {
     }
 
     @Nullable
-    public static PlayerEntity getPlayerTarget(double range, SortPriority priority) {
+    public static PlayerEntity getPlayerTarget(double range, SortPriority priority)
+    {
         if (!Utils.canUpdate()) return null;
-        return (PlayerEntity) get(entity -> {
+        return (PlayerEntity) get(entity ->
+        {
             if (!(entity instanceof PlayerEntity) || entity == mc.player) return false;
             if (((PlayerEntity) entity).isDead() || ((PlayerEntity) entity).getHealth() <= 0) return false;
             if (!PlayerUtils.isWithin(entity, range)) return false;
@@ -66,7 +75,8 @@ public class TargetUtils {
         }, priority);
     }
 
-    public static boolean isBadTarget(PlayerEntity target, double range) {
+    public static boolean isBadTarget(PlayerEntity target, double range)
+    {
         if (target == null) return true;
         return !PlayerUtils.isWithin(target, range) || !target.isAlive() || target.isDead() || target.getHealth() <= 0;
     }

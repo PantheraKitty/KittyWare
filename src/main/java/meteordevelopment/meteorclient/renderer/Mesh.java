@@ -19,48 +19,23 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.opengl.GL32C.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class Mesh {
-    public enum Attrib {
-        Float(1, 4, false),
-        Vec2(2, 4, false),
-        Vec3(3, 4, false),
-        Color(4, 1, true);
-
-        public final int count, size;
-        public final boolean normalized;
-
-        Attrib(int count, int componentSize, boolean normalized) {
-            this.count = count;
-            this.size = count * componentSize;
-            this.normalized = normalized;
-        }
-
-        public int getType() {
-            return this == Color ? GL_UNSIGNED_BYTE : GL_FLOAT;
-        }
-    }
-
-    public boolean depthTest = false;
-    public double alpha = 1;
-
+public class Mesh
+{
     private final DrawMode drawMode;
     private final int primitiveVerticesSize;
-
     private final int vao, vbo, ibo;
-
+    public boolean depthTest = false;
+    public double alpha = 1;
     private ByteBuffer vertices;
     private long verticesPointerStart, verticesPointer;
-
     private ByteBuffer indices;
     private long indicesPointer;
-
     private int vertexI, indicesCount;
-
     private boolean building, rendering3D;
     private double cameraX, cameraZ;
     private boolean beganRendering;
-
-    public Mesh(DrawMode drawMode, Attrib... attributes) {
+    public Mesh(DrawMode drawMode, Attrib... attributes)
+    {
         int stride = 0;
         for (Attrib attribute : attributes) stride += attribute.size;
 
@@ -83,7 +58,8 @@ public class Mesh {
         GL.bindIndexBuffer(ibo);
 
         int offset = 0;
-        for (int i = 0; i < attributes.length; i++) {
+        for (int i = 0; i < attributes.length; i++)
+        {
             Attrib attrib = attributes[i];
 
             GL.enableVertexAttribute(i);
@@ -97,13 +73,15 @@ public class Mesh {
         GL.bindIndexBuffer(0);
     }
 
-    public void destroy() {
+    public void destroy()
+    {
         GL.deleteBuffer(ibo);
         GL.deleteBuffer(vbo);
         GL.deleteVertexArray(vao);
     }
 
-    public void begin() {
+    public void begin()
+    {
         if (building) throw new IllegalStateException("Mesh.begin() called while already building.");
 
         verticesPointer = verticesPointerStart;
@@ -113,19 +91,21 @@ public class Mesh {
         building = true;
         rendering3D = Utils.rendering3D;
 
-        if (rendering3D) {
+        if (rendering3D)
+        {
             Vec3d camera = mc.gameRenderer.getCamera().getPos();
 
             cameraX = camera.x;
             cameraZ = camera.z;
-        }
-        else {
+        } else
+        {
             cameraX = 0;
             cameraZ = 0;
         }
     }
 
-    public Mesh vec3(double x, double y, double z) {
+    public Mesh vec3(double x, double y, double z)
+    {
         long p = verticesPointer;
 
         memPutFloat(p, (float) (x - cameraX));
@@ -136,7 +116,8 @@ public class Mesh {
         return this;
     }
 
-    public Mesh vec2(double x, double y) {
+    public Mesh vec2(double x, double y)
+    {
         long p = verticesPointer;
 
         memPutFloat(p, (float) x);
@@ -146,7 +127,8 @@ public class Mesh {
         return this;
     }
 
-    public Mesh color(Color c) {
+    public Mesh color(Color c)
+    {
         long p = verticesPointer;
 
         memPutByte(p, (byte) c.r);
@@ -158,11 +140,13 @@ public class Mesh {
         return this;
     }
 
-    public int next() {
+    public int next()
+    {
         return vertexI++;
     }
 
-    public void line(int i1, int i2) {
+    public void line(int i1, int i2)
+    {
         long p = indicesPointer + indicesCount * 4L;
 
         memPutInt(p, i1);
@@ -172,7 +156,8 @@ public class Mesh {
         growIfNeeded();
     }
 
-    public void quad(int i1, int i2, int i3, int i4) {
+    public void quad(int i1, int i2, int i3, int i4)
+    {
         long p = indicesPointer + indicesCount * 4L;
 
         memPutInt(p, i1);
@@ -187,7 +172,8 @@ public class Mesh {
         growIfNeeded();
     }
 
-    public void triangle(int i1, int i2, int i3) {
+    public void triangle(int i1, int i2, int i3)
+    {
         long p = indicesPointer + indicesCount * 4L;
 
         memPutInt(p, i1);
@@ -198,9 +184,11 @@ public class Mesh {
         growIfNeeded();
     }
 
-    public void growIfNeeded() {
+    public void growIfNeeded()
+    {
         // Vertices
-        if ((vertexI + 1) * primitiveVerticesSize >= vertices.capacity()) {
+        if ((vertexI + 1) * primitiveVerticesSize >= vertices.capacity())
+        {
             int offset = getVerticesOffset();
 
             int newSize = vertices.capacity() * 2;
@@ -215,7 +203,8 @@ public class Mesh {
         }
 
         // Indices
-        if (indicesCount * 4 >= indices.capacity()) {
+        if (indicesCount * 4 >= indices.capacity())
+        {
             int newSize = indices.capacity() * 2;
             if (newSize % drawMode.indicesCount != 0) newSize += newSize % (drawMode.indicesCount * 4);
 
@@ -227,10 +216,12 @@ public class Mesh {
         }
     }
 
-    public void end() {
+    public void end()
+    {
         if (!building) throw new IllegalStateException("Mesh.end() called while not building.");
 
-        if (indicesCount > 0) {
+        if (indicesCount > 0)
+        {
             GL.bindVertexBuffer(vbo);
             GL.bufferData(GL_ARRAY_BUFFER, vertices.limit(getVerticesOffset()), GL_DYNAMIC_DRAW);
             GL.bindVertexBuffer(0);
@@ -243,7 +234,8 @@ public class Mesh {
         building = false;
     }
 
-    public void beginRender(MatrixStack matrices) {
+    public void beginRender(MatrixStack matrices)
+    {
         GL.saveState();
 
         if (depthTest) GL.enableDepth();
@@ -252,7 +244,8 @@ public class Mesh {
         GL.disableCull();
         GL.enableLineSmooth();
 
-        if (rendering3D) {
+        if (rendering3D)
+        {
             Matrix4fStack matrixStack = RenderSystem.getModelViewStack();
             matrixStack.pushMatrix();
 
@@ -265,10 +258,12 @@ public class Mesh {
         beganRendering = true;
     }
 
-    public void render(MatrixStack matrices) {
+    public void render(MatrixStack matrices)
+    {
         if (building) end();
 
-        if (indicesCount > 0) {
+        if (indicesCount > 0)
+        {
             // Setup opengl state and matrix stack
             boolean wasBeganRendering = beganRendering;
             if (!wasBeganRendering) beginRender(matrices);
@@ -288,7 +283,8 @@ public class Mesh {
         }
     }
 
-    public void endRender() {
+    public void endRender()
+    {
         if (rendering3D) RenderSystem.getModelViewStack().popMatrix();
 
         GL.restoreState();
@@ -296,13 +292,40 @@ public class Mesh {
         beganRendering = false;
     }
 
-    public boolean isBuilding() {
+    public boolean isBuilding()
+    {
         return building;
     }
 
-    protected void beforeRender() {}
+    protected void beforeRender()
+    {
+    }
 
-    private int getVerticesOffset() {
+    private int getVerticesOffset()
+    {
         return (int) (verticesPointer - verticesPointerStart);
+    }
+
+    public enum Attrib
+    {
+        Float(1, 4, false),
+        Vec2(2, 4, false),
+        Vec3(3, 4, false),
+        Color(4, 1, true);
+
+        public final int count, size;
+        public final boolean normalized;
+
+        Attrib(int count, int componentSize, boolean normalized)
+        {
+            this.count = count;
+            this.size = count * componentSize;
+            this.normalized = normalized;
+        }
+
+        public int getType()
+        {
+            return this == Color ? GL_UNSIGNED_BYTE : GL_FLOAT;
+        }
     }
 }

@@ -23,30 +23,36 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 // Thanks to
 // https://github.com/Queerbric/Inspecio/blob/1.17/src/main/java/io/github/queerbric/inspecio/tooltip/EntityTooltipComponent.java
-public class EntityTooltipComponent implements MeteorTooltipData, TooltipComponent {
+public class EntityTooltipComponent implements MeteorTooltipData, TooltipComponent
+{
     protected final Entity entity;
 
-    public EntityTooltipComponent(Entity entity) {
+    public EntityTooltipComponent(Entity entity)
+    {
         this.entity = entity;
     }
 
     @Override
-    public TooltipComponent getComponent() {
+    public TooltipComponent getComponent()
+    {
         return this;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight()
+    {
         return 24;
     }
 
     @Override
-    public int getWidth(TextRenderer textRenderer) {
+    public int getWidth(TextRenderer textRenderer)
+    {
         return 60;
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
+    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context)
+    {
         MatrixStack matrices = context.getMatrices();
         matrices.push();
         matrices.translate(15, 2, 0);
@@ -55,17 +61,20 @@ public class EntityTooltipComponent implements MeteorTooltipData, TooltipCompone
         matrices.pop();
     }
 
-    protected void renderEntity(MatrixStack matrices, int x, int y) {
+    protected void renderEntity(MatrixStack matrices, int x, int y)
+    {
         if (mc.player == null) return;
         float size = 24;
-        if (Math.max(entity.getWidth(), entity.getHeight()) > 1.0) {
+        if (Math.max(entity.getWidth(), entity.getHeight()) > 1.0)
+        {
             size /= Math.max(entity.getWidth(), entity.getHeight());
         }
         DiffuseLighting.disableGuiDepthLighting();
         matrices.push();
         int yOffset = 16;
 
-        if (entity instanceof SquidEntity) {
+        if (entity instanceof SquidEntity)
+        {
             size = 16;
             yOffset = 2;
         }
@@ -93,7 +102,8 @@ public class EntityTooltipComponent implements MeteorTooltipData, TooltipCompone
         DiffuseLighting.enableGuiDepthLighting();
     }
 
-    public void hamiltonProduct(Quaternionf q, Quaternionf other) {
+    public void hamiltonProduct(Quaternionf q, Quaternionf other)
+    {
         float f = q.x();
         float g = q.y();
         float h = q.z();
@@ -108,12 +118,14 @@ public class EntityTooltipComponent implements MeteorTooltipData, TooltipCompone
         q.w = (((i * m) - (f * j)) - (g * k)) - (h * l);
     }
 
-    protected void setupAngles() {
+    protected void setupAngles()
+    {
         float yaw = (((float) System.currentTimeMillis() / 10) % 360);
         entity.setYaw(yaw);
         entity.setHeadYaw(yaw);
         entity.setPitch(0.f);
-        if (entity instanceof LivingEntity livingEntity) {
+        if (entity instanceof LivingEntity livingEntity)
+        {
             if (entity instanceof GoatEntity) livingEntity.headYaw = yaw;
             livingEntity.bodyYaw = yaw;
         }

@@ -17,38 +17,49 @@ import net.minecraft.util.Identifier;
 
 import java.util.concurrent.CompletableFuture;
 
-public class SettingValueArgumentType implements ArgumentType<String> {
+public class SettingValueArgumentType implements ArgumentType<String>
+{
     private static final SettingValueArgumentType INSTANCE = new SettingValueArgumentType();
 
-    public static SettingValueArgumentType create() {
+    private SettingValueArgumentType()
+    {
+    }
+
+    public static SettingValueArgumentType create()
+    {
         return INSTANCE;
     }
 
-    public static String get(CommandContext<?> context) {
+    public static String get(CommandContext<?> context)
+    {
         return context.getArgument("value", String.class);
     }
 
-    private SettingValueArgumentType() {}
-
     @Override
-    public String parse(StringReader reader) throws CommandSyntaxException {
+    public String parse(StringReader reader) throws CommandSyntaxException
+    {
         String text = reader.getRemaining();
         reader.setCursor(reader.getTotalLength());
         return text;
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
+    {
         Setting<?> setting;
 
-        try {
+        try
+        {
             setting = SettingArgumentType.get(context);
-        } catch (CommandSyntaxException ignored) {
+        }
+        catch (CommandSyntaxException ignored)
+        {
             return Suggestions.empty();
         }
 
         Iterable<Identifier> identifiers = setting.getIdentifierSuggestions();
-        if (identifiers != null) {
+        if (identifiers != null)
+        {
             return CommandSource.suggestIdentifiers(identifiers, builder);
         }
 

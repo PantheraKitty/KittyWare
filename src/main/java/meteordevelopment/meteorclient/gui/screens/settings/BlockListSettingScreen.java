@@ -19,15 +19,18 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class BlockListSettingScreen extends RegistryListSettingScreen<Block> {
+public class BlockListSettingScreen extends RegistryListSettingScreen<Block>
+{
     private static final Identifier ID = Identifier.of("minecraft", "");
 
-    public BlockListSettingScreen(GuiTheme theme, Setting<List<Block>> setting) {
+    public BlockListSettingScreen(GuiTheme theme, Setting<List<Block>> setting)
+    {
         super(theme, "Select Blocks", setting, setting.get(), Registries.BLOCK);
     }
 
     @Override
-    protected boolean includeValue(Block value) {
+    protected boolean includeValue(Block value)
+    {
         Predicate<Block> filter = ((BlockListSetting) setting).filter;
 
         if (filter == null) return value != Blocks.AIR;
@@ -35,22 +38,26 @@ public class BlockListSettingScreen extends RegistryListSettingScreen<Block> {
     }
 
     @Override
-    protected WWidget getValueWidget(Block value) {
+    protected WWidget getValueWidget(Block value)
+    {
         return theme.itemWithLabel(value.asItem().getDefaultStack(), getValueName(value));
     }
 
     @Override
-    protected String getValueName(Block value) {
+    protected String getValueName(Block value)
+    {
         return Names.get(value);
     }
 
     @Override
-    protected boolean skipValue(Block value) {
+    protected boolean skipValue(Block value)
+    {
         return Registries.BLOCK.getId(value).getPath().endsWith("_wall_banner");
     }
 
     @Override
-    protected Block getAdditionalValue(Block value) {
+    protected Block getAdditionalValue(Block value)
+    {
         String path = Registries.BLOCK.getId(value).getPath();
         if (!path.endsWith("_banner")) return null;
 

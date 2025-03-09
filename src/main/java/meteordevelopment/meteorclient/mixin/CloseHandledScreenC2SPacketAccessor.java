@@ -10,7 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(CloseHandledScreenC2SPacket.class)
-public interface CloseHandledScreenC2SPacketAccessor {
+public interface CloseHandledScreenC2SPacketAccessor
+{
     @Accessor("syncId")
     int getSyncId();
 }

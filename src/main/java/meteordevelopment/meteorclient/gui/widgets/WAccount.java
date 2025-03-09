@@ -18,21 +18,25 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public abstract class WAccount extends WHorizontalList {
-    public Runnable refreshScreenAction;
+public abstract class WAccount extends WHorizontalList
+{
     private final WidgetScreen screen;
     private final Account<?> account;
+    public Runnable refreshScreenAction;
 
-    public WAccount(WidgetScreen screen, Account<?> account) {
+    public WAccount(WidgetScreen screen, Account<?> account)
+    {
         this.screen = screen;
         this.account = account;
     }
 
     protected abstract Color loggedInColor();
+
     protected abstract Color accountTypeColor();
 
     @Override
-    public void init() {
+    public void init()
+    {
         // Head
         add(theme.texture(32, 32, account.getCache().getHeadTexture().needsRotate() ? 90 : 0, account.getCache().getHeadTexture()));
 
@@ -45,20 +49,24 @@ public abstract class WAccount extends WHorizontalList {
         label.color = accountTypeColor();
 
         // Info
-        if (account instanceof TokenAccount) {
+        if (account instanceof TokenAccount)
+        {
             WButton info = add(theme.button("Info")).widget();
             info.action = () -> mc.setScreen(new AccountInfoScreen(theme, account));
         }
 
         // Login
         WButton login = add(theme.button("Login")).widget();
-        login.action = () -> {
+        login.action = () ->
+        {
             login.minWidth = login.width;
             login.set("...");
             screen.locked = true;
 
-            MeteorExecutor.execute(() -> {
-                if (account.fetchInfo() && account.login()) {
+            MeteorExecutor.execute(() ->
+            {
+                if (account.fetchInfo() && account.login())
+                {
                     name.set(account.getUsername());
 
                     Accounts.get().save();
@@ -74,7 +82,8 @@ public abstract class WAccount extends WHorizontalList {
 
         // Remove
         WMinus remove = add(theme.minus()).widget();
-        remove.action = () -> {
+        remove.action = () ->
+        {
             Accounts.get().remove(account);
             if (refreshScreenAction != null) refreshScreenAction.run();
         };

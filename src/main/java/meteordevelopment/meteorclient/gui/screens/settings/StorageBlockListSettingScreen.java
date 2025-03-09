@@ -17,11 +17,13 @@ import net.minecraft.item.Items;
 import java.util.List;
 import java.util.Map;
 
-public class StorageBlockListSettingScreen extends RegistryListSettingScreen<BlockEntityType<?>> {
+public class StorageBlockListSettingScreen extends RegistryListSettingScreen<BlockEntityType<?>>
+{
     private static final Map<BlockEntityType<?>, BlockEntityTypeInfo> BLOCK_ENTITY_TYPE_INFO_MAP = new Object2ObjectOpenHashMap<>();
     private static final BlockEntityTypeInfo UNKNOWN = new BlockEntityTypeInfo(Items.BARRIER, "Unknown");
 
-    static {
+    static
+    {
         // Map of storage blocks
         BLOCK_ENTITY_TYPE_INFO_MAP.put(BlockEntityType.BARREL, new BlockEntityTypeInfo(Items.BARREL, "Barrel"));
         BLOCK_ENTITY_TYPE_INFO_MAP.put(BlockEntityType.BLAST_FURNACE, new BlockEntityTypeInfo(Items.BLAST_FURNACE, "Blast Furnace"));
@@ -41,20 +43,25 @@ public class StorageBlockListSettingScreen extends RegistryListSettingScreen<Blo
         BLOCK_ENTITY_TYPE_INFO_MAP.put(BlockEntityType.TRAPPED_CHEST, new BlockEntityTypeInfo(Items.TRAPPED_CHEST, "Trapped Chest"));
     }
 
-    public StorageBlockListSettingScreen(GuiTheme theme, Setting<List<BlockEntityType<?>>> setting) {
+    public StorageBlockListSettingScreen(GuiTheme theme, Setting<List<BlockEntityType<?>>> setting)
+    {
         super(theme, "Select Storage Blocks", setting, setting.get(), StorageBlockListSetting.REGISTRY);
     }
 
     @Override
-    protected WWidget getValueWidget(BlockEntityType<?> value) {
+    protected WWidget getValueWidget(BlockEntityType<?> value)
+    {
         Item item = BLOCK_ENTITY_TYPE_INFO_MAP.getOrDefault(value, UNKNOWN).item();
         return theme.itemWithLabel(item.getDefaultStack(), getValueName(value));
     }
 
     @Override
-    protected String getValueName(BlockEntityType<?> value) {
+    protected String getValueName(BlockEntityType<?> value)
+    {
         return BLOCK_ENTITY_TYPE_INFO_MAP.getOrDefault(value, UNKNOWN).name();
     }
 
-    private record BlockEntityTypeInfo(Item item, String name) {}
+    private record BlockEntityTypeInfo(Item item, String name)
+    {
+    }
 }

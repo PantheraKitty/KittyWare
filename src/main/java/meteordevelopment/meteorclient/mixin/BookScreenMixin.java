@@ -36,48 +36,58 @@ import java.util.Base64;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(BookScreen.class)
-public abstract class BookScreenMixin extends Screen {
+public abstract class BookScreenMixin extends Screen
+{
     @Shadow
     private BookScreen.Contents contents;
 
     @Shadow
     private int pageIndex;
 
-    public BookScreenMixin(Text title) {
+    public BookScreenMixin(Text title)
+    {
         super(title);
     }
 
     @Inject(method = "init", at = @At("TAIL"))
-    private void onInit(CallbackInfo info) {
+    private void onInit(CallbackInfo info)
+    {
         addDrawableChild(
-            new ButtonWidget.Builder(Text.literal("Copy"), button -> {
-                    NbtList listTag = new NbtList();
-                    for (int i = 0; i < contents.getPageCount(); i++) listTag.add(NbtString.of(contents.getPage(i).getString()));
+            new ButtonWidget.Builder(Text.literal("Copy"), button ->
+            {
+                NbtList listTag = new NbtList();
+                for (int i = 0; i < contents.getPageCount(); i++)
+                    listTag.add(NbtString.of(contents.getPage(i).getString()));
 
-                    NbtCompound tag = new NbtCompound();
-                    tag.put("pages", listTag);
-                    tag.putInt("currentPage", pageIndex);
+                NbtCompound tag = new NbtCompound();
+                tag.put("pages", listTag);
+                tag.putInt("currentPage", pageIndex);
 
-                    FastByteArrayOutputStream bytes = new FastByteArrayOutputStream();
-                    DataOutputStream out = new DataOutputStream(bytes);
-                    try {
-                        NbtIo.write(tag, out);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                FastByteArrayOutputStream bytes = new FastByteArrayOutputStream();
+                DataOutputStream out = new DataOutputStream(bytes);
+                try
+                {
+                    NbtIo.write(tag, out);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
 
-                    String encoded = Base64.getEncoder().encodeToString(bytes.array);
+                String encoded = Base64.getEncoder().encodeToString(bytes.array);
 
-                    @SuppressWarnings("resource")
-                    long available = MemoryStack.stackGet().getPointer();
-                    long size = MemoryUtil.memLengthUTF8(encoded, true);
+                @SuppressWarnings("resource")
+                long available = MemoryStack.stackGet().getPointer();
+                long size = MemoryUtil.memLengthUTF8(encoded, true);
 
-                    if (size > available) {
-                        ChatUtils.error("Could not copy to clipboard: Out of memory.");
-                    } else {
-                        GLFW.glfwSetClipboardString(mc.getWindow().getHandle(), encoded);
-                    }
-                })
+                if (size > available)
+                {
+                    ChatUtils.error("Could not copy to clipboard: Out of memory.");
+                } else
+                {
+                    GLFW.glfwSetClipboardString(mc.getWindow().getHandle(), encoded);
+                }
+            })
                 .position(4, 4)
                 .size(120, 20)
                 .build()
@@ -87,7 +97,8 @@ public abstract class BookScreenMixin extends Screen {
         ItemStack itemStack = mc.player.getMainHandStack();
         Hand hand = Hand.MAIN_HAND;
 
-        if (itemStack.getItem() != Items.WRITTEN_BOOK) {
+        if (itemStack.getItem() != Items.WRITTEN_BOOK)
+        {
             itemStack = mc.player.getOffHandStack();
             hand = Hand.OFF_HAND;
         }
@@ -97,9 +108,10 @@ public abstract class BookScreenMixin extends Screen {
         Hand hand2 = hand; // Honestly
 
         addDrawableChild(
-                new ButtonWidget.Builder(Text.literal("Edit title & author"), button -> {
-                    mc.setScreen(new EditBookTitleAndAuthorScreen(GuiThemes.get(), book, hand2));
-                })
+            new ButtonWidget.Builder(Text.literal("Edit title & author"), button ->
+            {
+                mc.setScreen(new EditBookTitleAndAuthorScreen(GuiThemes.get(), book, hand2));
+            })
                 .position(4, 4 + 20 + 2)
                 .size(120, 20)
                 .build()

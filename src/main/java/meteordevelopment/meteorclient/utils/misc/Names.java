@@ -38,7 +38,8 @@ import java.util.WeakHashMap;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class Names {
+public class Names
+{
     private static final Map<StatusEffect, String> statusEffectNames = new Reference2ObjectOpenHashMap<>(16);
     private static final Map<Item, String> itemNames = new Reference2ObjectOpenHashMap<>(128);
     private static final Map<Block, String> blockNames = new Reference2ObjectOpenHashMap<>(128);
@@ -48,16 +49,19 @@ public class Names {
     private static final Map<ParticleType<?>, String> particleTypesNames = new Reference2ObjectOpenHashMap<>(64);
     private static final Map<Identifier, String> soundNames = new HashMap<>(64);
 
-    private Names() {
+    private Names()
+    {
     }
 
     @PreInit
-    public static void init() {
+    public static void init()
+    {
         MeteorClient.EVENT_BUS.subscribe(Names.class);
     }
 
     @EventHandler
-    private static void onResourcePacksReloaded(ResourcePacksReloadedEvent event) {
+    private static void onResourcePacksReloaded(ResourcePacksReloadedEvent event)
+    {
         statusEffectNames.clear();
         itemNames.clear();
         blockNames.clear();
@@ -67,51 +71,62 @@ public class Names {
         soundNames.clear();
     }
 
-    public static String get(StatusEffect effect) {
+    public static String get(StatusEffect effect)
+    {
         return statusEffectNames.computeIfAbsent(effect, effect1 -> StringHelper.stripTextFormat(I18n.translate(effect1.getTranslationKey())));
     }
 
-    public static String get(Item item) {
+    public static String get(Item item)
+    {
         return itemNames.computeIfAbsent(item, item1 -> StringHelper.stripTextFormat(I18n.translate(item1.getTranslationKey())));
     }
 
-    public static String get(Block block) {
+    public static String get(Block block)
+    {
         return blockNames.computeIfAbsent(block, block1 -> StringHelper.stripTextFormat(I18n.translate(block1.getTranslationKey())));
     }
 
     /**
      * key -> entry, else key -> translation, else key -> identifier toString()
+     *
      * @author Crosby
      */
     @SuppressWarnings("StringEquality")
-    public static String get(RegistryKey<Enchantment> enchantment) {
+    public static String get(RegistryKey<Enchantment> enchantment)
+    {
         return enchantmentKeyNames.computeIfAbsent(enchantment, enchantment1 -> Optional.ofNullable(MinecraftClient.getInstance().getNetworkHandler())
             .map(ClientPlayNetworkHandler::getRegistryManager)
             .flatMap(registryManager -> registryManager.getOptional(RegistryKeys.ENCHANTMENT))
             .flatMap(registry -> registry.getEntry(enchantment))
             .map(Names::get)
-            .orElseGet(() -> {
+            .orElseGet(() ->
+            {
                 String key = "enchantment." + enchantment1.getValue().toTranslationKey();
                 String translated = I18n.translate(key);
                 return translated == key ? enchantment1.getValue().toString() : translated;
             }));
     }
 
-    public static String get(RegistryEntry<Enchantment> enchantment) {
+    public static String get(RegistryEntry<Enchantment> enchantment)
+    {
         return enchantmentEntryNames.computeIfAbsent(enchantment, enchantment1 -> StringHelper.stripTextFormat(enchantment.value().description().getString()));
     }
 
-    public static String get(EntityType<?> entityType) {
+    public static String get(EntityType<?> entityType)
+    {
         return entityTypeNames.computeIfAbsent(entityType, entityType1 -> StringHelper.stripTextFormat(I18n.translate(entityType1.getTranslationKey())));
     }
 
-    public static String get(ParticleType<?> type) {
+    public static String get(ParticleType<?> type)
+    {
         if (!(type instanceof ParticleEffect)) return "";
         return particleTypesNames.computeIfAbsent(type, effect1 -> StringUtils.capitalize(Registries.PARTICLE_TYPE.getId(type).getPath().replace("_", " ")));
     }
 
-    public static String getSoundName(Identifier id) {
-        return soundNames.computeIfAbsent(id, identifier -> {
+    public static String getSoundName(Identifier id)
+    {
+        return soundNames.computeIfAbsent(id, identifier ->
+        {
             WeightedSoundSet soundSet = mc.getSoundManager().get(identifier);
             if (soundSet == null) return identifier.getPath();
 
@@ -122,7 +137,8 @@ public class Names {
         });
     }
 
-    public static String get(ItemStack stack) {
+    public static String get(ItemStack stack)
+    {
         return stack.getName().getString(); // pretty sure this is the same as it was
     }
 }

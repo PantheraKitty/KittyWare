@@ -16,7 +16,10 @@ import meteordevelopment.meteorclient.utils.entity.DamageUtils;
 import meteordevelopment.meteorclient.utils.entity.EntityUtils;
 import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.entity.TargetUtils;
-import meteordevelopment.meteorclient.utils.player.*;
+import meteordevelopment.meteorclient.utils.player.FindItemResult;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.player.PlayerUtils;
+import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.meteorclient.utils.world.CardinalDirection;
@@ -32,7 +35,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-public class BedAura extends Module {
+public class BedAura extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgTargeting = settings.createGroup("Targeting");
     private final SettingGroup sgAutoMove = settings.createGroup("Inventory");
@@ -175,7 +179,7 @@ public class BedAura extends Module {
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
         .name("side-color")
         .description("The side color for positions to be placed.")
-        .defaultValue(new SettingColor(15, 255, 211,75))
+        .defaultValue(new SettingColor(15, 255, 211, 75))
         .build()
     );
 
@@ -191,20 +195,24 @@ public class BedAura extends Module {
     private BlockPos placePos, breakPos;
     private int timer;
 
-    public BedAura() {
+    public BedAura()
+    {
         super(Categories.Combat, "bed-aura", "Automatically places and explodes beds in the Nether and End.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         timer = delay.get();
         direction = CardinalDirection.North;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         // Check if beds can explode here
-        if (mc.world.getDimension().bedWorks()) {
+        if (mc.world.getDimension().bedWorks())
+        {
             error("You can't blow up beds in this dimension, disabling.");
             toggle();
             return;
@@ -215,30 +223,35 @@ public class BedAura extends Module {
 
         // Find a target
         target = TargetUtils.getPlayerTarget(targetRange.get(), priority.get());
-        if (target == null) {
+        if (target == null)
+        {
             placePos = null;
             breakPos = null;
             return;
         }
 
         // Auto move
-        if (autoMove.get()) {
+        if (autoMove.get())
+        {
             FindItemResult bed = InvUtils.find(itemStack -> itemStack.getItem() instanceof BedItem);
 
-            if (bed.found() && bed.slot() != autoMoveSlot.get() - 1) {
+            if (bed.found() && bed.slot() != autoMoveSlot.get() - 1)
+            {
                 InvUtils.move().from(bed.slot()).toHotbar(autoMoveSlot.get() - 1);
             }
         }
 
-        if (breakPos == null) {
+        if (breakPos == null)
+        {
             placePos = findPlace(target);
         }
 
         // Place bed
-        if (timer <= 0 && placeBed(placePos)) {
+        if (timer <= 0 && placeBed(placePos))
+        {
             timer = delay.get();
-        }
-        else {
+        } else
+        {
             timer--;
         }
 
@@ -246,13 +259,16 @@ public class BedAura extends Module {
         breakBed(breakPos);
     }
 
-    private BlockPos findPlace(PlayerEntity target) {
+    private BlockPos findPlace(PlayerEntity target)
+    {
         if (!InvUtils.find(itemStack -> itemStack.getItem() instanceof BedItem).found()) return null;
 
-        for (int index = 0; index < 3; index++) {
+        for (int index = 0; index < 3; index++)
+        {
             int i = index == 0 ? 1 : index == 1 ? 0 : 2;
 
-            for (CardinalDirection dir : CardinalDirection.values()) {
+            for (CardinalDirection dir : CardinalDirection.values())
+            {
                 if (strictDirection.get()
                     && dir.toDirection() != mc.player.getHorizontalFacing()
                     && dir.toDirection().getOpposite() != mc.player.getHorizontalFacing()) continue;
@@ -268,7 +284,8 @@ public class BedAura extends Module {
                     && offsetSelfDamage < maxSelfDamage.get()
                     && headSelfDamage < maxSelfDamage.get()
                     && (!antiSuicide.get() || PlayerUtils.getTotalHealth() - headSelfDamage > 0)
-                    && (!antiSuicide.get() || PlayerUtils.getTotalHealth() - offsetSelfDamage > 0)) {
+                    && (!antiSuicide.get() || PlayerUtils.getTotalHealth() - offsetSelfDamage > 0))
+                {
                     return centerPos.offset((direction = dir).toDirection());
                 }
             }
@@ -277,8 +294,10 @@ public class BedAura extends Module {
         return null;
     }
 
-    private BlockPos findBreak() {
-        for (BlockEntity blockEntity : Utils.blockEntities()) {
+    private BlockPos findBreak()
+    {
+        for (BlockEntity blockEntity : Utils.blockEntities())
+        {
             if (!(blockEntity instanceof BedBlockEntity)) continue;
 
             BlockPos bedPos = blockEntity.getPos();
@@ -287,7 +306,8 @@ public class BedAura extends Module {
             if (PlayerUtils.isWithinReach(bedVec)
                 && DamageUtils.bedDamage(target, bedVec) >= minDamage.get()
                 && DamageUtils.bedDamage(mc.player, bedVec) < maxSelfDamage.get()
-                && (!antiSuicide.get() || PlayerUtils.getTotalHealth() - DamageUtils.bedDamage(mc.player, bedVec) > 0)) {
+                && (!antiSuicide.get() || PlayerUtils.getTotalHealth() - DamageUtils.bedDamage(mc.player, bedVec) > 0))
+            {
                 return bedPos;
             }
         }
@@ -295,20 +315,23 @@ public class BedAura extends Module {
         return null;
     }
 
-    private boolean placeBed(BlockPos pos) {
+    private boolean placeBed(BlockPos pos)
+    {
         if (pos == null) return false;
 
         FindItemResult bed = InvUtils.findInHotbar(itemStack -> itemStack.getItem() instanceof BedItem);
         if (bed.getHand() == null && !autoSwitch.get()) return false;
 
-        double yaw = switch (direction) {
+        double yaw = switch (direction)
+        {
             case East -> 90;
             case South -> 180;
             case West -> -90;
             default -> 0;
         };
 
-        Rotations.rotate(yaw, Rotations.getPitch(pos), () -> {
+        Rotations.rotate(yaw, Rotations.getPitch(pos), () ->
+        {
             BlockUtils.place(pos, bed, false, 0, swing.get(), true);
             breakPos = pos;
         });
@@ -316,7 +339,8 @@ public class BedAura extends Module {
         return true;
     }
 
-    private void breakBed(BlockPos pos) {
+    private void breakBed(BlockPos pos)
+    {
         if (pos == null) return;
         breakPos = null;
 
@@ -331,23 +355,31 @@ public class BedAura extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
-        if (render.get() && placePos != null && breakPos == null) {
+    private void onRender(Render3DEvent event)
+    {
+        if (render.get() && placePos != null && breakPos == null)
+        {
             int x = placePos.getX();
             int y = placePos.getY();
             int z = placePos.getZ();
 
-            switch (direction) {
-                case North -> event.renderer.box(x, y, z, x + 1, y + 0.6, z + 2, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-                case South -> event.renderer.box(x, y, z - 1, x + 1, y + 0.6, z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-                case East -> event.renderer.box(x - 1, y, z, x + 1, y + 0.6, z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-                case West -> event.renderer.box(x, y, z, x + 2, y + 0.6, z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+            switch (direction)
+            {
+                case North ->
+                    event.renderer.box(x, y, z, x + 1, y + 0.6, z + 2, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+                case South ->
+                    event.renderer.box(x, y, z - 1, x + 1, y + 0.6, z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+                case East ->
+                    event.renderer.box(x - 1, y, z, x + 1, y + 0.6, z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+                case West ->
+                    event.renderer.box(x, y, z, x + 2, y + 0.6, z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
             }
         }
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return EntityUtils.getName(target);
     }
 }

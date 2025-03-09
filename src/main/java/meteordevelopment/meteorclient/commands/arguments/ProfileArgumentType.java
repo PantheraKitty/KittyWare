@@ -23,24 +23,30 @@ import java.util.concurrent.CompletableFuture;
 
 import static net.minecraft.command.CommandSource.suggestMatching;
 
-public class ProfileArgumentType implements ArgumentType<String> {
+public class ProfileArgumentType implements ArgumentType<String>
+{
     private static final ProfileArgumentType INSTANCE = new ProfileArgumentType();
     private static final DynamicCommandExceptionType NO_SUCH_PROFILE = new DynamicCommandExceptionType(name -> Text.literal("Profile with name " + name + " doesn't exist."));
 
     private static final Collection<String> EXAMPLES = List.of("pvp.meteorclient.com", "anarchy");
 
-    public static ProfileArgumentType create() {
+    private ProfileArgumentType()
+    {
+    }
+
+    public static ProfileArgumentType create()
+    {
         return INSTANCE;
     }
 
-    public static Profile get(CommandContext<?> context) {
+    public static Profile get(CommandContext<?> context)
+    {
         return Profiles.get().get(context.getArgument("profile", String.class));
     }
 
-    private ProfileArgumentType() {}
-
     @Override
-    public String parse(StringReader reader) throws CommandSyntaxException {
+    public String parse(StringReader reader) throws CommandSyntaxException
+    {
         String argument = reader.getRemaining();
         reader.setCursor(reader.getTotalLength());
         if (Profiles.get().get(argument) == null) throw NO_SUCH_PROFILE.create(argument);
@@ -49,12 +55,14 @@ public class ProfileArgumentType implements ArgumentType<String> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
+    {
         return suggestMatching(Streams.stream(Profiles.get()).map(profile -> profile.name.get()), builder);
     }
 
     @Override
-    public Collection<String> getExamples() {
+    public Collection<String> getExamples()
+    {
         return EXAMPLES;
     }
 }

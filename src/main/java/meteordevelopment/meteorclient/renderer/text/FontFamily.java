@@ -8,27 +8,34 @@ package meteordevelopment.meteorclient.renderer.text;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FontFamily {
+public class FontFamily
+{
     private final String name;
     private final List<FontFace> fonts = new ArrayList<>();
 
-    public FontFamily(String name) {
+    public FontFamily(String name)
+    {
         this.name = name;
     }
 
-    public boolean addFont(FontFace font) {
+    public boolean addFont(FontFace font)
+    {
         return fonts.add(font);
     }
 
-    public boolean hasType(FontInfo.Type type) {
+    public boolean hasType(FontInfo.Type type)
+    {
         return get(type) != null;
     }
 
-    public FontFace get(FontInfo.Type type) {
+    public FontFace get(FontInfo.Type type)
+    {
         if (type == null) return null;
 
-        for (FontFace font : fonts) {
-            if (font.info.type().equals(type)) {
+        for (FontFace font : fonts)
+        {
+            if (font.info.type().equals(type))
+            {
                 return font;
             }
         }
@@ -36,7 +43,8 @@ public class FontFamily {
         return null;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 }

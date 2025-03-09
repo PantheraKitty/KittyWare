@@ -13,33 +13,41 @@ import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
 import meteordevelopment.meteorclient.pathing.PathManagers;
 import net.minecraft.client.gui.screen.Screen;
 
-public class PathManagerTab extends Tab {
-    public PathManagerTab() {
+public class PathManagerTab extends Tab
+{
+    public PathManagerTab()
+    {
         super(PathManagers.get().getName());
     }
 
     @Override
-    public TabScreen createScreen(GuiTheme theme) {
+    public TabScreen createScreen(GuiTheme theme)
+    {
         return new PathManagerScreen(theme, this);
     }
 
     @Override
-    public boolean isScreen(Screen screen) {
+    public boolean isScreen(Screen screen)
+    {
         return screen instanceof PathManagerScreen;
     }
 
-    private static class PathManagerScreen extends WindowTabScreen {
-        public PathManagerScreen(GuiTheme theme, Tab tab) {
+    private static class PathManagerScreen extends WindowTabScreen
+    {
+        public PathManagerScreen(GuiTheme theme, Tab tab)
+        {
             super(theme, tab);
 
             PathManagers.get().getSettings().get().onActivated();
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             WTextBox filter = add(theme.textBox("")).minWidth(400).expandX().widget();
             filter.setFocused(true);
-            filter.action = () -> {
+            filter.action = () ->
+            {
                 clear();
 
                 add(filter);
@@ -50,7 +58,8 @@ public class PathManagerTab extends Tab {
         }
 
         @Override
-        protected void onClosed() {
+        protected void onClosed()
+        {
             PathManagers.get().getSettings().save();
         }
     }

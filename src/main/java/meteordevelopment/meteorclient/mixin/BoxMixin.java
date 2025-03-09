@@ -13,17 +13,37 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Box.class)
-public abstract class BoxMixin implements IBox {
-    @Shadow @Final @Mutable public double minX;
-    @Shadow @Final @Mutable public double minY;
-    @Shadow @Final @Mutable public double minZ;
+public abstract class BoxMixin implements IBox
+{
+    @Shadow
+    @Final
+    @Mutable
+    public double minX;
+    @Shadow
+    @Final
+    @Mutable
+    public double minY;
+    @Shadow
+    @Final
+    @Mutable
+    public double minZ;
 
-    @Shadow @Final @Mutable public double maxX;
-    @Shadow @Final @Mutable public double maxY;
-    @Shadow @Final @Mutable public double maxZ;
+    @Shadow
+    @Final
+    @Mutable
+    public double maxX;
+    @Shadow
+    @Final
+    @Mutable
+    public double maxY;
+    @Shadow
+    @Final
+    @Mutable
+    public double maxZ;
 
     @Override
-    public void expand(double v) {
+    public void expand(double v)
+    {
         this.minX -= v;
         this.minY -= v;
         this.minZ -= v;
@@ -33,7 +53,8 @@ public abstract class BoxMixin implements IBox {
     }
 
     @Override
-    public void set(double x1, double y1, double z1, double x2, double y2, double z2) {
+    public void set(double x1, double y1, double z1, double x2, double y2, double z2)
+    {
         this.minX = Math.min(x1, x2);
         this.minY = Math.min(y1, y2);
         this.minZ = Math.min(z1, z2);

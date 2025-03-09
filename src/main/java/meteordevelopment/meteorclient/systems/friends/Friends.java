@@ -22,31 +22,38 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Friends extends System<Friends> {
+public class Friends extends System<Friends>
+{
     private final List<Friend> friends = new ArrayList<>();
 
-    public Friends() {
+    public Friends()
+    {
         super("friends");
     }
 
-    public static Friends get() {
+    public static Friends get()
+    {
         return Systems.get(Friends.class);
     }
 
-    public boolean add(Friend friend) {
+    public boolean add(Friend friend)
+    {
         if (friend.name.isEmpty() || friend.name.contains(" ")) return false;
 
-        if (!friends.contains(friend)) {
+        if (!friends.contains(friend))
+        {
             friends.add(friend);
             save();
 
             return true;
-        } else {
+        } else
+        {
             Friend friendListFriend = friends.get(friends.indexOf(friend));
 
-            if (friendListFriend.getFriendType() != friend.getFriendType()) {
+            if (friendListFriend.getFriendType() != friend.getFriendType())
+            {
                 friendListFriend.setfFriendType(friend.getFriendType());
-                
+
                 return true;
             }
         }
@@ -54,8 +61,10 @@ public class Friends extends System<Friends> {
         return false;
     }
 
-    public boolean remove(Friend friend) {
-        if (friends.remove(friend)) {
+    public boolean remove(Friend friend)
+    {
+        if (friends.remove(friend))
+        {
             save();
             return true;
         }
@@ -63,9 +72,12 @@ public class Friends extends System<Friends> {
         return false;
     }
 
-    public Friend get(String name) {
-        for (Friend friend : friends) {
-            if (friend.name.equalsIgnoreCase(name)) {
+    public Friend get(String name)
+    {
+        for (Friend friend : friends)
+        {
+            if (friend.name.equalsIgnoreCase(name))
+            {
                 return friend;
             }
         }
@@ -73,56 +85,69 @@ public class Friends extends System<Friends> {
         return null;
     }
 
-    public Friend get(PlayerEntity player) {
+    public Friend get(PlayerEntity player)
+    {
         return get(player.getName().getString());
     }
 
-    public Friend get(PlayerListEntry player) {
+    public Friend get(PlayerListEntry player)
+    {
         return get(player.getProfile().getName());
     }
 
-    public boolean isFriend(PlayerEntity player) {
+    public boolean isFriend(PlayerEntity player)
+    {
         return player != null && get(player) != null && get(player).getFriendType() == FriendType.Friend;
     }
 
-    public boolean isFriend(PlayerListEntry player) {
+    public boolean isFriend(PlayerListEntry player)
+    {
         return get(player) != null && get(player).getFriendType() == FriendType.Friend;
     }
 
-    public boolean isEnemy(PlayerEntity player) {
+    public boolean isEnemy(PlayerEntity player)
+    {
         return player != null && get(player) != null && get(player).getFriendType() == FriendType.Enemy;
     }
 
-    public boolean isEnemy(PlayerListEntry player) {
+    public boolean isEnemy(PlayerListEntry player)
+    {
         return get(player) != null && get(player).getFriendType() == FriendType.Enemy;
     }
 
-    public boolean shouldAttack(PlayerEntity player) {
+    public boolean shouldAttack(PlayerEntity player)
+    {
         return !isFriend(player) || isEnemy(player);
     }
 
-    public int count() {
+    public int count()
+    {
         return friends.size();
-    } 
+    }
 
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return friends.isEmpty();
     }
 
-    public @NotNull Stream<Friend> friendStream() {
+    public @NotNull Stream<Friend> friendStream()
+    {
         return friends.stream().filter(x -> x.getFriendType() == FriendType.Friend);
     }
 
-    public @NotNull Stream<Friend> enemyStream() {
+    public @NotNull Stream<Friend> enemyStream()
+    {
         return friends.stream().filter(x -> x.getFriendType() == FriendType.Enemy);
     }
 
-    public @NotNull Stream<Friend> stream() {
+    public @NotNull Stream<Friend> stream()
+    {
         return friends.stream();
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.put("friends", NbtUtils.listToTag(friends));
@@ -131,10 +156,12 @@ public class Friends extends System<Friends> {
     }
 
     @Override
-    public Friends fromTag(NbtCompound tag) {
+    public Friends fromTag(NbtCompound tag)
+    {
         friends.clear();
 
-        for (NbtElement itemTag : tag.getList("friends", 10)) {
+        for (NbtElement itemTag : tag.getList("friends", 10))
+        {
             NbtCompound friendTag = (NbtCompound) itemTag;
             if (!friendTag.contains("name")) continue;
 
@@ -143,14 +170,17 @@ public class Friends extends System<Friends> {
 
             String s_friendType = friendTag.getString("friendType");
             FriendType type = FriendType.Friend;
-            if (s_friendType != null) {
-                if (s_friendType.equals("Friend")) {
+            if (s_friendType != null)
+            {
+                if (s_friendType.equals("Friend"))
+                {
                     type = FriendType.Friend;
-                } else if (s_friendType.equals("Enemy")) {
+                } else if (s_friendType.equals("Enemy"))
+                {
                     type = FriendType.Enemy;
                 }
             }
-            
+
             String uuid = friendTag.getString("id");
             Friend friend = !uuid.isBlank()
                 ? new Friend(name, UndashedUuid.fromStringLenient(uuid), type)

@@ -19,13 +19,15 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ChunkBorderDebugRenderer.class)
-public abstract class ChunkBorderDebugRendererMixin {
+public abstract class ChunkBorderDebugRendererMixin
+{
     @Shadow
     @Final
     private MinecraftClient client;
 
     @ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getChunkPos()Lnet/minecraft/util/math/ChunkPos;"))
-    private ChunkPos render$getChunkPos(ChunkPos chunkPos) {
+    private ChunkPos render$getChunkPos(ChunkPos chunkPos)
+    {
         Freecam freecam = Modules.get().get(Freecam.class);
         if (!freecam.isActive()) return chunkPos;
 

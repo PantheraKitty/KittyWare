@@ -22,7 +22,8 @@ import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 
-public class AutoShearer extends Module {
+public class AutoShearer extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> distance = sgGeneral.add(new DoubleSetting.Builder()
@@ -50,21 +51,26 @@ public class AutoShearer extends Module {
     private Entity entity;
     private Hand hand;
 
-    public AutoShearer() {
+    public AutoShearer()
+    {
         super(Categories.World, "auto-shearer", "Automatically shears sheep.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         entity = null;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         entity = null;
 
-        for (Entity entity : mc.world.getEntities()) {
-            if (!(entity instanceof SheepEntity) || ((SheepEntity) entity).isSheared() || ((SheepEntity) entity).isBaby() || !PlayerUtils.isWithin(entity, distance.get())) continue;
+        for (Entity entity : mc.world.getEntities())
+        {
+            if (!(entity instanceof SheepEntity) || ((SheepEntity) entity).isSheared() || ((SheepEntity) entity).isBaby() || !PlayerUtils.isWithin(entity, distance.get()))
+                continue;
 
             FindItemResult findShear = InvUtils.findInHotbar(itemStack -> itemStack.getItem() == Items.SHEARS && (!antiBreak.get() || itemStack.getDamage() < itemStack.getMaxDamage() - 1));
             if (!InvUtils.swap(findShear.slot(), true)) return;
@@ -72,14 +78,16 @@ public class AutoShearer extends Module {
             this.hand = findShear.getHand();
             this.entity = entity;
 
-            if (rotate.get()) Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100, this::interact);
+            if (rotate.get())
+                Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100, this::interact);
             else interact();
 
             return;
         }
     }
 
-    private void interact() {
+    private void interact()
+    {
         mc.interactionManager.interactEntity(mc.player, entity, hand);
         InvUtils.swapBack();
     }

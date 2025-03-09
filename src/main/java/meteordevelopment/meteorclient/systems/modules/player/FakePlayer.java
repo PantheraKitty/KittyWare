@@ -16,7 +16,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.entity.fakeplayer.FakePlayerEntity;
 import meteordevelopment.meteorclient.utils.entity.fakeplayer.FakePlayerManager;
 
-public class FakePlayer extends Module {
+public class FakePlayer extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<String> name = sgGeneral.add(new StringSetting.Builder()
@@ -42,23 +43,28 @@ public class FakePlayer extends Module {
         .build()
     );
 
-    public FakePlayer() {
+    public FakePlayer()
+    {
         super(Categories.Player, "fake-player", "Spawns a client-side fake player for testing usages. No need to be active.");
     }
 
     @Override
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         WTable table = theme.table();
         fillTable(theme, table);
 
         return table;
     }
 
-    private void fillTable(GuiTheme theme, WTable table) {
-        for (FakePlayerEntity fakePlayer : FakePlayerManager.getFakePlayers()) {
+    private void fillTable(GuiTheme theme, WTable table)
+    {
+        for (FakePlayerEntity fakePlayer : FakePlayerManager.getFakePlayers())
+        {
             table.add(theme.label(fakePlayer.getName().getString()));
             WMinus delete = table.add(theme.minus()).expandCellX().right().widget();
-            delete.action = () -> {
+            delete.action = () ->
+            {
                 FakePlayerManager.remove(fakePlayer);
                 table.clear();
                 fillTable(theme, table);
@@ -67,14 +73,16 @@ public class FakePlayer extends Module {
         }
 
         WButton spawn = table.add(theme.button("Spawn")).expandCellX().right().widget();
-        spawn.action = () -> {
+        spawn.action = () ->
+        {
             FakePlayerManager.add(name.get(), health.get(), copyInv.get());
             table.clear();
             fillTable(theme, table);
         };
 
         WButton clear = table.add(theme.button("Clear All")).right().widget();
-        clear.action = () -> {
+        clear.action = () ->
+        {
             FakePlayerManager.clear();
             table.clear();
             fillTable(theme, table);
@@ -82,7 +90,8 @@ public class FakePlayer extends Module {
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return String.valueOf(FakePlayerManager.count());
     }
 }

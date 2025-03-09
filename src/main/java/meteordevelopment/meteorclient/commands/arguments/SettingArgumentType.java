@@ -21,15 +21,22 @@ import net.minecraft.text.Text;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
-public class SettingArgumentType implements ArgumentType<String> {
+public class SettingArgumentType implements ArgumentType<String>
+{
     private static final SettingArgumentType INSTANCE = new SettingArgumentType();
     private static final DynamicCommandExceptionType NO_SUCH_SETTING = new DynamicCommandExceptionType(name -> Text.literal("No such setting '" + name + "'."));
 
-    public static SettingArgumentType create() {
+    private SettingArgumentType()
+    {
+    }
+
+    public static SettingArgumentType create()
+    {
         return INSTANCE;
     }
 
-    public static Setting<?> get(CommandContext<?> context) throws CommandSyntaxException {
+    public static Setting<?> get(CommandContext<?> context) throws CommandSyntaxException
+    {
         Module module = context.getArgument("module", Module.class);
         String settingName = context.getArgument("setting", String.class);
 
@@ -39,18 +46,18 @@ public class SettingArgumentType implements ArgumentType<String> {
         return setting;
     }
 
-    private SettingArgumentType() {}
-
     @Override
-    public String parse(StringReader reader) throws CommandSyntaxException {
+    public String parse(StringReader reader) throws CommandSyntaxException
+    {
         return reader.readString();
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
+    {
         Stream<String> stream = Streams.stream(context.getArgument("module", Module.class).settings.iterator())
-                .flatMap(settings -> Streams.stream(settings.iterator()))
-                .map(setting -> setting.name);
+            .flatMap(settings -> Streams.stream(settings.iterator()))
+            .map(setting -> setting.name);
 
         return CommandSource.suggestMatching(stream, builder);
     }

@@ -17,33 +17,42 @@ import java.util.List;
 
 import static net.minecraft.nbt.StringNbtReader.EXPECTED_VALUE;
 
-public class CompoundNbtTagArgumentType implements ArgumentType<NbtCompound> {
+public class CompoundNbtTagArgumentType implements ArgumentType<NbtCompound>
+{
     private static final CompoundNbtTagArgumentType INSTANCE = new CompoundNbtTagArgumentType();
     private static final Collection<String> EXAMPLES = List.of("{foo:bar}", "{foo:[aa, bb],bar:15}");
 
-    public static CompoundNbtTagArgumentType create() {
+    private CompoundNbtTagArgumentType()
+    {
+    }
+
+    public static CompoundNbtTagArgumentType create()
+    {
         return INSTANCE;
     }
 
-    public static NbtCompound get(CommandContext<?> context) {
+    public static NbtCompound get(CommandContext<?> context)
+    {
         return context.getArgument("nbt", NbtCompound.class);
     }
 
-    private CompoundNbtTagArgumentType() {}
-
     @Override
-    public NbtCompound parse(StringReader reader) throws CommandSyntaxException {
+    public NbtCompound parse(StringReader reader) throws CommandSyntaxException
+    {
         reader.skipWhitespace();
-        if (!reader.canRead()) {
+        if (!reader.canRead())
+        {
             throw EXPECTED_VALUE.createWithContext(reader);
         }
         StringBuilder b = new StringBuilder();
         int open = 0;
-        while (reader.canRead()) {
-            if (reader.peek() == '{') {
+        while (reader.canRead())
+        {
+            if (reader.peek() == '{')
+            {
                 open++;
-            }
-            else if (reader.peek() == '}') {
+            } else if (reader.peek() == '}')
+            {
                 open--;
             }
             if (open == 0)
@@ -53,13 +62,14 @@ public class CompoundNbtTagArgumentType implements ArgumentType<NbtCompound> {
         reader.expect('}');
         b.append('}');
         return StringNbtReader.parse(b.toString()
-                .replace("$", "§")
-                .replace("§§", "$")
+            .replace("$", "§")
+            .replace("§§", "$")
         );
     }
 
     @Override
-    public Collection<String> getExamples() {
+    public Collection<String> getExamples()
+    {
         return EXAMPLES;
     }
 }

@@ -22,7 +22,8 @@ import java.util.List;
 
 import static net.minecraft.entity.effect.StatusEffects.HASTE;
 
-public class SpeedMine extends Module {
+public class SpeedMine extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -83,27 +84,32 @@ public class SpeedMine extends Module {
         .build()
     );
 
-    public SpeedMine() {
+    public SpeedMine()
+    {
         super(Categories.Player, "speed-mine", "Allows you to quickly mine blocks.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         removeHaste();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (!Utils.canUpdate()) return;
 
-        if (mode.get() == Mode.Haste) {
+        if (mode.get() == Mode.Haste)
+        {
             StatusEffectInstance haste = mc.player.getStatusEffect(HASTE);
 
-            if (haste == null || haste.getAmplifier() <= hasteAmplifier.get() - 1) {
+            if (haste == null || haste.getAmplifier() <= hasteAmplifier.get() - 1)
+            {
                 mc.player.setStatusEffect(new StatusEffectInstance(HASTE, -1, hasteAmplifier.get() - 1, false, false, false), null);
             }
-        }
-        else if (mode.get() == Mode.Damage) {
+        } else if (mode.get() == Mode.Damage)
+        {
             ClientPlayerInteractionManagerAccessor im = (ClientPlayerInteractionManagerAccessor) mc.interactionManager;
             float progress = im.getBreakingProgress();
             BlockPos pos = im.getCurrentBreakingBlockPos();
@@ -115,38 +121,45 @@ public class SpeedMine extends Module {
     }
 
     @EventHandler
-    private void onPacket(PacketEvent.Send event) {
+    private void onPacket(PacketEvent.Send event)
+    {
         if (!(mode.get() == Mode.Damage) || !grimBypass.get()) return;
 
         // https://github.com/GrimAnticheat/Grim/issues/1296
-        if (event.packet instanceof PlayerActionC2SPacket packet && packet.getAction() == PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK) {
+        if (event.packet instanceof PlayerActionC2SPacket packet && packet.getAction() == PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK)
+        {
             mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, packet.getPos().up(), packet.getDirection()));
         }
     }
 
-    private void removeHaste() {
+    private void removeHaste()
+    {
         if (!Utils.canUpdate()) return;
 
         StatusEffectInstance haste = mc.player.getStatusEffect(HASTE);
         if (haste != null && !haste.shouldShowIcon()) mc.player.removeStatusEffect(HASTE);
     }
 
-    public boolean filter(Block block) {
+    public boolean filter(Block block)
+    {
         if (blocksFilter.get() == ListMode.Blacklist && !blocks.get().contains(block)) return true;
         return blocksFilter.get() == ListMode.Whitelist && blocks.get().contains(block);
     }
 
-    public boolean instamine() {
+    public boolean instamine()
+    {
         return isActive() && mode.get() == Mode.Damage && instamine.get();
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Normal,
         Haste,
         Damage
     }
 
-    public enum ListMode {
+    public enum ListMode
+    {
         Whitelist,
         Blacklist
     }

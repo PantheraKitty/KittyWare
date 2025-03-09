@@ -25,9 +25,24 @@ import net.minecraft.screen.AbstractFurnaceScreenHandler;
 import java.util.List;
 import java.util.Map;
 
-public class AutoSmelter extends Module {
+public class AutoSmelter extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
+    private final Setting<List<Item>> smeltableItems = sgGeneral.add(new ItemListSetting.Builder()
+        .name("smeltable-items")
+        .description("Items to smelt")
+        .defaultValue(Items.IRON_ORE, Items.GOLD_ORE, Items.COPPER_ORE, Items.RAW_IRON, Items.RAW_COPPER, Items.RAW_GOLD)
+        .filter(this::smeltableItemFilter)
+        .bypassFilterWhenSavingAndLoading()
+        .build()
+    );
+    private final Setting<Boolean> disableWhenOutOfItems = sgGeneral.add(new BoolSetting.Builder()
+        .name("disable-when-out-of-items")
+        .description("Disable the module when you run out of items")
+        .defaultValue(true)
+        .build()
+    );
+    private Map<Item, Integer> fuelTimeMap;
     private final Setting<List<Item>> fuelItems = sgGeneral.add(new ItemListSetting.Builder()
         .name("fuel-items")
         .description("Items to use as fuel")
@@ -37,40 +52,26 @@ public class AutoSmelter extends Module {
         .build()
     );
 
-    private final Setting<List<Item>> smeltableItems = sgGeneral.add(new ItemListSetting.Builder()
-        .name("smeltable-items")
-        .description("Items to smelt")
-        .defaultValue(Items.IRON_ORE, Items.GOLD_ORE, Items.COPPER_ORE, Items.RAW_IRON, Items.RAW_COPPER, Items.RAW_GOLD)
-        .filter(this::smeltableItemFilter)
-        .bypassFilterWhenSavingAndLoading()
-        .build()
-    );
-
-    private final Setting<Boolean> disableWhenOutOfItems = sgGeneral.add(new BoolSetting.Builder()
-        .name("disable-when-out-of-items")
-        .description("Disable the module when you run out of items")
-        .defaultValue(true)
-        .build()
-    );
-
-    private Map<Item, Integer> fuelTimeMap;
-
-    public AutoSmelter() {
+    public AutoSmelter()
+    {
         super(Categories.World, "auto-smelter", "Automatically smelts items from your inventory");
     }
 
-    private boolean fuelItemFilter(Item item) {
+    private boolean fuelItemFilter(Item item)
+    {
         if (!Utils.canUpdate() && fuelTimeMap == null) return false;
 
         if (fuelTimeMap == null) fuelTimeMap = AbstractFurnaceBlockEntity.createFuelTimeMap();
         return fuelTimeMap.containsKey(item);
     }
 
-    private boolean smeltableItemFilter(Item item) {
+    private boolean smeltableItemFilter(Item item)
+    {
         return mc.world != null && mc.world.getRecipeManager().getFirstMatch(RecipeType.SMELTING, new SingleStackRecipeInput(item.getDefaultStack()), mc.world).isPresent();
     }
 
-    public void tick(AbstractFurnaceScreenHandler c) {
+    public void tick(AbstractFurnaceScreenHandler c)
+    {
         // Limit actions to happen every n ticks
         if (mc.player.age % 10 == 0) return;
 
@@ -84,13 +85,15 @@ public class AutoSmelter extends Module {
         insertItems(c);
     }
 
-    private void insertItems(AbstractFurnaceScreenHandler c) {
+    private void insertItems(AbstractFurnaceScreenHandler c)
+    {
         ItemStack inputItemStack = c.slots.getFirst().getStack();
         if (!inputItemStack.isEmpty()) return;
 
         int slot = -1;
 
-        for (int i = 3; i < c.slots.size(); i++) {
+        for (int i = 3; i < c.slots.size(); i++)
+        {
             ItemStack item = c.slots.get(i).getStack();
             if (!((IAbstractFurnaceScreenHandler) c).isItemSmeltable(item)) continue;
             if (!smeltableItems.get().contains(item.getItem())) continue;
@@ -100,7 +103,8 @@ public class AutoSmelter extends Module {
             break;
         }
 
-        if (disableWhenOutOfItems.get() && slot == -1) {
+        if (disableWhenOutOfItems.get() && slot == -1)
+        {
             error("You do not have any items in your inventory that can be smelted. Disabling.");
             toggle();
             return;
@@ -109,14 +113,16 @@ public class AutoSmelter extends Module {
         InvUtils.move().fromId(slot).toId(0);
     }
 
-    private void checkFuel(AbstractFurnaceScreenHandler c) {
+    private void checkFuel(AbstractFurnaceScreenHandler c)
+    {
         ItemStack fuelStack = c.slots.get(1).getStack();
 
         if (c.getFuelProgress() > 0) return;
         if (!fuelStack.isEmpty()) return;
 
         int slot = -1;
-        for (int i = 3; i < c.slots.size(); i++) {
+        for (int i = 3; i < c.slots.size(); i++)
+        {
             ItemStack item = c.slots.get(i).getStack();
             if (!fuelItems.get().contains(item.getItem())) continue;
             if (!fuelItemFilter(item.getItem())) continue;
@@ -125,7 +131,8 @@ public class AutoSmelter extends Module {
             break;
         }
 
-        if (disableWhenOutOfItems.get() && slot == -1) {
+        if (disableWhenOutOfItems.get() && slot == -1)
+        {
             error("You do not have any fuel in your inventory. Disabling.");
             toggle();
             return;
@@ -134,13 +141,15 @@ public class AutoSmelter extends Module {
         InvUtils.move().fromId(slot).toId(1);
     }
 
-    private void takeResults(AbstractFurnaceScreenHandler c) {
+    private void takeResults(AbstractFurnaceScreenHandler c)
+    {
         ItemStack resultStack = c.slots.get(2).getStack();
         if (resultStack.isEmpty()) return;
 
         InvUtils.shiftClick().slotId(2);
 
-        if (!resultStack.isEmpty()) {
+        if (!resultStack.isEmpty())
+        {
             error("Your inventory is full. Disabling.");
             toggle();
         }

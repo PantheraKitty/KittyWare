@@ -18,20 +18,15 @@ import net.minecraft.util.Identifier;
 
 import java.util.Set;
 
-public class Chams extends Module {
+public class Chams extends Module
+{
+    public static final Identifier BLANK = MeteorClient.identifier("textures/blank.png");
     private final SettingGroup sgThroughWalls = settings.createGroup("Through Walls");
-    private final SettingGroup sgPlayers = settings.createGroup("Players");
-    private final SettingGroup sgCrystals = settings.createGroup("Crystals");
-    private final SettingGroup sgHand = settings.createGroup("Hand");
-
-    // Through walls
-
     public final Setting<Set<EntityType<?>>> entities = sgThroughWalls.add(new EntityTypeListSetting.Builder()
         .name("entities")
         .description("Select entities to show through walls.")
         .build()
     );
-
     public final Setting<Shader> shader = sgThroughWalls.add(new EnumSetting.Builder<Shader>()
         .name("shader")
         .description("Renders a shader over of the entities.")
@@ -41,6 +36,7 @@ public class Chams extends Module {
         .build()
     );
 
+    // Through walls
     public final Setting<SettingColor> shaderColor = sgThroughWalls.add(new ColorSetting.Builder()
         .name("color")
         .description("The color that the shader is drawn with.")
@@ -48,16 +44,13 @@ public class Chams extends Module {
         .visible(() -> shader.get() != Shader.None)
         .build()
     );
-
     public final Setting<Boolean> ignoreSelfDepth = sgThroughWalls.add(new BoolSetting.Builder()
         .name("ignore-self")
         .description("Ignores yourself drawing the player.")
         .defaultValue(true)
         .build()
     );
-
-    // Players
-
+    private final SettingGroup sgPlayers = settings.createGroup("Players");
     public final Setting<Boolean> players = sgPlayers.add(new BoolSetting.Builder()
         .name("players")
         .description("Enables model tweaks for players.")
@@ -65,6 +58,7 @@ public class Chams extends Module {
         .build()
     );
 
+    // Players
     public final Setting<Boolean> ignoreSelf = sgPlayers.add(new BoolSetting.Builder()
         .name("ignore-self")
         .description("Ignores yourself when tweaking player models.")
@@ -72,7 +66,6 @@ public class Chams extends Module {
         .visible(players::get)
         .build()
     );
-
     public final Setting<Boolean> playersTexture = sgPlayers.add(new BoolSetting.Builder()
         .name("texture")
         .description("Enables player model textures.")
@@ -80,7 +73,6 @@ public class Chams extends Module {
         .visible(players::get)
         .build()
     );
-
     public final Setting<SettingColor> playersColor = sgPlayers.add(new ColorSetting.Builder()
         .name("color")
         .description("The color of player models.")
@@ -88,7 +80,6 @@ public class Chams extends Module {
         .visible(players::get)
         .build()
     );
-
     public final Setting<Double> playersScale = sgPlayers.add(new DoubleSetting.Builder()
         .name("scale")
         .description("Players scale.")
@@ -97,9 +88,9 @@ public class Chams extends Module {
         .visible(players::get)
         .build()
     );
+    private final SettingGroup sgCrystals = settings.createGroup("Crystals");
 
     // Crystals
-
     public final Setting<Boolean> crystals = sgCrystals.add(new BoolSetting.Builder()
         .name("crystals")
         .description("Enables model tweaks for end crystals.")
@@ -191,14 +182,13 @@ public class Chams extends Module {
     );
 
     // Hand
-
+    private final SettingGroup sgHand = settings.createGroup("Hand");
     public final Setting<Boolean> hand = sgHand.add(new BoolSetting.Builder()
         .name("enabled")
         .description("Enables tweaks of hand rendering.")
         .defaultValue(false)
         .build()
     );
-
     public final Setting<Boolean> handTexture = sgHand.add(new BoolSetting.Builder()
         .name("texture")
         .description("Whether to render hand textures.")
@@ -206,7 +196,6 @@ public class Chams extends Module {
         .visible(hand::get)
         .build()
     );
-
     public final Setting<SettingColor> handColor = sgHand.add(new ColorSetting.Builder()
         .name("hand-color")
         .description("The color of your hand.")
@@ -215,26 +204,29 @@ public class Chams extends Module {
         .build()
     );
 
-    public static final Identifier BLANK = MeteorClient.identifier("textures/blank.png");
-
-    public Chams() {
+    public Chams()
+    {
         super(Categories.Render, "chams", "Tweaks rendering of entities.");
     }
 
-    public boolean shouldRender(Entity entity) {
+    public boolean shouldRender(Entity entity)
+    {
         return isActive() && !isShader() && entities.get().contains(entity.getType()) && (entity != mc.player || ignoreSelfDepth.get());
     }
 
-    public boolean isShader() {
+    public boolean isShader()
+    {
         return isActive() && shader.get() != Shader.None;
     }
 
-    public void updateShader(Shader value) {
+    public void updateShader(Shader value)
+    {
         if (value == Shader.None) return;
         PostProcessShaders.CHAMS.init(Utils.titleToName(value.name()));
     }
 
-    public enum Shader {
+    public enum Shader
+    {
         Image,
         None
     }

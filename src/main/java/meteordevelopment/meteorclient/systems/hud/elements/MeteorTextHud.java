@@ -8,10 +8,9 @@ package meteordevelopment.meteorclient.systems.hud.elements;
 import meteordevelopment.meteorclient.systems.hud.Hud;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 
-public class MeteorTextHud {
-    public static final HudElementInfo<TextHud> INFO = new HudElementInfo<>(Hud.GROUP, "text", "Displays arbitrary text with Starscript.", MeteorTextHud::create);
-
-    public static final HudElementInfo<TextHud>.Preset FPS;
+public class MeteorTextHud
+{
+    public static final HudElementInfo<TextHud>.Preset FPS;    public static final HudElementInfo<TextHud> INFO = new HudElementInfo<>(Hud.GROUP, "text", "Displays arbitrary text with Starscript.", MeteorTextHud::create);
     public static final HudElementInfo<TextHud>.Preset TPS;
     public static final HudElementInfo<TextHud>.Preset PING;
     public static final HudElementInfo<TextHud>.Preset SPEED;
@@ -32,7 +31,8 @@ public class MeteorTextHud {
     public static final HudElementInfo<TextHud>.Preset WATERMARK;
     public static final HudElementInfo<TextHud>.Preset BARITONE;
 
-    static {
+    static
+    {
         addPreset("Empty", null);
         FPS = addPreset("FPS", "FPS: #1{fps}", 0);
         TPS = addPreset("TPS", "TPS: #1{round(server.tps, 1)}");
@@ -56,18 +56,24 @@ public class MeteorTextHud {
         BARITONE = addPreset("Baritone", "Baritone: #1{baritone.process_name}");
     }
 
-    private static TextHud create() {
+    private static TextHud create()
+    {
         return new TextHud(INFO);
     }
 
-    private static HudElementInfo<TextHud>.Preset addPreset(String title, String text, int updateDelay) {
-        return INFO.addPreset(title, textHud -> {
+    private static HudElementInfo<TextHud>.Preset addPreset(String title, String text, int updateDelay)
+    {
+        return INFO.addPreset(title, textHud ->
+        {
             if (text != null) textHud.text.set(text);
             if (updateDelay != -1) textHud.updateDelay.set(updateDelay);
         });
     }
 
-    private static HudElementInfo<TextHud>.Preset addPreset(String title, String text) {
+    private static HudElementInfo<TextHud>.Preset addPreset(String title, String text)
+    {
         return addPreset(title, text, -1);
     }
+
+
 }

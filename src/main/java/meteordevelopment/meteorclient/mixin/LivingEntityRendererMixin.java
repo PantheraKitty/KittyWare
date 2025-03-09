@@ -35,73 +35,102 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(LivingEntityRenderer.class)
-public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>> {
-    @Shadow @Nullable
-    protected abstract RenderLayer getRenderLayer(T entity, boolean showBody, boolean translucent, boolean showOutline);
+public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>>
+{
+    @Unique
+    private LivingEntity lastEntity;
 
     // Freecam
+    @Unique
+    private float originalYaw;
+
+    //3rd Person Rotation
+    @Unique
+    private float originalHeadYaw;
+    @Unique
+    private float originalBodyYaw;
+    @Unique
+    private float originalPitch;
+
+    // Player model rendering in main menu
+    @Unique
+    private float originalPrevYaw;
+
+    // Through walls chams
+    @Unique
+    private float originalPrevHeadYaw;
+    @Unique
+    private float originalPrevBodyYaw;
+
+    // Player chams
+
+    @Shadow
+    @Nullable
+    protected abstract RenderLayer getRenderLayer(T entity, boolean showBody, boolean translucent, boolean showOutline);
 
     @ModifyExpressionValue(method = "hasLabel(Lnet/minecraft/entity/LivingEntity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getCameraEntity()Lnet/minecraft/entity/Entity;"))
-    private Entity hasLabelGetCameraEntityProxy(Entity cameraEntity) {
+    private Entity hasLabelGetCameraEntityProxy(Entity cameraEntity)
+    {
         return Modules.get().isActive(Freecam.class) ? null : cameraEntity;
     }
 
-    //3rd Person Rotation
-
     @ModifyVariable(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", ordinal = 2, at = @At(value = "STORE", ordinal = 0))
-    public float changeYaw(float oldValue, LivingEntity entity) {
+    public float changeYaw(float oldValue, LivingEntity entity)
+    {
         if (entity.equals(mc.player) && Rotations.rotationTimer < 10) return Rotations.serverYaw;
 
         return oldValue;
     }
 
     @ModifyVariable(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", ordinal = 3, at = @At(value = "STORE", ordinal = 0))
-    public float changeHeadYaw(float oldValue, LivingEntity entity) {
+    public float changeHeadYaw(float oldValue, LivingEntity entity)
+    {
         if (entity.equals(mc.player) && Rotations.rotationTimer < 10) return Rotations.serverYaw;
         return oldValue;
     }
 
     @ModifyVariable(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", ordinal = 5, at = @At(value = "STORE", ordinal = 3))
-    public float changePitch(float oldValue, LivingEntity entity) {
+    public float changePitch(float oldValue, LivingEntity entity)
+    {
         if (entity.equals(mc.player) && Rotations.rotationTimer < 10) return Rotations.serverPitch;
         return oldValue;
     }
 
-    // Player model rendering in main menu
-
     @ModifyExpressionValue(method = "hasLabel(Lnet/minecraft/entity/LivingEntity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getScoreboardTeam()Lnet/minecraft/scoreboard/Team;"))
-    private Team hasLabelClientPlayerEntityGetScoreboardTeamProxy(Team team) {
+    private Team hasLabelClientPlayerEntityGetScoreboardTeamProxy(Team team)
+    {
         return (mc.player == null) ? null : team;
     }
 
-    // Through walls chams
-
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"), cancellable = true)
-    private void renderHead(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+    private void renderHead(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci)
+    {
         if (Modules.get().get(NoRender.class).noDeadEntities() && livingEntity.isDead()) ci.cancel();
 
         Chams chams = Modules.get().get(Chams.class);
 
-        if (chams.isActive() && chams.shouldRender(livingEntity)) {
+        if (chams.isActive() && chams.shouldRender(livingEntity))
+        {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(1.0f, -1100000.0f);
         }
     }
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("TAIL"))
-    private void renderTail(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+    private void renderTail(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci)
+    {
         Chams chams = Modules.get().get(Chams.class);
 
-        if (chams.isActive() && chams.shouldRender(livingEntity)) {
+        if (chams.isActive() && chams.shouldRender(livingEntity))
+        {
             glPolygonOffset(1.0f, 1100000.0f);
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
     }
 
-    // Player chams
-
     @ModifyArgs(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;scale(FFF)V", ordinal = 1))
-    private void modifyScale(Args args, T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    private void modifyScale(Args args, T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
+    {
         Chams module = Modules.get().get(Chams.class);
         if (!module.isActive() || !module.players.get() || !(livingEntity instanceof PlayerEntity)) return;
         if (module.ignoreSelf.get() && livingEntity == mc.player) return;
@@ -112,7 +141,8 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
     }
 
     @ModifyArgs(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;III)V"))
-    private void modifyColor(Args args, T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    private void modifyColor(Args args, T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
+    {
         Chams module = Modules.get().get(Chams.class);
         if (!module.isActive() || !module.players.get() || !(livingEntity instanceof PlayerEntity)) return;
         if (module.ignoreSelf.get() && livingEntity == mc.player) return;
@@ -122,7 +152,8 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
     }
 
     @Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getRenderLayer(Lnet/minecraft/entity/LivingEntity;ZZZ)Lnet/minecraft/client/render/RenderLayer;"))
-    private RenderLayer getRenderLayer(LivingEntityRenderer<T, M> livingEntityRenderer, T livingEntity, boolean showBody, boolean translucent, boolean showOutline) {
+    private RenderLayer getRenderLayer(LivingEntityRenderer<T, M> livingEntityRenderer, T livingEntity, boolean showBody, boolean translucent, boolean showOutline)
+    {
         Chams module = Modules.get().get(Chams.class);
         if (!module.isActive() || !module.players.get() || !(livingEntity instanceof PlayerEntity) || module.playersTexture.get())
             return getRenderLayer(livingEntity, showBody, translucent, showOutline);
@@ -132,26 +163,11 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
         return RenderLayer.getItemEntityTranslucentCull(Chams.BLANK);
     }
 
-    @Unique
-    private LivingEntity lastEntity;
-    @Unique
-    private float originalYaw;
-    @Unique
-    private float originalHeadYaw;
-    @Unique
-    private float originalBodyYaw;
-    @Unique
-    private float originalPitch;
-
-    @Unique
-    private float originalPrevYaw;
-    @Unique
-    private float originalPrevHeadYaw;
-    @Unique
-    private float originalPrevBodyYaw;
     @Inject(method = "render", at = @At("HEAD"))
-    public void onRenderPre(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        if (mc.player != null && livingEntity == mc.player) {
+    public void onRenderPre(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci)
+    {
+        if (mc.player != null && livingEntity == mc.player)
+        {
             originalYaw = livingEntity.getYaw();
             originalHeadYaw = livingEntity.headYaw;
             originalBodyYaw = livingEntity.bodyYaw;
@@ -173,8 +189,10 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    public void onRenderPost(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        if (mc.player != null && livingEntity == mc.player) {
+    public void onRenderPost(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci)
+    {
+        if (mc.player != null && livingEntity == mc.player)
+        {
             livingEntity.setYaw(originalYaw);
             livingEntity.headYaw = originalHeadYaw;
             livingEntity.bodyYaw = originalBodyYaw;

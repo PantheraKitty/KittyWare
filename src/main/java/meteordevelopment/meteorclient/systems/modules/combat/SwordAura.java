@@ -1,18 +1,10 @@
 package meteordevelopment.meteorclient.systems.modules.combat;
 
-import java.util.Set;
-import org.apache.commons.lang3.mutable.MutableDouble;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
-import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.ColorSetting;
-import meteordevelopment.meteorclient.settings.DoubleSetting;
-import meteordevelopment.meteorclient.settings.EntityTypeListSetting;
-import meteordevelopment.meteorclient.settings.EnumSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -42,70 +34,74 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
-public class SwordAura extends Module {
+import java.util.Set;
+
+public class SwordAura extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder().name("range")
-            .description("The maximum range the entity can be to attack it.").defaultValue(2.85)
-            .min(0).sliderMax(6).build());
+        .description("The maximum range the entity can be to attack it.").defaultValue(2.85)
+        .min(0).sliderMax(6).build());
 
     private final Setting<SwitchMode> switchMode =
-            sgGeneral.add(new EnumSetting.Builder<SwitchMode>().name("switch-mode")
-                    .description("How to swap to the sword").defaultValue(SwitchMode.Auto).build());
+        sgGeneral.add(new EnumSetting.Builder<SwitchMode>().name("switch-mode")
+            .description("How to swap to the sword").defaultValue(SwitchMode.Auto).build());
 
     private final Setting<Boolean> silentSwapOverrideDelay = sgGeneral.add(new BoolSetting.Builder()
-            .name("silent-swap-override-delay")
-            .description(
-                    "Whether or not to use the held items delay when attacking with silent swap")
-            .defaultValue(true).visible(() -> switchMode.get() != SwitchMode.None).build());
+        .name("silent-swap-override-delay")
+        .description(
+            "Whether or not to use the held items delay when attacking with silent swap")
+        .defaultValue(true).visible(() -> switchMode.get() != SwitchMode.None).build());
 
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder().name("rotate")
-            .description("Whether or not to rotate to the entity to attack it.").defaultValue(true)
-            .build());
+        .description("Whether or not to rotate to the entity to attack it.").defaultValue(true)
+        .build());
 
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(
-            new EntityTypeListSetting.Builder().name("entities").description("Entities to attack.")
-                    .onlyAttackable().defaultValue(EntityType.PLAYER).build());
+        new EntityTypeListSetting.Builder().name("entities").description("Entities to attack.")
+            .onlyAttackable().defaultValue(EntityType.PLAYER).build());
 
     private final Setting<SortPriority> priority =
-            sgGeneral.add(new EnumSetting.Builder<SortPriority>().name("priority")
-                    .description("How to filter targets within range.")
-                    .defaultValue(SortPriority.ClosestAngle).build());
+        sgGeneral.add(new EnumSetting.Builder<SortPriority>().name("priority")
+            .description("How to filter targets within range.")
+            .defaultValue(SortPriority.ClosestAngle).build());
 
     private final Setting<Boolean> ignorePassive =
-            sgGeneral.add(new BoolSetting.Builder().name("ignore-passive")
-                    .description("Does not attack passive mobs.").defaultValue(false).build());
+        sgGeneral.add(new BoolSetting.Builder().name("ignore-passive")
+            .description("Does not attack passive mobs.").defaultValue(false).build());
 
     private final Setting<Boolean> forcePauseEat = sgGeneral.add(new BoolSetting.Builder()
-            .name("force-pause-on-eat").description("Does not attack while using an item.")
-            .defaultValue(false).build());
+        .name("force-pause-on-eat").description("Does not attack while using an item.")
+        .defaultValue(false).build());
 
     private final Setting<Boolean> pauseInAir = sgGeneral.add(new BoolSetting.Builder()
-            .name("pause-in-air").description("Does not attack while jumping or falling")
-            .defaultValue(true).build());
+        .name("pause-in-air").description("Does not attack while jumping or falling")
+        .defaultValue(true).build());
 
     private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder().name("render")
-            .description("Whether or not to render attacks").defaultValue(true).build());
+        .description("Whether or not to render attacks").defaultValue(true).build());
 
     private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("shape-mode").description("How the shapes are rendered.")
-            .defaultValue(ShapeMode.Both).visible(() -> render.get()).build());
+        .name("shape-mode").description("How the shapes are rendered.")
+        .defaultValue(ShapeMode.Both).visible(() -> render.get()).build());
 
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-            .name("side-color").description("The side color of the rendering.")
-            .defaultValue(new SettingColor(160, 0, 225, 35)).visible(() -> shapeMode.get().sides())
-            .build());
+        .name("side-color").description("The side color of the rendering.")
+        .defaultValue(new SettingColor(160, 0, 225, 35)).visible(() -> shapeMode.get().sides())
+        .build());
 
     private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-            .name("line-color").description("The line color of the rendering.")
-            .defaultValue(new SettingColor(255, 255, 255, 50))
-            .visible(() -> render.get() && shapeMode.get().lines()).build());
+        .name("line-color").description("The line color of the rendering.")
+        .defaultValue(new SettingColor(255, 255, 255, 50))
+        .visible(() -> render.get() && shapeMode.get().lines()).build());
 
     private final Setting<Double> fadeTime = sgRender.add(new DoubleSetting.Builder()
-            .name("fade-time").description("How long to fade the bounding box render.").min(0)
-            .sliderMax(2.0).defaultValue(0.8).build());
+        .name("fade-time").description("How long to fade the bounding box render.").min(0)
+        .sliderMax(2.0).defaultValue(0.8).build());
 
     private long lastAttackTime = 0;
     private Entity target = null;
@@ -115,61 +111,71 @@ public class SwordAura extends Module {
     private int selectedSlot;
     private boolean didSilentSwap;
 
-    public SwordAura() {
+    public SwordAura()
+    {
         super(Categories.Combat, "sword-aura", "Automatically attacks entities with your sword");
     }
 
     @EventHandler
-    public void onTick(TickEvent.Pre event) {
+    public void onTick(TickEvent.Pre event)
+    {
         target = null;
 
-        if (mc.player.isDead() || mc.player.isSpectator()) {
+        if (mc.player.isDead() || mc.player.isSpectator())
+        {
             return;
         }
 
         if (forcePauseEat.get() && mc.player.isUsingItem()
-                && mc.player.getActiveHand() == Hand.MAIN_HAND) {
+            && mc.player.getActiveHand() == Hand.MAIN_HAND)
+        {
             return;
         }
 
-        if (pauseInAir.get() && !mc.player.isOnGround()) {
+        if (pauseInAir.get() && !mc.player.isOnGround())
+        {
             return;
         }
 
         Item mainHandItem = mc.player.getInventory().getMainHandStack().getItem();
 
         if (switchMode.get() == SwitchMode.None && mainHandItem != Items.DIAMOND_SWORD
-                && mainHandItem != Items.NETHERITE_SWORD) {
+            && mainHandItem != Items.NETHERITE_SWORD)
+        {
             return;
         }
 
         FindItemResult result = InvUtils.find(Items.NETHERITE_SWORD);
-        if (!result.found()) {
+        if (!result.found())
+        {
             result = InvUtils.find(Items.DIAMOND_SWORD);
         }
 
-        if (!result.found() || (switchMode.get() == SwitchMode.SilentHotbar && !result.isHotbar())) {
+        if (!result.found() || (switchMode.get() == SwitchMode.SilentHotbar && !result.isHotbar()))
+        {
             return;
         }
 
-        target = TargetUtils.get(entity -> {
+        target = TargetUtils.get(entity ->
+        {
             if (entity.equals(mc.player) || entity.equals(mc.cameraEntity))
                 return false;
 
             if ((entity instanceof LivingEntity livingEntity && livingEntity.isDead())
-                    || !entity.isAlive())
+                || !entity.isAlive())
                 return false;
 
             Box hitbox = entity.getBoundingBox();
             Vec3d closestPointOnBoundingBox = getClosestPointOnBox(hitbox, mc.player.getEyePos());
             if (!closestPointOnBoundingBox.isWithinRangeOf(mc.player.getEyePos(), range.get(),
-                    range.get()))
+                range.get()))
                 return false;
 
             if (!entities.get().contains(entity.getType()))
                 return false;
 
-            if (ignorePassive.get()) {
+            if (ignorePassive.get())
+            {
                 if (entity instanceof EndermanEntity enderman && !enderman.isAngry())
                     return false;
                 if (entity instanceof ZombifiedPiglinEntity piglin && !piglin.isAttacking())
@@ -178,7 +184,8 @@ public class SwordAura extends Module {
                     return false;
             }
 
-            if (entity instanceof PlayerEntity player) {
+            if (entity instanceof PlayerEntity player)
+            {
                 if (player.isCreative())
                     return false;
                 if (!Friends.get().shouldAttack(player))
@@ -188,7 +195,8 @@ public class SwordAura extends Module {
             return true;
         }, priority.get());
 
-        if (target == null) {
+        if (target == null)
+        {
             return;
         }
 
@@ -197,16 +205,20 @@ public class SwordAura extends Module {
 
         int delayCheckSlot = result.slot();
 
-        if (switchMode.get() != SwitchMode.None && silentSwapOverrideDelay.get()) {
+        if (switchMode.get() != SwitchMode.None && silentSwapOverrideDelay.get())
+        {
             delayCheckSlot = mc.player.getInventory().selectedSlot;
         }
 
-        if (delayCheck(delayCheckSlot)) {
-            if (rotate.get()) {
+        if (delayCheck(delayCheckSlot))
+        {
+            if (rotate.get())
+            {
                 MeteorClient.ROTATION.requestRotation(
-                        getClosestPointOnBox(target.getBoundingBox(), mc.player.getEyePos()), 9);
+                    getClosestPointOnBox(target.getBoundingBox(), mc.player.getEyePos()), 9);
 
-                if (!MeteorClient.ROTATION.lookingAt(target.getBoundingBox())) {
+                if (!MeteorClient.ROTATION.lookingAt(target.getBoundingBox()))
+                {
                     return;
                 }
             }
@@ -214,63 +226,82 @@ public class SwordAura extends Module {
             silentInvSlot = result.slot();
             selectedSlot = mc.player.getInventory().selectedSlot;
             didSilentSwap = false;
-            switch (switchMode.get()) {
-                case SilentHotbar -> {
+            switch (switchMode.get())
+            {
+                case SilentHotbar ->
+                {
                     InvUtils.swap(result.slot(), true);
                 }
-                case Auto -> {
+                case Auto ->
+                {
                     // If we're eating from our main hand, force silent swap
-                    if (mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND) {
+                    if (mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND)
+                    {
                         InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
                         didSilentSwap = true;
-                    } else {
+                    } else
+                    {
                         // Otherwise, hotbar swap if it's in our hotbar, and only silent swap when it's not
-                        if (result.isHotbar()) {
+                        if (result.isHotbar())
+                        {
                             InvUtils.swap(result.slot(), true);
-                        } else if (silentInvSlot != mc.player.getInventory().selectedSlot) {
+                        } else if (silentInvSlot != mc.player.getInventory().selectedSlot)
+                        {
                             InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
                             didSilentSwap = true;
                         }
                     }
                 }
-                case SilentSwap -> {
-                    if (silentInvSlot != mc.player.getInventory().selectedSlot) {
+                case SilentSwap ->
+                {
+                    if (silentInvSlot != mc.player.getInventory().selectedSlot)
+                    {
                         InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
                         didSilentSwap = true;
                     }
                 }
-                case None -> {
+                case None ->
+                {
                     // Fall
                 }
             }
 
             attack();
 
-            switch (switchMode.get()) {
+            switch (switchMode.get())
+            {
                 case SilentHotbar -> InvUtils.swapBack();
-                case None -> { }
-                default -> {
-                    if (didSilentSwap) {
+                case None ->
+                {
+                }
+                default ->
+                {
+                    if (didSilentSwap)
+                    {
                         InvUtils.quickSwap().fromId(selectedSlot).to(silentInvSlot);
-                    } else {
+                    } else
+                    {
                         InvUtils.swapBack();
                     }
                 }
             }
 
-            
+
         }
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
-        if (!render.get() || lastAttackedEntity == null) {
+    private void onRender3D(Render3DEvent event)
+    {
+        if (!render.get() || lastAttackedEntity == null)
+        {
             return;
         }
 
         double secondsSinceAttack = (System.currentTimeMillis() - lastAttackTime) / 1000.0;
 
-        if (secondsSinceAttack > fadeTime.get()) {
+        if (secondsSinceAttack > fadeTime.get())
+        {
             return;
         }
 
@@ -278,40 +309,45 @@ public class SwordAura extends Module {
 
         // Bounding box interpolation
         double x = MathHelper.lerp(event.tickDelta, lastAttackedEntity.lastRenderX,
-                lastAttackedEntity.getX()) - lastAttackedEntity.getX();
+            lastAttackedEntity.getX()) - lastAttackedEntity.getX();
         double y = MathHelper.lerp(event.tickDelta, lastAttackedEntity.lastRenderY,
-                lastAttackedEntity.getY()) - lastAttackedEntity.getY();
+            lastAttackedEntity.getY()) - lastAttackedEntity.getY();
         double z = MathHelper.lerp(event.tickDelta, lastAttackedEntity.lastRenderZ,
-                lastAttackedEntity.getZ()) - lastAttackedEntity.getZ();
+            lastAttackedEntity.getZ()) - lastAttackedEntity.getZ();
 
         Box box = lastAttackedEntity.getBoundingBox();
 
         event.renderer.box(x + box.minX, y + box.minY, z + box.minZ, x + box.maxX, y + box.maxY,
-                z + box.maxZ, sideColor.get().copy().a((int) (sideColor.get().a * alpha)),
-                lineColor.get().copy().a((int) (lineColor.get().a * alpha)), shapeMode.get(), 0);
+            z + box.maxZ, sideColor.get().copy().a((int) (sideColor.get().a * alpha)),
+            lineColor.get().copy().a((int) (lineColor.get().a * alpha)), shapeMode.get(), 0);
     }
 
-    public void attack() {
+    public void attack()
+    {
         mc.getNetworkHandler()
-                .sendPacket(PlayerInteractEntityC2SPacket.attack(target, mc.player.isSneaking()));
+            .sendPacket(PlayerInteractEntityC2SPacket.attack(target, mc.player.isSneaking()));
         mc.player.swingHand(Hand.MAIN_HAND);
 
         lastAttackedEntity = target;
         lastAttackTime = System.currentTimeMillis();
     }
 
-    private boolean delayCheck(int slot) {
+    private boolean delayCheck(int slot)
+    {
         PlayerInventory inventory = mc.player.getInventory();
         ItemStack itemStack = inventory.getStack(slot);
 
         MutableDouble attackSpeed = new MutableDouble(
-                mc.player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED));
+            mc.player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED));
 
         AttributeModifiersComponent attributeModifiers =
-                itemStack.get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-        if (attributeModifiers != null) {
-            attributeModifiers.applyModifiers(EquipmentSlot.MAINHAND, (entry, modifier) -> {
-                if (entry == EntityAttributes.GENERIC_ATTACK_SPEED) {
+            itemStack.get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+        if (attributeModifiers != null)
+        {
+            attributeModifiers.applyModifiers(EquipmentSlot.MAINHAND, (entry, modifier) ->
+            {
+                if (entry == EntityAttributes.GENERIC_ATTACK_SPEED)
+                {
                     attackSpeed.add(modifier.value());
                 }
             });
@@ -322,21 +358,24 @@ public class SwordAura extends Module {
         long currentTime = System.currentTimeMillis();
 
         // 50 ms in a tick
-        if ((currentTime - lastAttackTime) / 50.0 > attackCooldownTicks) {
+        if ((currentTime - lastAttackTime) / 50.0 > attackCooldownTicks)
+        {
             return true;
         }
 
         return false;
     }
 
-    public Vec3d getClosestPointOnBox(Box box, Vec3d point) {
+    public Vec3d getClosestPointOnBox(Box box, Vec3d point)
+    {
         double x = Math.max(box.minX, Math.min(point.x, box.maxX));
         double y = Math.max(box.minY, Math.min(point.y, box.maxY));
         double z = Math.max(box.minZ, Math.min(point.z, box.maxZ));
         return new Vec3d(x, y, z);
     }
 
-    public enum SwitchMode {
+    public enum SwitchMode
+    {
         None, SilentHotbar, SilentSwap, Auto
     }
 }

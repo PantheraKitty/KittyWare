@@ -5,7 +5,8 @@
 
 package meteordevelopment.meteorclient.utils.player;
 
-public enum Safety {
+public enum Safety
+{
     Safe,
     Suicide
 }

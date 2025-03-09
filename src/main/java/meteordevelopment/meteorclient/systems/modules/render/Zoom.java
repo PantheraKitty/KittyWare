@@ -19,7 +19,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.MathHelper;
 
-public class Zoom extends Module {
+public class Zoom extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> zoom = sgGeneral.add(new DoubleSetting.Builder()
@@ -66,14 +67,17 @@ public class Zoom extends Module {
     private double lastFov;
     private double time;
 
-    public Zoom() {
+    public Zoom()
+    {
         super(Categories.Render, "zoom", "Zooms your view.");
         autoSubscribe = false;
     }
 
     @Override
-    public void onActivate() {
-        if (!enabled) {
+    public void onActivate()
+    {
+        if (!enabled)
+        {
             preCinematic = mc.options.smoothCameraEnabled;
             preMouseSensitivity = mc.options.getMouseSensitivity().getValue();
             value = zoom.get();
@@ -85,7 +89,8 @@ public class Zoom extends Module {
         }
     }
 
-    public void onStop() {
+    public void onStop()
+    {
         mc.options.smoothCameraEnabled = preCinematic;
         mc.options.getMouseSensitivity().setValue(preMouseSensitivity);
 
@@ -93,14 +98,17 @@ public class Zoom extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         mc.options.smoothCameraEnabled = cinematic.get();
 
-        if (!cinematic.get()) {
+        if (!cinematic.get())
+        {
             mc.options.getMouseSensitivity().setValue(preMouseSensitivity / Math.max(getScaling() * 0.5, 1));
         }
 
-        if (time == 0) {
+        if (time == 0)
+        {
             MeteorClient.EVENT_BUS.unsubscribe(this);
             enabled = false;
 
@@ -109,8 +117,10 @@ public class Zoom extends Module {
     }
 
     @EventHandler
-    private void onMouseScroll(MouseScrollEvent event) {
-        if (scrollSensitivity.get() > 0 && isActive()) {
+    private void onMouseScroll(MouseScrollEvent event)
+    {
+        if (scrollSensitivity.get() > 0 && isActive())
+        {
             value += event.value * 0.25 * (scrollSensitivity.get() * value);
             if (value < 1) value = 1;
 
@@ -119,8 +129,10 @@ public class Zoom extends Module {
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
-        if (!smooth.get()) {
+    private void onRender3D(Render3DEvent event)
+    {
+        if (!smooth.get())
+        {
             time = isActive() ? 1 : 0;
             return;
         }
@@ -132,19 +144,22 @@ public class Zoom extends Module {
     }
 
     @EventHandler
-    private void onGetFov(GetFovEvent event) {
+    private void onGetFov(GetFovEvent event)
+    {
         event.fov /= getScaling();
 
         if (lastFov != event.fov) mc.worldRenderer.scheduleTerrainUpdate();
         lastFov = event.fov;
     }
 
-    public double getScaling() {
+    public double getScaling()
+    {
         double delta = time < 0.5 ? 4 * time * time * time : 1 - Math.pow(-2 * time + 2, 3) / 2; // Ease in out cubic
         return MathHelper.lerp(delta, 1, value);
     }
 
-    public boolean renderHands() {
+    public boolean renderHands()
+    {
         return !isActive() || renderHands.get();
     }
 }

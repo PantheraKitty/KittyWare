@@ -12,14 +12,18 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
 
-public class VClipCommand extends Command {
-    public VClipCommand() {
+public class VClipCommand extends Command
+{
+    public VClipCommand()
+    {
         super("vclip", "Lets you clip through blocks vertically.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.then(argument("blocks", DoubleArgumentType.doubleArg()).executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.then(argument("blocks", DoubleArgumentType.doubleArg()).executes(context ->
+        {
 
             double blocks = context.getArgument("blocks", Double.class);
 
@@ -29,26 +33,31 @@ public class VClipCommand extends Command {
             // Video explanation by LiveOverflow: https://www.youtube.com/watch?v=3HSnDsfkJT8
             int packetsRequired = (int) Math.ceil(Math.abs(blocks / 10));
 
-            if (packetsRequired > 20) {
+            if (packetsRequired > 20)
+            {
                 // Wouldn't work on paper anyway.
                 // Some servers don't have a vertical limit, so if it is more than 200 blocks, just use a "normal" tp
                 // This makes it, so you don't get kicked for sending too many packets
                 packetsRequired = 1;
             }
 
-            if (mc.player.hasVehicle()) {
+            if (mc.player.hasVehicle())
+            {
                 // Vehicle version
                 // For each 10 blocks, send a vehicle move packet with no delta
-                for (int packetNumber = 0; packetNumber < (packetsRequired - 1); packetNumber++) {
+                for (int packetNumber = 0; packetNumber < (packetsRequired - 1); packetNumber++)
+                {
                     mc.player.networkHandler.sendPacket(new VehicleMoveC2SPacket(mc.player.getVehicle()));
                 }
                 // Now send the final vehicle move packet
                 mc.player.getVehicle().setPosition(mc.player.getVehicle().getX(), mc.player.getVehicle().getY() + blocks, mc.player.getVehicle().getZ());
                 mc.player.networkHandler.sendPacket(new VehicleMoveC2SPacket(mc.player.getVehicle()));
-            } else {
+            } else
+            {
                 // No vehicle version
                 // For each 10 blocks, send a player move packet with no delta
-                for (int packetNumber = 0; packetNumber < (packetsRequired - 1); packetNumber++) {
+                for (int packetNumber = 0; packetNumber < (packetsRequired - 1); packetNumber++)
+                {
                     mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(true));
                 }
                 // Now send the final player move packet

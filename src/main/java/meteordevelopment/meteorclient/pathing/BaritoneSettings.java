@@ -13,232 +13,59 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 
 import java.awt.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BaritoneSettings implements IPathManager.ISettings {
-    private final Settings settings = new Settings();
-
-    private Setting<Boolean> walkOnWater, walkOnLava;
-    private Setting<Boolean> step, noFall;
-
+public class BaritoneSettings implements IPathManager.ISettings
+{
     private static final Map<String, Double> SETTING_MAX_VALUES = new HashMap<>();
+    private static Map<String, String> descriptions;
 
-    public BaritoneSettings() {
-        createWrappers();
-    }
-
-    @Override
-    public Settings get() {
-        return settings;
-    }
-
-    @Override
-    public Setting<Boolean> getWalkOnWater() {
-        return walkOnWater;
-    }
-
-    @Override
-    public Setting<Boolean> getWalkOnLava() {
-        return walkOnLava;
-    }
-
-    @Override
-    public Setting<Boolean> getStep() {
-        return step;
-    }
-
-    @Override
-    public Setting<Boolean> getNoFall() {
-        return noFall;
-    }
-
-    @Override
-    public void save() {
-        SettingsUtil.save(BaritoneAPI.getSettings());
-    }
-
-    static {
+    static
+    {
         SETTING_MAX_VALUES.put("pathCutoffFactor", 1.0);
     }
 
-    // Wrappers
+    private final Settings settings = new Settings();
+    private Setting<Boolean> walkOnWater, walkOnLava;
+    private Setting<Boolean> step, noFall;
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private void createWrappers() {
-        SettingGroup sgBool = settings.createGroup("Checkboxes");
-        SettingGroup sgDouble = settings.createGroup("Numbers");
-        SettingGroup sgInt = settings.createGroup("Whole Numbers");
-        SettingGroup sgString = settings.createGroup("Strings");
-        SettingGroup sgColor = settings.createGroup("Colors");
-
-        SettingGroup sgBlockLists = settings.createGroup("Block Lists");
-        SettingGroup sgItemLists = settings.createGroup("Item Lists");
-
-        try {
-            Class<? extends baritone.api.Settings> klass = BaritoneAPI.getSettings().getClass();
-
-            for (Field field : klass.getDeclaredFields()) {
-                if (Modifier.isStatic(field.getModifiers())) continue;
-
-                Object obj = field.get(BaritoneAPI.getSettings());
-                if (!(obj instanceof baritone.api.Settings.Setting setting)) continue;
-
-                Object value = setting.value;
-
-                if (value instanceof Boolean) {
-                    Setting<Boolean> wrapper = sgBool.add(new BoolSetting.Builder()
-                        .name(setting.getName())
-                        .description(getDescription(setting.getName()))
-                        .defaultValue((boolean) setting.defaultValue)
-                        .onChanged(aBoolean -> setting.value = aBoolean)
-                        .onModuleActivated(booleanSetting -> booleanSetting.set((Boolean) setting.value))
-                        .build()
-                    );
-
-                    switch (wrapper.name) {
-                        case "assumeWalkOnWater" -> walkOnWater = wrapper;
-                        case "assumeWalkOnLava" -> walkOnLava = wrapper;
-                        case "assumeStep" -> step = wrapper;
-                    }
-                }
-                else if (value instanceof Double) {
-                    sgDouble.add(new DoubleSetting.Builder()
-                        .name(setting.getName())
-                        .description(getDescription(setting.getName()))
-                        .defaultValue((double) setting.defaultValue)
-                        .max(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
-                        .sliderMax(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
-                        .onChanged(aDouble -> setting.value = aDouble)
-                        .onModuleActivated(doubleSetting -> doubleSetting.set((Double) setting.value))
-                        .build()
-                    );
-                }
-                else if (value instanceof Float) {
-                    sgDouble.add(new DoubleSetting.Builder()
-                        .name(setting.getName())
-                        .description(getDescription(setting.getName()))
-                        .defaultValue(((Float) setting.defaultValue).doubleValue())
-                        .max(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
-                        .sliderMax(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
-                        .onChanged(aDouble -> setting.value = aDouble.floatValue())
-                        .onModuleActivated(doubleSetting -> doubleSetting.set(((Float) setting.value).doubleValue()))
-                        .build()
-                    );
-                }
-                else if (value instanceof Integer) {
-                    Setting<Integer> wrapper = sgInt.add(new IntSetting.Builder()
-                        .name(setting.getName())
-                        .description(getDescription(setting.getName()))
-                        .defaultValue((int) setting.defaultValue)
-                        .onChanged(integer -> setting.value = integer)
-                        .onModuleActivated(integerSetting -> integerSetting.set((Integer) setting.value))
-                        .build()
-                    );
-
-                    if (wrapper.name.equals("maxFallHeightNoWater")) {
-                        noFall = new BoolSetting.Builder()
-                            .name(wrapper.name)
-                            .description(wrapper.description)
-                            .defaultValue(false)
-                            .onChanged(aBoolean -> wrapper.set(aBoolean ? 159159 : wrapper.getDefaultValue()))
-                            .onModuleActivated(booleanSetting -> booleanSetting.set(wrapper.get() >= 255))
-                            .build();
-                    }
-                }
-                else if (value instanceof Long) {
-                    sgInt.add(new IntSetting.Builder()
-                        .name(setting.getName())
-                        .description(getDescription(setting.getName()))
-                        .defaultValue(((Long) setting.defaultValue).intValue())
-                        .onChanged(integer -> setting.value = integer.longValue())
-                        .onModuleActivated(integerSetting -> integerSetting.set(((Long) setting.value).intValue()))
-                        .build()
-                    );
-                }
-                else if (value instanceof String) {
-                    sgString.add(new StringSetting.Builder()
-                        .name(setting.getName())
-                        .description(getDescription(setting.getName()))
-                        .defaultValue((String) setting.defaultValue)
-                        .onChanged(string -> setting.value = string)
-                        .onModuleActivated(stringSetting -> stringSetting.set((String) setting.value))
-                        .build()
-                    );
-                }
-                else if (value instanceof Color) {
-                    Color c = (Color) setting.value;
-
-                    sgColor.add(new ColorSetting.Builder()
-                        .name(setting.getName())
-                        .description(getDescription(setting.getName()))
-                        .defaultValue(new SettingColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()))
-                        .onChanged(color -> setting.value = new Color(color.r, color.g, color.b, color.a))
-                        .onModuleActivated(colorSetting -> colorSetting.set(new SettingColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha())))
-                        .build()
-                    );
-                }
-                else if (value instanceof List) {
-                    Type listType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                    Type type = ((ParameterizedType) listType).getActualTypeArguments()[0];
-
-                    if (type == Block.class) {
-                        sgBlockLists.add(new BlockListSetting.Builder()
-                            .name(setting.getName())
-                            .description(getDescription(setting.getName()))
-                            .defaultValue((List<Block>) setting.defaultValue)
-                            .onChanged(blockList -> setting.value = blockList)
-                            .onModuleActivated(blockListSetting -> blockListSetting.set((List<Block>) setting.value))
-                            .build()
-                        );
-                    }
-                    else if (type == Item.class) {
-                        sgItemLists.add(new ItemListSetting.Builder()
-                            .name(setting.getName())
-                            .description(getDescription(setting.getName()))
-                            .defaultValue((List<Item>) setting.defaultValue)
-                            .onChanged(itemList -> setting.value = itemList)
-                            .onModuleActivated(itemListSetting -> itemListSetting.set((List<Item>) setting.value))
-                            .build()
-                        );
-                    }
-                }
-            }
-        }
-        catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public BaritoneSettings()
+    {
+        createWrappers();
     }
 
-    // Descriptions
-
-    private static Map<String, String> descriptions;
-
-    private static void addDescription(String settingName, String description) {
+    private static void addDescription(String settingName, String description)
+    {
         descriptions.put(settingName.toLowerCase(), description);
     }
 
-    private static String getDescription(String settingName) {
+    private static String getDescription(String settingName)
+    {
         if (descriptions == null) loadDescriptions();
 
         return descriptions.get(settingName.toLowerCase());
     }
 
-    private static void loadDescriptions() {
+    private static void loadDescriptions()
+    {
         descriptions = new HashMap<>();
         addDescription("acceptableThrowawayItems", "Blocks that Baritone is allowed to place (as throwaway, for sneak bridging, pillaring, etc.)");
         addDescription("allowBreak", "Allow Baritone to break blocks");
         addDescription("allowBreakAnyway", "Blocks that baritone will be allowed to break even with allowBreak set to false");
-        addDescription("allowDiagonalAscend","Allow diagonal ascending");
+        addDescription("allowDiagonalAscend", "Allow diagonal ascending");
         addDescription("allowDiagonalDescend", "Allow descending diagonally");
         addDescription("allowDownward", "Allow mining the block directly beneath its feet");
         addDescription("allowInventory", "Allow Baritone to move items in your inventory to your hotbar");
         addDescription("allowJumpAt256", "If true, parkour is allowed to make jumps when standing on blocks at the maximum height, so player feet is y=256");
         addDescription("allowOnlyExposedOres", "This will only allow baritone to mine exposed ores, can be used to stop ore obfuscators on servers that use them.");
         addDescription("allowOnlyExposedOresDistance", "When allowOnlyExposedOres is enabled this is the distance around to search.");
-        addDescription("allowOvershootDiagonalDescend","Is it okay to sprint through a descend followed by a diagonal? The player overshoots the landing, but not enough to fall off.");
+        addDescription("allowOvershootDiagonalDescend", "Is it okay to sprint through a descend followed by a diagonal? The player overshoots the landing, but not enough to fall off.");
         addDescription("allowParkour", "You know what it is");
         addDescription("allowParkourAscend", "This should be monetized it's so good");
         addDescription("allowParkourPlace", "Actually pretty reliable.");
@@ -424,5 +251,199 @@ public class BaritoneSettings implements IPathManager.ISettings {
         addDescription("walkWhileBreaking", "Don't stop walking forward when you need to break blocks in your way");
         addDescription("worldExploringChunkOffset", "While exploring the world, offset the closest unloaded chunk by this much in both axes.");
         addDescription("yLevelBoxSize", "The size of the box that is rendered when the current goal is a GoalYLevel");
+    }
+
+    @Override
+    public Settings get()
+    {
+        return settings;
+    }
+
+    @Override
+    public Setting<Boolean> getWalkOnWater()
+    {
+        return walkOnWater;
+    }
+
+    // Wrappers
+
+    @Override
+    public Setting<Boolean> getWalkOnLava()
+    {
+        return walkOnLava;
+    }
+
+    // Descriptions
+
+    @Override
+    public Setting<Boolean> getStep()
+    {
+        return step;
+    }
+
+    @Override
+    public Setting<Boolean> getNoFall()
+    {
+        return noFall;
+    }
+
+    @Override
+    public void save()
+    {
+        SettingsUtil.save(BaritoneAPI.getSettings());
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void createWrappers()
+    {
+        SettingGroup sgBool = settings.createGroup("Checkboxes");
+        SettingGroup sgDouble = settings.createGroup("Numbers");
+        SettingGroup sgInt = settings.createGroup("Whole Numbers");
+        SettingGroup sgString = settings.createGroup("Strings");
+        SettingGroup sgColor = settings.createGroup("Colors");
+
+        SettingGroup sgBlockLists = settings.createGroup("Block Lists");
+        SettingGroup sgItemLists = settings.createGroup("Item Lists");
+
+        try
+        {
+            Class<? extends baritone.api.Settings> klass = BaritoneAPI.getSettings().getClass();
+
+            for (Field field : klass.getDeclaredFields())
+            {
+                if (Modifier.isStatic(field.getModifiers())) continue;
+
+                Object obj = field.get(BaritoneAPI.getSettings());
+                if (!(obj instanceof baritone.api.Settings.Setting setting)) continue;
+
+                Object value = setting.value;
+
+                if (value instanceof Boolean)
+                {
+                    Setting<Boolean> wrapper = sgBool.add(new BoolSetting.Builder()
+                        .name(setting.getName())
+                        .description(getDescription(setting.getName()))
+                        .defaultValue((boolean) setting.defaultValue)
+                        .onChanged(aBoolean -> setting.value = aBoolean)
+                        .onModuleActivated(booleanSetting -> booleanSetting.set((Boolean) setting.value))
+                        .build()
+                    );
+
+                    switch (wrapper.name)
+                    {
+                        case "assumeWalkOnWater" -> walkOnWater = wrapper;
+                        case "assumeWalkOnLava" -> walkOnLava = wrapper;
+                        case "assumeStep" -> step = wrapper;
+                    }
+                } else if (value instanceof Double)
+                {
+                    sgDouble.add(new DoubleSetting.Builder()
+                        .name(setting.getName())
+                        .description(getDescription(setting.getName()))
+                        .defaultValue((double) setting.defaultValue)
+                        .max(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
+                        .sliderMax(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
+                        .onChanged(aDouble -> setting.value = aDouble)
+                        .onModuleActivated(doubleSetting -> doubleSetting.set((Double) setting.value))
+                        .build()
+                    );
+                } else if (value instanceof Float)
+                {
+                    sgDouble.add(new DoubleSetting.Builder()
+                        .name(setting.getName())
+                        .description(getDescription(setting.getName()))
+                        .defaultValue(((Float) setting.defaultValue).doubleValue())
+                        .max(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
+                        .sliderMax(SETTING_MAX_VALUES.getOrDefault(setting.getName(), 10.0))
+                        .onChanged(aDouble -> setting.value = aDouble.floatValue())
+                        .onModuleActivated(doubleSetting -> doubleSetting.set(((Float) setting.value).doubleValue()))
+                        .build()
+                    );
+                } else if (value instanceof Integer)
+                {
+                    Setting<Integer> wrapper = sgInt.add(new IntSetting.Builder()
+                        .name(setting.getName())
+                        .description(getDescription(setting.getName()))
+                        .defaultValue((int) setting.defaultValue)
+                        .onChanged(integer -> setting.value = integer)
+                        .onModuleActivated(integerSetting -> integerSetting.set((Integer) setting.value))
+                        .build()
+                    );
+
+                    if (wrapper.name.equals("maxFallHeightNoWater"))
+                    {
+                        noFall = new BoolSetting.Builder()
+                            .name(wrapper.name)
+                            .description(wrapper.description)
+                            .defaultValue(false)
+                            .onChanged(aBoolean -> wrapper.set(aBoolean ? 159159 : wrapper.getDefaultValue()))
+                            .onModuleActivated(booleanSetting -> booleanSetting.set(wrapper.get() >= 255))
+                            .build();
+                    }
+                } else if (value instanceof Long)
+                {
+                    sgInt.add(new IntSetting.Builder()
+                        .name(setting.getName())
+                        .description(getDescription(setting.getName()))
+                        .defaultValue(((Long) setting.defaultValue).intValue())
+                        .onChanged(integer -> setting.value = integer.longValue())
+                        .onModuleActivated(integerSetting -> integerSetting.set(((Long) setting.value).intValue()))
+                        .build()
+                    );
+                } else if (value instanceof String)
+                {
+                    sgString.add(new StringSetting.Builder()
+                        .name(setting.getName())
+                        .description(getDescription(setting.getName()))
+                        .defaultValue((String) setting.defaultValue)
+                        .onChanged(string -> setting.value = string)
+                        .onModuleActivated(stringSetting -> stringSetting.set((String) setting.value))
+                        .build()
+                    );
+                } else if (value instanceof Color)
+                {
+                    Color c = (Color) setting.value;
+
+                    sgColor.add(new ColorSetting.Builder()
+                        .name(setting.getName())
+                        .description(getDescription(setting.getName()))
+                        .defaultValue(new SettingColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()))
+                        .onChanged(color -> setting.value = new Color(color.r, color.g, color.b, color.a))
+                        .onModuleActivated(colorSetting -> colorSetting.set(new SettingColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha())))
+                        .build()
+                    );
+                } else if (value instanceof List)
+                {
+                    Type listType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                    Type type = ((ParameterizedType) listType).getActualTypeArguments()[0];
+
+                    if (type == Block.class)
+                    {
+                        sgBlockLists.add(new BlockListSetting.Builder()
+                            .name(setting.getName())
+                            .description(getDescription(setting.getName()))
+                            .defaultValue((List<Block>) setting.defaultValue)
+                            .onChanged(blockList -> setting.value = blockList)
+                            .onModuleActivated(blockListSetting -> blockListSetting.set((List<Block>) setting.value))
+                            .build()
+                        );
+                    } else if (type == Item.class)
+                    {
+                        sgItemLists.add(new ItemListSetting.Builder()
+                            .name(setting.getName())
+                            .description(getDescription(setting.getName()))
+                            .defaultValue((List<Item>) setting.defaultValue)
+                            .onChanged(itemList -> setting.value = itemList)
+                            .onModuleActivated(itemListSetting -> itemListSetting.set((List<Item>) setting.value))
+                            .build()
+                        );
+                    }
+                }
+            }
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

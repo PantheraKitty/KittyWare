@@ -11,7 +11,8 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Identifier.class)
-public interface IdentifierAccessor {
+public interface IdentifierAccessor
+{
     @Mutable
     @Accessor
     void setPath(String path);

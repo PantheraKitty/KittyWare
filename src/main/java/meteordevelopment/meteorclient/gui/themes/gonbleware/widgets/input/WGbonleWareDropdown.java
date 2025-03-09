@@ -11,23 +11,28 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.input.WDropdown;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public class WGbonleWareDropdown<T> extends WDropdown<T> implements GonbleWareWidget {
-    public WGbonleWareDropdown(T[] values, T value) {
+public class WGbonleWareDropdown<T> extends WDropdown<T> implements GonbleWareWidget
+{
+    public WGbonleWareDropdown(T[] values, T value)
+    {
         super(values, value);
     }
 
     @Override
-    protected WDropdownRoot createRootWidget() {
+    protected WDropdownRoot createRootWidget()
+    {
         return new WRoot();
     }
 
     @Override
-    protected WDropdownValue createValueWidget() {
+    protected WDropdownValue createValueWidget()
+    {
         return new WValue();
     }
 
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         GonbleWareGuiTheme theme = theme();
         double pad = pad();
         double s = theme.textHeight();
@@ -41,9 +46,11 @@ public class WGbonleWareDropdown<T> extends WDropdown<T> implements GonbleWareWi
         renderer.rotatedQuad(x + pad + maxValueWidth + pad, y + pad, s, s, 0, GuiRenderer.TRIANGLE, theme.textColor.get());
     }
 
-    private static class WRoot extends WDropdownRoot implements GonbleWareWidget {
+    private static class WRoot extends WDropdownRoot implements GonbleWareWidget
+    {
         @Override
-        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+        {
             GonbleWareGuiTheme theme = theme();
             double s = theme.scale(2);
             Color c = theme.outlineColor.get();
@@ -54,9 +61,11 @@ public class WGbonleWareDropdown<T> extends WDropdown<T> implements GonbleWareWi
         }
     }
 
-    private class WValue extends WDropdownValue implements GonbleWareWidget {
+    private class WValue extends WDropdownValue implements GonbleWareWidget
+    {
         @Override
-        protected void onCalculateSize() {
+        protected void onCalculateSize()
+        {
             double pad = pad();
 
             width = pad + theme.textWidth(value.toString()) + pad;
@@ -64,7 +73,8 @@ public class WGbonleWareDropdown<T> extends WDropdown<T> implements GonbleWareWi
         }
 
         @Override
-        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+        {
             GonbleWareGuiTheme theme = theme();
 
             Color color = theme.backgroundColor.get(pressed, mouseOver, true);

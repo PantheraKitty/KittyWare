@@ -24,7 +24,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-public class AntiBed extends Module {
+public class AntiBed extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> placeStringTop = sgGeneral.add(new BoolSetting.Builder()
@@ -57,21 +58,25 @@ public class AntiBed extends Module {
 
     private boolean breaking;
 
-    public AntiBed() {
+    public AntiBed()
+    {
         super(Categories.Combat, "anti-bed", "Places string to prevent beds being placed on you.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (onlyInHole.get() && !PlayerUtils.isInHole(true)) return;
 
         // Checking for and maybe breaking bed
         BlockPos head = mc.player.getBlockPos().up();
 
-        if (mc.world.getBlockState(head).getBlock() instanceof BedBlock && !breaking) {
+        if (mc.world.getBlockState(head).getBlock() instanceof BedBlock && !breaking)
+        {
             Rotations.rotate(Rotations.getYaw(head), Rotations.getPitch(head), 50, () -> sendMinePackets(head));
             breaking = true;
-        } else if (breaking) {
+        } else if (breaking)
+        {
             Rotations.rotate(Rotations.getYaw(head), Rotations.getPitch(head), 50, () -> sendStopPackets(head));
             breaking = false;
         }
@@ -82,18 +87,22 @@ public class AntiBed extends Module {
         if (placeStringBottom.get()) place(mc.player.getBlockPos());
     }
 
-    private void place(BlockPos blockPos) {
-        if (mc.world.getBlockState(blockPos).getBlock().asItem() != Items.STRING) {
+    private void place(BlockPos blockPos)
+    {
+        if (mc.world.getBlockState(blockPos).getBlock().asItem() != Items.STRING)
+        {
             BlockUtils.place(blockPos, InvUtils.findInHotbar(Items.STRING), 50, false);
         }
     }
 
-    private void sendMinePackets(BlockPos blockPos) {
+    private void sendMinePackets(BlockPos blockPos)
+    {
         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, Direction.UP));
         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, Direction.UP));
     }
 
-    private void sendStopPackets(BlockPos blockPos) {
+    private void sendStopPackets(BlockPos blockPos)
+    {
         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, blockPos, Direction.UP));
         mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
     }

@@ -32,7 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class VeinMiner extends Module {
+public class VeinMiner extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
@@ -134,19 +135,23 @@ public class VeinMiner extends Module {
 
     private int tick = 0;
 
-    public VeinMiner() {
+    public VeinMiner()
+    {
         super(Categories.World, "vein-miner", "Mines all nearby blocks with this type");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         for (MyBlock block : blocks) blockPool.free(block);
         blocks.clear();
         foundBlockPositions.clear();
     }
 
-    private boolean isMiningBlock(BlockPos pos) {
-        for (MyBlock block : blocks) {
+    private boolean isMiningBlock(BlockPos pos)
+    {
+        for (MyBlock block : blocks)
+        {
             if (block.blockPos.equals(pos)) return true;
         }
 
@@ -154,7 +159,8 @@ public class VeinMiner extends Module {
     }
 
     @EventHandler
-    private void onStartBreakingBlock(StartBreakingBlockEvent event) {
+    private void onStartBreakingBlock(StartBreakingBlockEvent event)
+    {
         BlockState state = mc.world.getBlockState(event.blockPos);
 
         if (state.getHardness(mc.world, event.blockPos) < 0)
@@ -166,20 +172,24 @@ public class VeinMiner extends Module {
 
         foundBlockPositions.clear();
 
-        if (!isMiningBlock(event.blockPos)) {
+        if (!isMiningBlock(event.blockPos))
+        {
             MyBlock block = blockPool.get();
             block.set(event);
             blocks.add(block);
-            mineNearbyBlocks(block.originalBlock.asItem(),event.blockPos,event.direction,depth.get());
+            mineNearbyBlocks(block.originalBlock.asItem(), event.blockPos, event.direction, depth.get());
         }
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         blocks.removeIf(MyBlock::shouldRemove);
 
-        if (!blocks.isEmpty()) {
-            if (tick < delay.get() && !blocks.getFirst().mining) {
+        if (!blocks.isEmpty())
+        {
+            if (tick < delay.get() && !blocks.getFirst().mining)
+            {
                 tick++;
                 return;
             }
@@ -189,50 +199,93 @@ public class VeinMiner extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
-        if (render.get()) {
+    private void onRender(Render3DEvent event)
+    {
+        if (render.get())
+        {
             for (MyBlock block : blocks) block.render(event);
         }
     }
 
-    private class MyBlock {
+    private void mineNearbyBlocks(Item item, BlockPos pos, Direction dir, int depth)
+    {
+        if (depth <= 0) return;
+        if (foundBlockPositions.contains(pos)) return;
+        foundBlockPositions.add(pos);
+        if (Utils.distance(mc.player.getX() - 0.5, mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ() - 0.5, pos.getX(), pos.getY(), pos.getZ()) > mc.player.getBlockInteractionRange())
+            return;
+        for (Vec3i neighbourOffset : blockNeighbours)
+        {
+            BlockPos neighbour = pos.add(neighbourOffset);
+            if (mc.world.getBlockState(neighbour).getBlock().asItem() == item)
+            {
+                MyBlock block = blockPool.get();
+                block.set(neighbour, dir);
+                blocks.add(block);
+                mineNearbyBlocks(item, neighbour, dir, depth - 1);
+            }
+        }
+    }
+
+    @Override
+    public String getInfoString()
+    {
+        return mode.get().toString() + " (" + selectedBlocks.get().size() + ")";
+    }
+
+    public enum ListMode
+    {
+        Whitelist,
+        Blacklist
+    }
+
+    private class MyBlock
+    {
         public BlockPos blockPos;
         public Direction direction;
         public Block originalBlock;
         public boolean mining;
 
-        public void set(StartBreakingBlockEvent event) {
+        public void set(StartBreakingBlockEvent event)
+        {
             this.blockPos = event.blockPos;
             this.direction = event.direction;
             this.originalBlock = mc.world.getBlockState(blockPos).getBlock();
             this.mining = false;
         }
 
-        public void set(BlockPos pos, Direction dir) {
+        public void set(BlockPos pos, Direction dir)
+        {
             this.blockPos = pos;
             this.direction = dir;
             this.originalBlock = mc.world.getBlockState(pos).getBlock();
             this.mining = false;
         }
 
-        public boolean shouldRemove() {
+        public boolean shouldRemove()
+        {
             return mc.world.getBlockState(blockPos).getBlock() != originalBlock || Utils.distance(mc.player.getX() - 0.5, mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ() - 0.5, blockPos.getX() + direction.getOffsetX(), blockPos.getY() + direction.getOffsetY(), blockPos.getZ() + direction.getOffsetZ()) > mc.player.getBlockInteractionRange();
         }
 
-        public void mine() {
-            if (!mining) {
+        public void mine()
+        {
+            if (!mining)
+            {
                 mc.player.swingHand(Hand.MAIN_HAND);
                 mining = true;
             }
-            if (rotate.get()) Rotations.rotate(Rotations.getYaw(blockPos), Rotations.getPitch(blockPos), 50, this::updateBlockBreakingProgress);
+            if (rotate.get())
+                Rotations.rotate(Rotations.getYaw(blockPos), Rotations.getPitch(blockPos), 50, this::updateBlockBreakingProgress);
             else updateBlockBreakingProgress();
         }
 
-        private void updateBlockBreakingProgress() {
+        private void updateBlockBreakingProgress()
+        {
             BlockUtils.breakBlock(blockPos, swingHand.get());
         }
 
-        public void render(Render3DEvent event) {
+        public void render(Render3DEvent event)
+        {
             VoxelShape shape = mc.world.getBlockState(blockPos).getOutlineShape(mc.world, blockPos);
 
             double x1 = blockPos.getX();
@@ -242,7 +295,8 @@ public class VeinMiner extends Module {
             double y2 = blockPos.getY() + 1;
             double z2 = blockPos.getZ() + 1;
 
-            if (!shape.isEmpty()) {
+            if (!shape.isEmpty())
+            {
                 x1 = blockPos.getX() + shape.getMin(Direction.Axis.X);
                 y1 = blockPos.getY() + shape.getMin(Direction.Axis.Y);
                 z1 = blockPos.getZ() + shape.getMin(Direction.Axis.Z);
@@ -253,31 +307,5 @@ public class VeinMiner extends Module {
 
             event.renderer.box(x1, y1, z1, x2, y2, z2, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
         }
-    }
-
-    private void mineNearbyBlocks(Item item, BlockPos pos, Direction dir, int depth) {
-        if (depth<=0) return;
-        if (foundBlockPositions.contains(pos)) return;
-        foundBlockPositions.add(pos);
-        if (Utils.distance(mc.player.getX() - 0.5, mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ() - 0.5, pos.getX(), pos.getY(), pos.getZ()) > mc.player.getBlockInteractionRange()) return;
-        for(Vec3i neighbourOffset: blockNeighbours) {
-            BlockPos neighbour = pos.add(neighbourOffset);
-            if (mc.world.getBlockState(neighbour).getBlock().asItem() == item) {
-                MyBlock block = blockPool.get();
-                block.set(neighbour,dir);
-                blocks.add(block);
-                mineNearbyBlocks(item, neighbour, dir, depth-1);
-            }
-        }
-    }
-
-    @Override
-    public String getInfoString() {
-        return mode.get().toString() + " (" + selectedBlocks.get().size() + ")";
-    }
-
-    public enum ListMode {
-        Whitelist,
-        Blacklist
     }
 }

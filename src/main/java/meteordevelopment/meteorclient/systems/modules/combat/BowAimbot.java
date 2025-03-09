@@ -30,7 +30,8 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Set;
 
-public class BowAimbot extends Module {
+public class BowAimbot extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
@@ -81,45 +82,55 @@ public class BowAimbot extends Module {
     private boolean wasPathing;
     private Entity target;
 
-    public BowAimbot() {
+    public BowAimbot()
+    {
         super(Categories.Combat, "bow-aimbot", "Automatically aims your bow for you.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         target = null;
         wasPathing = false;
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (!PlayerUtils.isAlive() || !itemInHand()) return;
-        if (!mc.player.getAbilities().creativeMode && !InvUtils.find(itemStack -> itemStack.getItem() instanceof ArrowItem).found()) return;
+        if (!mc.player.getAbilities().creativeMode && !InvUtils.find(itemStack -> itemStack.getItem() instanceof ArrowItem).found())
+            return;
 
-        target = TargetUtils.get(entity -> {
+        target = TargetUtils.get(entity ->
+        {
             if (entity == mc.player || entity == mc.cameraEntity) return false;
             if ((entity instanceof LivingEntity && ((LivingEntity) entity).isDead()) || !entity.isAlive()) return false;
             if (!PlayerUtils.isWithin(entity, range.get())) return false;
             if (!entities.get().contains(entity.getType())) return false;
             if (!nametagged.get() && entity.hasCustomName()) return false;
             if (!PlayerUtils.canSeeEntity(entity)) return false;
-            if (entity instanceof PlayerEntity) {
+            if (entity instanceof PlayerEntity)
+            {
                 if (((PlayerEntity) entity).isCreative()) return false;
                 if (!Friends.get().shouldAttack((PlayerEntity) entity)) return false;
             }
             return !(entity instanceof AnimalEntity) || babies.get() || !((AnimalEntity) entity).isBaby();
         }, priority.get());
 
-        if (target == null) {
-            if (wasPathing) {
+        if (target == null)
+        {
+            if (wasPathing)
+            {
                 PathManagers.get().resume();
                 wasPathing = false;
             }
             return;
         }
 
-        if (mc.options.useKey.isPressed() && itemInHand()) {
-            if (pauseOnCombat.get() && PathManagers.get().isPathing() && !wasPathing) {
+        if (mc.options.useKey.isPressed() && itemInHand())
+        {
+            if (pauseOnCombat.get() && PathManagers.get().isPathing() && !wasPathing)
+            {
                 PathManagers.get().pause();
                 wasPathing = true;
             }
@@ -127,11 +138,13 @@ public class BowAimbot extends Module {
         }
     }
 
-    private boolean itemInHand() {
+    private boolean itemInHand()
+    {
         return InvUtils.testInMainHand(Items.BOW, Items.CROSSBOW);
     }
 
-    private void aim(float tickDelta) {
+    private void aim(float tickDelta)
+    {
         // Velocity based on bow charge.
         float velocity = BowItem.getPullProgress(mc.player.getItemUseTime());
 
@@ -150,15 +163,18 @@ public class BowAimbot extends Module {
         float pitch = (float) -Math.toDegrees(Math.atan((velocitySq - Math.sqrt(velocitySq * velocitySq - g * (g * hDistanceSq + 2 * relativeY * velocitySq))) / (g * hDistance)));
 
         // Set player rotation
-        if (Float.isNaN(pitch)) {
+        if (Float.isNaN(pitch))
+        {
             Rotations.rotate(Rotations.getYaw(target), Rotations.getPitch(target));
-        } else {
+        } else
+        {
             Rotations.rotate(Rotations.getYaw(new Vec3d(pos.x, pos.y, pos.z)), pitch);
         }
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return EntityUtils.getName(target);
     }
 }

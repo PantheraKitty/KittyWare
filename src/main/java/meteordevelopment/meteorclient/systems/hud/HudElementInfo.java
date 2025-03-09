@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class HudElementInfo<T extends HudElement> {
+public class HudElementInfo<T extends HudElement>
+{
     public final HudGroup group;
     public final String name;
     public final String title;
@@ -22,7 +23,8 @@ public class HudElementInfo<T extends HudElement> {
     public final Supplier<T> factory;
     public final List<Preset> presets;
 
-    public HudElementInfo(HudGroup group, String name, String title, String description, Supplier<T> factory) {
+    public HudElementInfo(HudGroup group, String name, String title, String description, Supplier<T> factory)
+    {
         this.group = group;
         this.name = name;
         this.title = title;
@@ -32,11 +34,13 @@ public class HudElementInfo<T extends HudElement> {
         this.presets = new ArrayList<>();
     }
 
-    public HudElementInfo(HudGroup group, String name, String description, Supplier<T> factory) {
+    public HudElementInfo(HudGroup group, String name, String description, Supplier<T> factory)
+    {
         this(group, name, Utils.nameToTitle(name), description, factory);
     }
 
-    public Preset addPreset(String title, Consumer<T> callback) {
+    public Preset addPreset(String title, Consumer<T> callback)
+    {
         Preset preset = new Preset(this, title, callback);
 
         presets.add(preset);
@@ -45,20 +49,24 @@ public class HudElementInfo<T extends HudElement> {
         return preset;
     }
 
-    public boolean hasPresets() {
+    public boolean hasPresets()
+    {
         return !presets.isEmpty();
     }
 
-    public HudElement create() {
+    public HudElement create()
+    {
         return factory.get();
     }
 
-    public class Preset {
+    public class Preset
+    {
         public final HudElementInfo<?> info;
         public final String title;
         public final Consumer<T> callback;
 
-        public Preset(HudElementInfo<?> info, String title, Consumer<T> callback) {
+        public Preset(HudElementInfo<?> info, String title, Consumer<T> callback)
+        {
             this.info = info;
             this.title = title;
             this.callback = callback;

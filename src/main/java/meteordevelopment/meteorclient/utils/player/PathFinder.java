@@ -20,20 +20,25 @@ import java.util.ArrayList;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class PathFinder {
+public class PathFinder
+{
     private static final int PATH_AHEAD = 3;
     private static final int QUAD_1 = 1, QUAD_2 = 2, SOUTH = 0, NORTH = 180;
     private final ArrayList<PathBlock> path = new ArrayList<>(PATH_AHEAD);
     private Entity target;
     private PathBlock currentPathBlock;
 
-    public PathBlock getNextPathBlock() {
+    public PathBlock getNextPathBlock()
+    {
         PathBlock nextBlock = new PathBlock(BlockPos.ofFloored(getNextStraightPos()));
-        if (isSolidFloor(nextBlock.blockPos) && isAirAbove(nextBlock.blockPos)) {
+        if (isSolidFloor(nextBlock.blockPos) && isAirAbove(nextBlock.blockPos))
+        {
             return nextBlock;
-        } else if (!isSolidFloor(nextBlock.blockPos) && isAirAbove(nextBlock.blockPos)) {
+        } else if (!isSolidFloor(nextBlock.blockPos) && isAirAbove(nextBlock.blockPos))
+        {
             int drop = getDrop(nextBlock.blockPos);
-            if (getDrop(nextBlock.blockPos) < 3) {
+            if (getDrop(nextBlock.blockPos) < 3)
+            {
                 nextBlock = new PathBlock(new BlockPos(nextBlock.blockPos.getX(), nextBlock.blockPos.getY() - drop, nextBlock.blockPos.getZ()));
             }
         }
@@ -41,32 +46,38 @@ public class PathFinder {
         return nextBlock;
     }
 
-    public int getDrop(BlockPos pos) {
+    public int getDrop(BlockPos pos)
+    {
         int drop = 0;
-        while (!isSolidFloor(pos) && drop < 3) {
+        while (!isSolidFloor(pos) && drop < 3)
+        {
             drop++;
             pos = new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
         }
         return drop;
     }
 
-    public boolean isAirAbove(BlockPos blockPos) {
+    public boolean isAirAbove(BlockPos blockPos)
+    {
         if (!getBlockStateAtPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()).isAir())
             return false;
         return getBlockStateAtPos(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ()).isAir();
     }
 
-    public Vec3d getNextStraightPos() {
+    public Vec3d getNextStraightPos()
+    {
         Vec3d nextPos = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
         double multiplier = 1.0;
-        while (nextPos == mc.player.getPos()) {
+        while (nextPos == mc.player.getPos())
+        {
             nextPos = new Vec3d((int) (mc.player.getX() + multiplier * Math.cos(Math.toRadians(mc.player.getYaw()))), (int) (mc.player.getY()), (int) (mc.player.getZ() + multiplier * Math.sin(Math.toRadians(mc.player.getYaw()))));
             multiplier += .1;
         }
         return nextPos;
     }
 
-    public int getYawToTarget() {
+    public int getYawToTarget()
+    {
         if (target == null || mc.player == null) return Integer.MAX_VALUE;
         Vec3d tPos = target.getPos();
         Vec3d pPos = mc.player.getPos();
@@ -81,7 +92,8 @@ public class PathFinder {
         return yaw;
     }
 
-    public int getDirection() {
+    public int getDirection()
+    {
         if (target == null || mc.player == null) return 0;
         Vec3d targetPos = target.getPos();
         Vec3d playerPos = mc.player.getPos();
@@ -96,53 +108,65 @@ public class PathFinder {
         return 0;
     }
 
-    public BlockState getBlockStateAtPos(BlockPos pos) {
+    public BlockState getBlockStateAtPos(BlockPos pos)
+    {
         if (mc.world != null)
             return mc.world.getBlockState(pos);
         return null;
     }
 
-    public BlockState getBlockStateAtPos(int x, int y, int z) {
+    public BlockState getBlockStateAtPos(int x, int y, int z)
+    {
         if (mc.world != null)
             return mc.world.getBlockState(new BlockPos(x, y, z));
         return null;
     }
 
-    public Block getBlockAtPos(BlockPos pos) {
+    public Block getBlockAtPos(BlockPos pos)
+    {
         if (mc.world != null)
             return mc.world.getBlockState(pos).getBlock();
         return null;
     }
 
-    public boolean isSolidFloor(BlockPos blockPos) {
+    public boolean isSolidFloor(BlockPos blockPos)
+    {
         return isAir(getBlockAtPos(blockPos));
     }
 
-    public boolean isAir(Block block) {
+    public boolean isAir(Block block)
+    {
         return block == Blocks.AIR;
     }
 
-    public boolean isWater(Block block) {
+    public boolean isWater(Block block)
+    {
         return block == Blocks.WATER;
     }
 
-    public void lookAtDestination(PathBlock pathBlock) {
-        if (mc.player != null) {
+    public void lookAtDestination(PathBlock pathBlock)
+    {
+        if (mc.player != null)
+        {
             mc.player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, new Vec3d(pathBlock.blockPos.getX(), pathBlock.blockPos.getY() + mc.player.getStandingEyeHeight(), pathBlock.blockPos.getZ()));
         }
     }
 
     @EventHandler
-    private void moveEventListener(PlayerMoveEvent event) {
-        if (target != null && mc.player != null) {
-            if (!PlayerUtils.isWithin(target, 3)) {
+    private void moveEventListener(PlayerMoveEvent event)
+    {
+        if (target != null && mc.player != null)
+        {
+            if (!PlayerUtils.isWithin(target, 3))
+            {
                 if (currentPathBlock == null) currentPathBlock = getNextPathBlock();
                 if (mc.player.getPos().squaredDistanceTo(new Vec3d(currentPathBlock.blockPos.getX(), currentPathBlock.blockPos.getY(), currentPathBlock.blockPos.getZ())) < .01)
                     currentPathBlock = getNextPathBlock();
                 lookAtDestination(currentPathBlock);
                 if (!mc.options.forwardKey.isPressed())
                     mc.options.forwardKey.setPressed(true);
-            } else {
+            } else
+            {
                 if (mc.options.forwardKey.isPressed())
                     mc.options.forwardKey.setPressed(false);
                 path.clear();
@@ -151,38 +175,44 @@ public class PathFinder {
         }
     }
 
-    public void initiate(Entity entity) {
+    public void initiate(Entity entity)
+    {
         target = entity;
         if (target != null) currentPathBlock = getNextPathBlock();
         MeteorClient.EVENT_BUS.subscribe(this);
     }
 
-    public void disable() {
+    public void disable()
+    {
         target = null;
         path.clear();
         if (mc.options.forwardKey.isPressed()) mc.options.forwardKey.setPressed(false);
         MeteorClient.EVENT_BUS.unsubscribe(this);
     }
 
-    public class PathBlock {
+    public class PathBlock
+    {
         public final Block block;
         public final BlockPos blockPos;
         public final BlockState blockState;
         public double yaw;
 
-        public PathBlock(Block b, BlockPos pos, BlockState state) {
+        public PathBlock(Block b, BlockPos pos, BlockState state)
+        {
             block = b;
             blockPos = pos;
             blockState = state;
         }
 
-        public PathBlock(Block b, BlockPos pos) {
+        public PathBlock(Block b, BlockPos pos)
+        {
             block = b;
             blockPos = pos;
             blockState = getBlockStateAtPos(blockPos);
         }
 
-        public PathBlock(BlockPos pos) {
+        public PathBlock(BlockPos pos)
+        {
             blockPos = pos;
             block = getBlockAtPos(pos);
             blockState = getBlockStateAtPos(blockPos);

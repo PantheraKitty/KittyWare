@@ -22,7 +22,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 
-public class ClickTP extends Module {
+public class ClickTP extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> maxDistance = sgGeneral.add(new DoubleSetting.Builder()
@@ -32,24 +33,30 @@ public class ClickTP extends Module {
         .build()
     );
 
-    public ClickTP() {
+    public ClickTP()
+    {
         super(Categories.Movement, "click-tp", "Teleports you to the block you click on.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (mc.player.isUsingItem()) return;
 
-        if (mc.options.useKey.isPressed()) {
+        if (mc.options.useKey.isPressed())
+        {
             HitResult hitResult = mc.player.raycast(maxDistance.get(), 1f / 20f, false);
 
-            if (hitResult.getType() == HitResult.Type.ENTITY && mc.player.interact(((EntityHitResult) hitResult).getEntity(), Hand.MAIN_HAND) != ActionResult.PASS) return;
+            if (hitResult.getType() == HitResult.Type.ENTITY && mc.player.interact(((EntityHitResult) hitResult).getEntity(), Hand.MAIN_HAND) != ActionResult.PASS)
+                return;
 
-            if (hitResult.getType() == HitResult.Type.BLOCK) {
+            if (hitResult.getType() == HitResult.Type.BLOCK)
+            {
                 BlockPos pos = ((BlockHitResult) hitResult).getBlockPos();
                 Direction side = ((BlockHitResult) hitResult).getSide();
 
-                if (mc.world.getBlockState(pos).onUse(mc.world, mc.player, (BlockHitResult) hitResult) != ActionResult.PASS) return;
+                if (mc.world.getBlockState(pos).onUse(mc.world, mc.player, (BlockHitResult) hitResult) != ActionResult.PASS)
+                    return;
 
                 BlockState state = mc.world.getBlockState(pos);
 

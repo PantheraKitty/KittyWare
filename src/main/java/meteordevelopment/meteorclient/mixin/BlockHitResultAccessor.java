@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(BlockHitResult.class)
-public interface BlockHitResultAccessor {
+public interface BlockHitResultAccessor
+{
     @Mutable
     @Accessor("side")
     void setSide(Direction direction);

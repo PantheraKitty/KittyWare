@@ -12,22 +12,20 @@ import net.minecraft.util.math.MathHelper;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
-public abstract class WSection extends WVerticalList {
+public abstract class WSection extends WVerticalList
+{
+    protected final WWidget headerWidget;
     public Runnable action;
-
     protected String title;
-
     protected boolean expanded;
     protected double animProgress;
-
     private WHeader header;
-    protected final WWidget headerWidget;
-
     private double actualWidth, actualHeight;
     private double forcedHeight = -1;
     private boolean firstTime = true;
 
-    public WSection(String title, boolean expanded, WWidget headerWidget) {
+    public WSection(String title, boolean expanded, WWidget headerWidget)
+    {
         this.title = title;
         this.expanded = expanded;
         this.headerWidget = headerWidget;
@@ -36,7 +34,8 @@ public abstract class WSection extends WVerticalList {
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         header = createHeader();
         header.theme = theme;
 
@@ -44,36 +43,42 @@ public abstract class WSection extends WVerticalList {
     }
 
     @Override
-    public <T extends WWidget> Cell<T> add(T widget) {
+    public <T extends WWidget> Cell<T> add(T widget)
+    {
         return super.add(widget).padHorizontal(6);
     }
 
     protected abstract WHeader createHeader();
 
-    public void setExpanded(boolean expanded) {
-        this.expanded = expanded;
-    }
-
-    public boolean isExpanded() {
+    public boolean isExpanded()
+    {
         return expanded;
     }
 
+    public void setExpanded(boolean expanded)
+    {
+        this.expanded = expanded;
+    }
+
     @Override
-    protected void onCalculateSize() {
-        if (forcedHeight == -1) {
+    protected void onCalculateSize()
+    {
+        if (forcedHeight == -1)
+        {
             super.onCalculateSize();
 
             actualWidth = width;
             actualHeight = height;
-        }
-        else {
+        } else
+        {
             width = actualWidth;
             height = forcedHeight;
 
             if (animProgress == 1) forcedHeight = -1;
         }
 
-        if (firstTime) {
+        if (firstTime)
+        {
             firstTime = false;
 
             forcedHeight = (actualHeight - header.height) * animProgress + header.height;
@@ -82,7 +87,8 @@ public abstract class WSection extends WVerticalList {
     }
 
     @Override
-    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         if (!visible) return true;
 
         double preProgress = animProgress;
@@ -90,7 +96,8 @@ public abstract class WSection extends WVerticalList {
         animProgress += (expanded ? 1 : -1) * delta * 14;
         animProgress = MathHelper.clamp(animProgress, 0, 1);
 
-        if (animProgress != preProgress) {
+        if (animProgress != preProgress)
+        {
             forcedHeight = (actualHeight - header.height) * animProgress + header.height;
             invalidate();
         }
@@ -104,27 +111,34 @@ public abstract class WSection extends WVerticalList {
     }
 
     @Override
-    protected void renderWidget(WWidget widget, GuiRenderer renderer, double mouseX, double mouseY, double delta) {
-        if (expanded || animProgress > 0 || widget instanceof WHeader) {
+    protected void renderWidget(WWidget widget, GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
+        if (expanded || animProgress > 0 || widget instanceof WHeader)
+        {
             widget.render(renderer, mouseX, mouseY, delta);
         }
     }
 
     @Override
-    protected boolean propagateEvents(WWidget widget) {
+    protected boolean propagateEvents(WWidget widget)
+    {
         return expanded || widget instanceof WHeader;
     }
 
-    protected abstract class WHeader extends WHorizontalList {
+    protected abstract class WHeader extends WHorizontalList
+    {
         protected String title;
 
-        public WHeader(String title) {
+        public WHeader(String title)
+        {
             this.title = title;
         }
 
         @Override
-        public boolean onMouseClicked(double mouseX, double mouseY, int button, boolean used) {
-            if (mouseOver && button == GLFW_MOUSE_BUTTON_LEFT && !used) {
+        public boolean onMouseClicked(double mouseX, double mouseY, int button, boolean used)
+        {
+            if (mouseOver && button == GLFW_MOUSE_BUTTON_LEFT && !used)
+            {
                 onClick();
                 return true;
             }
@@ -132,7 +146,8 @@ public abstract class WSection extends WVerticalList {
             return false;
         }
 
-        protected void onClick() {
+        protected void onClick()
+        {
             setExpanded(!expanded);
 
             if (action != null) action.run();

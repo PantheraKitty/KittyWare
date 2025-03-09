@@ -11,17 +11,20 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 
-public class CollisionShapeEvent extends Cancellable {
+public class CollisionShapeEvent extends Cancellable
+{
     private static final CollisionShapeEvent INSTANCE = new CollisionShapeEvent();
 
     public BlockState state;
     public BlockPos pos;
     public VoxelShape shape;
 
-    public static CollisionShapeEvent get(BlockState state, BlockPos pos, VoxelShape shape) {
+    public static CollisionShapeEvent get(BlockState state, BlockPos pos, VoxelShape shape)
+    {
         CollisionShapeEvent event = INSTANCE;
 
-        if (!RenderSystem.isOnRenderThread()) {
+        if (!RenderSystem.isOnRenderThread())
+        {
             event = new CollisionShapeEvent();
         }
 

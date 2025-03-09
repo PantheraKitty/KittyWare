@@ -11,8 +11,8 @@ import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.entity.player.ItemUseCrosshairTargetEvent;
 import meteordevelopment.meteorclient.events.game.GameLeftEvent;
 import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
-import meteordevelopment.meteorclient.events.game.ResourcePacksReloadedEvent;
 import meteordevelopment.meteorclient.events.game.ResolutionChangedEvent;
+import meteordevelopment.meteorclient.events.game.ResourcePacksReloadedEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.gui.WidgetScreen;
 import meteordevelopment.meteorclient.mixininterface.IMinecraftClient;
@@ -53,41 +53,57 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(value = MinecraftClient.class, priority = 1001)
-public abstract class MinecraftClientMixin implements IMinecraftClient {
-    @Unique private boolean doItemUseCalled;
-    @Unique private boolean rightClick;
-    @Unique private long lastTime;
-    @Unique private boolean firstFrame;
-
-    @Shadow public ClientWorld world;
-    @Shadow @Final public Mouse mouse;
-    @Shadow @Final private Window window;
-    @Shadow public Screen currentScreen;
-    @Shadow @Final public GameOptions options;
-
-    @Shadow protected abstract void doItemUse();
-    @Shadow public abstract Profiler getProfiler();
-    @Shadow public abstract boolean isWindowFocused();
-
+public abstract class MinecraftClientMixin implements IMinecraftClient
+{
+    @Shadow
+    public ClientWorld world;
+    @Shadow
+    @Final
+    public Mouse mouse;
+    @Shadow
+    public Screen currentScreen;
+    @Shadow
+    @Final
+    public GameOptions options;
     @Shadow
     @Nullable
     public ClientPlayerInteractionManager interactionManager;
-
+    @Shadow
+    @Nullable
+    public ClientPlayerEntity player;
+    @Unique
+    private boolean doItemUseCalled;
+    @Unique
+    private boolean rightClick;
+    @Unique
+    private long lastTime;
+    @Unique
+    private boolean firstFrame;
+    @Shadow
+    @Final
+    private Window window;
     @Shadow
     private int itemUseCooldown;
 
     @Shadow
-    @Nullable
-    public ClientPlayerEntity player;
+    protected abstract void doItemUse();
+
+    @Shadow
+    public abstract Profiler getProfiler();
+
+    @Shadow
+    public abstract boolean isWindowFocused();
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onInit(CallbackInfo info) {
+    private void onInit(CallbackInfo info)
+    {
         MeteorClient.INSTANCE.onInitializeClient();
         firstFrame = true;
     }
 
     @Inject(at = @At("HEAD"), method = "tick")
-    private void onPreTick(CallbackInfo info) {
+    private void onPreTick(CallbackInfo info)
+    {
         OnlinePlayers.update();
 
         doItemUseCalled = false;
@@ -101,32 +117,39 @@ public abstract class MinecraftClientMixin implements IMinecraftClient {
     }
 
     @Inject(at = @At("TAIL"), method = "tick")
-    private void onTick(CallbackInfo info) {
+    private void onTick(CallbackInfo info)
+    {
         getProfiler().push(MeteorClient.MOD_ID + "_post_update");
         MeteorClient.EVENT_BUS.post(TickEvent.Post.get());
         getProfiler().pop();
     }
 
     @Inject(method = "doAttack", at = @At("HEAD"))
-    private void onAttack(CallbackInfoReturnable<Boolean> cir) {
+    private void onAttack(CallbackInfoReturnable<Boolean> cir)
+    {
         CPSUtils.onAttack();
     }
 
     @Inject(method = "doItemUse", at = @At("HEAD"))
-    private void onDoItemUse(CallbackInfo info) {
+    private void onDoItemUse(CallbackInfo info)
+    {
         doItemUseCalled = true;
     }
 
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;Z)V", at = @At("HEAD"))
-    private void onDisconnect(Screen screen, boolean transferring, CallbackInfo info) {
-        if (world != null) {
+    private void onDisconnect(Screen screen, boolean transferring, CallbackInfo info)
+    {
+        if (world != null)
+        {
             MeteorClient.EVENT_BUS.post(GameLeftEvent.get());
         }
     }
 
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
-    private void onSetScreen(Screen screen, CallbackInfo info) {
-        if (screen instanceof WidgetScreen) screen.mouseMoved(mouse.getX() * window.getScaleFactor(), mouse.getY() * window.getScaleFactor());
+    private void onSetScreen(Screen screen, CallbackInfo info)
+    {
+        if (screen instanceof WidgetScreen)
+            screen.mouseMoved(mouse.getX() * window.getScaleFactor(), mouse.getY() * window.getScaleFactor());
 
         OpenScreenEvent event = OpenScreenEvent.get(screen);
         MeteorClient.EVENT_BUS.post(event);
@@ -135,31 +158,37 @@ public abstract class MinecraftClientMixin implements IMinecraftClient {
     }
 
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemEnabled(Lnet/minecraft/resource/featuretoggle/FeatureSet;)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void onDoItemUseHand(CallbackInfo ci, Hand[] var1, int var2, int var3, Hand hand, ItemStack itemStack) {
+    private void onDoItemUseHand(CallbackInfo ci, Hand[] var1, int var2, int var3, Hand hand, ItemStack itemStack)
+    {
         FastUse fastUse = Modules.get().get(FastUse.class);
-        if (fastUse.isActive()) {
+        if (fastUse.isActive())
+        {
             itemUseCooldown = fastUse.getItemUseCooldown(itemStack);
         }
     }
 
     @ModifyExpressionValue(method = "doItemUse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;crosshairTarget:Lnet/minecraft/util/hit/HitResult;", ordinal = 1))
-    private HitResult doItemUseMinecraftClientCrosshairTargetProxy(HitResult original) {
+    private HitResult doItemUseMinecraftClientCrosshairTargetProxy(HitResult original)
+    {
         return MeteorClient.EVENT_BUS.post(ItemUseCrosshairTargetEvent.get(original)).target;
     }
 
     @ModifyReturnValue(method = "reloadResources(ZLnet/minecraft/client/MinecraftClient$LoadingContext;)Ljava/util/concurrent/CompletableFuture;", at = @At("RETURN"))
-    private CompletableFuture<Void> onReloadResourcesNewCompletableFuture(CompletableFuture<Void> original) {
+    private CompletableFuture<Void> onReloadResourcesNewCompletableFuture(CompletableFuture<Void> original)
+    {
         return original.thenRun(() -> MeteorClient.EVENT_BUS.post(ResourcePacksReloadedEvent.get()));
     }
 
     @ModifyArg(method = "updateWindowTitle", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/Window;setTitle(Ljava/lang/String;)V"))
-    private String setTitle(String original) {
+    private String setTitle(String original)
+    {
         if (Config.get() == null || !Config.get().customWindowTitle.get()) return original;
 
         String customTitle = Config.get().customWindowTitleText.get();
         Script script = MeteorStarscript.compile(customTitle);
 
-        if (script != null) {
+        if (script != null)
+        {
             String title = MeteorStarscript.run(script);
             if (title != null) customTitle = title;
         }
@@ -168,22 +197,27 @@ public abstract class MinecraftClientMixin implements IMinecraftClient {
     }
 
     @Inject(method = "onResolutionChanged", at = @At("TAIL"))
-    private void onResolutionChanged(CallbackInfo info) {
+    private void onResolutionChanged(CallbackInfo info)
+    {
         MeteorClient.EVENT_BUS.post(ResolutionChangedEvent.get());
     }
 
     @Inject(method = "getFramerateLimit", at = @At("HEAD"), cancellable = true)
-    private void onGetFramerateLimit(CallbackInfoReturnable<Integer> info) {
-        if (Modules.get().isActive(UnfocusedCPU.class) && !isWindowFocused()) info.setReturnValue(Math.min(Modules.get().get(UnfocusedCPU.class).fps.get(), this.options.getMaxFps().getValue()));
+    private void onGetFramerateLimit(CallbackInfoReturnable<Integer> info)
+    {
+        if (Modules.get().isActive(UnfocusedCPU.class) && !isWindowFocused())
+            info.setReturnValue(Math.min(Modules.get().get(UnfocusedCPU.class).fps.get(), this.options.getMaxFps().getValue()));
     }
 
     // Time delta
 
     @Inject(method = "render", at = @At("HEAD"))
-    private void onRender(CallbackInfo info) {
+    private void onRender(CallbackInfo info)
+    {
         long time = System.currentTimeMillis();
 
-        if (firstFrame) {
+        if (firstFrame)
+        {
             lastTime = time;
             firstFrame = false;
         }
@@ -195,32 +229,38 @@ public abstract class MinecraftClientMixin implements IMinecraftClient {
     // multitask
 
     @ModifyExpressionValue(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;isBreakingBlock()Z"))
-    private boolean doItemUseModifyIsBreakingBlock(boolean original) {
+    private boolean doItemUseModifyIsBreakingBlock(boolean original)
+    {
         return !Modules.get().isActive(Multitask.class) && original;
     }
 
     @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
-    private boolean handleBlockBreakingModifyIsUsingItem(boolean original) {
+    private boolean handleBlockBreakingModifyIsUsingItem(boolean original)
+    {
         return !Modules.get().isActive(Multitask.class) && original;
     }
 
     @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
-    private boolean handleInputEventsModifyIsUsingItem(boolean original) {
+    private boolean handleInputEventsModifyIsUsingItem(boolean original)
+    {
         return !Modules.get().get(Multitask.class).attackingEntities() && original;
     }
 
     @Inject(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0, shift = At.Shift.BEFORE))
-    private void handleInputEventsInjectStopUsingItem(CallbackInfo info) {
-        if (Modules.get().get(Multitask.class).attackingEntities() && player.isUsingItem()) {
+    private void handleInputEventsInjectStopUsingItem(CallbackInfo info)
+    {
+        if (Modules.get().get(Multitask.class).attackingEntities() && player.isUsingItem())
+        {
             if (!options.useKey.isPressed()) interactionManager.stopUsingItem(player);
-            while (options.useKey.wasPressed());
+            while (options.useKey.wasPressed()) ;
         }
     }
 
     // Interface
 
     @Override
-    public void meteor_client$rightClick() {
+    public void meteor_client$rightClick()
+    {
         rightClick = true;
     }
 }

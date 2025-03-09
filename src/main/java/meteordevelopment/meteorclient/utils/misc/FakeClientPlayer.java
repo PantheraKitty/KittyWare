@@ -22,7 +22,8 @@ import java.util.UUID;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class FakeClientPlayer {
+public class FakeClientPlayer
+{
     private static ClientWorld world;
     private static PlayerEntity player;
     private static PlayerListEntry playerListEntry;
@@ -30,19 +31,24 @@ public class FakeClientPlayer {
     private static UUID lastId;
     private static boolean needsNewEntry;
 
-    private FakeClientPlayer() {
+    private FakeClientPlayer()
+    {
     }
 
     @PreInit
-    public static void init() {
+    public static void init()
+    {
         MeteorClient.EVENT_BUS.subscribe(FakeClientPlayer.class);
     }
 
-    public static PlayerEntity getPlayer() {
+    public static PlayerEntity getPlayer()
+    {
         UUID id = mc.getSession().getUuidOrNull();
 
-        if (player == null || (!id.equals(lastId))) {
-            if (world == null) {
+        if (player == null || (!id.equals(lastId)))
+        {
+            if (world == null)
+            {
                 world = new ClientWorld(
                     new ClientPlayNetworkHandler(mc, new ClientConnection(NetworkSide.CLIENTBOUND), new ClientConnectionState(new GameProfile(mc.getSession().getUuidOrNull(), mc.getSession().getUsername()), null, null, null, null, mc.getCurrentServerEntry(), null, null, null, false, null, null)),
                     new ClientWorld.Properties(Difficulty.NORMAL, false, false),
@@ -66,8 +72,10 @@ public class FakeClientPlayer {
         return player;
     }
 
-    public static PlayerListEntry getPlayerListEntry() {
-        if (playerListEntry == null || needsNewEntry) {
+    public static PlayerListEntry getPlayerListEntry()
+    {
+        if (playerListEntry == null || needsNewEntry)
+        {
             playerListEntry = new PlayerListEntry(new GameProfile(lastId, mc.getSession().getUsername()), false);
             needsNewEntry = false;
         }

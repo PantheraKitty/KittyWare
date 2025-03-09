@@ -17,15 +17,17 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class Font {
-    public AbstractTexture texture;
+public class Font
+{
+    private final static int size = 2048;
     private final int height;
     private final float scale;
     private final float ascent;
     private final Int2ObjectOpenHashMap<CharData> charMap = new Int2ObjectOpenHashMap<>();
-    private final static int size = 2048;
+    public AbstractTexture texture;
 
-    public Font(ByteBuffer buffer, int height) {
+    public Font(ByteBuffer buffer, int height)
+    {
         this.height = height;
 
         // Initialize font
@@ -45,7 +47,7 @@ public class Font {
 
         // create and initialise packing context
         STBTTPackContext packContext = STBTTPackContext.create();
-        STBTruetype.stbtt_PackBegin(packContext, bitmap, size, size, 0 ,1);
+        STBTruetype.stbtt_PackBegin(packContext, bitmap, size, size, 0, 1);
 
         // create the pack range, populate with the specific packing ranges
         STBTTPackRange.Buffer packRange = STBTTPackRange.create(cdata.length);
@@ -66,17 +68,20 @@ public class Font {
         scale = STBTruetype.stbtt_ScaleForPixelHeight(fontInfo, height);
 
         // Get font vertical ascent
-        try (MemoryStack stack = MemoryStack.stackPush()) {
+        try (MemoryStack stack = MemoryStack.stackPush())
+        {
             IntBuffer ascent = stack.mallocInt(1);
             STBTruetype.stbtt_GetFontVMetrics(fontInfo, ascent, null, null);
             this.ascent = ascent.get(0);
         }
 
-        for (int i = 0; i < cdata.length; i++) {
+        for (int i = 0; i < cdata.length; i++)
+        {
             STBTTPackedchar.Buffer cbuf = cdata[i];
             int offset = packRange.get(i).first_unicode_codepoint_in_range();
 
-            for (int j = 0; j < cbuf.capacity(); j++) {
+            for (int j = 0; j < cbuf.capacity(); j++)
+            {
                 STBTTPackedchar packedChar = cbuf.get(j);
 
                 float ipw = 1f / size; // pixel width and height
@@ -97,10 +102,12 @@ public class Font {
         }
     }
 
-    public double getWidth(String string, int length) {
+    public double getWidth(String string, int length)
+    {
         double width = 0;
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++)
+        {
             int cp = string.charAt(i);
             CharData c = charMap.get(cp);
             if (c == null) c = charMap.get(32);
@@ -111,14 +118,17 @@ public class Font {
         return width;
     }
 
-    public int getHeight() {
+    public int getHeight()
+    {
         return height;
     }
 
-    public double render(Mesh mesh, String string, double x, double y, Color color, double scale) {
+    public double render(Mesh mesh, String string, double x, double y, Color color, double scale)
+    {
         y += ascent * this.scale * scale;
 
-        for (int i = 0; i < string.length(); i++) {
+        for (int i = 0; i < string.length(); i++)
+        {
             int cp = string.charAt(i);
             CharData c = charMap.get(cp);
             if (c == null) c = charMap.get(32);
@@ -136,5 +146,8 @@ public class Font {
         return x;
     }
 
-    private record CharData(float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float xAdvance) {}
+    private record CharData(float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1,
+                            float xAdvance)
+    {
+    }
 }

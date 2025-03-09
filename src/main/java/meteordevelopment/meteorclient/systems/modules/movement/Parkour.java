@@ -18,7 +18,8 @@ import net.minecraft.util.shape.VoxelShape;
 
 import java.util.stream.Stream;
 
-public class Parkour extends Module {
+public class Parkour extends Module
+{
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
@@ -30,22 +31,24 @@ public class Parkour extends Module {
         .build()
     );
 
-    public Parkour() {
+    public Parkour()
+    {
         super(Categories.Movement, "parkour", "Automatically jumps at the edges of blocks.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if(!mc.player.isOnGround() || mc.options.jumpKey.isPressed()) return;
+    private void onTick(TickEvent.Post event)
+    {
+        if (!mc.player.isOnGround() || mc.options.jumpKey.isPressed()) return;
 
-        if(mc.player.isSneaking() || mc.options.sneakKey.isPressed()) return;
+        if (mc.player.isSneaking() || mc.options.sneakKey.isPressed()) return;
 
         Box box = mc.player.getBoundingBox();
         Box adjustedBox = box.offset(0, -0.5, 0).expand(-edgeDistance.get(), 0, -edgeDistance.get());
 
         Stream<VoxelShape> blockCollisions = Streams.stream(mc.world.getBlockCollisions(mc.player, adjustedBox));
 
-        if(blockCollisions.findAny().isPresent()) return;
+        if (blockCollisions.findAny().isPresent()) return;
 
         mc.player.jump();
     }

@@ -33,7 +33,8 @@ import net.minecraft.util.math.Direction;
 /**
  * @author seasnail8169
  */
-public class Burrow extends Module {
+public class Burrow extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Block> block = sgGeneral.add(new EnumSetting.Builder<Block>()
@@ -108,25 +109,30 @@ public class Burrow extends Module {
     private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
     private boolean shouldBurrow;
 
-    public Burrow() {
+    public Burrow()
+    {
         super(Categories.Combat, "burrow", "Attempts to clip you into a block.");
     }
 
     @Override
-    public void onActivate() {
-        if (!mc.world.getBlockState(mc.player.getBlockPos()).isReplaceable()) {
+    public void onActivate()
+    {
+        if (!mc.world.getBlockState(mc.player.getBlockPos()).isReplaceable())
+        {
             error("Already burrowed, disabling.");
             toggle();
             return;
         }
 
-        if (!PlayerUtils.isInHole(false) && onlyInHole.get()) {
+        if (!PlayerUtils.isInHole(false) && onlyInHole.get())
+        {
             error("Not in a hole, disabling.");
             toggle();
             return;
         }
 
-        if (!checkHead()) {
+        if (!checkHead())
+        {
             error("Not enough headroom to burrow, disabling.");
             toggle();
             return;
@@ -134,7 +140,8 @@ public class Burrow extends Module {
 
         FindItemResult result = getItem();
 
-        if (!result.isHotbar() && !result.isOffhand()) {
+        if (!result.isHotbar() && !result.isOffhand())
+        {
             error("No burrow block found, disabling.");
             toggle();
             return;
@@ -146,25 +153,30 @@ public class Burrow extends Module {
 
         shouldBurrow = false;
 
-        if (automatic.get()) {
+        if (automatic.get())
+        {
             if (instant.get()) shouldBurrow = true;
             else mc.player.jump();
-        } else {
+        } else
+        {
             info("Waiting for manual jump.");
         }
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         Modules.get().get(Timer.class).setOverride(Timer.OFF);
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (!instant.get()) shouldBurrow = mc.player.getY() > blockPos.getY() + triggerHeight.get();
         if (!shouldBurrow && instant.get()) blockPos.set(mc.player.getBlockPos());
 
-        if (shouldBurrow) {
+        if (shouldBurrow)
+        {
             //When automatic was on (and instant was off), this would just always toggle off without trying to burrow.
 /*            if (!mc.player.isOnGround()) {
                 toggle();
@@ -180,19 +192,24 @@ public class Burrow extends Module {
     }
 
     @EventHandler
-    private void onKey(KeyEvent event) {
-        if (instant.get() && !shouldBurrow) {
-            if (event.action == KeyAction.Press && mc.options.jumpKey.matchesKey(event.key, 0)) {
+    private void onKey(KeyEvent event)
+    {
+        if (instant.get() && !shouldBurrow)
+        {
+            if (event.action == KeyAction.Press && mc.options.jumpKey.matchesKey(event.key, 0))
+            {
                 shouldBurrow = true;
             }
             blockPos.set(mc.player.getBlockPos());
         }
     }
 
-    private void burrow() {
+    private void burrow()
+    {
         if (center.get()) PlayerUtils.centerPlayer();
 
-        if (instant.get()) {
+        if (instant.get())
+        {
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() + 0.4, mc.player.getZ(), false));
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() + 0.75, mc.player.getZ(), false));
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() + 1.01, mc.player.getZ(), false));
@@ -210,23 +227,30 @@ public class Burrow extends Module {
 
         InvUtils.swapBack();
 
-        if (instant.get()) {
+        if (instant.get())
+        {
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() + rubberbandHeight.get(), mc.player.getZ(), false));
-        } else {
+        } else
+        {
             mc.player.updatePosition(mc.player.getX(), mc.player.getY() + rubberbandHeight.get(), mc.player.getZ());
         }
     }
 
-    private FindItemResult getItem() {
-        return switch (block.get()) {
+    private FindItemResult getItem()
+    {
+        return switch (block.get())
+        {
             case EChest -> InvUtils.findInHotbar(Items.ENDER_CHEST);
-            case Anvil -> InvUtils.findInHotbar(itemStack -> net.minecraft.block.Block.getBlockFromItem(itemStack.getItem()) instanceof AnvilBlock);
-            case Held -> new FindItemResult(mc.player.getInventory().selectedSlot, mc.player.getMainHandStack().getCount());
+            case Anvil ->
+                InvUtils.findInHotbar(itemStack -> net.minecraft.block.Block.getBlockFromItem(itemStack.getItem()) instanceof AnvilBlock);
+            case Held ->
+                new FindItemResult(mc.player.getInventory().selectedSlot, mc.player.getMainHandStack().getCount());
             default -> InvUtils.findInHotbar(Items.OBSIDIAN, Items.CRYING_OBSIDIAN);
         };
     }
 
-    private boolean checkHead() {
+    private boolean checkHead()
+    {
         BlockState blockState1 = mc.world.getBlockState(blockPos.set(mc.player.getX() + .3, mc.player.getY() + 2.3, mc.player.getZ() + .3));
         BlockState blockState2 = mc.world.getBlockState(blockPos.set(mc.player.getX() + .3, mc.player.getY() + 2.3, mc.player.getZ() - .3));
         BlockState blockState3 = mc.world.getBlockState(blockPos.set(mc.player.getX() - .3, mc.player.getY() + 2.3, mc.player.getZ() - .3));
@@ -238,7 +262,8 @@ public class Burrow extends Module {
         return air1 && air2 && air3 && air4;
     }
 
-    public enum Block {
+    public enum Block
+    {
         EChest,
         Obsidian,
         Anvil,

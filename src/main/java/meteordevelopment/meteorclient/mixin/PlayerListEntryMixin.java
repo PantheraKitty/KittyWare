@@ -19,14 +19,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerListEntry.class)
-public abstract class PlayerListEntryMixin {
+public abstract class PlayerListEntryMixin
+{
     @Shadow
     public abstract GameProfile getProfile();
 
     @Inject(method = "getSkinTextures", at = @At("HEAD"), cancellable = true)
-    private void onGetTexture(CallbackInfoReturnable<SkinTextures> info) {
-        if (getProfile().getName().equals(MinecraftClient.getInstance().getSession().getUsername())) {
-            if (Modules.get().get(NameProtect.class).skinProtect()) {
+    private void onGetTexture(CallbackInfoReturnable<SkinTextures> info)
+    {
+        if (getProfile().getName().equals(MinecraftClient.getInstance().getSession().getUsername()))
+        {
+            if (Modules.get().get(NameProtect.class).skinProtect())
+            {
                 info.setReturnValue(DefaultSkinHelper.getSkinTextures(getProfile()));
             }
         }

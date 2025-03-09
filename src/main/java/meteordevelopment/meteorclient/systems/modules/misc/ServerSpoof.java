@@ -31,7 +31,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-public class ServerSpoof extends Module {
+public class ServerSpoof extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> spoofBrand = sgGeneral.add(new BoolSetting.Builder()
@@ -70,33 +71,53 @@ public class ServerSpoof extends Module {
         .visible(blockChannels::get)
         .build()
     );
-
-    private MutableText msg;
     public boolean silentAcceptResourcePack = false;
+    private MutableText msg;
 
-    public ServerSpoof() {
+    public ServerSpoof()
+    {
         super(Categories.Misc, "server-spoof", "Spoof client brand, resource pack and channels.");
 
         runInMainMenu = true;
     }
 
+    private static URL getParsedResourcePackUrl(String url)
+    {
+        try
+        {
+            URL uRL = new URI(url).toURL();
+            String string = uRL.getProtocol();
+            return !"http".equals(string) && !"https".equals(string) ? null : uRL;
+        }
+        catch (MalformedURLException | URISyntaxException var3)
+        {
+            return null;
+        }
+    }
+
     @EventHandler
-    private void onPacketSend(PacketEvent.Send event) {
+    private void onPacketSend(PacketEvent.Send event)
+    {
         if (!isActive()) return;
 
-        if (event.packet instanceof CustomPayloadC2SPacket) {
+        if (event.packet instanceof CustomPayloadC2SPacket)
+        {
             Identifier id = ((CustomPayloadC2SPacket) event.packet).payload().getId().id();
 
-            if (blockChannels.get()) {
-                for (String channel : channels.get()) {
-                    if (StringUtils.containsIgnoreCase(id.toString(), channel)) {
+            if (blockChannels.get())
+            {
+                for (String channel : channels.get())
+                {
+                    if (StringUtils.containsIgnoreCase(id.toString(), channel))
+                    {
                         event.cancel();
                         return;
                     }
                 }
             }
 
-            if (spoofBrand.get() && id.equals(BrandCustomPayload.ID.id())) {
+            if (spoofBrand.get() && id.equals(BrandCustomPayload.ID.id()))
+            {
                 CustomPayloadC2SPacket spoofedPacket = new CustomPayloadC2SPacket(new BrandCustomPayload(brand.get()));
 
                 // PacketEvent.Send doesn't trigger if we send the packet like this
@@ -110,7 +131,8 @@ public class ServerSpoof extends Module {
     }
 
     @EventHandler
-    private void onPacketReceive(PacketEvent.Receive event) {
+    private void onPacketReceive(PacketEvent.Receive event)
+    {
         if (!isActive() || !resourcePack.get()) return;
         if (!(event.packet instanceof ResourcePackSendS2CPacket packet)) return;
 
@@ -134,10 +156,12 @@ public class ServerSpoof extends Module {
         acceptance.setStyle(acceptance.getStyle()
             .withColor(Formatting.DARK_GREEN)
             .withUnderline(true)
-            .withClickEvent(new RunnableClickEvent(() -> {
+            .withClickEvent(new RunnableClickEvent(() ->
+            {
                 URL url = getParsedResourcePackUrl(packet.url());
                 if (url == null) error("Invalid resource pack URL: " + packet.url());
-                else {
+                else
+                {
                     silentAcceptResourcePack = true;
                     mc.getServerResourcePackProvider().addResourcePack(packet.id(), url, packet.hash());
                 }
@@ -150,20 +174,11 @@ public class ServerSpoof extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (!isActive() || !Utils.canUpdate() || msg == null) return;
 
         info(msg);
         msg = null;
-    }
-
-    private static URL getParsedResourcePackUrl(String url) {
-        try {
-            URL uRL = new URI(url).toURL();
-            String string = uRL.getProtocol();
-            return !"http".equals(string) && !"https".equals(string) ? null : uRL;
-        } catch (MalformedURLException | URISyntaxException var3) {
-            return null;
-        }
     }
 }

@@ -26,13 +26,14 @@ import net.minecraft.nbt.NbtCompound;
 
 import static meteordevelopment.meteorclient.utils.Utils.getWindowWidth;
 
-public class HudElementScreen extends WindowScreen {
+public class HudElementScreen extends WindowScreen
+{
     private final HudElement element;
-
-    private WContainer settingsC1, settingsC2;
     private final Settings settings;
+    private WContainer settingsC1, settingsC2;
 
-    public HudElementScreen(GuiTheme theme, HudElement element) {
+    public HudElementScreen(GuiTheme theme, HudElement element)
+    {
         super(theme, element.info.title);
 
         this.element = element;
@@ -44,7 +45,8 @@ public class HudElementScreen extends WindowScreen {
             .description("Automatically assigns anchors based on the position.")
             .defaultValue(true)
             .onModuleActivated(booleanSetting -> booleanSetting.set(element.autoAnchors))
-            .onChanged(aBoolean -> {
+            .onChanged(aBoolean ->
+            {
                 if (aBoolean) element.box.updateAnchors();
                 element.autoAnchors = aBoolean;
             })
@@ -71,12 +73,14 @@ public class HudElementScreen extends WindowScreen {
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         // Description
         add(theme.label(element.info.description, getWindowWidth() / 2.0));
 
         // Settings
-        if (element.settings.sizeGroups() > 0) {
+        if (element.settings.sizeGroups() > 0)
+        {
             element.settings.onActivated();
 
             settingsC1 = add(theme.verticalList()).expandX().widget();
@@ -94,7 +98,8 @@ public class HudElementScreen extends WindowScreen {
         // Custom widget
         WWidget widget = element.getWidget(theme);
 
-        if (widget != null) {
+        if (widget != null)
+        {
             Cell<WWidget> cell = add(widget);
             if (widget instanceof WContainer) cell.expandX();
             add(theme.horizontalSeparator()).expandX();
@@ -106,23 +111,27 @@ public class HudElementScreen extends WindowScreen {
         //   Active
         bottomList.add(theme.label("Active:"));
         WCheckbox active = bottomList.add(theme.checkbox(element.isActive())).widget();
-        active.action = () -> {
+        active.action = () ->
+        {
             if (element.isActive() != active.checked) element.toggle();
         };
 
         //   Remove
         WMinus remove = bottomList.add(theme.minus()).expandCellX().right().widget();
-        remove.action = () -> {
+        remove.action = () ->
+        {
             element.remove();
             close();
         };
     }
 
     @Override
-    public void tick() {
+    public void tick()
+    {
         super.tick();
 
-        if (settingsC1 != null) {
+        if (settingsC1 != null)
+        {
             element.settings.tick(settingsC1, theme);
         }
 
@@ -130,20 +139,24 @@ public class HudElementScreen extends WindowScreen {
     }
 
     @Override
-    protected void onRenderBefore(DrawContext drawContext, float delta) {
+    protected void onRenderBefore(DrawContext drawContext, float delta)
+    {
         HudEditorScreen.renderElements(drawContext);
     }
 
     @Override
-    public boolean toClipboard() {
+    public boolean toClipboard()
+    {
         return NbtUtils.toClipboard(element.info.title, element.toTag());
     }
 
     @Override
-    public boolean fromClipboard() {
+    public boolean fromClipboard()
+    {
         NbtCompound clipboard = NbtUtils.fromClipboard(element.toTag());
 
-        if (clipboard != null) {
+        if (clipboard != null)
+        {
             element.fromTag(clipboard);
             return true;
         }

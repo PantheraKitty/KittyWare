@@ -11,12 +11,14 @@ import net.minecraft.nbt.NbtCompound;
 
 import java.util.function.Consumer;
 
-public class StringSetting extends Setting<String> {
+public class StringSetting extends Setting<String>
+{
     public final Class<? extends WTextBox.Renderer> renderer;
     public final CharFilter filter;
     public final boolean wide;
 
-    public StringSetting(String name, String description, String defaultValue, Consumer<String> onChanged, Consumer<Setting<String>> onModuleActivated, IVisible visible, Class<? extends WTextBox.Renderer> renderer, CharFilter filter, boolean wide) {
+    public StringSetting(String name, String description, String defaultValue, Consumer<String> onChanged, Consumer<Setting<String>> onModuleActivated, IVisible visible, Class<? extends WTextBox.Renderer> renderer, CharFilter filter, boolean wide)
+    {
         super(name, description, defaultValue, onChanged, onModuleActivated, visible);
 
         this.renderer = renderer;
@@ -25,55 +27,65 @@ public class StringSetting extends Setting<String> {
     }
 
     @Override
-    protected String parseImpl(String str) {
+    protected String parseImpl(String str)
+    {
         return str;
     }
 
     @Override
-    protected boolean isValueValid(String value) {
+    protected boolean isValueValid(String value)
+    {
         return true;
     }
 
     @Override
-    public NbtCompound save(NbtCompound tag) {
+    public NbtCompound save(NbtCompound tag)
+    {
         tag.putString("value", get());
 
         return tag;
     }
 
     @Override
-    public String load(NbtCompound tag) {
+    public String load(NbtCompound tag)
+    {
         set(tag.getString("value"));
 
         return get();
     }
 
-    public static class Builder extends SettingBuilder<Builder, String, StringSetting> {
+    public static class Builder extends SettingBuilder<Builder, String, StringSetting>
+    {
         private Class<? extends WTextBox.Renderer> renderer;
         private CharFilter filter;
         private boolean wide;
 
-        public Builder() {
+        public Builder()
+        {
             super("");
         }
 
-        public Builder renderer(Class<? extends WTextBox.Renderer> renderer) {
+        public Builder renderer(Class<? extends WTextBox.Renderer> renderer)
+        {
             this.renderer = renderer;
             return this;
         }
 
-        public Builder filter(CharFilter filter) {
+        public Builder filter(CharFilter filter)
+        {
             this.filter = filter;
             return this;
         }
 
-        public Builder wide() {
+        public Builder wide()
+        {
             wide = true;
             return this;
         }
 
         @Override
-        public StringSetting build() {
+        public StringSetting build()
+        {
             return new StringSetting(name, description, defaultValue, onChanged, onModuleActivated, visible, renderer, filter, wide);
         }
     }

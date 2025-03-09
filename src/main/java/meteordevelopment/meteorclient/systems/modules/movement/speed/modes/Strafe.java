@@ -14,19 +14,24 @@ import meteordevelopment.meteorclient.systems.modules.movement.speed.SpeedModes;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import org.joml.Vector2d;
 
-public class Strafe extends SpeedMode {
-
-    public Strafe() {
-        super(SpeedModes.Strafe);
-    }
+public class Strafe extends SpeedMode
+{
 
     private long timer = 0L;
 
+    public Strafe()
+    {
+        super(SpeedModes.Strafe);
+    }
+
     @Override
-    public void onMove(PlayerMoveEvent event) {
-        switch (stage) {
+    public void onMove(PlayerMoveEvent event)
+    {
+        switch (stage)
+        {
             case 0: //Reset
-                if (PlayerUtils.isMoving()) {
+                if (PlayerUtils.isMoving())
+                {
                     stage++;
                     speed = 1.18f * getDefaultSpeed() - 0.01;
                 }
@@ -37,9 +42,13 @@ public class Strafe extends SpeedMode {
                 speed *= settings.ncpSpeed.get();
                 stage++;
                 break;
-            case 2: speed = distance - 0.76 * (distance - getDefaultSpeed()); stage++; break; //Slowdown after jump
+            case 2:
+                speed = distance - 0.76 * (distance - getDefaultSpeed());
+                stage++;
+                break; //Slowdown after jump
             case 3: //Reset on collision or predict and update speed
-                if (!mc.world.isSpaceEmpty(mc.player.getBoundingBox().offset(0.0, mc.player.getVelocity().y, 0.0)) || mc.player.verticalCollision && stage > 0) {
+                if (!mc.world.isSpaceEmpty(mc.player.getBoundingBox().offset(0.0, mc.player.getVelocity().y, 0.0)) || mc.player.verticalCollision && stage > 0)
+                {
                     stage = 0;
                 }
                 speed = distance - (distance / 159.0);
@@ -48,8 +57,10 @@ public class Strafe extends SpeedMode {
 
         speed = Math.max(speed, getDefaultSpeed());
 
-        if (settings.ncpSpeedLimit.get()) {
-            if (System.currentTimeMillis() - timer > 2500L) {
+        if (settings.ncpSpeedLimit.get())
+        {
+            if (System.currentTimeMillis() - timer > 2500L)
+            {
                 timer = System.currentTimeMillis();
             }
 
@@ -62,7 +73,8 @@ public class Strafe extends SpeedMode {
         double velZ = change.y;
 
         Anchor anchor = Modules.get().get(Anchor.class);
-        if (anchor.isActive() && anchor.controlMovement) {
+        if (anchor.isActive() && anchor.controlMovement)
+        {
             velX = anchor.deltaX;
             velZ = anchor.deltaZ;
         }
@@ -70,7 +82,8 @@ public class Strafe extends SpeedMode {
         ((IVec3d) event.movement).setXZ(velX, velZ);
     }
 
-    private Vector2d transformStrafe(double speed) {
+    private Vector2d transformStrafe(double speed)
+    {
         float forward = mc.player.input.movementForward;
         float side = mc.player.input.movementSideways;
         float yaw = mc.player.prevYaw + (mc.player.getYaw() - mc.player.prevYaw) * mc.getRenderTickCounter().getTickDelta(true);
@@ -79,11 +92,14 @@ public class Strafe extends SpeedMode {
 
         if (forward == 0.0f && side == 0.0f) return new Vector2d(0, 0);
 
-        else if (forward != 0.0f) {
-            if (side >= 1.0f) {
+        else if (forward != 0.0f)
+        {
+            if (side >= 1.0f)
+            {
                 yaw += (float) (forward > 0.0f ? -45 : 45);
                 side = 0.0f;
-            } else if (side <= -1.0f) {
+            } else if (side <= -1.0f)
+            {
                 yaw += (float) (forward > 0.0f ? 45 : -45);
                 side = 0.0f;
             }
@@ -105,7 +121,8 @@ public class Strafe extends SpeedMode {
     }
 
     @Override
-    public void onTick() {
+    public void onTick()
+    {
         distance = Math.sqrt((mc.player.getX() - mc.player.prevX) * (mc.player.getX() - mc.player.prevX) + (mc.player.getZ() - mc.player.prevZ) * (mc.player.getZ() - mc.player.prevZ));
     }
 }

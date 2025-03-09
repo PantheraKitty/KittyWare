@@ -19,7 +19,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.List;
 
-public class Spam extends Module {
+public class Spam extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<List<String>> messages = sgGeneral.add(new StringListSetting.Builder()
@@ -113,45 +114,56 @@ public class Spam extends Module {
     private int messageI, timer, splitNum;
     private String text;
 
-    public Spam() {
+    public Spam()
+    {
         super(Categories.Misc, "spam", "Spams specified messages in chat.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         timer = delay.get();
         messageI = 0;
         splitNum = 0;
     }
 
     @EventHandler
-    private void onScreenOpen(OpenScreenEvent event) {
-        if (disableOnDisconnect.get() && event.screen instanceof DisconnectedScreen) {
+    private void onScreenOpen(OpenScreenEvent event)
+    {
+        if (disableOnDisconnect.get() && event.screen instanceof DisconnectedScreen)
+        {
             toggle();
         }
     }
 
     @EventHandler
-    private void onGameLeft(GameLeftEvent event) {
+    private void onGameLeft(GameLeftEvent event)
+    {
         if (disableOnLeave.get()) toggle();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (messages.get().isEmpty()) return;
 
-        if (timer <= 0) {
-            if (text == null) {
+        if (timer <= 0)
+        {
+            if (text == null)
+            {
                 int i;
-                if (random.get()) {
+                if (random.get())
+                {
                     i = Utils.random(0, messages.get().size());
-                } else {
+                } else
+                {
                     if (messageI >= messages.get().size()) messageI = 0;
                     i = messageI++;
                 }
 
                 text = messages.get().get(i);
-                if (bypass.get()) {
+                if (bypass.get())
+                {
                     String bypass = RandomStringUtils.randomAlphabetic(length.get());
                     if (!uppercase.get()) bypass = bypass.toLowerCase();
 
@@ -159,7 +171,8 @@ public class Spam extends Module {
                 }
             }
 
-            if (autoSplitMessages.get() && text.length() > splitLength.get()) {
+            if (autoSplitMessages.get() && text.length() > splitLength.get())
+            {
                 // the number of individual messages the whole text needs to be broken into
                 double length = text.length();
                 int splits = (int) Math.ceil(length / splitLength.get());
@@ -171,17 +184,20 @@ public class Spam extends Module {
 
                 splitNum = ++splitNum % splits;
                 timer = autoSplitDelay.get();
-                if (splitNum == 0) { // equals zero when all chunks are sent
+                if (splitNum == 0)
+                { // equals zero when all chunks are sent
                     timer = delay.get();
                     text = null;
                 }
-            } else {
+            } else
+            {
                 if (text.length() > 256) text = text.substring(0, 256); // prevent kick
                 ChatUtils.sendPlayerMsg(text);
                 timer = delay.get();
                 text = null;
             }
-        } else {
+        } else
+        {
             timer--;
         }
     }

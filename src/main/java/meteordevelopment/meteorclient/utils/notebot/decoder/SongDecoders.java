@@ -19,28 +19,34 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SongDecoders {
+public class SongDecoders
+{
     private static final Map<String, SongDecoder> decoders = new HashMap<>(); // file extension -> song decoder
 
-    static {
+    static
+    {
         registerDecoder("nbs", new NBSSongDecoder());
         registerDecoder("txt", new TextSongDecoder());
         // TODO Maybe a midi decoder in the future
     }
 
-    public static void registerDecoder(String extension, SongDecoder songDecoder) {
+    public static void registerDecoder(String extension, SongDecoder songDecoder)
+    {
         decoders.put(extension, songDecoder);
     }
 
-    public static SongDecoder getDecoder(File file) {
+    public static SongDecoder getDecoder(File file)
+    {
         return decoders.get(FilenameUtils.getExtension(file.getName()));
     }
 
-    public static boolean hasDecoder(File file) {
+    public static boolean hasDecoder(File file)
+    {
         return decoders.containsKey(FilenameUtils.getExtension(file.getName()));
     }
 
-    public static boolean hasDecoder(Path path) {
+    public static boolean hasDecoder(Path path)
+    {
         return hasDecoder(path.toFile());
     }
 
@@ -51,7 +57,8 @@ public class SongDecoders {
      * @return A {@link Song} object
      */
     @NotNull
-    public static Song parse(File file) throws Exception {
+    public static Song parse(File file) throws Exception
+    {
         if (!hasDecoder(file)) throw new IllegalStateException("Decoder for this file does not exists!");
         SongDecoder decoder = getDecoder(file);
         Song song = decoder.parse(file);
@@ -68,32 +75,40 @@ public class SongDecoders {
      *
      * @param song A song
      */
-    private static void fixSong(Song song) {
+    private static void fixSong(Song song)
+    {
         Notebot notebot = Modules.get().get(Notebot.class);
 
         var iterator = song.getNotesMap().entries().iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             var entry = iterator.next();
             int tick = entry.getKey();
             Note note = entry.getValue();
 
             int n = note.getNoteLevel();
-            if (n < 0 || n > 24) {
-                if (notebot.roundOutOfRange.get()) {
+            if (n < 0 || n > 24)
+            {
+                if (notebot.roundOutOfRange.get())
+                {
                     note.setNoteLevel(n < 0 ? 0 : 24);
-                } else {
+                } else
+                {
                     notebot.warning("Note at tick %d out of range.", tick);
                     iterator.remove();
                     continue;
                 }
             }
 
-            if (notebot.mode.get() == NotebotUtils.NotebotMode.ExactInstruments) {
+            if (notebot.mode.get() == NotebotUtils.NotebotMode.ExactInstruments)
+            {
                 NoteBlockInstrument newInstrument = notebot.getMappedInstrument(note.getInstrument());
-                if (newInstrument != null) {
+                if (newInstrument != null)
+                {
                     note.setInstrument(newInstrument);
                 }
-            } else {
+            } else
+            {
                 note.setInstrument(null);
             }
         }

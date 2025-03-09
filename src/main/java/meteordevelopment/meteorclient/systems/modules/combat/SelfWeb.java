@@ -17,7 +17,8 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.item.Items;
 
-public class SelfWeb extends Module {
+public class SelfWeb extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -58,33 +59,40 @@ public class SelfWeb extends Module {
         .build()
     );
 
-    public SelfWeb() {
+    public SelfWeb()
+    {
         super(Categories.Combat, "self-web", "Automatically places webs on you.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        switch (mode.get()) {
+    private void onTick(TickEvent.Pre event)
+    {
+        switch (mode.get())
+        {
             case Normal -> placeWeb();
-            case Smart -> {
+            case Smart ->
+            {
                 if (TargetUtils.getPlayerTarget(range.get(), SortPriority.LowestDistance) != null) placeWeb();
             }
         }
     }
 
-    private void placeWeb() {
+    private void placeWeb()
+    {
         FindItemResult web = InvUtils.findInHotbar(Items.COBWEB);
 
         BlockUtils.place(mc.player.getBlockPos(), web, rotate.get(), 0, false);
 
-        if (doubles.get()) {
+        if (doubles.get())
+        {
             BlockUtils.place(mc.player.getBlockPos().add(0, 1, 0), web, rotate.get(), 0, false);
         }
 
         if (turnOff.get()) toggle();
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Normal,
         Smart
     }

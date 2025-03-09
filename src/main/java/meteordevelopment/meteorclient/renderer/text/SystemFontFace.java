@@ -5,18 +5,22 @@ import meteordevelopment.meteorclient.utils.render.FontUtils;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-public class SystemFontFace extends FontFace {
+public class SystemFontFace extends FontFace
+{
     private final Path path;
 
-    public SystemFontFace(FontInfo info, Path path) {
+    public SystemFontFace(FontInfo info, Path path)
+    {
         super(info);
 
         this.path = path;
     }
 
     @Override
-    public InputStream toStream() {
-        if (!path.toFile().exists()) {
+    public InputStream toStream()
+    {
+        if (!path.toFile().exists())
+        {
             throw new RuntimeException("Tried to load font that no longer exists.");
         }
 
@@ -26,7 +30,8 @@ public class SystemFontFace extends FontFace {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return super.toString() + " (" + path.toString() + ")";
     }
 }

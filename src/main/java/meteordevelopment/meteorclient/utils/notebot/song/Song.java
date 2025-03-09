@@ -11,24 +11,25 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Song {
+public class Song
+{
     private final Multimap<Integer, Note> notesMap;
-    private int lastTick;
     private final String title;
     private final String author;
-
     private final Set<Note> requirements = new HashSet<>();
-
+    private int lastTick;
     private boolean finishedLoading = false;
 
     public Song(Multimap<Integer, Note> notesMap,
-                String title, String author) {
+                String title, String author)
+    {
         this.notesMap = notesMap;
         this.title = title;
         this.author = author;
     }
 
-    public void finishLoading() {
+    public void finishLoading()
+    {
         if (finishedLoading) throw new IllegalStateException("Song has already finished loading!");
 
         this.lastTick = Collections.max(notesMap.keySet());
@@ -37,25 +38,30 @@ public class Song {
         finishedLoading = true;
     }
 
-    public Multimap<Integer, Note> getNotesMap() {
+    public Multimap<Integer, Note> getNotesMap()
+    {
         return notesMap;
     }
 
-    public Set<Note> getRequirements() {
+    public Set<Note> getRequirements()
+    {
         if (!finishedLoading) throw new IllegalStateException("Song is still loading!");
         return requirements;
     }
 
-    public int getLastTick() {
+    public int getLastTick()
+    {
         if (!finishedLoading) throw new IllegalStateException("Song is still loading!");
         return lastTick;
     }
 
-    public String getTitle() {
+    public String getTitle()
+    {
         return title;
     }
 
-    public String getAuthor() {
+    public String getAuthor()
+    {
         return author;
     }
 }

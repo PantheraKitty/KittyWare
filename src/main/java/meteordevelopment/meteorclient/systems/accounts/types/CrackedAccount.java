@@ -12,19 +12,23 @@ import net.minecraft.util.Uuids;
 
 import java.util.Optional;
 
-public class CrackedAccount extends Account<CrackedAccount> {
-    public CrackedAccount(String name) {
+public class CrackedAccount extends Account<CrackedAccount>
+{
+    public CrackedAccount(String name)
+    {
         super(AccountType.Cracked, name);
     }
 
     @Override
-    public boolean fetchInfo() {
+    public boolean fetchInfo()
+    {
         cache.username = name;
         return true;
     }
 
     @Override
-    public boolean login() {
+    public boolean login()
+    {
         super.login();
 
         cache.loadHead();
@@ -33,7 +37,8 @@ public class CrackedAccount extends Account<CrackedAccount> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (!(o instanceof CrackedAccount)) return false;
         return ((CrackedAccount) o).getUsername().equals(this.getUsername());
     }

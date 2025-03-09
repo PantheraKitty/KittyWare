@@ -23,7 +23,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class RegistryListSettingScreen<T> extends WindowScreen {
+public abstract class RegistryListSettingScreen<T> extends WindowScreen
+{
     protected final Setting<?> setting;
     protected final Collection<T> collection;
     private final Registry<T> registry;
@@ -33,7 +34,8 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
 
     private WTable table;
 
-    public RegistryListSettingScreen(GuiTheme theme, String title, Setting<?> setting, Collection<T> collection, Registry<T> registry) {
+    public RegistryListSettingScreen(GuiTheme theme, String title, Setting<?> setting, Collection<T> collection, Registry<T> registry)
+    {
         super(theme, title);
 
         this.registry = registry;
@@ -42,11 +44,13 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         // Filter
         filter = add(theme.textBox("")).minWidth(400).expandX().widget();
         filter.setFocused(true);
-        filter.action = () -> {
+        filter.action = () ->
+        {
             filterText = filter.get().trim();
 
             table.clear();
@@ -58,15 +62,18 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
         initWidgets(registry);
     }
 
-    private void initWidgets(Registry<T> registry) {
+    private void initWidgets(Registry<T> registry)
+    {
         // Left (all)
-        WTable left = abc(pairs -> registry.forEach(t -> {
+        WTable left = abc(pairs -> registry.forEach(t ->
+        {
             if (skipValue(t) || collection.contains(t)) return;
 
             int words = Utils.searchInWords(getValueName(t), filterText);
             int diff = Utils.searchLevenshteinDefault(getValueName(t), filterText, false);
             if (words > 0 || diff <= getValueName(t).length() / 2) pairs.add(new Pair<>(t, -diff));
-        }), true, t -> {
+        }), true, t ->
+        {
             addValue(registry, t);
 
             T v = getAdditionalValue(t);
@@ -76,15 +83,18 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
         if (!left.cells.isEmpty()) table.add(theme.verticalSeparator()).expandWidgetY();
 
         // Right (selected)
-        abc(pairs -> {
-            for (T value : collection) {
+        abc(pairs ->
+        {
+            for (T value : collection)
+            {
                 if (skipValue(value)) continue;
 
                 int words = Utils.searchInWords(getValueName(value), filterText);
                 int diff = Utils.searchLevenshteinDefault(getValueName(value), filterText, false);
                 if (words > 0 || diff <= getValueName(value).length() / 2) pairs.add(new Pair<>(value, -diff));
             }
-        }, false, t -> {
+        }, false, t ->
+        {
             removeValue(registry, t);
 
             T v = getAdditionalValue(t);
@@ -92,8 +102,10 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
         });
     }
 
-    private void addValue(Registry<T> registry, T value) {
-        if (!collection.contains(value)) {
+    private void addValue(Registry<T> registry, T value)
+    {
+        if (!collection.contains(value))
+        {
             collection.add(value);
 
             setting.onChanged();
@@ -102,20 +114,24 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
         }
     }
 
-    private void removeValue(Registry<T> registry, T value) {
-        if (collection.remove(value)) {
+    private void removeValue(Registry<T> registry, T value)
+    {
+        if (collection.remove(value))
+        {
             setting.onChanged();
             table.clear();
             initWidgets(registry);
         }
     }
 
-    private WTable abc(Consumer<List<Pair<T, Integer>>> addValues, boolean isLeft, Consumer<T> buttonAction) {
+    private WTable abc(Consumer<List<Pair<T, Integer>>> addValues, boolean isLeft, Consumer<T> buttonAction)
+    {
         // Create
         Cell<WTable> cell = this.table.add(theme.table()).top();
         WTable table = cell.widget();
 
-        Consumer<T> forEach = t -> {
+        Consumer<T> forEach = t ->
+        {
             if (!includeValue(t)) return;
 
             table.add(getValueWidget(t));
@@ -137,7 +153,8 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
         return table;
     }
 
-    protected boolean includeValue(T value) {
+    protected boolean includeValue(T value)
+    {
         return true;
     }
 
@@ -145,11 +162,13 @@ public abstract class RegistryListSettingScreen<T> extends WindowScreen {
 
     protected abstract String getValueName(T value);
 
-    protected boolean skipValue(T value) {
+    protected boolean skipValue(T value)
+    {
         return false;
     }
 
-    protected T getAdditionalValue(T value) {
+    protected T getAdditionalValue(T value)
+    {
         return null;
     }
 }

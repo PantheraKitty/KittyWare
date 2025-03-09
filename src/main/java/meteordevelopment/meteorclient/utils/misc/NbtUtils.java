@@ -17,49 +17,61 @@ import java.util.*;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class NbtUtils {
-    private NbtUtils() {
+public class NbtUtils
+{
+    private NbtUtils()
+    {
     }
 
-    public static <T extends ISerializable<?>> NbtList listToTag(Iterable<T> list) {
+    public static <T extends ISerializable<?>> NbtList listToTag(Iterable<T> list)
+    {
         NbtList tag = new NbtList();
         for (T item : list) tag.add(item.toTag());
         return tag;
     }
 
-    public static <T> List<T> listFromTag(NbtList tag, ToValue<T> toItem) {
+    public static <T> List<T> listFromTag(NbtList tag, ToValue<T> toItem)
+    {
         List<T> list = new ArrayList<>(tag.size());
-        for (NbtElement itemTag : tag) {
+        for (NbtElement itemTag : tag)
+        {
             T value = toItem.toValue(itemTag);
             if (value != null) list.add(value);
         }
         return list;
     }
 
-    public static <K, V extends ISerializable<?>> NbtCompound mapToTag(Map<K, V> map) {
+    public static <K, V extends ISerializable<?>> NbtCompound mapToTag(Map<K, V> map)
+    {
         NbtCompound tag = new NbtCompound();
         for (K key : map.keySet()) tag.put(key.toString(), map.get(key).toTag());
         return tag;
     }
 
-    public static <K, V> Map<K, V> mapFromTag(NbtCompound tag, ToKey<K> toKey, ToValue<V> toValue) {
+    public static <K, V> Map<K, V> mapFromTag(NbtCompound tag, ToKey<K> toKey, ToValue<V> toValue)
+    {
         Map<K, V> map = new HashMap<>(tag.getSize());
         for (String key : tag.getKeys()) map.put(toKey.toKey(key), toValue.toValue(tag.get(key)));
         return map;
     }
 
-    public static boolean toClipboard(System<?> system) {
+    public static boolean toClipboard(System<?> system)
+    {
         return toClipboard(system.getName(), system.toTag());
     }
 
-    public static boolean toClipboard(String name, NbtCompound nbtCompound) {
+    public static boolean toClipboard(String name, NbtCompound nbtCompound)
+    {
         String preClipboard = mc.keyboard.getClipboard();
-        try {
+        try
+        {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             NbtIo.writeCompressed(nbtCompound, byteArrayOutputStream);
             mc.keyboard.setClipboard(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
             return true;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             MeteorClient.LOG.error(String.format("Error copying %s NBT to clipboard!", name));
 
             OkPrompt.create()
@@ -73,10 +85,12 @@ public class NbtUtils {
         }
     }
 
-    public static boolean fromClipboard(System<?> system) {
+    public static boolean fromClipboard(System<?> system)
+    {
         NbtCompound clipboard = fromClipboard(system.toTag());
 
-        if (clipboard != null) {
+        if (clipboard != null)
+        {
             system.fromTag(clipboard);
             return true;
         }
@@ -84,8 +98,10 @@ public class NbtUtils {
         return false;
     }
 
-    public static NbtCompound fromClipboard(NbtCompound schema) {
-        try {
+    public static NbtCompound fromClipboard(NbtCompound schema)
+    {
+        try
+        {
             byte[] data = Base64.getDecoder().decode(mc.keyboard.getClipboard().trim());
             ByteArrayInputStream bis = new ByteArrayInputStream(data);
 
@@ -94,7 +110,9 @@ public class NbtUtils {
             if (!pasted.getString("name").equals(schema.getString("name"))) return null;
 
             return pasted;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             MeteorClient.LOG.error("Invalid NBT data pasted!");
 
             OkPrompt.create()
@@ -107,11 +125,13 @@ public class NbtUtils {
         }
     }
 
-    public interface ToKey<T> {
+    public interface ToKey<T>
+    {
         T toKey(String string);
     }
 
-    public interface ToValue<T> {
+    public interface ToValue<T>
+    {
         T toValue(NbtElement tag);
     }
 }

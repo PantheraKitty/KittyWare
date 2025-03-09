@@ -20,15 +20,18 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BlockItem.class)
-public abstract class BlockItemMixin {
+public abstract class BlockItemMixin
+{
     @Shadow
     protected abstract BlockState getPlacementState(ItemPlacementContext context);
 
     @Inject(method = "place(Lnet/minecraft/item/ItemPlacementContext;Lnet/minecraft/block/BlockState;)Z", at = @At("HEAD"), cancellable = true)
-    private void onPlace(ItemPlacementContext context, BlockState state, CallbackInfoReturnable<Boolean> info) {
+    private void onPlace(ItemPlacementContext context, BlockState state, CallbackInfoReturnable<Boolean> info)
+    {
         if (!context.getWorld().isClient) return;
 
-        if (MeteorClient.EVENT_BUS.post(PlaceBlockEvent.get(context.getBlockPos(), state.getBlock())).isCancelled()) {
+        if (MeteorClient.EVENT_BUS.post(PlaceBlockEvent.get(context.getBlockPos(), state.getBlock())).isCancelled())
+        {
             info.setReturnValue(true);
         }
     }
@@ -41,10 +44,12 @@ public abstract class BlockItemMixin {
             target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z"
         )
     )
-    private BlockState modifyState(BlockState state, ItemPlacementContext context) {
+    private BlockState modifyState(BlockState state, ItemPlacementContext context)
+    {
         var noGhostBlocks = Modules.get().get(NoGhostBlocks.class);
 
-        if (noGhostBlocks.isActive() && noGhostBlocks.placing.get()) {
+        if (noGhostBlocks.isActive() && noGhostBlocks.placing.get())
+        {
             return getPlacementState(context);
         }
 

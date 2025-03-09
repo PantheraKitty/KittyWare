@@ -20,7 +20,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 
-public class AutoEXP extends Module {
+public class AutoEXP extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -67,30 +68,40 @@ public class AutoEXP extends Module {
 
     private int repairingI;
 
-    public AutoEXP() {
+    public AutoEXP()
+    {
         super(Categories.Combat, "auto-exp", "Automatically repairs your armor and tools in pvp.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         repairingI = -1;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        if (repairingI == -1) {
-            if (mode.get() != Mode.Hands) {
-                for (int i = 0; i < mc.player.getInventory().armor.size(); i++) {
-                    if (needsRepair(mc.player.getInventory().armor.get(i), minThreshold.get())) {
+    private void onTick(TickEvent.Pre event)
+    {
+        if (repairingI == -1)
+        {
+            if (mode.get() != Mode.Hands)
+            {
+                for (int i = 0; i < mc.player.getInventory().armor.size(); i++)
+                {
+                    if (needsRepair(mc.player.getInventory().armor.get(i), minThreshold.get()))
+                    {
                         repairingI = SlotUtils.ARMOR_START + i;
                         break;
                     }
                 }
             }
 
-            if (mode.get() != Mode.Armor && repairingI == -1) {
-                for (Hand hand : Hand.values()) {
-                    if (needsRepair(mc.player.getStackInHand(hand), minThreshold.get())) {
+            if (mode.get() != Mode.Armor && repairingI == -1)
+            {
+                for (Hand hand : Hand.values())
+                {
+                    if (needsRepair(mc.player.getStackInHand(hand), minThreshold.get()))
+                    {
                         repairingI = hand == Hand.MAIN_HAND ? mc.player.getInventory().selectedSlot : SlotUtils.OFFHAND;
                         break;
                     }
@@ -98,25 +109,31 @@ public class AutoEXP extends Module {
             }
         }
 
-        if (repairingI != -1) {
-            if (!needsRepair(mc.player.getInventory().getStack(repairingI), maxThreshold.get())) {
+        if (repairingI != -1)
+        {
+            if (!needsRepair(mc.player.getInventory().getStack(repairingI), maxThreshold.get()))
+            {
                 repairingI = -1;
                 return;
             }
 
             FindItemResult exp = InvUtils.find(Items.EXPERIENCE_BOTTLE);
 
-            if (exp.found()) {
-                if (!exp.isHotbar() && !exp.isOffhand()) {
+            if (exp.found())
+            {
+                if (!exp.isHotbar() && !exp.isOffhand())
+                {
                     if (!replenish.get()) return;
                     InvUtils.move().from(exp.slot()).toHotbar(slot.get() - 1);
                 }
 
-                Rotations.rotate(mc.player.getYaw(), 90, () -> {
-                    if (exp.getHand() != null) {
+                Rotations.rotate(mc.player.getYaw(), 90, () ->
+                {
+                    if (exp.getHand() != null)
+                    {
                         mc.interactionManager.interactItem(mc.player, exp.getHand());
-                    }
-                    else {
+                    } else
+                    {
                         InvUtils.swap(exp.slot(), true);
                         mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
                         InvUtils.swapBack();
@@ -126,12 +143,14 @@ public class AutoEXP extends Module {
         }
     }
 
-    private boolean needsRepair(ItemStack itemStack, double threshold) {
+    private boolean needsRepair(ItemStack itemStack, double threshold)
+    {
         if (itemStack.isEmpty() || !Utils.hasEnchantments(itemStack, Enchantments.MENDING)) return false;
         return (itemStack.getMaxDamage() - itemStack.getDamage()) / (double) itemStack.getMaxDamage() * 100 <= threshold;
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Armor,
         Hands,
         Both

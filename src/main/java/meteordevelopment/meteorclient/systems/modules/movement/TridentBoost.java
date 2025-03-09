@@ -12,7 +12,8 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 
-public class TridentBoost extends Module {
+public class TridentBoost extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> multiplier = sgGeneral.add(new DoubleSetting.Builder()
@@ -31,15 +32,18 @@ public class TridentBoost extends Module {
         .build()
     );
 
-    public TridentBoost() {
+    public TridentBoost()
+    {
         super(Categories.Movement, "trident-boost", "Boosts you when using riptide with a trident.");
     }
 
-    public double getMultiplier() {
+    public double getMultiplier()
+    {
         return isActive() ? multiplier.get() : 1;
     }
 
-    public boolean allowOutOfWater() {
+    public boolean allowOutOfWater()
+    {
         return isActive() ? allowOutOfWater.get() : false;
     }
 }

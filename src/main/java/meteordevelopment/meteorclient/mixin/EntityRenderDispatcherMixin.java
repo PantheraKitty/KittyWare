@@ -30,41 +30,51 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(EntityRenderDispatcher.class)
-public abstract class EntityRenderDispatcherMixin {
-    @Shadow public Camera camera;
-
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private <E extends Entity> void render(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo info) {
-        if (entity instanceof FakePlayerEntity player && player.hideWhenInsideCamera) {
-            int cX = MathHelper.floor(this.camera.getPos().x);
-            int cY = MathHelper.floor(this.camera.getPos().y);
-            int cZ = MathHelper.floor(this.camera.getPos().z);
-
-            if (cX == entity.getBlockX() && cZ == entity.getBlockZ() && (cY == entity.getBlockY() || cY == entity.getBlockY() + 1)) info.cancel();
-        }
-    }
+public abstract class EntityRenderDispatcherMixin
+{
+    @Shadow
+    public Camera camera;
 
     @Inject(method = "renderHitbox", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawBox(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/util/math/Box;FFFF)V", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private static void onRenderHitbox(MatrixStack matrices, VertexConsumer vertices, Entity entity, float tickDelta, float red, float green, float blue, CallbackInfo ci, Box box) {
+    private static void onRenderHitbox(MatrixStack matrices, VertexConsumer vertices, Entity entity, float tickDelta, float red, float green, float blue, CallbackInfo ci, Box box)
+    {
         double v = Modules.get().get(Hitboxes.class).getEntityValue(entity);
         if (v != 0) ((IBox) box).expand(v);
     }
 
+    @Inject(method = "renderShadow", at = @At("HEAD"), cancellable = true)
+    private static void onRenderShadow(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Entity entity, float opacity, float tickDelta, WorldView world, float radius, CallbackInfo info)
+    {
+        if (PostProcessShaders.rendering) info.cancel();
+        if (Modules.get().get(NoRender.class).noDeadEntities() && entity instanceof LivingEntity && ((LivingEntity) entity).isDead())
+            info.cancel();
+    }
+
     // Player model rendering in main menu
 
-    @Inject(method = "renderShadow", at = @At("HEAD"), cancellable = true)
-    private static void onRenderShadow(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Entity entity, float opacity, float tickDelta, WorldView world, float radius, CallbackInfo info) {
-        if (PostProcessShaders.rendering) info.cancel();
-        if (Modules.get().get(NoRender.class).noDeadEntities() && entity instanceof LivingEntity && ((LivingEntity) entity).isDead()) info.cancel();
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    private <E extends Entity> void render(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo info)
+    {
+        if (entity instanceof FakePlayerEntity player && player.hideWhenInsideCamera)
+        {
+            int cX = MathHelper.floor(this.camera.getPos().x);
+            int cY = MathHelper.floor(this.camera.getPos().y);
+            int cZ = MathHelper.floor(this.camera.getPos().z);
+
+            if (cX == entity.getBlockX() && cZ == entity.getBlockZ() && (cY == entity.getBlockY() || cY == entity.getBlockY() + 1))
+                info.cancel();
+        }
     }
 
     @Inject(method = "getSquaredDistanceToCamera(Lnet/minecraft/entity/Entity;)D", at = @At("HEAD"), cancellable = true)
-    private void onGetSquaredDistanceToCameraEntity(Entity entity, CallbackInfoReturnable<Double> info) {
+    private void onGetSquaredDistanceToCameraEntity(Entity entity, CallbackInfoReturnable<Double> info)
+    {
         if (camera == null) info.setReturnValue(0.0);
     }
 
     @Inject(method = "getSquaredDistanceToCamera(DDD)D", at = @At("HEAD"), cancellable = true)
-    private void onGetSquaredDistanceToCameraXYZ(double x, double y, double z, CallbackInfoReturnable<Double> info) {
+    private void onGetSquaredDistanceToCameraXYZ(double x, double y, double z, CallbackInfoReturnable<Double> info)
+    {
         if (camera == null) info.setReturnValue(0.0);
     }
 }

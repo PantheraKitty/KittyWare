@@ -20,7 +20,8 @@ import net.minecraft.command.CommandSource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InputCommand extends Command {
+public class InputCommand extends Command
+{
     private static final List<KeypressHandler> activeHandlers = new ArrayList<>();
 
     private static final List<Pair<KeyBinding, String>> holdKeys = List.of(
@@ -40,16 +41,26 @@ public class InputCommand extends Command {
         new Pair<>(mc.options.dropKey, "drop")
     );
 
-    public InputCommand() {
+    public InputCommand()
+    {
         super("input", "Keyboard input simulation.");
     }
 
+    private static void press(KeyBinding keyBinding)
+    {
+        KeyBindingAccessor accessor = (KeyBindingAccessor) keyBinding;
+        accessor.meteor$setTimesPressed(accessor.meteor$getTimesPressed() + 1);
+    }
+
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        for (Pair<KeyBinding, String> keyBinding : holdKeys) {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        for (Pair<KeyBinding, String> keyBinding : holdKeys)
+        {
             builder.then(literal(keyBinding.getSecond())
                 .then(argument("ticks", IntegerArgumentType.integer(1))
-                    .executes(context -> {
+                    .executes(context ->
+                    {
                         activeHandlers.add(new KeypressHandler(keyBinding.getFirst(), context.getArgument("ticks", Integer.class)));
                         return SINGLE_SUCCESS;
                     })
@@ -57,27 +68,33 @@ public class InputCommand extends Command {
             );
         }
 
-        for (Pair<KeyBinding, String> keyBinding : pressKeys) {
+        for (Pair<KeyBinding, String> keyBinding : pressKeys)
+        {
             builder.then(literal(keyBinding.getSecond())
-                .executes(context -> {
+                .executes(context ->
+                {
                     press(keyBinding.getFirst());
                     return SINGLE_SUCCESS;
                 })
             );
         }
 
-        for (KeyBinding keyBinding : mc.options.hotbarKeys) {
+        for (KeyBinding keyBinding : mc.options.hotbarKeys)
+        {
             builder.then(literal(keyBinding.getTranslationKey().substring(4))
-                .executes(context -> {
+                .executes(context ->
+                {
                     press(keyBinding);
                     return SINGLE_SUCCESS;
                 })
             );
         }
 
-        builder.then(literal("clear").executes(ctx -> {
+        builder.then(literal("clear").executes(ctx ->
+        {
             if (activeHandlers.isEmpty()) warning("No active keypress handlers.");
-            else {
+            else
+            {
                 info("Cleared all keypress handlers.");
                 activeHandlers.forEach(MeteorClient.EVENT_BUS::unsubscribe);
                 activeHandlers.clear();
@@ -85,11 +102,14 @@ public class InputCommand extends Command {
             return SINGLE_SUCCESS;
         }));
 
-        builder.then(literal("list").executes(ctx -> {
+        builder.then(literal("list").executes(ctx ->
+        {
             if (activeHandlers.isEmpty()) warning("No active keypress handlers.");
-            else {
+            else
+            {
                 info("Active keypress handlers: ");
-                for (int i = 0; i < activeHandlers.size(); i++) {
+                for (int i = 0; i < activeHandlers.size(); i++)
+                {
                     KeypressHandler handler = activeHandlers.get(i);
                     info("(highlight)%d(default) - (highlight)%s %d(default) ticks left out of (highlight)%d(default).", i, I18n.translate(handler.key.getTranslationKey()), handler.ticks, handler.totalTicks);
                 }
@@ -97,10 +117,12 @@ public class InputCommand extends Command {
             return SINGLE_SUCCESS;
         }));
 
-        builder.then(literal("remove").then(argument("index", IntegerArgumentType.integer(0)).executes(ctx -> {
+        builder.then(literal("remove").then(argument("index", IntegerArgumentType.integer(0)).executes(ctx ->
+        {
             int index = IntegerArgumentType.getInteger(ctx, "index");
             if (index >= activeHandlers.size()) warning("Index out of range.");
-            else {
+            else
+            {
                 info("Removed keypress handler.");
                 MeteorClient.EVENT_BUS.unsubscribe(activeHandlers.get(index));
                 activeHandlers.remove(index);
@@ -109,17 +131,14 @@ public class InputCommand extends Command {
         })));
     }
 
-    private static void press(KeyBinding keyBinding) {
-        KeyBindingAccessor accessor = (KeyBindingAccessor) keyBinding;
-        accessor.meteor$setTimesPressed(accessor.meteor$getTimesPressed() + 1);
-    }
-
-    private static class KeypressHandler {
+    private static class KeypressHandler
+    {
         private final KeyBinding key;
         private final int totalTicks;
         private int ticks;
 
-        public KeypressHandler(KeyBinding key, int ticks) {
+        public KeypressHandler(KeyBinding key, int ticks)
+        {
             this.key = key;
             this.totalTicks = ticks;
             this.ticks = ticks;
@@ -128,9 +147,11 @@ public class InputCommand extends Command {
         }
 
         @EventHandler
-        private void onTick(TickEvent.Post event) {
+        private void onTick(TickEvent.Post event)
+        {
             if (ticks-- > 0) key.setPressed(true);
-            else {
+            else
+            {
                 key.setPressed(false);
                 MeteorClient.EVENT_BUS.unsubscribe(this);
                 activeHandlers.remove(this);

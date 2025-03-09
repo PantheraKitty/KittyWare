@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class InventorySorter {
+public class InventorySorter
+{
     private final HandledScreen<?> screen;
     private final InvPart originInvPart;
 
@@ -30,11 +31,13 @@ public class InventorySorter {
     private List<Action> actions;
     private int timer, currentActionI;
 
-    public InventorySorter(HandledScreen<?> screen, Slot originSlot) {
+    public InventorySorter(HandledScreen<?> screen, Slot originSlot)
+    {
         this.screen = screen;
 
         this.originInvPart = getInvPart(originSlot);
-        if (originInvPart == InvPart.Invalid || originInvPart == InvPart.Hotbar || screen instanceof PeekScreen) {
+        if (originInvPart == InvPart.Invalid || originInvPart == InvPart.Hotbar || screen instanceof PeekScreen)
+        {
             invalid = true;
             return;
         }
@@ -43,14 +46,16 @@ public class InventorySorter {
         generateActions();
     }
 
-    public boolean tick(int delay) {
+    public boolean tick(int delay)
+    {
         if (invalid) return true;
         if (currentActionI >= actions.size()) return true;
 
-        if (timer >= delay) {
+        if (timer >= delay)
+        {
             timer = 0;
-        }
-        else {
+        } else
+        {
             timer++;
             return false;
         }
@@ -62,11 +67,13 @@ public class InventorySorter {
         return false;
     }
 
-    private void generateActions() {
+    private void generateActions()
+    {
         // Find all slots and sort them
         List<MySlot> slots = new ArrayList<>();
 
-        for (Slot slot : screen.getScreenHandler().slots) {
+        for (Slot slot : screen.getScreenHandler().slots)
+        {
             if (getInvPart(slot) == originInvPart) slots.add(new MySlot(((ISlot) slot).getId(), slot.getStack()));
         }
 
@@ -77,26 +84,32 @@ public class InventorySorter {
         generateSortingActions(slots);
     }
 
-    private void generateStackingActions(List<MySlot> slots) {
+    private void generateStackingActions(List<MySlot> slots)
+    {
         // Generate a map for slots that can be stacked
         SlotMap slotMap = new SlotMap();
 
-        for (MySlot slot : slots) {
-            if (slot.itemStack.isEmpty() || !slot.itemStack.isStackable() || slot.itemStack.getCount() >= slot.itemStack.getMaxCount()) continue;
+        for (MySlot slot : slots)
+        {
+            if (slot.itemStack.isEmpty() || !slot.itemStack.isStackable() || slot.itemStack.getCount() >= slot.itemStack.getMaxCount())
+                continue;
 
             slotMap.get(slot.itemStack).add(slot);
         }
 
         // Stack previously found slots
-        for (var entry : slotMap.map) {
+        for (var entry : slotMap.map)
+        {
             List<MySlot> slotsToStack = entry.getRight();
             MySlot slotToStackTo = null;
 
-            for (int i = 0; i < slotsToStack.size(); i++) {
+            for (int i = 0; i < slotsToStack.size(); i++)
+            {
                 MySlot slot = slotsToStack.get(i);
 
                 // Check if slotToStackTo is null and update it if it is
-                if (slotToStackTo == null) {
+                if (slotToStackTo == null)
+                {
                     slotToStackTo = slot;
                     continue;
                 }
@@ -105,14 +118,17 @@ public class InventorySorter {
                 actions.add(new Action(slot.id, slotToStackTo.id));
 
                 // Handle state when the two stacks can combine without any leftovers
-                if (slotToStackTo.itemStack.getCount() + slot.itemStack.getCount() <= slotToStackTo.itemStack.getMaxCount()) {
+                if (slotToStackTo.itemStack.getCount() + slot.itemStack.getCount() <= slotToStackTo.itemStack.getMaxCount())
+                {
                     slotToStackTo.itemStack = new ItemStack(slotToStackTo.itemStack.getItem(), slotToStackTo.itemStack.getCount() + slot.itemStack.getCount());
                     slot.itemStack = ItemStack.EMPTY;
 
-                    if (slotToStackTo.itemStack.getCount() >= slotToStackTo.itemStack.getMaxCount()) slotToStackTo = null;
+                    if (slotToStackTo.itemStack.getCount() >= slotToStackTo.itemStack.getMaxCount())
+                        slotToStackTo = null;
                 }
                 // Handle state when combining the two stacks produces leftovers
-                else {
+                else
+                {
                     int needed = slotToStackTo.itemStack.getMaxCount() - slotToStackTo.itemStack.getCount();
 
                     slotToStackTo.itemStack = new ItemStack(slotToStackTo.itemStack.getItem(), slotToStackTo.itemStack.getMaxCount());
@@ -125,15 +141,19 @@ public class InventorySorter {
         }
     }
 
-    private void generateSortingActions(List<MySlot> slots) {
-        for (int i = 0; i < slots.size(); i++) {
+    private void generateSortingActions(List<MySlot> slots)
+    {
+        for (int i = 0; i < slots.size(); i++)
+        {
             // Find best slot to move here
             MySlot bestSlot = null;
 
-            for (int j = i; j < slots.size(); j++) {
+            for (int j = i; j < slots.size(); j++)
+            {
                 MySlot slot = slots.get(j);
 
-                if (bestSlot == null) {
+                if (bestSlot == null)
+                {
                     bestSlot = slot;
                     continue;
                 }
@@ -142,13 +162,15 @@ public class InventorySorter {
             }
 
             // Generate action
-            if (!bestSlot.itemStack.isEmpty()) {
+            if (!bestSlot.itemStack.isEmpty())
+            {
                 MySlot toSlot = slots.get(i);
 
                 int from = bestSlot.id;
                 int to = toSlot.id;
 
-                if (from != to) {
+                if (from != to)
+                {
                     ItemStack temp = bestSlot.itemStack;
                     bestSlot.itemStack = toSlot.itemStack;
                     toSlot.itemStack = temp;
@@ -159,7 +181,8 @@ public class InventorySorter {
         }
     }
 
-    private boolean isSlotBetter(MySlot best, MySlot slot) {
+    private boolean isSlotBetter(MySlot best, MySlot slot)
+    {
         ItemStack bestI = best.itemStack;
         ItemStack slotI = slot.itemStack;
 
@@ -172,43 +195,52 @@ public class InventorySorter {
         return c > 0;
     }
 
-    private InvPart getInvPart(Slot slot) {
+    private InvPart getInvPart(Slot slot)
+    {
         int i = ((ISlot) slot).getIndex();
 
-        if (slot.inventory instanceof PlayerInventory && (!(screen instanceof CreativeInventoryScreen) || ((ISlot) slot).getId() > 8)) {
+        if (slot.inventory instanceof PlayerInventory && (!(screen instanceof CreativeInventoryScreen) || ((ISlot) slot).getId() > 8))
+        {
             if (SlotUtils.isHotbar(i)) return InvPart.Hotbar;
             else if (SlotUtils.isMain(i)) return InvPart.Player;
-        }
-        else if ((screen instanceof GenericContainerScreen || screen instanceof ShulkerBoxScreen) && slot.inventory instanceof SimpleInventory) {
+        } else if ((screen instanceof GenericContainerScreen || screen instanceof ShulkerBoxScreen) && slot.inventory instanceof SimpleInventory)
+        {
             return InvPart.Main;
         }
 
         return InvPart.Invalid;
     }
 
-    private enum InvPart {
+    private enum InvPart
+    {
         Hotbar,
         Player,
         Main,
         Invalid
     }
 
-    private static class MySlot {
+    private static class MySlot
+    {
         public final int id;
         public ItemStack itemStack;
 
-        public MySlot(int id, ItemStack itemStack) {
+        public MySlot(int id, ItemStack itemStack)
+        {
             this.id = id;
             this.itemStack = itemStack;
         }
     }
 
-    private static class SlotMap {
+    private static class SlotMap
+    {
         private final List<Pair<ItemStack, List<MySlot>>> map = new ArrayList<>();
 
-        public List<MySlot> get(ItemStack itemStack) {
-            for (Pair<ItemStack, List<MySlot>> entry : map) {
-                if (ItemStack.areItemsEqual(itemStack, entry.getLeft())) {
+        public List<MySlot> get(ItemStack itemStack)
+        {
+            for (Pair<ItemStack, List<MySlot>> entry : map)
+            {
+                if (ItemStack.areItemsEqual(itemStack, entry.getLeft()))
+                {
                     return entry.getRight();
                 }
             }
@@ -219,5 +251,7 @@ public class InventorySorter {
         }
     }
 
-    private record Action(int from, int to) {}
+    private record Action(int from, int to)
+    {
+    }
 }

@@ -31,22 +31,29 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import static net.minecraft.client.render.entity.EndCrystalEntityRenderer.getYOffset;
 
 @Mixin(EndCrystalEntityRenderer.class)
-public abstract class EndCrystalEntityRendererMixin {
-    @Mutable @Shadow @Final
+public abstract class EndCrystalEntityRendererMixin
+{
+    @Mutable
+    @Shadow
+    @Final
     private static RenderLayer END_CRYSTAL;
 
-    @Shadow @Final
+    @Shadow
+    @Final
     private static Identifier TEXTURE;
 
-    @Shadow @Final
+    @Shadow
+    @Final
     public ModelPart core;
 
-    @Shadow @Final
+    @Shadow
+    @Final
     public ModelPart frame;
 
     // Texture
     @Inject(method = "render(Lnet/minecraft/entity/decoration/EndCrystalEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"))
-    private void render(EndCrystalEntity endCrystalEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+    private void render(EndCrystalEntity endCrystalEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci)
+    {
         Chams module = Modules.get().get(Chams.class);
 
         END_CRYSTAL = RenderLayer.getEntityTranslucent((module.isActive() && module.crystals.get() && !module.crystalsTexture.get()) ? Chams.BLANK : TEXTURE);
@@ -54,7 +61,8 @@ public abstract class EndCrystalEntityRendererMixin {
 
     // Scale
     @ModifyArgs(method = "render(Lnet/minecraft/entity/decoration/EndCrystalEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;scale(FFF)V", ordinal = 0))
-    private void modifyScale(Args args) {
+    private void modifyScale(Args args)
+    {
         Chams module = Modules.get().get(Chams.class);
         if (!module.isActive() || !module.crystals.get()) return;
 
@@ -65,7 +73,8 @@ public abstract class EndCrystalEntityRendererMixin {
 
     // Bounce
     @Redirect(method = "render(Lnet/minecraft/entity/decoration/EndCrystalEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/EndCrystalEntityRenderer;getYOffset(Lnet/minecraft/entity/decoration/EndCrystalEntity;F)F"))
-    private float getYOff(EndCrystalEntity crystal, float tickDelta) {
+    private float getYOff(EndCrystalEntity crystal, float tickDelta)
+    {
         Chams module = Modules.get().get(Chams.class);
         if (!module.isActive() || !module.crystals.get()) return getYOffset(crystal, tickDelta);
 
@@ -77,7 +86,8 @@ public abstract class EndCrystalEntityRendererMixin {
 
     // Rotation speed
     @ModifyArgs(method = "render(Lnet/minecraft/entity/decoration/EndCrystalEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/RotationAxis;rotationDegrees(F)Lorg/joml/Quaternionf;"))
-    private void modifySpeed(Args args) {
+    private void modifySpeed(Args args)
+    {
         Chams module = Modules.get().get(Chams.class);
         if (!module.isActive() || !module.crystals.get()) return;
 
@@ -86,14 +96,17 @@ public abstract class EndCrystalEntityRendererMixin {
 
     // Core
     @Redirect(method = "render(Lnet/minecraft/entity/decoration/EndCrystalEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ModelPart;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;II)V", ordinal = 3))
-    private void modifyCore(ModelPart modelPart, MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
+    private void modifyCore(ModelPart modelPart, MatrixStack matrices, VertexConsumer vertices, int light, int overlay)
+    {
         Chams module = Modules.get().get(Chams.class);
-        if (!module.isActive() || !module.crystals.get()) {
+        if (!module.isActive() || !module.crystals.get())
+        {
             core.render(matrices, vertices, light, overlay);
             return;
         }
 
-        if (module.renderCore.get()) {
+        if (module.renderCore.get())
+        {
             Color color = module.crystalsCoreColor.get();
             core.render(matrices, vertices, light, overlay, color.getPacked());
         }
@@ -101,28 +114,34 @@ public abstract class EndCrystalEntityRendererMixin {
 
     // Frame
     @Redirect(method = "render(Lnet/minecraft/entity/decoration/EndCrystalEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ModelPart;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;II)V", ordinal = 1))
-    private void modifyFrame1(ModelPart modelPart, MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
+    private void modifyFrame1(ModelPart modelPart, MatrixStack matrices, VertexConsumer vertices, int light, int overlay)
+    {
         Chams module = Modules.get().get(Chams.class);
-        if (!module.isActive() || !module.crystals.get()) {
+        if (!module.isActive() || !module.crystals.get())
+        {
             frame.render(matrices, vertices, light, overlay);
             return;
         }
 
-        if (module.renderFrame1.get()) {
+        if (module.renderFrame1.get())
+        {
             Color color = module.crystalsFrame1Color.get();
             frame.render(matrices, vertices, light, overlay, color.getPacked());
         }
     }
 
     @Redirect(method = "render(Lnet/minecraft/entity/decoration/EndCrystalEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ModelPart;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;II)V", ordinal = 2))
-    private void modifyFrame2(ModelPart modelPart, MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
+    private void modifyFrame2(ModelPart modelPart, MatrixStack matrices, VertexConsumer vertices, int light, int overlay)
+    {
         Chams module = Modules.get().get(Chams.class);
-        if (!module.isActive() || !module.crystals.get()) {
+        if (!module.isActive() || !module.crystals.get())
+        {
             frame.render(matrices, vertices, light, overlay);
             return;
         }
 
-        if (module.renderFrame2.get()) {
+        if (module.renderFrame2.get())
+        {
             Color color = module.crystalsFrame2Color.get();
             frame.render(matrices, vertices, light, overlay, color.getPacked());
         }

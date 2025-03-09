@@ -17,31 +17,38 @@ import net.minecraft.client.gui.screen.Screen;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.glfw.GLFW.glfwSetCursorPos;
 
-public abstract class WTopBar extends WHorizontalList {
+public abstract class WTopBar extends WHorizontalList
+{
+    public WTopBar()
+    {
+        spacing = 0;
+    }
+
     protected abstract Color getButtonColor(boolean pressed, boolean hovered);
 
     protected abstract Color getNameColor();
 
-    public WTopBar() {
-        spacing = 0;
-    }
-
     @Override
-    public void init() {
-        for (Tab tab : Tabs.get()) {
+    public void init()
+    {
+        for (Tab tab : Tabs.get())
+        {
             add(new WTopBarButton(tab));
         }
     }
 
-    protected class WTopBarButton extends WPressable {
+    protected class WTopBarButton extends WPressable
+    {
         private final Tab tab;
 
-        public WTopBarButton(Tab tab) {
+        public WTopBarButton(Tab tab)
+        {
             this.tab = tab;
         }
 
         @Override
-        protected void onCalculateSize() {
+        protected void onCalculateSize()
+        {
             double pad = pad();
 
             width = pad + theme.textWidth(tab.name) + pad;
@@ -49,10 +56,12 @@ public abstract class WTopBar extends WHorizontalList {
         }
 
         @Override
-        protected void onPressed(int button) {
+        protected void onPressed(int button)
+        {
             Screen screen = mc.currentScreen;
 
-            if (!(screen instanceof TabScreen) || ((TabScreen) screen).tab != tab) {
+            if (!(screen instanceof TabScreen) || ((TabScreen) screen).tab != tab)
+            {
                 double mouseX = mc.mouse.getX();
                 double mouseY = mc.mouse.getY();
 
@@ -62,7 +71,8 @@ public abstract class WTopBar extends WHorizontalList {
         }
 
         @Override
-        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+        {
             double pad = pad();
             Color color = getButtonColor(pressed || (mc.currentScreen instanceof TabScreen && ((TabScreen) mc.currentScreen).tab == tab), mouseOver);
 

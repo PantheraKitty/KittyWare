@@ -21,43 +21,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MicrosoftLogin {
-    private MicrosoftLogin() {
-    }
-
-    public static class LoginData {
-        public String mcToken;
-        public String newRefreshToken;
-        public String uuid, username;
-
-        public LoginData() {}
-
-        public LoginData(String mcToken, String newRefreshToken, String uuid, String username) {
-            this.mcToken = mcToken;
-            this.newRefreshToken = newRefreshToken;
-            this.uuid = uuid;
-            this.username = username;
-        }
-
-        public boolean isGood() {
-            return mcToken != null;
-        }
-    }
-
+public class MicrosoftLogin
+{
     private static final String CLIENT_ID = "4673b348-3efa-4f6a-bbb6-34e141cdc638";
     private static final int PORT = 9675;
-
     private static HttpServer server;
     private static Consumer<String> callback;
 
-    public static void getRefreshToken(Consumer<String> callback) {
+    private MicrosoftLogin()
+    {
+    }
+
+    public static void getRefreshToken(Consumer<String> callback)
+    {
         MicrosoftLogin.callback = callback;
 
         startServer();
         Util.getOperatingSystem().open("https://login.live.com/oauth20_authorize.srf?client_id=" + CLIENT_ID + "&response_type=code&redirect_uri=http://127.0.0.1:" + PORT + "&scope=XboxLive.signin%20offline_access&prompt=select_account");
     }
 
-    public static LoginData login(String refreshToken) {
+    public static LoginData login(String refreshToken)
+    {
         // Refresh access token
         AuthTokenResponse res = Http.post("https://login.live.com/oauth20_token.srf")
             .bodyForm("client_id=" + CLIENT_ID + "&refresh_token=" + refreshToken + "&grant_type=refresh_token&redirect_uri=http://127.0.0.1:" + PORT)
@@ -106,21 +90,26 @@ public class MicrosoftLogin {
         return new LoginData(mcRes.access_token, refreshToken, profileRes.id, profileRes.name);
     }
 
-    private static void startServer() {
+    private static void startServer()
+    {
         if (server != null) return;
 
-        try {
+        try
+        {
             server = HttpServer.create(new InetSocketAddress("127.0.0.1", PORT), 0);
 
             server.createContext("/", new Handler());
             server.setExecutor(MeteorExecutor.executor);
             server.start();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    public static void stopServer() {
+    public static void stopServer()
+    {
         if (server == null) return;
 
         server.stop(0);
@@ -129,17 +118,46 @@ public class MicrosoftLogin {
         callback = null;
     }
 
-    private static class Handler implements HttpHandler {
+    public static class LoginData
+    {
+        public String mcToken;
+        public String newRefreshToken;
+        public String uuid, username;
+
+        public LoginData()
+        {
+        }
+
+        public LoginData(String mcToken, String newRefreshToken, String uuid, String username)
+        {
+            this.mcToken = mcToken;
+            this.newRefreshToken = newRefreshToken;
+            this.uuid = uuid;
+            this.username = username;
+        }
+
+        public boolean isGood()
+        {
+            return mcToken != null;
+        }
+    }
+
+    private static class Handler implements HttpHandler
+    {
         @Override
-        public void handle(HttpExchange req) throws IOException {
-            if (req.getRequestMethod().equals("GET")) {
+        public void handle(HttpExchange req) throws IOException
+        {
+            if (req.getRequestMethod().equals("GET"))
+            {
                 // Login
                 List<NameValuePair> query = URLEncodedUtils.parse(req.getRequestURI(), StandardCharsets.UTF_8);
 
                 boolean ok = false;
 
-                for (NameValuePair pair : query) {
-                    if (pair.getName().equals("code")) {
+                for (NameValuePair pair : query)
+                {
+                    if (pair.getName().equals("code"))
+                    {
                         handleCode(pair.getValue());
 
                         ok = true;
@@ -147,17 +165,18 @@ public class MicrosoftLogin {
                     }
                 }
 
-                if (!ok) {
+                if (!ok)
+                {
                     writeText(req, "Cannot authenticate.");
                     callback.accept(null);
-                }
-                else writeText(req, "You may now close this page.");
+                } else writeText(req, "You may now close this page.");
             }
 
             stopServer();
         }
 
-        private void handleCode(String code) {
+        private void handleCode(String code)
+        {
             AuthTokenResponse res = Http.post("https://login.live.com/oauth20_token.srf")
                 .bodyForm("client_id=" + CLIENT_ID + "&code=" + code + "&grant_type=authorization_code&redirect_uri=http://127.0.0.1:" + PORT)
                 .sendJson(AuthTokenResponse.class);
@@ -166,7 +185,8 @@ public class MicrosoftLogin {
             else callback.accept(res.refresh_token);
         }
 
-        private void writeText(HttpExchange req, String text) throws IOException {
+        private void writeText(HttpExchange req, String text) throws IOException
+        {
             OutputStream out = req.getResponseBody();
 
             req.sendResponseHeaders(200, text.length());
@@ -177,49 +197,59 @@ public class MicrosoftLogin {
         }
     }
 
-    private static class AuthTokenResponse {
+    private static class AuthTokenResponse
+    {
         public String access_token;
         public String refresh_token;
     }
 
-    private static class XblXstsResponse {
+    private static class XblXstsResponse
+    {
         public String Token;
         public DisplayClaims DisplayClaims;
 
-        private static class DisplayClaims {
+        private static class DisplayClaims
+        {
             private Claim[] xui;
 
-            private static class Claim {
+            private static class Claim
+            {
                 private String uhs;
             }
         }
     }
 
-    private static class McResponse {
+    private static class McResponse
+    {
         public String access_token;
     }
 
-    private static class GameOwnershipResponse {
+    private static class GameOwnershipResponse
+    {
         private Item[] items;
 
-        private static class Item {
-            private String name;
-        }
-
-        private boolean hasGameOwnership() {
+        private boolean hasGameOwnership()
+        {
             boolean hasProduct = false;
             boolean hasGame = false;
 
-            for (Item item : items) {
+            for (Item item : items)
+            {
                 if (item.name.equals("product_minecraft")) hasProduct = true;
                 else if (item.name.equals("game_minecraft")) hasGame = true;
             }
 
             return hasProduct && hasGame;
         }
+
+        private static class Item
+        {
+            private String name;
+        }
     }
 
-    private static class ProfileResponse {
+    private static class ProfileResponse
+    {
         public String id;
         public String name;
     }

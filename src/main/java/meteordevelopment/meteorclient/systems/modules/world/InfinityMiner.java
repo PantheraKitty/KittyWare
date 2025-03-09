@@ -34,12 +34,9 @@ import net.minecraft.util.math.BlockPos;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class InfinityMiner extends Module {
+public class InfinityMiner extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgWhenFull = settings.createGroup("When Full");
-
-    // General
-
     public final Setting<List<Block>> targetBlocks = sgGeneral.add(new BlockListSetting.Builder()
         .name("target-blocks")
         .description("The target blocks to mine.")
@@ -48,13 +45,13 @@ public class InfinityMiner extends Module {
         .build()
     );
 
+    // General
     public final Setting<List<Item>> targetItems = sgGeneral.add(new ItemListSetting.Builder()
         .name("target-items")
         .description("The target items to collect.")
         .defaultValue(Items.DIAMOND)
         .build()
     );
-
     public final Setting<List<Block>> repairBlocks = sgGeneral.add(new BlockListSetting.Builder()
         .name("repair-blocks")
         .description("The repair blocks to mine.")
@@ -62,7 +59,6 @@ public class InfinityMiner extends Module {
         .filter(this::filterBlocks)
         .build()
     );
-
     public final Setting<Double> startRepairing = sgGeneral.add(new DoubleSetting.Builder()
         .name("repair-threshold")
         .description("The durability percentage at which to start repairing.")
@@ -71,7 +67,6 @@ public class InfinityMiner extends Module {
         .sliderRange(1, 99)
         .build()
     );
-
     public final Setting<Double> startMining = sgGeneral.add(new DoubleSetting.Builder()
         .name("mine-threshold")
         .description("The durability percentage at which to start mining.")
@@ -80,9 +75,9 @@ public class InfinityMiner extends Module {
         .sliderRange(1, 99)
         .build()
     );
+    private final SettingGroup sgWhenFull = settings.createGroup("When Full");
 
     // When Full
-
     public final Setting<Boolean> walkHome = sgWhenFull.add(new BoolSetting.Builder()
         .name("walk-home")
         .description("Will walk 'home' when your inventory is full.")
@@ -105,12 +100,14 @@ public class InfinityMiner extends Module {
     private boolean prevMineScanDroppedItems;
     private boolean repairing;
 
-    public InfinityMiner() {
+    public InfinityMiner()
+    {
         super(Categories.World, "infinity-miner", "Allows you to essentially mine forever by mining repair blocks when the durability gets low. Needs a mending pickaxe.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         prevMineScanDroppedItems = baritoneSettings.mineScanDroppedItems.value;
         baritoneSettings.mineScanDroppedItems.value = true;
         homePos.set(mc.player.getBlockPos());
@@ -118,23 +115,27 @@ public class InfinityMiner extends Module {
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         baritone.getPathingBehavior().cancelEverything();
         baritoneSettings.mineScanDroppedItems.value = prevMineScanDroppedItems;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if (isFull()) {
-            if (walkHome.get()) {
-                if (isBaritoneNotWalking()) {
+    private void onTick(TickEvent.Post event)
+    {
+        if (isFull())
+        {
+            if (walkHome.get())
+            {
+                if (isBaritoneNotWalking())
+                {
                     info("Walking home.");
                     baritone.getCustomGoalProcess().setGoalAndPath(new GoalBlock(homePos));
-                }
-                else if (mc.player.getBlockPos().equals(homePos) && logOut.get()) logOut();
-            }
-            else if (logOut.get()) logOut();
-            else {
+                } else if (mc.player.getBlockPos().equals(homePos) && logOut.get()) logOut();
+            } else if (logOut.get()) logOut();
+            else
+            {
                 info("Inventory full, stopping process.");
                 toggle();
             }
@@ -142,20 +143,24 @@ public class InfinityMiner extends Module {
             return;
         }
 
-        if (!findPickaxe()) {
+        if (!findPickaxe())
+        {
             error("Could not find a usable mending pickaxe.");
             toggle();
             return;
         }
 
-        if (!checkThresholds()) {
+        if (!checkThresholds())
+        {
             error("Start mining value can't be lower than start repairing value.");
             toggle();
             return;
         }
 
-        if (repairing) {
-            if (!needsRepair()) {
+        if (repairing)
+        {
+            if (!needsRepair())
+            {
                 warning("Finished repairing, going back to mining.");
                 repairing = false;
                 mineTargetBlocks();
@@ -163,9 +168,10 @@ public class InfinityMiner extends Module {
             }
 
             if (isBaritoneNotMining()) mineRepairBlocks();
-        }
-        else {
-            if (needsRepair()) {
+        } else
+        {
+            if (needsRepair())
+            {
                 warning("Pickaxe needs repair, beginning repair process");
                 repairing = true;
                 mineRepairBlocks();
@@ -176,13 +182,15 @@ public class InfinityMiner extends Module {
         }
     }
 
-    private boolean needsRepair() {
+    private boolean needsRepair()
+    {
         ItemStack itemStack = mc.player.getMainHandStack();
         double toolPercentage = ((itemStack.getMaxDamage() - itemStack.getDamage()) * 100f) / (float) itemStack.getMaxDamage();
         return !(toolPercentage > startMining.get() || (toolPercentage > startRepairing.get() && !repairing));
     }
 
-    private boolean findPickaxe() {
+    private boolean findPickaxe()
+    {
         Predicate<ItemStack> pickaxePredicate = (stack -> stack.getItem() instanceof PickaxeItem
             && Utils.hasEnchantment(stack, Enchantments.MENDING)
             && !Utils.hasEnchantment(stack, Enchantments.SILK_TOUCH));
@@ -194,48 +202,59 @@ public class InfinityMiner extends Module {
         return InvUtils.testInMainHand(pickaxePredicate);
     }
 
-    private boolean checkThresholds() {
+    private boolean checkThresholds()
+    {
         return startRepairing.get() < startMining.get();
     }
 
-    private void mineTargetBlocks() {
+    private void mineTargetBlocks()
+    {
         Block[] array = new Block[targetBlocks.get().size()];
 
         baritone.getPathingBehavior().cancelEverything();
         baritone.getMineProcess().mine(targetBlocks.get().toArray(array));
     }
 
-    private void mineRepairBlocks() {
+    private void mineRepairBlocks()
+    {
         Block[] array = new Block[repairBlocks.get().size()];
 
         baritone.getPathingBehavior().cancelEverything();
         baritone.getMineProcess().mine(repairBlocks.get().toArray(array));
     }
 
-    private void logOut() {
+    private void logOut()
+    {
         toggle();
         mc.player.networkHandler.sendPacket(new DisconnectS2CPacket(Text.literal("[Infinity Miner] Inventory is full.")));
     }
 
-    private boolean isBaritoneNotMining() {
+    private boolean isBaritoneNotMining()
+    {
         return !(baritone.getPathingControlManager().mostRecentInControl().orElse(null) instanceof IMineProcess);
     }
 
-    private boolean isBaritoneNotWalking() {
+    private boolean isBaritoneNotWalking()
+    {
         return !(baritone.getPathingControlManager().mostRecentInControl().orElse(null) instanceof ICustomGoalProcess);
     }
 
-    private boolean filterBlocks(Block block) {
+    private boolean filterBlocks(Block block)
+    {
         return block != Blocks.AIR && block.getDefaultState().getHardness(mc.world, null) != -1 && !(block instanceof FluidBlock);
     }
 
-    private boolean isFull() {
-        for (int i = 0; i <= 35; i++) {
+    private boolean isFull()
+    {
+        for (int i = 0; i <= 35; i++)
+        {
             ItemStack itemStack = mc.player.getInventory().getStack(i);
             if (itemStack.isEmpty()) return false;
 
-            for (Item item : targetItems.get()) {
-                if (itemStack.getItem() == item && itemStack.getCount() < itemStack.getMaxCount()) {
+            for (Item item : targetItems.get())
+            {
+                if (itemStack.getItem() == item && itemStack.getCount() < itemStack.getMaxCount())
+                {
                     return false;
                 }
             }

@@ -19,7 +19,8 @@ import org.joml.Vector4f;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class NametagUtils {
+public class NametagUtils
+{
     private static final Vector4f vec4 = new Vector4f();
     private static final Vector4f mmMat4 = new Vector4f();
     private static final Vector4f pmMat4 = new Vector4f();
@@ -27,14 +28,15 @@ public class NametagUtils {
     private static final Vector3d cameraNegated = new Vector3d();
     private static final Matrix4f model = new Matrix4f();
     private static final Matrix4f projection = new Matrix4f();
+    public static double scale;
     private static double windowScale;
 
-    public static double scale;
-
-    private NametagUtils() {
+    private NametagUtils()
+    {
     }
 
-    public static void onRender(Matrix4f modelView) {
+    public static void onRender(Matrix4f modelView)
+    {
         model.set(modelView);
         NametagUtils.projection.set(RenderSystem.getProjectionMatrix());
 
@@ -45,18 +47,22 @@ public class NametagUtils {
         windowScale = mc.getWindow().calculateScaleFactor(1, false);
     }
 
-    public static boolean to2D(Vector3d pos, double scale) {
+    public static boolean to2D(Vector3d pos, double scale)
+    {
         return to2D(pos, scale, true);
     }
 
-    public static boolean to2D(Vector3d pos, double scale, boolean distanceScaling) {
+    public static boolean to2D(Vector3d pos, double scale, boolean distanceScaling)
+    {
         return to2D(pos, scale, distanceScaling, false);
     }
 
-    public static boolean to2D(Vector3d pos, double scale, boolean distanceScaling, boolean allowBehind) {
+    public static boolean to2D(Vector3d pos, double scale, boolean distanceScaling, boolean allowBehind)
+    {
         Zoom zoom = Modules.get().get(Zoom.class);
         NametagUtils.scale = scale * zoom.getScaling();
-        if (distanceScaling) {
+        if (distanceScaling)
+        {
             NametagUtils.scale *= getScale(pos);
         }
 
@@ -73,7 +79,8 @@ public class NametagUtils {
         double x = pmMat4.x * mc.getWindow().getFramebufferWidth();
         double y = pmMat4.y * mc.getWindow().getFramebufferHeight();
 
-        if (behind) {
+        if (behind)
+        {
             x = mc.getWindow().getFramebufferWidth() - x;
             y = mc.getWindow().getFramebufferHeight() - y;
         }
@@ -84,12 +91,14 @@ public class NametagUtils {
         return true;
     }
 
-    public static void begin(Vector3d pos) {
+    public static void begin(Vector3d pos)
+    {
         Matrix4fStack matrices = RenderSystem.getModelViewStack();
         begin(matrices, pos);
     }
 
-    public static void begin(Vector3d pos, DrawContext drawContext) {
+    public static void begin(Vector3d pos, DrawContext drawContext)
+    {
         begin(pos);
 
         MatrixStack matrices = drawContext.getMatrices();
@@ -98,27 +107,32 @@ public class NametagUtils {
         matrices.scale((float) scale, (float) scale, 1);
     }
 
-    private static void begin(Matrix4fStack matrices, Vector3d pos) {
+    private static void begin(Matrix4fStack matrices, Vector3d pos)
+    {
         matrices.pushMatrix();
         matrices.translate((float) pos.x, (float) pos.y, 0);
         matrices.scale((float) scale, (float) scale, 1);
     }
 
-    public static void end() {
+    public static void end()
+    {
         RenderSystem.getModelViewStack().popMatrix();
     }
 
-    public static void end(DrawContext drawContext) {
+    public static void end(DrawContext drawContext)
+    {
         end();
         drawContext.getMatrices().pop();
     }
 
-    private static double getScale(Vector3d pos) {
+    private static double getScale(Vector3d pos)
+    {
         double dist = camera.distance(pos);
         return MathHelper.clamp(1 - dist * 0.01, 0.5, Integer.MAX_VALUE);
     }
 
-    private static void toScreen(Vector4f vec) {
+    private static void toScreen(Vector4f vec)
+    {
         float newW = 1.0f / vec.w * 0.5f;
 
         vec.x = vec.x * newW + 0.5f;

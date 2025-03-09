@@ -26,32 +26,30 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public abstract class Module implements ISerializable<Module>, Comparable<Module> {
-    protected final MinecraftClient mc;
-
+public abstract class Module implements ISerializable<Module>, Comparable<Module>
+{
     public final Category category;
     public final String name;
     public final String title;
     public final String description;
     public final String[] aliases;
     public final Color color;
-
     public final MeteorAddon addon;
     public final Settings settings = new Settings();
-
-    private boolean active;
-
+    public final Keybind keybind = Keybind.none();
+    protected final MinecraftClient mc;
     public boolean serialize = true;
     public boolean runInMainMenu = false;
     public boolean autoSubscribe = true;
-
-    public final Keybind keybind = Keybind.none();
     public boolean toggleOnBindRelease = false;
     public boolean chatFeedback = true;
     public boolean favorite = false;
+    private boolean active;
 
-    public Module(Category category, String name, String description, String... aliases) {
-        if (name.contains(" ")) MeteorClient.LOG.warn("Module '{}' contains invalid characters in its name making it incompatible with Meteor Client commands.", name);
+    public Module(Category category, String name, String description, String... aliases)
+    {
+        if (name.contains(" "))
+            MeteorClient.LOG.warn("Module '{}' contains invalid characters in its name making it incompatible with Meteor Client commands.", name);
 
         this.mc = MinecraftClient.getInstance();
         this.category = category;
@@ -62,8 +60,10 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
         this.color = Color.fromHsv(Utils.random(0.0, 360.0), 0.35, 1);
 
         String classname = this.getClass().getName();
-        for (MeteorAddon addon : AddonManager.ADDONS) {
-            if (classname.startsWith(addon.getPackage())) {
+        for (MeteorAddon addon : AddonManager.ADDONS)
+        {
+            if (classname.startsWith(addon.getPackage()))
+            {
                 this.addon = addon;
                 return;
             }
@@ -72,31 +72,42 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
         this.addon = null;
     }
 
-    public Module(Category category, String name, String desc) {
+    public Module(Category category, String name, String desc)
+    {
         this(category, name, desc, new String[0]);
     }
 
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         return null;
     }
 
-    public void onActivate() {}
-    public void onDeactivate() {}
+    public void onActivate()
+    {
+    }
 
-    public void toggle() {
-        if (!active) {
+    public void onDeactivate()
+    {
+    }
+
+    public void toggle()
+    {
+        if (!active)
+        {
             active = true;
             Modules.get().addActive(this);
 
             settings.onActivated();
 
-            if (runInMainMenu || Utils.canUpdate()) {
+            if (runInMainMenu || Utils.canUpdate())
+            {
                 if (autoSubscribe) MeteorClient.EVENT_BUS.subscribe(this);
                 onActivate();
             }
-        }
-        else {
-            if (runInMainMenu || Utils.canUpdate()) {
+        } else
+        {
+            if (runInMainMenu || Utils.canUpdate())
+            {
                 if (autoSubscribe) MeteorClient.EVENT_BUS.unsubscribe(this);
                 onDeactivate();
             }
@@ -106,43 +117,52 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
         }
     }
 
-    public void sendToggledMsg() {
-        if (Config.get().chatFeedback.get() && chatFeedback) {
+    public void sendToggledMsg()
+    {
+        if (Config.get().chatFeedback.get() && chatFeedback)
+        {
             ChatUtils.forceNextPrefixClass(getClass());
             ChatUtils.sendMsg(this.hashCode(), Formatting.GRAY, "Toggled (highlight)%s(default) %s(default).", title, isActive() ? Formatting.GREEN + "on" : Formatting.RED + "off");
         }
     }
 
-    public void info(Text message) {
+    public void info(Text message)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.sendMsg(title, message);
     }
 
-    public void info(String message, Object... args) {
+    public void info(String message, Object... args)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.infoPrefix(title, message, args);
     }
 
-    public void warning(String message, Object... args) {
+    public void warning(String message, Object... args)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.warningPrefix(title, message, args);
     }
 
-    public void error(String message, Object... args) {
+    public void error(String message, Object... args)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.errorPrefix(title, message, args);
     }
 
-    public boolean isActive() {
+    public boolean isActive()
+    {
         return active;
     }
 
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return null;
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         if (!serialize) return null;
         NbtCompound tag = new NbtCompound();
 
@@ -157,7 +177,8 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
         return tag;
     }
 
-    public NbtCompound toTagConfig() {
+    public NbtCompound toTagConfig()
+    {
         if (!serialize) return null;
         NbtCompound tag = new NbtCompound();
 
@@ -169,7 +190,8 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
     }
 
     @Override
-    public Module fromTag(NbtCompound tag) {
+    public Module fromTag(NbtCompound tag)
+    {
         // General
         keybind.fromTag(tag.getCompound("keybind"));
         toggleOnBindRelease = tag.getBoolean("toggleOnKeyRelease");
@@ -186,7 +208,8 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
         return this;
     }
 
-    public Module fromTagConfig(NbtCompound tag) {
+    public Module fromTagConfig(NbtCompound tag)
+    {
         // Settings
         NbtElement settingsTag = tag.get("settings");
         if (settingsTag instanceof NbtCompound) settings.fromTag((NbtCompound) settingsTag);
@@ -198,7 +221,8 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Module module = (Module) o;
@@ -206,12 +230,14 @@ public abstract class Module implements ISerializable<Module>, Comparable<Module
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hash(name);
     }
 
     @Override
-    public int compareTo(@NotNull Module o) {
+    public int compareTo(@NotNull Module o)
+    {
         return name.compareTo(o.name);
     }
 }

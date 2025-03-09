@@ -17,7 +17,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.Items;
 
-public class BowSpam extends Module {
+public class BowSpam extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> charge = sgGeneral.add(new IntSetting.Builder()
@@ -39,49 +40,59 @@ public class BowSpam extends Module {
     private boolean wasBow = false;
     private boolean wasHoldingRightClick = false;
 
-    public BowSpam() {
+    public BowSpam()
+    {
         super(Categories.Combat, "bow-spam", "Spams arrows.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         wasBow = false;
         wasHoldingRightClick = false;
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         setPressed(false);
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (!mc.player.getAbilities().creativeMode && !InvUtils.find(itemStack -> itemStack.getItem() instanceof ArrowItem).found())
             return;
 
-        if (!onlyWhenHoldingRightClick.get() || mc.options.useKey.isPressed()) {
+        if (!onlyWhenHoldingRightClick.get() || mc.options.useKey.isPressed())
+        {
             boolean isBow = mc.player.getMainHandStack().getItem() == Items.BOW;
             if (!isBow && wasBow) setPressed(false);
 
             wasBow = isBow;
             if (!isBow) return;
 
-            if (mc.player.getItemUseTime() >= charge.get()) {
+            if (mc.player.getItemUseTime() >= charge.get())
+            {
                 mc.interactionManager.stopUsingItem(mc.player);
-            } else {
+            } else
+            {
                 setPressed(true);
             }
 
             wasHoldingRightClick = mc.options.useKey.isPressed();
-        } else {
-            if (wasHoldingRightClick) {
+        } else
+        {
+            if (wasHoldingRightClick)
+            {
                 setPressed(false);
                 wasHoldingRightClick = false;
             }
         }
     }
 
-    private void setPressed(boolean pressed) {
+    private void setPressed(boolean pressed)
+    {
         mc.options.useKey.setPressed(pressed);
     }
 }

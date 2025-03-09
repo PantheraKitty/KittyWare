@@ -8,28 +8,33 @@ package meteordevelopment.meteorclient.gui.widgets;
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
 
-public abstract class WTooltip extends WContainer implements WRoot {
+public abstract class WTooltip extends WContainer implements WRoot
+{
+    protected String text;
     private boolean valid;
 
-    protected String text;
-
-    public WTooltip(String text) {
+    public WTooltip(String text)
+    {
         this.text = text;
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         add(theme.label(text)).pad(4);
     }
 
     @Override
-    public void invalidate() {
+    public void invalidate()
+    {
         valid = false;
     }
 
     @Override
-    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
-        if (!valid) {
+    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
+        if (!valid)
+        {
             calculateSize();
             calculateWidgetPositions();
 

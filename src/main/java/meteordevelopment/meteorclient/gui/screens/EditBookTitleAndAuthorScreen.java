@@ -23,18 +23,21 @@ import java.util.Optional;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class EditBookTitleAndAuthorScreen extends WindowScreen {
+public class EditBookTitleAndAuthorScreen extends WindowScreen
+{
     private final ItemStack itemStack;
     private final Hand hand;
 
-    public EditBookTitleAndAuthorScreen(GuiTheme theme, ItemStack itemStack, Hand hand) {
+    public EditBookTitleAndAuthorScreen(GuiTheme theme, ItemStack itemStack, Hand hand)
+    {
         super(theme, "Edit title & author");
         this.itemStack = itemStack;
         this.hand = hand;
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         WTable t = add(theme.table()).expandX().widget();
 
         t.add(theme.label("Title"));
@@ -45,7 +48,8 @@ public class EditBookTitleAndAuthorScreen extends WindowScreen {
         WTextBox author = t.add(theme.textBox(itemStack.get(DataComponentTypes.WRITTEN_BOOK_CONTENT).author())).minWidth(220).expandX().widget();
         t.row();
 
-        t.add(theme.button("Done")).expandX().widget().action = () -> {
+        t.add(theme.button("Done")).expandX().widget().action = () ->
+        {
             WrittenBookContentComponent component = itemStack.get(DataComponentTypes.WRITTEN_BOOK_CONTENT);
             WrittenBookContentComponent newComponent = new WrittenBookContentComponent(RawFilteredPair.of(title.get()), author.get(), component.generation(), component.pages(), component.resolved());
             itemStack.set(DataComponentTypes.WRITTEN_BOOK_CONTENT, newComponent);

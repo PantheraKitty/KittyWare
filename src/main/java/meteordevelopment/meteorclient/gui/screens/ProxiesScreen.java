@@ -30,15 +30,18 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class ProxiesScreen extends WindowScreen {
+public class ProxiesScreen extends WindowScreen
+{
     private final List<WCheckbox> checkboxes = new ArrayList<>();
 
-    public ProxiesScreen(GuiTheme theme) {
+    public ProxiesScreen(GuiTheme theme)
+    {
         super(theme, "Proxies");
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         WTable table = add(theme.table()).expandX().minWidth(400).widget();
         initTable(table);
 
@@ -59,23 +62,28 @@ public class ProxiesScreen extends WindowScreen {
         filters.rewind();
 
         WButton importBtn = l.add(theme.button("Import")).expandX().widget();
-        importBtn.action = () -> {
+        importBtn.action = () ->
+        {
             String selectedFile = TinyFileDialogs.tinyfd_openFileDialog("Import Proxies", null, filters, null, false);
-            if (selectedFile != null) {
+            if (selectedFile != null)
+            {
                 File file = new File(selectedFile);
                 mc.setScreen(new ProxiesImportScreen(theme, file));
             }
         };
     }
 
-    private void initTable(WTable table) {
+    private void initTable(WTable table)
+    {
         table.clear();
         if (Proxies.get().isEmpty()) return;
 
-        for (Proxy proxy : Proxies.get()) {
+        for (Proxy proxy : Proxies.get())
+        {
             WCheckbox enabled = table.add(theme.checkbox(proxy.enabled.get())).widget();
             checkboxes.add(enabled);
-            enabled.action = () -> {
+            enabled.action = () ->
+            {
                 boolean checked = enabled.checked;
                 Proxies.get().setEnabled(proxy, checked);
 
@@ -100,7 +108,8 @@ public class ProxiesScreen extends WindowScreen {
             edit.action = () -> mc.setScreen(new EditProxyScreen(theme, proxy, this::reload));
 
             WMinus remove = table.add(theme.minus()).widget();
-            remove.action = () -> {
+            remove.action = () ->
+            {
                 Proxies.get().remove(proxy);
                 reload();
             };
@@ -110,32 +119,39 @@ public class ProxiesScreen extends WindowScreen {
     }
 
     @Override
-    public boolean toClipboard() {
+    public boolean toClipboard()
+    {
         return NbtUtils.toClipboard(Proxies.get());
     }
 
     @Override
-    public boolean fromClipboard() {
+    public boolean fromClipboard()
+    {
         return NbtUtils.fromClipboard(Proxies.get());
     }
 
-    protected static class EditProxyScreen extends EditSystemScreen<Proxy> {
-        public EditProxyScreen(GuiTheme theme, Proxy value, Runnable reload) {
+    protected static class EditProxyScreen extends EditSystemScreen<Proxy>
+    {
+        public EditProxyScreen(GuiTheme theme, Proxy value, Runnable reload)
+        {
             super(theme, value, reload);
         }
 
         @Override
-        public Proxy create() {
+        public Proxy create()
+        {
             return new Proxy.Builder().build();
         }
 
         @Override
-        public boolean save() {
+        public boolean save()
+        {
             return value.resolveAddress() && (!isNew || Proxies.get().add(value));
         }
 
         @Override
-        public Settings getSettings() {
+        public Settings getSettings()
+        {
             return value.settings;
         }
     }

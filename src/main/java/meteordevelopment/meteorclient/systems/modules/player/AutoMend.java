@@ -22,7 +22,8 @@ import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
-public class AutoMend extends Module {
+public class AutoMend extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<List<Item>> blacklist = sgGeneral.add(new ItemListSetting.Builder()
@@ -48,56 +49,68 @@ public class AutoMend extends Module {
 
     private boolean didMove;
 
-    public AutoMend() {
+    public AutoMend()
+    {
         super(Categories.Player, "auto-mend", "Automatically replaces items in your offhand with mending when fully repaired.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         didMove = false;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (shouldWait()) return;
 
         int slot = getSlot();
 
-        if (slot == -1) {
-            if (autoDisable.get()) {
+        if (slot == -1)
+        {
+            if (autoDisable.get())
+            {
                 info("Repaired all items, disabling");
 
-                if (didMove) {
+                if (didMove)
+                {
                     int emptySlot = getEmptySlot();
                     InvUtils.move().fromOffhand().to(emptySlot);
                 }
 
                 toggle();
             }
-        } else {
+        } else
+        {
             InvUtils.move().from(slot).toOffhand();
             didMove = true;
         }
     }
 
-    private boolean shouldWait() {
+    private boolean shouldWait()
+    {
         ItemStack itemStack = mc.player.getOffHandStack();
 
         if (itemStack.isEmpty()) return false;
 
-        if (Utils.hasEnchantments(itemStack, Enchantments.MENDING)) {
+        if (Utils.hasEnchantments(itemStack, Enchantments.MENDING))
+        {
             return itemStack.getDamage() != 0;
         }
 
         return !force.get();
     }
 
-    private int getSlot() {
-        for (int i = 0; i < mc.player.getInventory().main.size(); i++) {
+    private int getSlot()
+    {
+        for (int i = 0; i < mc.player.getInventory().main.size(); i++)
+        {
             ItemStack itemStack = mc.player.getInventory().getStack(i);
             if (blacklist.get().contains(itemStack.getItem())) continue;
 
-            if (Utils.hasEnchantments(itemStack, Enchantments.MENDING) && itemStack.getDamage() > 0) {
+            if (Utils.hasEnchantments(itemStack, Enchantments.MENDING) && itemStack.getDamage() > 0)
+            {
                 return i;
             }
         }
@@ -105,8 +118,10 @@ public class AutoMend extends Module {
         return -1;
     }
 
-    private int getEmptySlot() {
-        for (int i = 0; i < mc.player.getInventory().main.size(); i++) {
+    private int getEmptySlot()
+    {
+        for (int i = 0; i < mc.player.getInventory().main.size(); i++)
+        {
             if (mc.player.getInventory().getStack(i).isEmpty()) return i;
         }
 

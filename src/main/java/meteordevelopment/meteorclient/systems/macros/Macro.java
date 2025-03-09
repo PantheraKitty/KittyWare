@@ -21,7 +21,8 @@ import java.util.Objects;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class Macro implements ISerializable<Macro> {
+public class Macro implements ISerializable<Macro>
+{
     public final Settings settings = new Settings();
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -31,7 +32,13 @@ public class Macro implements ISerializable<Macro> {
         .description("The name of the macro.")
         .build()
     );
-
+    public Setting<Keybind> keybind = sgGeneral.add(new KeybindSetting.Builder()
+        .name("keybind")
+        .description("The bind to run the macro.")
+        .build()
+    );
+    private final List<Script> scripts = new ArrayList<>(1);
+    private boolean dirty;
     public Setting<List<String>> messages = sgGeneral.add(new StringListSetting.Builder()
         .name("messages")
         .description("The messages for the macro to send.")
@@ -40,50 +47,52 @@ public class Macro implements ISerializable<Macro> {
         .build()
     );
 
-    public Setting<Keybind> keybind = sgGeneral.add(new KeybindSetting.Builder()
-        .name("keybind")
-        .description("The bind to run the macro.")
-        .build()
-    );
+    public Macro()
+    {
+    }
 
-    private final List<Script> scripts = new ArrayList<>(1);
-    private boolean dirty;
-
-    public Macro() {}
-    public Macro(NbtElement tag) {
+    public Macro(NbtElement tag)
+    {
         fromTag((NbtCompound) tag);
     }
 
-    public boolean onAction(boolean isKey, int value, int modifiers) {
+    public boolean onAction(boolean isKey, int value, int modifiers)
+    {
         if (!keybind.get().matches(isKey, value, modifiers) || mc.currentScreen != null) return false;
         return onAction();
     }
 
-    public boolean onAction() {
-            if (dirty) {
-                scripts.clear();
+    public boolean onAction()
+    {
+        if (dirty)
+        {
+            scripts.clear();
 
-                for (String message : messages.get()) {
-                    Script script = MeteorStarscript.compile(message);
-                    if (script != null) scripts.add(script);
-                }
-
-                dirty = false;
+            for (String message : messages.get())
+            {
+                Script script = MeteorStarscript.compile(message);
+                if (script != null) scripts.add(script);
             }
 
-            for (Script script : scripts) {
-                String message = MeteorStarscript.run(script);
+            dirty = false;
+        }
 
-                if (message != null) {
-                    ChatUtils.sendPlayerMsg(message);
-                }
+        for (Script script : scripts)
+        {
+            String message = MeteorStarscript.run(script);
+
+            if (message != null)
+            {
+                ChatUtils.sendPlayerMsg(message);
             }
+        }
 
-            return true;
+        return true;
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.put("settings", settings.toTag());
@@ -92,8 +101,10 @@ public class Macro implements ISerializable<Macro> {
     }
 
     @Override
-    public Macro fromTag(NbtCompound tag) {
-        if (tag.contains("settings")) {
+    public Macro fromTag(NbtCompound tag)
+    {
+        if (tag.contains("settings"))
+        {
             settings.fromTag(tag.getCompound("settings"));
         }
 
@@ -101,7 +112,8 @@ public class Macro implements ISerializable<Macro> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Macro macro = (Macro) o;

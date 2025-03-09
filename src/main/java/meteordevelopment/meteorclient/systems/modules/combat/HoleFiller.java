@@ -38,7 +38,8 @@ import net.minecraft.util.math.Vec3d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HoleFiller extends Module {
+public class HoleFiller extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgSmart = settings.createGroup("Smart");
     private final SettingGroup sgRender = settings.createGroup("Render");
@@ -229,30 +230,35 @@ public class HoleFiller extends Module {
     private final Box box = new Box(0, 0, 0, 0, 0, 0);
     private int timer;
 
-    public HoleFiller() {
+    public HoleFiller()
+    {
         super(Categories.Combat, "hole-filler", "Fills holes with specified blocks.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         timer = 0;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (smart.get()) setTargets();
         holes.clear();
 
         FindItemResult block = InvUtils.findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
         if (!block.found()) return;
 
-        BlockIterator.register(searchRadius.get(), searchRadius.get(), (blockPos, blockState) -> {
+        BlockIterator.register(searchRadius.get(), searchRadius.get(), (blockPos, blockState) ->
+        {
             if (!validHole(blockPos)) return;
 
             int bedrock = 0, obsidian = 0;
             Direction air = null;
 
-            for (Direction direction : Direction.values()) {
+            for (Direction direction : Direction.values())
+            {
                 if (direction == Direction.UP) continue;
 
                 BlockState state = mc.world.getBlockState(blockPos.offset(direction));
@@ -260,8 +266,10 @@ public class HoleFiller extends Module {
                 if (state.getBlock() == Blocks.BEDROCK) bedrock++;
                 else if (state.getBlock() == Blocks.OBSIDIAN) obsidian++;
                 else if (direction == Direction.DOWN) return;
-                else if (validHole(blockPos.offset(direction)) && air == null) {
-                    for (Direction dir : Direction.values()) {
+                else if (validHole(blockPos.offset(direction)) && air == null)
+                {
+                    for (Direction dir : Direction.values())
+                    {
                         if (dir == direction.getOpposite() || dir == Direction.UP) continue;
 
                         BlockState blockState1 = mc.world.getBlockState(blockPos.offset(direction).offset(dir));
@@ -275,17 +283,20 @@ public class HoleFiller extends Module {
                 }
 
                 if (obsidian + bedrock == 5 && air == null) holes.add(new Hole(blockPos, (byte) 0));
-                else if (obsidian + bedrock == 8 && doubles.get() && air != null) {
+                else if (obsidian + bedrock == 8 && doubles.get() && air != null)
+                {
                     holes.add(new Hole(blockPos, Dir.get(air)));
                 }
             }
         });
 
-        BlockIterator.after(() -> {
+        BlockIterator.after(() ->
+        {
             if (timer > 0 || holes.isEmpty()) return;
 
             int bpt = 0;
-            for (Hole hole : holes) {
+            for (Hole hole : holes)
+            {
                 if (bpt >= blocksPerTick.get()) continue;
                 if (BlockUtils.place(hole.blockPos, block, rotate.get(), 10, swing.get(), true)) bpt++;
             }
@@ -297,12 +308,15 @@ public class HoleFiller extends Module {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (!render.get() || holes.isEmpty()) return;
 
-        for (Hole hole : holes) {
+        for (Hole hole : holes)
+        {
             boolean isNext = false;
-            for (int i = 0; i < holes.size(); i++) {
+            for (int i = 0; i < holes.size(); i++)
+            {
                 if (!holes.get(i).equals(hole)) continue;
                 if (i < blocksPerTick.get()) isNext = true;
             }
@@ -314,7 +328,8 @@ public class HoleFiller extends Module {
         }
     }
 
-    private boolean validHole(BlockPos pos) {
+    private boolean validHole(BlockPos pos)
+    {
         testPos.set(pos);
 
         if (mc.player.getBlockPos().equals(testPos)) return false;
@@ -339,10 +354,12 @@ public class HoleFiller extends Module {
             && (distance(target, testPos, true) < feetRange.get()));
     }
 
-    private void setTargets() {
+    private void setTargets()
+    {
         targets.clear();
 
-        for (PlayerEntity player : mc.world.getPlayers()) {
+        for (PlayerEntity player : mc.world.getPlayers())
+        {
             if (player.squaredDistanceTo(mc.player) > Math.pow(targetRange.get(), 2) ||
                 player.isCreative() ||
                 player == mc.player ||
@@ -356,8 +373,10 @@ public class HoleFiller extends Module {
         }
     }
 
-    private boolean isSurrounded(PlayerEntity target) {
-        for (Direction dir : Direction.values()) {
+    private boolean isSurrounded(PlayerEntity target)
+    {
+        for (Direction dir : Direction.values())
+        {
             if (dir == Direction.UP || dir == Direction.DOWN) continue;
 
             testPos.set(target.getBlockPos().offset(dir));
@@ -372,11 +391,13 @@ public class HoleFiller extends Module {
         return true;
     }
 
-    private double distance(PlayerEntity player, BlockPos pos, boolean feet) {
+    private double distance(PlayerEntity player, BlockPos pos, boolean feet)
+    {
         Vec3d testVec = player.getPos();
         if (!feet) testVec.add(0, player.getEyeHeight(mc.player.getPose()), 0);
 
-        else if (predict.get()) {
+        else if (predict.get())
+        {
             testVec.add(
                 player.getX() - player.prevX,
                 player.getY() - player.prevY,
@@ -391,11 +412,13 @@ public class HoleFiller extends Module {
         return Math.sqrt(i * i + j * j + k * k);
     }
 
-    private static class Hole {
+    private static class Hole
+    {
         private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
         private final byte exclude;
 
-        public Hole(BlockPos blockPos, byte exclude) {
+        public Hole(BlockPos blockPos, byte exclude)
+        {
             this.blockPos.set(blockPos);
             this.exclude = exclude;
         }

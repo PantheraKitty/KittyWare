@@ -18,12 +18,14 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class Commands {
+public class Commands
+{
     public static final CommandDispatcher<CommandSource> DISPATCHER = new CommandDispatcher<>();
     public static final List<Command> COMMANDS = new ArrayList<>();
 
     @PostInit(dependencies = PathManagers.class)
-    public static void init() {
+    public static void init()
+    {
         add(new VClipCommand());
         add(new HClipCommand());
         add(new DismountCommand());
@@ -68,19 +70,24 @@ public class Commands {
         COMMANDS.sort(Comparator.comparing(Command::getName));
     }
 
-    public static void add(Command command) {
+    public static void add(Command command)
+    {
         COMMANDS.removeIf(existing -> existing.getName().equals(command.getName()));
         command.registerTo(DISPATCHER);
         COMMANDS.add(command);
     }
 
-    public static void dispatch(String message) throws CommandSyntaxException {
+    public static void dispatch(String message) throws CommandSyntaxException
+    {
         DISPATCHER.execute(message, mc.getNetworkHandler().getCommandSource());
     }
 
-    public static Command get(String name) {
-        for (Command command : COMMANDS) {
-            if (command.getName().equals(name)) {
+    public static Command get(String name)
+    {
+        for (Command command : COMMANDS)
+        {
+            if (command.getName().equals(name))
+            {
                 return command;
             }
         }

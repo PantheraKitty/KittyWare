@@ -6,13 +6,15 @@ import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.settings.Settings;
 
-public abstract class EditSystemScreen<T> extends WindowScreen {
-    private WContainer settingsContainer;
+public abstract class EditSystemScreen<T> extends WindowScreen
+{
     protected final T value;
     protected final boolean isNew;
     private final Runnable reload;
+    private WContainer settingsContainer;
 
-    public EditSystemScreen(GuiTheme theme, T value, Runnable reload) {
+    public EditSystemScreen(GuiTheme theme, T value, Runnable reload)
+    {
         super(theme, value == null ? "New" : "Edit");
 
         this.isNew = value == null;
@@ -21,14 +23,16 @@ public abstract class EditSystemScreen<T> extends WindowScreen {
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         settingsContainer = add(theme.verticalList()).expandX().minWidth(400).widget();
         settingsContainer.add(theme.settings(getSettings())).expandX();
 
         add(theme.horizontalSeparator()).expandX();
 
         WButton done = add(theme.button(isNew ? "Create" : "Save")).expandX().widget();
-        done.action = () -> {
+        done.action = () ->
+        {
             if (save()) close();
         };
 
@@ -36,16 +40,20 @@ public abstract class EditSystemScreen<T> extends WindowScreen {
     }
 
     @Override
-    public void tick() {
+    public void tick()
+    {
         getSettings().tick(settingsContainer, theme);
     }
 
     @Override
-    protected void onClosed() {
+    protected void onClosed()
+    {
         if (reload != null) reload.run();
     }
 
     public abstract T create();
+
     public abstract boolean save();
+
     public abstract Settings getSettings();
 }

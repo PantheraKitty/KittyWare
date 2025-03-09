@@ -28,26 +28,33 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BannerBlockEntityRenderer.class)
-public abstract class BannerBlockEntityRendererMixin {
+public abstract class BannerBlockEntityRendererMixin
+{
 
     @Final
-    @Shadow private ModelPart pillar;
+    @Shadow
+    private ModelPart pillar;
     @Final
-    @Shadow private ModelPart crossbar;
+    @Shadow
+    private ModelPart crossbar;
 
     @Inject(method = "render(Lnet/minecraft/block/entity/BannerBlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;II)V", at = @At("HEAD"), cancellable = true)
-    private void render(BannerBlockEntity bannerBlockEntity, float f, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j, CallbackInfo ci) {
-        if (bannerBlockEntity.getWorld() != null) { //Don't modify banners in item form
+    private void render(BannerBlockEntity bannerBlockEntity, float f, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j, CallbackInfo ci)
+    {
+        if (bannerBlockEntity.getWorld() != null)
+        { //Don't modify banners in item form
             NoRender.BannerRenderMode renderMode = Modules.get().get(NoRender.class).getBannerRenderMode();
             if (renderMode == NoRender.BannerRenderMode.None) ci.cancel();
-            else if (renderMode == NoRender.BannerRenderMode.Pillar) {
+            else if (renderMode == NoRender.BannerRenderMode.Pillar)
+            {
                 BlockState blockState = bannerBlockEntity.getCachedState();
-                if (blockState.getBlock() instanceof BannerBlock) { //Floor banner
+                if (blockState.getBlock() instanceof BannerBlock)
+                { //Floor banner
                     this.pillar.visible = true;
                     this.crossbar.visible = false;
                     renderPillar(bannerBlockEntity, matrixStack, vertexConsumerProvider, i, j);
-                }
-                else { //Wall banner
+                } else
+                { //Wall banner
                     this.pillar.visible = false;
                     this.crossbar.visible = true;
                     renderCrossbar(bannerBlockEntity, matrixStack, vertexConsumerProvider, i, j);
@@ -58,11 +65,12 @@ public abstract class BannerBlockEntityRendererMixin {
     }
 
     @Unique
-    private void renderPillar(BannerBlockEntity bannerBlockEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j) {
+    private void renderPillar(BannerBlockEntity bannerBlockEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j)
+    {
         matrixStack.push();
         BlockState blockState = bannerBlockEntity.getCachedState();
         matrixStack.translate(0.5D, 0.5D, 0.5D);
-        float h = (-(Integer)blockState.get(BannerBlock.ROTATION) * 360) / 16.0F;
+        float h = (-(Integer) blockState.get(BannerBlock.ROTATION) * 360) / 16.0F;
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(h));
         matrixStack.push();
         matrixStack.scale(0.6666667F, -0.6666667F, -0.6666667F);
@@ -73,7 +81,8 @@ public abstract class BannerBlockEntityRendererMixin {
     }
 
     @Unique
-    private void renderCrossbar(BannerBlockEntity bannerBlockEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j) {
+    private void renderCrossbar(BannerBlockEntity bannerBlockEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j)
+    {
         matrixStack.push();
         BlockState blockState = bannerBlockEntity.getCachedState();
         matrixStack.translate(0.5D, -0.1666666716337204D, 0.5D);

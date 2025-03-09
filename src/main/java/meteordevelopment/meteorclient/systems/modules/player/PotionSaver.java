@@ -18,9 +18,15 @@ import java.util.List;
 
 import static net.minecraft.entity.effect.StatusEffects.*;
 
-public class PotionSaver extends Module {
+public class PotionSaver extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
+    public final Setting<Boolean> onlyWhenStationary = sgGeneral.add(new BoolSetting.Builder()
+        .name("only-when-stationary")
+        .description("Only freezes effects when you aren't moving.")
+        .defaultValue(false)
+        .build()
+    );
     private final Setting<List<StatusEffect>> effects = sgGeneral.add(new StatusEffectListSetting.Builder()
         .name("effects")
         .description("The effects to preserve.")
@@ -43,18 +49,13 @@ public class PotionSaver extends Module {
         .build()
     );
 
-    public final Setting<Boolean> onlyWhenStationary = sgGeneral.add(new BoolSetting.Builder()
-        .name("only-when-stationary")
-        .description("Only freezes effects when you aren't moving.")
-        .defaultValue(false)
-        .build()
-    );
-
-    public PotionSaver() {
+    public PotionSaver()
+    {
         super(Categories.Player, "potion-saver", "Stops potion effects ticking when you stand still.");
     }
 
-    public boolean shouldFreeze(StatusEffect effect) {
+    public boolean shouldFreeze(StatusEffect effect)
+    {
         return isActive() && (!onlyWhenStationary.get() || !PlayerUtils.isMoving()) && !mc.player.getStatusEffects().isEmpty() && effects.get().contains(effect);
     }
 }

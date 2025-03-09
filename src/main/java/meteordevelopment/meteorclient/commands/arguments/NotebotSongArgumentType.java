@@ -20,31 +20,40 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
-public class NotebotSongArgumentType implements ArgumentType<Path> {
+public class NotebotSongArgumentType implements ArgumentType<Path>
+{
     private static final NotebotSongArgumentType INSTANCE = new NotebotSongArgumentType();
 
-    public static NotebotSongArgumentType create() {
+    private NotebotSongArgumentType()
+    {
+    }
+
+    public static NotebotSongArgumentType create()
+    {
         return INSTANCE;
     }
 
-    private NotebotSongArgumentType() {}
-
     @Override
-    public Path parse(StringReader reader) throws CommandSyntaxException {
+    public Path parse(StringReader reader) throws CommandSyntaxException
+    {
         final String text = reader.getRemaining();
         reader.setCursor(reader.getTotalLength());
         return MeteorClient.FOLDER.toPath().resolve("notebot/" + text);
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        try (var suggestions = Files.list(MeteorClient.FOLDER.toPath().resolve("notebot"))) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
+    {
+        try (var suggestions = Files.list(MeteorClient.FOLDER.toPath().resolve("notebot")))
+        {
             return CommandSource.suggestMatching(suggestions
                     .filter(SongDecoders::hasDecoder)
                     .map(path -> path.getFileName().toString()),
                 builder
             );
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             return Suggestions.empty();
         }
     }

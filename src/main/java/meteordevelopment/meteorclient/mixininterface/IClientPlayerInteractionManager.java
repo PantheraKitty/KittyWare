@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.mixininterface;
 
-public interface IClientPlayerInteractionManager {
+public interface IClientPlayerInteractionManager
+{
     void meteor$syncSelected();
 }

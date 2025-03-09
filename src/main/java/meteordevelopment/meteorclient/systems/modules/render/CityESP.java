@@ -22,7 +22,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class CityESP extends Module {
+public class CityESP extends Module
+{
     private final SettingGroup sgRender = settings.createGroup("Render");
 
     // Render
@@ -50,23 +51,28 @@ public class CityESP extends Module {
 
     private BlockPos target;
 
-    public CityESP() {
+    public CityESP()
+    {
         super(Categories.Render, "city-esp", "Displays blocks that can be broken in order to city another player.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         PlayerEntity targetEntity = TargetUtils.getPlayerTarget(mc.player.getBlockInteractionRange() + 2, SortPriority.LowestDistance);
 
-        if (TargetUtils.isBadTarget(targetEntity, mc.player.getBlockInteractionRange() + 2)) {
+        if (TargetUtils.isBadTarget(targetEntity, mc.player.getBlockInteractionRange() + 2))
+        {
             target = null;
-        } else {
+        } else
+        {
             target = EntityUtils.getCityBlock(mc.player, targetEntity, null);
         }
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (target == null) return;
 
         event.renderer.box(target, sideColor.get(), lineColor.get(), shapeMode.get(), 0);

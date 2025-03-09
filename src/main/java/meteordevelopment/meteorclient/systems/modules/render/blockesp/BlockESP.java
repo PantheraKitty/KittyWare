@@ -35,20 +35,11 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class BlockESP extends Module {
+public class BlockESP extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     // General
-
-    private final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
-        .name("blocks")
-        .description("Blocks to search for.")
-        .onChanged(blocks1 -> {
-            if (isActive() && Utils.canUpdate()) onActivate();
-        })
-        .build()
-    );
-
     private final Setting<ESPBlockData> defaultBlockConfig = sgGeneral.add(new GenericSetting.Builder<ESPBlockData>()
         .name("default-block-config")
         .description("Default block config.")
@@ -62,52 +53,56 @@ public class BlockESP extends Module {
             )
         )
         .build()
+    );    private final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
+        .name("blocks")
+        .description("Blocks to search for.")
+        .onChanged(blocks1 ->
+        {
+            if (isActive() && Utils.canUpdate()) onActivate();
+        })
+        .build()
     );
-
     private final Setting<Map<Block, ESPBlockData>> blockConfigs = sgGeneral.add(new BlockDataSetting.Builder<ESPBlockData>()
         .name("block-configs")
         .description("Config for each block.")
         .defaultData(defaultBlockConfig)
         .build()
     );
-
     private final Setting<Boolean> tracers = sgGeneral.add(new BoolSetting.Builder()
         .name("tracers")
         .description("Render tracer lines.")
         .defaultValue(false)
         .build()
     );
-
-    private final Setting<Boolean> activatedSpawners = sgGeneral.add(new BoolSetting.Builder()
+    private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
+    private final Long2ObjectMap<ESPChunk> chunks = new Long2ObjectOpenHashMap<>();    private final Setting<Boolean> activatedSpawners = sgGeneral.add(new BoolSetting.Builder()
         .name("activated-spawners")
         .description("Only highlights activated spawners")
         .defaultValue(true)
         .visible(() -> blocks.get().contains(Blocks.SPAWNER))
         .build()
     );
-
-    private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
-
-    private final Long2ObjectMap<ESPChunk> chunks = new Long2ObjectOpenHashMap<>();
     private final Set<ESPGroup> groups = new ReferenceOpenHashSet<>();
     private final ExecutorService workerThread = Executors.newSingleThreadExecutor();
-
     private Dimension lastDimension;
-
-    public BlockESP() {
+    public BlockESP()
+    {
         super(Categories.Render, "block-esp", "Renders specified blocks through walls.", "search");
 
         RainbowColors.register(this::onTickRainbow);
     }
 
     @Override
-    public void onActivate() {
-        synchronized (chunks) {
+    public void onActivate()
+    {
+        synchronized (chunks)
+        {
             chunks.clear();
             groups.clear();
         }
 
-        for (Chunk chunk : Utils.chunks()) {
+        for (Chunk chunk : Utils.chunks())
+        {
             searchChunk(chunk);
         }
 
@@ -115,66 +110,82 @@ public class BlockESP extends Module {
     }
 
     @Override
-    public void onDeactivate() {
-        synchronized (chunks) {
+    public void onDeactivate()
+    {
+        synchronized (chunks)
+        {
             chunks.clear();
             groups.clear();
         }
     }
 
-    private void onTickRainbow() {
+    private void onTickRainbow()
+    {
         if (!isActive()) return;
 
         defaultBlockConfig.get().tickRainbow();
         for (ESPBlockData blockData : blockConfigs.get().values()) blockData.tickRainbow();
     }
 
-    ESPBlockData getBlockData(Block block) {
+    ESPBlockData getBlockData(Block block)
+    {
         ESPBlockData blockData = blockConfigs.get().get(block);
         return blockData == null ? defaultBlockConfig.get() : blockData;
     }
 
-    private void updateChunk(int x, int z) {
+    private void updateChunk(int x, int z)
+    {
         ESPChunk chunk = chunks.get(ChunkPos.toLong(x, z));
         if (chunk != null) chunk.update();
     }
 
-    private void updateBlock(int x, int y, int z) {
+    private void updateBlock(int x, int y, int z)
+    {
         ESPChunk chunk = chunks.get(ChunkPos.toLong(x >> 4, z >> 4));
         if (chunk != null) chunk.update(x, y, z);
     }
 
-    public ESPBlock getBlock(int x, int y, int z) {
+    public ESPBlock getBlock(int x, int y, int z)
+    {
         ESPChunk chunk = chunks.get(ChunkPos.toLong(x >> 4, z >> 4));
         return chunk == null ? null : chunk.get(x, y, z);
     }
 
-    public ESPGroup newGroup(Block block) {
-        synchronized (chunks) {
+    public ESPGroup newGroup(Block block)
+    {
+        synchronized (chunks)
+        {
             ESPGroup group = new ESPGroup(block);
             groups.add(group);
             return group;
         }
     }
 
-    public void removeGroup(ESPGroup group) {
-        synchronized (chunks) {
+    public void removeGroup(ESPGroup group)
+    {
+        synchronized (chunks)
+        {
             groups.remove(group);
         }
     }
 
     @EventHandler
-    private void onChunkData(ChunkDataEvent event) {
+    private void onChunkData(ChunkDataEvent event)
+    {
         searchChunk(event.chunk());
     }
 
-    private void searchChunk(Chunk chunk) {
-        workerThread.submit(() -> {
+    private void searchChunk(Chunk chunk)
+    {
+        workerThread.submit(() ->
+        {
             if (!isActive()) return;
             ESPChunk schunk = ESPChunk.searchChunk(chunk, blocks.get(), activatedSpawners.get());
 
-            if (schunk.size() > 0) {
-                synchronized (chunks) {
+            if (schunk.size() > 0)
+            {
+                synchronized (chunks)
+                {
                     chunks.put(chunk.getPos().toLong(), schunk);
                     schunk.update();
 
@@ -189,7 +200,8 @@ public class BlockESP extends Module {
     }
 
     @EventHandler
-    private void onBlockUpdate(BlockUpdateEvent event) {
+    private void onBlockUpdate(BlockUpdateEvent event)
+    {
         // Minecraft probably reuses the event.pos BlockPos instance because it causes problems when trying to use it inside another thread
         int bx = event.pos.getX();
         int by = event.pos.getY();
@@ -202,12 +214,16 @@ public class BlockESP extends Module {
         boolean added = blocks.get().contains(event.newState.getBlock()) && !blocks.get().contains(event.oldState.getBlock());
         boolean removed = !added && !blocks.get().contains(event.newState.getBlock()) && blocks.get().contains(event.oldState.getBlock());
 
-        if (added || removed) {
-            workerThread.submit(() -> {
-                synchronized (chunks) {
+        if (added || removed)
+        {
+            workerThread.submit(() ->
+            {
+                synchronized (chunks)
+                {
                     ESPChunk chunk = chunks.get(key);
 
-                    if (chunk == null) {
+                    if (chunk == null)
+                    {
                         chunk = new ESPChunk(chunkX, chunkZ);
                         if (chunk.shouldBeDeleted()) return;
 
@@ -220,9 +236,12 @@ public class BlockESP extends Module {
                     else chunk.remove(blockPos);
 
                     // Update neighbour blocks
-                    for (int x = -1; x < 2; x++) {
-                        for (int z = -1; z < 2; z++) {
-                            for (int y = -1; y < 2; y++) {
+                    for (int x = -1; x < 2; x++)
+                    {
+                        for (int z = -1; z < 2; z++)
+                        {
+                            for (int y = -1; y < 2; y++)
+                            {
                                 if (x == 0 && y == 0 && z == 0) continue;
 
                                 updateBlock(bx + x, by + y, bz + z);
@@ -235,7 +254,8 @@ public class BlockESP extends Module {
     }
 
     @EventHandler
-    private void onPostTick(TickEvent.Post event) {
+    private void onPostTick(TickEvent.Post event)
+    {
         Dimension dimension = PlayerUtils.getDimension();
 
         if (lastDimension != dimension) onActivate();
@@ -244,26 +264,33 @@ public class BlockESP extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
-        synchronized (chunks) {
-            for (Iterator<ESPChunk> it = chunks.values().iterator(); it.hasNext();) {
+    private void onRender(Render3DEvent event)
+    {
+        synchronized (chunks)
+        {
+            for (Iterator<ESPChunk> it = chunks.values().iterator(); it.hasNext(); )
+            {
                 ESPChunk chunk = it.next();
 
-                if (chunk.shouldBeDeleted()) {
-                    workerThread.submit(() -> {
-                        for (ESPBlock block : chunk.blocks.values()) {
+                if (chunk.shouldBeDeleted())
+                {
+                    workerThread.submit(() ->
+                    {
+                        for (ESPBlock block : chunk.blocks.values())
+                        {
                             block.group.remove(block, false);
                             block.loaded = false;
                         }
                     });
 
                     it.remove();
-                }
-                else chunk.render(event);
+                } else chunk.render(event);
             }
 
-            if (tracers.get()) {
-                for (ESPGroup group : groups) {
+            if (tracers.get())
+            {
+                for (ESPGroup group : groups)
+                {
                     group.render(event);
                 }
             }
@@ -271,7 +298,12 @@ public class BlockESP extends Module {
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return "%s groups".formatted(groups.size());
     }
+
+
+
+
 }

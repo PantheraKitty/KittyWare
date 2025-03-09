@@ -15,7 +15,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.orbit.EventHandler;
 
-public class AutoClicker extends Module {
+public class AutoClicker extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Mode> leftClickMode = sgGeneral.add(new EnumSetting.Builder<Mode>()
@@ -54,12 +55,14 @@ public class AutoClicker extends Module {
 
     private int rightClickTimer, leftClickTimer;
 
-    public AutoClicker() {
+    public AutoClicker()
+    {
         super(Categories.Player, "auto-clicker", "Automatically clicks.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         rightClickTimer = 0;
         leftClickTimer = 0;
         mc.options.attackKey.setPressed(false);
@@ -67,30 +70,42 @@ public class AutoClicker extends Module {
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         mc.options.attackKey.setPressed(false);
         mc.options.useKey.setPressed(false);
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        switch (leftClickMode.get()) {
-            case Disabled -> {}
+    private void onTick(TickEvent.Post event)
+    {
+        switch (leftClickMode.get())
+        {
+            case Disabled ->
+            {
+            }
             case Hold -> mc.options.attackKey.setPressed(true);
-            case Press -> {
+            case Press ->
+            {
                 leftClickTimer++;
-                if (leftClickTimer > leftClickDelay.get()) {
+                if (leftClickTimer > leftClickDelay.get())
+                {
                     Utils.leftClick();
                     leftClickTimer = 0;
                 }
             }
         }
-        switch (rightClickMode.get()) {
-            case Disabled -> {}
+        switch (rightClickMode.get())
+        {
+            case Disabled ->
+            {
+            }
             case Hold -> mc.options.useKey.setPressed(true);
-            case Press -> {
+            case Press ->
+            {
                 rightClickTimer++;
-                if (rightClickTimer > rightClickDelay.get()) {
+                if (rightClickTimer > rightClickDelay.get())
+                {
                     Utils.rightClick();
                     rightClickTimer = 0;
                 }
@@ -98,7 +113,8 @@ public class AutoClicker extends Module {
         }
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Disabled,
         Hold,
         Press

@@ -20,7 +20,8 @@ import net.minecraft.util.math.BlockPos;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static meteordevelopment.meteorclient.utils.Utils.canUpdate;
 
-public class WBlockPosEdit extends WHorizontalList {
+public class WBlockPosEdit extends WHorizontalList
+{
     public Runnable action;
     public Runnable actionOnRelease;
 
@@ -33,17 +34,21 @@ public class WBlockPosEdit extends WHorizontalList {
 
     private boolean clicking;
 
-    public WBlockPosEdit(BlockPos value) {
+    public WBlockPosEdit(BlockPos value)
+    {
         this.value = value;
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         addTextBox();
 
-        if (canUpdate()) {
+        if (canUpdate())
+        {
             WButton click = add(theme.button("Click")).expandX().widget();
-            click.action = () -> {
+            click.action = () ->
+            {
                 String sb = "Click!\nRight click to pick a new position.\nLeft click to cancel.";
                 Modules.get().get(Marker.class).info(sb);
 
@@ -54,7 +59,8 @@ public class WBlockPosEdit extends WHorizontalList {
             };
 
             WButton here = add(theme.button("Set Here")).expandX().widget();
-            here.action = () -> {
+            here.action = () ->
+            {
                 lastValue = value;
                 set(new BlockPos(mc.player.getBlockPos()));
                 newValueCheck();
@@ -66,8 +72,10 @@ public class WBlockPosEdit extends WHorizontalList {
     }
 
     @EventHandler
-    private void onStartBreakingBlock(StartBreakingBlockEvent event) {
-        if (clicking) {
+    private void onStartBreakingBlock(StartBreakingBlockEvent event)
+    {
+        if (clicking)
+        {
             clicking = false;
             event.cancel();
             MeteorClient.EVENT_BUS.unsubscribe(this);
@@ -76,8 +84,10 @@ public class WBlockPosEdit extends WHorizontalList {
     }
 
     @EventHandler
-    private void onInteractBlock(InteractBlockEvent event) {
-        if (clicking) {
+    private void onInteractBlock(InteractBlockEvent event)
+    {
+        if (clicking)
+        {
             if (event.result.getType() == HitResult.Type.MISS) return;
             lastValue = value;
             set(event.result.getBlockPos());
@@ -93,20 +103,25 @@ public class WBlockPosEdit extends WHorizontalList {
         }
     }
 
-    private boolean filter(String text, char c) {
+    private boolean filter(String text, char c)
+    {
         boolean good;
         boolean validate = true;
 
-        if (c == '-' && text.isEmpty()) {
+        if (c == '-' && text.isEmpty())
+        {
             good = true;
             validate = false;
-        }
-        else good = Character.isDigit(c);
+        } else good = Character.isDigit(c);
 
-        if (good && validate) {
-            try {
+        if (good && validate)
+        {
+            try
+            {
                 Integer.parseInt(text + c);
-            } catch (NumberFormatException ignored) {
+            }
+            catch (NumberFormatException ignored)
+            {
                 good = false;
             }
         }
@@ -114,55 +129,78 @@ public class WBlockPosEdit extends WHorizontalList {
         return good;
     }
 
-    public BlockPos get() {
+    public BlockPos get()
+    {
         return value;
     }
 
-    public void set(BlockPos value) {
+    public void set(BlockPos value)
+    {
         this.value = value;
     }
 
-    private void addTextBox() {
+    private void addTextBox()
+    {
         textBoxX = add(theme.textBox(Integer.toString(value.getX()), this::filter)).minWidth(75).widget();
         textBoxY = add(theme.textBox(Integer.toString(value.getY()), this::filter)).minWidth(75).widget();
         textBoxZ = add(theme.textBox(Integer.toString(value.getZ()), this::filter)).minWidth(75).widget();
 
-        textBoxX.actionOnUnfocused = () -> {
+        textBoxX.actionOnUnfocused = () ->
+        {
             lastValue = value;
             if (textBoxX.get().isEmpty()) set(new BlockPos(0, 0, 0));
-            else {
-                try {
+            else
+            {
+                try
+                {
                     set(new BlockPos(Integer.parseInt(textBoxX.get()), value.getY(), value.getZ()));
-                } catch (NumberFormatException ignored) {}
+                }
+                catch (NumberFormatException ignored)
+                {
+                }
             }
             newValueCheck();
         };
 
-        textBoxY.actionOnUnfocused = () -> {
+        textBoxY.actionOnUnfocused = () ->
+        {
             lastValue = value;
             if (textBoxY.get().isEmpty()) set(new BlockPos(0, 0, 0));
-            else {
-                try {
+            else
+            {
+                try
+                {
                     set(new BlockPos(value.getX(), Integer.parseInt(textBoxY.get()), value.getZ()));
-                } catch (NumberFormatException ignored) {}
+                }
+                catch (NumberFormatException ignored)
+                {
+                }
             }
             newValueCheck();
         };
 
-        textBoxZ.actionOnUnfocused = () -> {
+        textBoxZ.actionOnUnfocused = () ->
+        {
             lastValue = value;
             if (textBoxZ.get().isEmpty()) set(new BlockPos(0, 0, 0));
-            else {
-                try {
+            else
+            {
+                try
+                {
                     set(new BlockPos(value.getX(), value.getY(), Integer.parseInt(textBoxZ.get())));
-                } catch (NumberFormatException ignored) {}
+                }
+                catch (NumberFormatException ignored)
+                {
+                }
             }
             newValueCheck();
         };
     }
 
-    private void newValueCheck() {
-        if (value != lastValue) {
+    private void newValueCheck()
+    {
+        if (value != lastValue)
+        {
             if (action != null) action.run();
             if (actionOnRelease != null) actionOnRelease.run();
         }

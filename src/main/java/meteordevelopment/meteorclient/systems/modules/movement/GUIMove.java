@@ -27,15 +27,19 @@ import net.minecraft.util.math.MathHelper;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class GUIMove extends Module {
-    public enum Screens {
-        GUI,
-        Inventory,
-        Both
-    }
-
+public class GUIMove extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
+    public final Setting<Boolean> sprint = sgGeneral.add(new BoolSetting.Builder()
+        .name("sprint")
+        .description("Allows you to sprint while in GUIs.")
+        .defaultValue(true)
+        .onChanged(aBoolean ->
+        {
+            if (isActive() && !aBoolean) set(mc.options.sprintKey, false);
+        })
+        .build()
+    );
     private final Setting<Screens> screens = sgGeneral.add(new EnumSetting.Builder<Screens>()
         .name("guis")
         .description("Which GUIs to move in.")
@@ -47,7 +51,8 @@ public class GUIMove extends Module {
         .name("jump")
         .description("Allows you to jump while in GUIs.")
         .defaultValue(true)
-        .onChanged(aBoolean -> {
+        .onChanged(aBoolean ->
+        {
             if (isActive() && !aBoolean) set(mc.options.jumpKey, false);
         })
         .build()
@@ -57,29 +62,18 @@ public class GUIMove extends Module {
         .name("sneak")
         .description("Allows you to sneak while in GUIs.")
         .defaultValue(true)
-        .onChanged(aBoolean -> {
+        .onChanged(aBoolean ->
+        {
             if (isActive() && !aBoolean) set(mc.options.sneakKey, false);
         })
         .build()
     );
-
-    public final Setting<Boolean> sprint = sgGeneral.add(new BoolSetting.Builder()
-        .name("sprint")
-        .description("Allows you to sprint while in GUIs.")
-        .defaultValue(true)
-        .onChanged(aBoolean -> {
-            if (isActive() && !aBoolean) set(mc.options.sprintKey, false);
-        })
-        .build()
-    );
-
     private final Setting<Boolean> arrowsRotate = sgGeneral.add(new BoolSetting.Builder()
         .name("arrows-rotate")
         .description("Allows you to use your arrow keys to rotate while in GUIs.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Double> rotateSpeed = sgGeneral.add(new DoubleSetting.Builder()
         .name("rotate-speed")
         .description("Rotation speed while in GUIs.")
@@ -88,12 +82,14 @@ public class GUIMove extends Module {
         .build()
     );
 
-    public GUIMove() {
+    public GUIMove()
+    {
         super(Categories.Movement, "gui-move", "Allows you to perform various actions while in GUIs.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         set(mc.options.forwardKey, false);
         set(mc.options.backKey, false);
         set(mc.options.leftKey, false);
@@ -104,15 +100,19 @@ public class GUIMove extends Module {
         if (sprint.get()) set(mc.options.sprintKey, false);
     }
 
-    public boolean disableSpace() {
+    public boolean disableSpace()
+    {
         return isActive() && jump.get() && mc.options.jumpKey.isDefault();
     }
-    public boolean disableArrows() {
+
+    public boolean disableArrows()
+    {
         return isActive() && arrowsRotate.get();
     }
 
     @EventHandler
-    private void onPlayerMoveEvent(PlayerTickMovementEvent event) {
+    private void onPlayerMoveEvent(PlayerTickMovementEvent event)
+    {
         if (skip()) return;
         if (screens.get() == Screens.GUI && !(mc.currentScreen instanceof WidgetScreen)) return;
         if (screens.get() == Screens.Inventory && mc.currentScreen instanceof WidgetScreen) return;
@@ -128,14 +128,16 @@ public class GUIMove extends Module {
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
+    private void onRender3D(Render3DEvent event)
+    {
         if (skip()) return;
         if (screens.get() == Screens.GUI && !(mc.currentScreen instanceof WidgetScreen)) return;
         if (screens.get() == Screens.Inventory && mc.currentScreen instanceof WidgetScreen) return;
 
         float rotationDelta = Math.min((float) (rotateSpeed.get() * event.frameTime * 20f), 100);
 
-        if (arrowsRotate.get()) {
+        if (arrowsRotate.get())
+        {
             float yaw = mc.player.getYaw();
             float pitch = mc.player.getPitch();
 
@@ -152,17 +154,27 @@ public class GUIMove extends Module {
         }
     }
 
-    private void set(KeyBinding bind, boolean pressed) {
+    private void set(KeyBinding bind, boolean pressed)
+    {
         boolean wasPressed = bind.isPressed();
         bind.setPressed(pressed);
 
         InputUtil.Key key = ((KeyBindingAccessor) bind).getKey();
-        if (wasPressed != pressed && key.getCategory() == InputUtil.Type.KEYSYM) {
+        if (wasPressed != pressed && key.getCategory() == InputUtil.Type.KEYSYM)
+        {
             MeteorClient.EVENT_BUS.post(KeyEvent.get(key.getCode(), 0, pressed ? KeyAction.Press : KeyAction.Release));
         }
     }
 
-    public boolean skip() {
+    public boolean skip()
+    {
         return mc.currentScreen == null || (mc.currentScreen instanceof CreativeInventoryScreen && CreativeInventoryScreenAccessor.getSelectedTab() == ItemGroups.getSearchGroup()) || mc.currentScreen instanceof ChatScreen || mc.currentScreen instanceof SignEditScreen || mc.currentScreen instanceof AnvilScreen || mc.currentScreen instanceof AbstractCommandBlockScreen || mc.currentScreen instanceof StructureBlockScreen;
+    }
+
+    public enum Screens
+    {
+        GUI,
+        Inventory,
+        Both
     }
 }

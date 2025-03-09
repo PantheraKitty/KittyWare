@@ -16,21 +16,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(AbstractClientPlayerEntity.class)
-public abstract class AbstractClientPlayerEntityMixin {
+public abstract class AbstractClientPlayerEntityMixin
+{
     // Player model rendering in main menu
 
     @Inject(method = "getPlayerListEntry", at = @At("HEAD"), cancellable = true)
-    private void onGetPlayerListEntry(CallbackInfoReturnable<PlayerListEntry> info) {
+    private void onGetPlayerListEntry(CallbackInfoReturnable<PlayerListEntry> info)
+    {
         if (mc.getNetworkHandler() == null) info.setReturnValue(FakeClientPlayer.getPlayerListEntry());
     }
 
     @Inject(method = "isSpectator", at = @At("HEAD"), cancellable = true)
-    private void onIsSpectator(CallbackInfoReturnable<Boolean> info) {
+    private void onIsSpectator(CallbackInfoReturnable<Boolean> info)
+    {
         if (mc.getNetworkHandler() == null) info.setReturnValue(false);
     }
 
     @Inject(method = "isCreative", at = @At("HEAD"), cancellable = true)
-    private void onIsCreative(CallbackInfoReturnable<Boolean> info) {
+    private void onIsCreative(CallbackInfoReturnable<Boolean> info)
+    {
         if (mc.getNetworkHandler() == null) info.setReturnValue(false);
     }
 }

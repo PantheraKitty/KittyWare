@@ -9,13 +9,16 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WFavorite;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public class WGonbleWareFavorite extends WFavorite implements GonbleWareWidget {
-    public WGonbleWareFavorite(boolean checked) {
+public class WGonbleWareFavorite extends WFavorite implements GonbleWareWidget
+{
+    public WGonbleWareFavorite(boolean checked)
+    {
         super(checked);
     }
 
     @Override
-    protected Color getColor() {
+    protected Color getColor()
+    {
         return theme().favoriteColor.get();
     }
 }

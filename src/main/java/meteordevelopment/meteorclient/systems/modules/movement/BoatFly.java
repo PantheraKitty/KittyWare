@@ -19,7 +19,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.network.packet.s2c.play.VehicleMoveS2CPacket;
 import net.minecraft.util.math.Vec3d;
 
-public class BoatFly extends Module {
+public class BoatFly extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
@@ -55,12 +56,14 @@ public class BoatFly extends Module {
         .build()
     );
 
-    public BoatFly() {
+    public BoatFly()
+    {
         super(Categories.Movement, "boat-fly", "Transforms your boat into a plane.");
     }
 
     @EventHandler
-    private void onBoatMove(BoatMoveEvent event) {
+    private void onBoatMove(BoatMoveEvent event)
+    {
         if (event.boat.getControllingPassenger() != mc.player) return;
 
         event.boat.setYaw(mc.player.getYaw());
@@ -81,8 +84,10 @@ public class BoatFly extends Module {
     }
 
     @EventHandler
-    private void onReceivePacket(PacketEvent.Receive event) {
-        if (event.packet instanceof VehicleMoveS2CPacket && cancelServerPackets.get()) {
+    private void onReceivePacket(PacketEvent.Receive event)
+    {
+        if (event.packet instanceof VehicleMoveS2CPacket && cancelServerPackets.get())
+        {
             event.cancel();
         }
     }

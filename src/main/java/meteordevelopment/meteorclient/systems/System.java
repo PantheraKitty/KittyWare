@@ -19,32 +19,38 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public abstract class System<T> implements ISerializable<T> {
+public abstract class System<T> implements ISerializable<T>
+{
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss", Locale.ROOT);
     private final String name;
+    protected boolean isFirstInit;
     private File file;
 
-    protected boolean isFirstInit;
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss", Locale.ROOT);
-
-    public System(String name) {
+    public System(String name)
+    {
         this.name = name;
 
-        if (name != null) {
+        if (name != null)
+        {
             this.file = new File(MeteorClient.FOLDER, name + ".nbt");
             this.isFirstInit = !file.exists();
         }
     }
 
-    public void init() {}
+    public void init()
+    {
+    }
 
-    public void save(File folder) {
+    public void save(File folder)
+    {
         File file = getFile();
         if (file == null) return;
 
         NbtCompound tag = toTag();
         if (tag == null) return;
 
-        try {
+        try
+        {
             File tempFile = File.createTempFile(MeteorClient.MOD_ID, file.getName());
             NbtIo.write(tag, tempFile.toPath());
 
@@ -53,26 +59,35 @@ public abstract class System<T> implements ISerializable<T> {
             file.getParentFile().mkdirs();
             StreamUtils.copy(tempFile, file);
             tempFile.delete();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    public void save() {
+    public void save()
+    {
         save(null);
     }
 
-    public void load(File folder) {
+    public void load(File folder)
+    {
         File file = getFile();
         if (file == null) return;
 
-        try {
+        try
+        {
             if (folder != null) file = new File(folder, file.getName());
 
-            if (file.exists()) {
-                try {
+            if (file.exists())
+            {
+                try
+                {
                     fromTag(NbtIo.read(file.toPath()));
-                } catch (CrashException e) {
+                }
+                catch (CrashException e)
+                {
                     String backupName = FilenameUtils.removeExtension(file.getName()) + "-" + ZonedDateTime.now().format(DATE_TIME_FORMATTER) + ".backup.nbt";
                     File backup = new File(file.getParentFile(), backupName);
                     StreamUtils.copy(file, backup);
@@ -81,30 +96,37 @@ public abstract class System<T> implements ISerializable<T> {
                     e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    public void load() {
+    public void load()
+    {
         load(null);
     }
 
-    public File getFile() {
+    public File getFile()
+    {
         return file;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         return null;
     }
 
     @Override
-    public T fromTag(NbtCompound tag) {
+    public T fromTag(NbtCompound tag)
+    {
         return null;
     }
 }

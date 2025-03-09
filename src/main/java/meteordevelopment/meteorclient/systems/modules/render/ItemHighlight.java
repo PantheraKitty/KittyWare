@@ -17,7 +17,8 @@ import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
-public class ItemHighlight extends Module {
+public class ItemHighlight extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<List<Item>> items = sgGeneral.add(new ItemListSetting.Builder()
@@ -33,11 +34,13 @@ public class ItemHighlight extends Module {
         .build()
     );
 
-    public ItemHighlight() {
+    public ItemHighlight()
+    {
         super(Categories.Render, "item-highlight", "Highlights selected items when in guis");
     }
 
-    public int getColor(ItemStack stack) {
+    public int getColor(ItemStack stack)
+    {
         if (stack != null && items.get().contains(stack.getItem()) && isActive()) return color.get().getPacked();
         return -1;
     }

@@ -32,13 +32,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class SaveMapCommand extends Command {
+public class SaveMapCommand extends Command
+{
     private static final SimpleCommandExceptionType MAP_NOT_FOUND = new SimpleCommandExceptionType(Text.literal("You must be holding a filled map."));
     private static final SimpleCommandExceptionType OOPS = new SimpleCommandExceptionType(Text.literal("Something went wrong."));
 
     private final PointerBuffer filters;
 
-    public SaveMapCommand() {
+    public SaveMapCommand()
+    {
         super("save-map", "Saves a map to an image.", "sm");
 
         filters = BufferUtils.createPointerBuffer(1);
@@ -50,19 +52,23 @@ public class SaveMapCommand extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.executes(context ->
+        {
             saveMap(128);
 
             return SINGLE_SUCCESS;
-        }).then(argument("scale", IntegerArgumentType.integer(1)).executes(context -> {
+        }).then(argument("scale", IntegerArgumentType.integer(1)).executes(context ->
+        {
             saveMap(IntegerArgumentType.getInteger(context, "scale"));
 
             return SINGLE_SUCCESS;
         }));
     }
 
-    private void saveMap(int scale) throws CommandSyntaxException {
+    private void saveMap(int scale) throws CommandSyntaxException
+    {
         ItemStack map = getMap();
         MapState state = getMapState();
         if (map == null || state == null) throw MAP_NOT_FOUND.create();
@@ -74,9 +80,11 @@ public class SaveMapCommand extends Command {
         MapRenderer.MapTexture texture = ((MapRendererAccessor) mapRenderer).invokeGetMapTexture(map.get(DataComponentTypes.MAP_ID), state);
         if (texture.texture.getImage() == null) throw OOPS.create();
 
-        try {
+        try
+        {
             if (scale == 128) texture.texture.getImage().writeTo(path);
-            else {
+            else
+            {
                 int[] data = texture.texture.getImage().copyPixelsRgba();
                 BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
                 image.setRGB(0, 0, image.getWidth(), image.getHeight(), data, 0, 128);
@@ -86,20 +94,24 @@ public class SaveMapCommand extends Command {
 
                 ImageIO.write(scaledImage, "png", path);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             error("Error writing map texture");
             MeteorClient.LOG.error(e.toString());
         }
     }
 
-    private @Nullable MapState getMapState() {
+    private @Nullable MapState getMapState()
+    {
         ItemStack map = getMap();
         if (map == null) return null;
 
         return FilledMapItem.getMapState(map.get(DataComponentTypes.MAP_ID), mc.world);
     }
 
-    private @Nullable File getPath() {
+    private @Nullable File getPath()
+    {
         String path = TinyFileDialogs.tinyfd_saveFileDialog("Save image", null, filters, null);
         if (path == null) return null;
         if (!path.endsWith(".png")) path += ".png";
@@ -107,7 +119,8 @@ public class SaveMapCommand extends Command {
         return new File(path);
     }
 
-    private @Nullable ItemStack getMap() {
+    private @Nullable ItemStack getMap()
+    {
         ItemStack itemStack = mc.player.getMainHandStack();
         if (itemStack.getItem() == Items.FILLED_MAP) return itemStack;
 

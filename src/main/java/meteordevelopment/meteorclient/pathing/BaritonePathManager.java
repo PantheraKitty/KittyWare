@@ -31,14 +31,16 @@ import java.util.function.Predicate;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class BaritonePathManager implements IPathManager {
+public class BaritonePathManager implements IPathManager
+{
     private final VarHandle rotationField;
     private final BaritoneSettings settings;
 
     private GoalDirection directionGoal;
     private boolean pathingPaused;
 
-    public BaritonePathManager() {
+    public BaritonePathManager()
+    {
         // Subscribe to event bus
         MeteorClient.EVENT_BUS.subscribe(this);
 
@@ -46,12 +48,17 @@ public class BaritonePathManager implements IPathManager {
         Class<?> klass = BaritoneAPI.getProvider().getPrimaryBaritone().getLookBehavior().getClass();
         VarHandle rotationField = null;
 
-        for (Field field : klass.getDeclaredFields()) {
-            if (field.getType() == Rotation.class) {
-                try {
+        for (Field field : klass.getDeclaredFields())
+        {
+            if (field.getType() == Rotation.class)
+            {
+                try
+                {
                     rotationField = MethodHandles.lookup().unreflectVarHandle(field);
                     break;
-                } catch (IllegalAccessException e) {
+                }
+                catch (IllegalAccessException e)
+                {
                     throw new RuntimeException(e);
                 }
             }
@@ -67,33 +74,40 @@ public class BaritonePathManager implements IPathManager {
     }
 
     @Override
-    public String getName() {
+    public String getName()
+    {
         return "Baritone";
     }
 
     @Override
-    public boolean isPathing() {
+    public boolean isPathing()
+    {
         return BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing();
     }
 
     @Override
-    public void pause() {
+    public void pause()
+    {
         pathingPaused = true;
     }
 
     @Override
-    public void resume() {
+    public void resume()
+    {
         pathingPaused = false;
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
         BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
     }
 
     @Override
-    public void moveTo(BlockPos pos, boolean ignoreY) {
-        if (ignoreY) {
+    public void moveTo(BlockPos pos, boolean ignoreY)
+    {
+        if (ignoreY)
+        {
             BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoalAndPath(new GoalXZ(pos.getX(), pos.getZ()));
             return;
         }
@@ -102,43 +116,51 @@ public class BaritonePathManager implements IPathManager {
     }
 
     @Override
-    public void moveInDirection(float yaw) {
+    public void moveInDirection(float yaw)
+    {
         directionGoal = new GoalDirection(yaw);
         BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoalAndPath(directionGoal);
     }
 
     @Override
-    public void mine(Block... blocks) {
+    public void mine(Block... blocks)
+    {
         BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(blocks);
     }
 
     @Override
-    public void follow(Predicate<Entity> entity) {
+    public void follow(Predicate<Entity> entity)
+    {
         BaritoneAPI.getProvider().getPrimaryBaritone().getFollowProcess().follow(entity);
     }
 
     @Override
-    public float getTargetYaw() {
+    public float getTargetYaw()
+    {
         Rotation rotation = (Rotation) rotationField.get(BaritoneAPI.getProvider().getPrimaryBaritone().getLookBehavior());
         return rotation == null ? 0 : rotation.getYaw();
     }
 
     @Override
-    public float getTargetPitch() {
+    public float getTargetPitch()
+    {
         Rotation rotation = (Rotation) rotationField.get(BaritoneAPI.getProvider().getPrimaryBaritone().getLookBehavior());
         return rotation == null ? 0 : rotation.getPitch();
     }
 
     @Override
-    public ISettings getSettings() {
+    public ISettings getSettings()
+    {
         return settings;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (directionGoal == null) return;
 
-        if (directionGoal != BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().getGoal()) {
+        if (directionGoal != BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().getGoal())
+        {
             directionGoal = null;
             return;
         }
@@ -146,7 +168,8 @@ public class BaritonePathManager implements IPathManager {
         directionGoal.tick();
     }
 
-    private static class GoalDirection implements Goal {
+    private static class GoalDirection implements Goal
+    {
         private static final double SQRT_2 = Math.sqrt(2);
 
         private final float yaw;
@@ -155,20 +178,24 @@ public class BaritonePathManager implements IPathManager {
 
         private int timer;
 
-        public GoalDirection(float yaw) {
+        public GoalDirection(float yaw)
+        {
             this.yaw = yaw;
             tick();
         }
 
-        public static double calculate(double xDiff, double zDiff) {
+        public static double calculate(double xDiff, double zDiff)
+        {
             double x = Math.abs(xDiff);
             double z = Math.abs(zDiff);
             double straight;
             double diagonal;
-            if (x < z) {
+            if (x < z)
+            {
                 straight = z - x;
                 diagonal = x;
-            } else {
+            } else
+            {
                 straight = x - z;
                 diagonal = z;
             }
@@ -177,8 +204,10 @@ public class BaritonePathManager implements IPathManager {
             return (diagonal + straight) * BaritoneAPI.getSettings().costHeuristic.value;
         }
 
-        public void tick() {
-            if (timer <= 0) {
+        public void tick()
+        {
+            if (timer <= 0)
+            {
                 timer = 20;
 
                 Vec3d pos = mc.player.getPos();
@@ -191,57 +220,69 @@ public class BaritonePathManager implements IPathManager {
             timer--;
         }
 
-        public boolean isInGoal(int x, int y, int z) {
+        public boolean isInGoal(int x, int y, int z)
+        {
             return x == this.x && z == this.z;
         }
 
-        public double heuristic(int x, int y, int z) {
+        public double heuristic(int x, int y, int z)
+        {
             int xDiff = x - this.x;
             int zDiff = z - this.z;
             return calculate(xDiff, zDiff);
         }
 
-        public String toString() {
+        public String toString()
+        {
             return String.format("GoalXZ{x=%s,z=%s}", SettingsUtil.maybeCensor(this.x), SettingsUtil.maybeCensor(this.z));
         }
 
-        public int getX() {
+        public int getX()
+        {
             return this.x;
         }
 
-        public int getZ() {
+        public int getZ()
+        {
             return this.z;
         }
     }
 
-    private class BaritoneProcess implements IBaritoneProcess {
+    private class BaritoneProcess implements IBaritoneProcess
+    {
         @Override
-        public boolean isActive() {
+        public boolean isActive()
+        {
             return pathingPaused;
         }
 
         @Override
-        public PathingCommand onTick(boolean b, boolean b1) {
+        public PathingCommand onTick(boolean b, boolean b1)
+        {
             BaritoneAPI.getProvider().getPrimaryBaritone().getInputOverrideHandler().clearAllKeys();
             return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
         }
 
         @Override
-        public boolean isTemporary() {
+        public boolean isTemporary()
+        {
             return true;
         }
 
         @Override
-        public void onLostControl() {
+        public void onLostControl()
+        {
         }
 
         @Override
-        public double priority() {
+        public double priority()
+        {
             return 0d;
         }
 
         @Override
-        public String displayName0() {
+        public String displayName0()
+        {
             return "Meteor Client";
         }
     }

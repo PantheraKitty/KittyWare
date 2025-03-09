@@ -12,7 +12,8 @@ import net.minecraft.block.Block;
 
 import java.util.List;
 
-public class Slippy extends Module {
+public class Slippy extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Double> friction = sgGeneral.add(new DoubleSetting.Builder()
@@ -45,11 +46,13 @@ public class Slippy extends Module {
         .build()
     );
 
-    public Slippy() {
+    public Slippy()
+    {
         super(Categories.Movement, "slippy", "Changes the base friction level of blocks.");
     }
 
-    public enum ListMode {
+    public enum ListMode
+    {
         Whitelist,
         Blacklist
     }

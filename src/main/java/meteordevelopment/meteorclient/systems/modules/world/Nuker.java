@@ -35,7 +35,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class Nuker extends Module {
+public class Nuker extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgWhitelist = settings.createGroup("Whitelist");
     private final SettingGroup sgRender = settings.createGroup("Render");
@@ -43,257 +44,254 @@ public class Nuker extends Module {
     // General
 
     private final Setting<Shape> shape = sgGeneral.add(new EnumSetting.Builder<Shape>()
-            .name("shape")
-            .description("The shape of nuking algorithm.")
-            .defaultValue(Shape.Sphere)
-            .build()
+        .name("shape")
+        .description("The shape of nuking algorithm.")
+        .defaultValue(Shape.Sphere)
+        .build()
     );
-
-    private final Setting<Nuker.Mode> mode = sgGeneral.add(new EnumSetting.Builder<Nuker.Mode>()
-            .name("mode")
-            .description("The way the blocks are broken.")
-            .defaultValue(Nuker.Mode.Flatten)
-            .build()
-    );
-
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
-            .name("range")
-            .description("The break range.")
-            .defaultValue(4)
-            .min(0)
-            .visible(() -> shape.get() != Shape.Cube)
-            .build()
+        .name("range")
+        .description("The break range.")
+        .defaultValue(4)
+        .min(0)
+        .visible(() -> shape.get() != Shape.Cube)
+        .build()
     );
-
     private final Setting<Integer> range_up = sgGeneral.add(new IntSetting.Builder()
-            .name("up")
-            .description("The break range.")
-            .defaultValue(1)
-            .min(0)
-            .visible(() -> shape.get() == Shape.Cube)
-            .build()
+        .name("up")
+        .description("The break range.")
+        .defaultValue(1)
+        .min(0)
+        .visible(() -> shape.get() == Shape.Cube)
+        .build()
     );
-
     private final Setting<Integer> range_down = sgGeneral.add(new IntSetting.Builder()
-            .name("down")
-            .description("The break range.")
-            .defaultValue(1)
-            .min(0)
-            .visible(() -> shape.get() == Shape.Cube)
-            .build()
+        .name("down")
+        .description("The break range.")
+        .defaultValue(1)
+        .min(0)
+        .visible(() -> shape.get() == Shape.Cube)
+        .build()
     );
-
     private final Setting<Integer> range_left = sgGeneral.add(new IntSetting.Builder()
-            .name("left")
-            .description("The break range.")
-            .defaultValue(1)
-            .min(0)
-            .visible(() -> shape.get() == Shape.Cube)
-            .build()
+        .name("left")
+        .description("The break range.")
+        .defaultValue(1)
+        .min(0)
+        .visible(() -> shape.get() == Shape.Cube)
+        .build()
     );
-
     private final Setting<Integer> range_right = sgGeneral.add(new IntSetting.Builder()
-            .name("right")
-            .description("The break range.")
-            .defaultValue(1)
-            .min(0)
-            .visible(() -> shape.get() == Shape.Cube)
-            .build()
+        .name("right")
+        .description("The break range.")
+        .defaultValue(1)
+        .min(0)
+        .visible(() -> shape.get() == Shape.Cube)
+        .build()
     );
-
     private final Setting<Integer> range_forward = sgGeneral.add(new IntSetting.Builder()
-            .name("forward")
-            .description("The break range.")
-            .defaultValue(1)
-            .min(0)
-            .visible(() -> shape.get() == Shape.Cube)
-            .build()
+        .name("forward")
+        .description("The break range.")
+        .defaultValue(1)
+        .min(0)
+        .visible(() -> shape.get() == Shape.Cube)
+        .build()
     );
-
     private final Setting<Integer> range_back = sgGeneral.add(new IntSetting.Builder()
-            .name("back")
-            .description("The break range.")
-            .defaultValue(1)
-            .min(0)
-            .visible(() -> shape.get() == Shape.Cube)
-            .build()
+        .name("back")
+        .description("The break range.")
+        .defaultValue(1)
+        .min(0)
+        .visible(() -> shape.get() == Shape.Cube)
+        .build()
     );
-
+    private final Setting<Nuker.Mode> mode = sgGeneral.add(new EnumSetting.Builder<Nuker.Mode>()
+        .name("mode")
+        .description("The way the blocks are broken.")
+        .defaultValue(Nuker.Mode.Flatten)
+        .build()
+    );
     private final Setting<Boolean> silentMine = sgGeneral.add(new BoolSetting.Builder()
-            .name("silent-mine")
-            .description("Uses SilentMine to break/double-break")
-            .defaultValue(true)
-            .build()
+        .name("silent-mine")
+        .description("Uses SilentMine to break/double-break")
+        .defaultValue(true)
+        .build()
     );
 
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
-            .name("delay")
-            .description("Delay in ticks between breaking blocks.")
-            .defaultValue(0)
-            .visible(() -> !silentMine.get())
-            .build()
+        .name("delay")
+        .description("Delay in ticks between breaking blocks.")
+        .defaultValue(0)
+        .visible(() -> !silentMine.get())
+        .build()
     );
 
     private final Setting<Integer> maxBlocksPerTick = sgGeneral.add(new IntSetting.Builder()
-            .name("max-blocks-per-tick")
-            .description("Maximum blocks to try to break per tick. Useful when insta mining.")
-            .defaultValue(1)
-            .min(1)
-            .sliderRange(1, 6)
-            .visible(() -> !silentMine.get())
-            .build()
+        .name("max-blocks-per-tick")
+        .description("Maximum blocks to try to break per tick. Useful when insta mining.")
+        .defaultValue(1)
+        .min(1)
+        .sliderRange(1, 6)
+        .visible(() -> !silentMine.get())
+        .build()
     );
-
-    private final Setting<Nuker.SortMode> sortMode = sgGeneral.add(new EnumSetting.Builder<Nuker.SortMode>()
-            .name("sort-mode")
-            .description("The blocks you want to mine first.")
-            .defaultValue(Nuker.SortMode.Closest)
-            .build()
-    );
-
-    private final Setting<Boolean> swingHand = sgGeneral.add(new BoolSetting.Builder()
-            .name("swing-hand")
-            .description("Swing hand client side.")
-            .defaultValue(true)
-            .build()
-    );
-
     private final Setting<Boolean> packetMine = sgGeneral.add(new BoolSetting.Builder()
-            .name("packet-mine")
-            .description("Attempt to instamine everything at once.")
-            .defaultValue(false)
-            .visible(() -> !silentMine.get())
-            .build()
+        .name("packet-mine")
+        .description("Attempt to instamine everything at once.")
+        .defaultValue(false)
+        .visible(() -> !silentMine.get())
+        .build()
     );
-
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
-            .name("rotate")
-            .description("Rotates server-side to the block being mined.")
-            .defaultValue(true)
-            .visible(() -> !silentMine.get())
-            .build()
+        .name("rotate")
+        .description("Rotates server-side to the block being mined.")
+        .defaultValue(true)
+        .visible(() -> !silentMine.get())
+        .build()
     );
-
+    private final Setting<Nuker.SortMode> sortMode = sgGeneral.add(new EnumSetting.Builder<Nuker.SortMode>()
+        .name("sort-mode")
+        .description("The blocks you want to mine first.")
+        .defaultValue(Nuker.SortMode.Closest)
+        .build()
+    );
+    private final Setting<Boolean> swingHand = sgGeneral.add(new BoolSetting.Builder()
+        .name("swing-hand")
+        .description("Swing hand client side.")
+        .defaultValue(true)
+        .build()
+    );
     private final Setting<Boolean> belowAirScaffold = sgGeneral.add(new BoolSetting.Builder()
-            .name("below-air-scaffold")
-            .description("Scaffolds one block below you, to prevent you from failling. Useful for clearing large areas vertically.")
-            .defaultValue(false)
-            .build()
+        .name("below-air-scaffold")
+        .description("Scaffolds one block below you, to prevent you from failling. Useful for clearing large areas vertically.")
+        .defaultValue(false)
+        .build()
     );
 
     // Whitelist and blacklist
 
     private final Setting<ListMode> listMode = sgWhitelist.add(new EnumSetting.Builder<ListMode>()
-            .name("list-mode")
-            .description("Selection mode.")
-            .defaultValue(ListMode.Blacklist)
-            .build()
+        .name("list-mode")
+        .description("Selection mode.")
+        .defaultValue(ListMode.Blacklist)
+        .build()
     );
 
     private final Setting<List<Block>> blacklist = sgWhitelist.add(new BlockListSetting.Builder()
-            .name("blacklist")
-            .description("The blocks you don't want to mine.")
-            .visible(() -> listMode.get() == ListMode.Blacklist)
-            .build()
+        .name("blacklist")
+        .description("The blocks you don't want to mine.")
+        .visible(() -> listMode.get() == ListMode.Blacklist)
+        .build()
     );
 
     private final Setting<List<Block>> whitelist = sgWhitelist.add(new BlockListSetting.Builder()
-            .name("whitelist")
-            .description("The blocks you want to mine.")
-            .visible(() -> listMode.get() == ListMode.Whitelist)
-            .build()
+        .name("whitelist")
+        .description("The blocks you want to mine.")
+        .visible(() -> listMode.get() == ListMode.Whitelist)
+        .build()
     );
 
     // Rendering
 
     private final Setting<Boolean> enableRenderBounding = sgRender.add(new BoolSetting.Builder()
-            .name("bounding-box")
-            .description("Enable rendering bounding box for Cube and Uniform Cube.")
-            .defaultValue(true)
-            .build()
+        .name("bounding-box")
+        .description("Enable rendering bounding box for Cube and Uniform Cube.")
+        .defaultValue(true)
+        .build()
     );
 
     private final Setting<ShapeMode> shapeModeBox = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("nuke-box-mode")
-            .description("How the shape for the bounding box is rendered.")
-            .defaultValue(ShapeMode.Both)
-            .build()
+        .name("nuke-box-mode")
+        .description("How the shape for the bounding box is rendered.")
+        .defaultValue(ShapeMode.Both)
+        .build()
     );
 
     private final Setting<SettingColor> sideColorBox = sgRender.add(new ColorSetting.Builder()
-            .name("side-color")
-            .description("The side color of the bounding box.")
-            .defaultValue(new SettingColor(16,106,144, 100))
-            .build()
+        .name("side-color")
+        .description("The side color of the bounding box.")
+        .defaultValue(new SettingColor(16, 106, 144, 100))
+        .build()
     );
 
     private final Setting<SettingColor> lineColorBox = sgRender.add(new ColorSetting.Builder()
-            .name("line-color")
-            .description("The line color of the bounding box.")
-            .defaultValue(new SettingColor(16,106,144, 255))
-            .build()
+        .name("line-color")
+        .description("The line color of the bounding box.")
+        .defaultValue(new SettingColor(16, 106, 144, 255))
+        .build()
     );
 
     private final Setting<Boolean> enableRenderBreaking = sgRender.add(new BoolSetting.Builder()
-            .name("broken-blocks")
-            .description("Enable rendering bounding box for Cube and Uniform Cube.")
-            .defaultValue(true)
-            .build()
+        .name("broken-blocks")
+        .description("Enable rendering bounding box for Cube and Uniform Cube.")
+        .defaultValue(true)
+        .build()
     );
 
     private final Setting<ShapeMode> shapeModeBreak = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("nuke-block-mode")
-            .description("How the shapes for broken blocks are rendered.")
-            .defaultValue(ShapeMode.Both)
-            .visible(enableRenderBreaking::get)
-            .build()
+        .name("nuke-block-mode")
+        .description("How the shapes for broken blocks are rendered.")
+        .defaultValue(ShapeMode.Both)
+        .visible(enableRenderBreaking::get)
+        .build()
     );
 
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-            .name("side-color")
-            .description("The side color of the target block rendering.")
-            .defaultValue(new SettingColor(255, 0, 0, 80))
-            .visible(enableRenderBreaking::get)
-            .build()
+        .name("side-color")
+        .description("The side color of the target block rendering.")
+        .defaultValue(new SettingColor(255, 0, 0, 80))
+        .visible(enableRenderBreaking::get)
+        .build()
     );
 
     private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-            .name("line-color")
-            .description("The line color of the target block rendering.")
-            .defaultValue(new SettingColor(255, 0, 0, 255))
-            .visible(enableRenderBreaking::get)
-            .build()
+        .name("line-color")
+        .description("The line color of the target block rendering.")
+        .defaultValue(new SettingColor(255, 0, 0, 255))
+        .visible(enableRenderBreaking::get)
+        .build()
     );
 
     private final List<BlockPos> blocks = new ArrayList<>();
-
-    private boolean firstBlock;
     private final BlockPos.Mutable lastBlockPos = new BlockPos.Mutable();
-
-    private int timer;
-    private int noBlockTimer;
-
     private final BlockPos.Mutable pos1 = new BlockPos.Mutable(); // Rendering for cubes
     private final BlockPos.Mutable pos2 = new BlockPos.Mutable();
     int maxh = 0;
     int maxv = 0;
+    private boolean firstBlock;
+    private int timer;
+    private int noBlockTimer;
 
-    public Nuker() {
+    public Nuker()
+    {
         super(Categories.World, "nuker", "Breaks blocks around you.");
     }
 
+    public static int chebyshevDist(int x1, int y1, int z1, int x2, int y2, int z2)
+    {
+        // Gets the largest X, Y or Z difference, chebyshev distance
+        int dX = Math.abs(x2 - x1);
+        int dY = Math.abs(y2 - y1);
+        int dZ = Math.abs(z2 - z1);
+        return Math.max(Math.max(dX, dY), dZ);
+    }
+
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         firstBlock = true;
         timer = 0;
         noBlockTimer = 0;
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
-        if (enableRenderBounding.get()) {
+    private void onRender(Render3DEvent event)
+    {
+        if (enableRenderBounding.get())
+        {
             // Render bounding box if cube and should break stuff
-            if (shape.get() != Shape.Sphere && mode.get() != Mode.Smash) {
+            if (shape.get() != Shape.Sphere && mode.get() != Mode.Smash)
+            {
                 int minX = Math.min(pos1.getX(), pos2.getX());
                 int minY = Math.min(pos1.getY(), pos2.getY());
                 int minZ = Math.min(pos1.getZ(), pos2.getZ());
@@ -306,9 +304,11 @@ public class Nuker extends Module {
     }
 
     @EventHandler
-    private void onTickPre(TickEvent.Pre event) {
+    private void onTickPre(TickEvent.Pre event)
+    {
         // Update timer
-        if (timer > 0) {
+        if (timer > 0)
+        {
             timer--;
             return;
         }
@@ -328,11 +328,13 @@ public class Nuker extends Module {
         double pZ_ = pZ;
         int r = (int) Math.round(range.get());
 
-        if (shape.get() == Shape.UniformCube) {
+        if (shape.get() == Shape.UniformCube)
+        {
             pX_ += 1; // weired position stuff
             pos1.set(pX_ - r, pY - r + 1, pZ - r + 1); // down
             pos2.set(pX_ + r - 1, pY + r, pZ + r); // up
-        } else {
+        } else
+        {
             int direction = Math.round((mc.player.getRotationClient().y % 360) / 90);
             direction = Math.floorMod(direction, 4);
 
@@ -342,20 +344,24 @@ public class Nuker extends Module {
 
             // Only change me if you want to mess with 3D rotations:
             // I messed with it
-            switch (direction) {
-                case 0 -> {
+            switch (direction)
+            {
+                case 0 ->
+                {
                     pZ_ += 1;
                     pX_ += 1;
                     pos1.set(pX_ - (range_right.get() + 1), Math.ceil(pY) - range_down.get(), pZ_ - (range_back.get() + 1)); // down
                     pos2.set(pX_ + range_left.get(), Math.ceil(pY + range_up.get() + 1), pZ_ + range_forward.get()); // up
                 }
-                case 2 -> {
+                case 2 ->
+                {
                     pX_ += 1;
                     pZ_ += 1;
                     pos1.set(pX_ - (range_left.get() + 1), Math.ceil(pY) - range_down.get(), pZ_ - (range_forward.get() + 1)); // down
                     pos2.set(pX_ + range_right.get(), Math.ceil(pY + range_up.get() + 1), pZ_ + range_back.get()); // up
                 }
-                case 3 -> {
+                case 3 ->
+                {
                     pX_ += 1;
                     pos1.set(pX_ - (range_back.get() + 1), Math.ceil(pY) - range_down.get(), pZ_ - range_left.get()); // down
                     pos2.set(pX_ + range_forward.get(), Math.ceil(pY + range_up.get() + 1), pZ_ + range_right.get() + 1); // up
@@ -367,22 +373,30 @@ public class Nuker extends Module {
             maxv = 1 + Math.max(range_up.get(), range_down.get());
         }
 
-        if (mode.get() == Mode.Flatten) {
+        if (mode.get() == Mode.Flatten)
+        {
             pos1.setY((int) Math.floor(pY));
         }
         Box box = new Box(pos1.toCenterPos(), pos2.toCenterPos());
 
         // Find blocks to break
-        BlockIterator.register(Math.max((int) Math.ceil(range.get() + 1), maxh), Math.max((int) Math.ceil(range.get()), maxv), (blockPos, blockState) -> {
+        BlockIterator.register(Math.max((int) Math.ceil(range.get() + 1), maxh), Math.max((int) Math.ceil(range.get()), maxv), (blockPos, blockState) ->
+        {
             // Check for air, unbreakable blocks and distance
-            switch (shape.get()) {
-                case Sphere -> {
-                    if (Utils.squaredDistance(pX, pY, pZ, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5) > rangeSq) return;
+            switch (shape.get())
+            {
+                case Sphere ->
+                {
+                    if (Utils.squaredDistance(pX, pY, pZ, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5) > rangeSq)
+                        return;
                 }
-                case UniformCube -> {
-                    if (chebyshevDist(mc.player.getBlockPos().getX(), mc.player.getBlockPos().getY(), mc.player.getBlockPos().getZ(), blockPos.getX(), blockPos.getY(), blockPos.getZ()) >= range.get()) return;
+                case UniformCube ->
+                {
+                    if (chebyshevDist(mc.player.getBlockPos().getX(), mc.player.getBlockPos().getY(), mc.player.getBlockPos().getZ(), blockPos.getX(), blockPos.getY(), blockPos.getZ()) >= range.get())
+                        return;
                 }
-                case Cube -> {
+                case Cube ->
+                {
                     if (!box.contains(Vec3d.ofCenter(blockPos))) return;
                 }
             }
@@ -404,23 +418,28 @@ public class Nuker extends Module {
         });
 
         // Break block if found
-        BlockIterator.after(() -> {
+        BlockIterator.after(() ->
+        {
             // Sort blocks
             if (sortMode.get() == SortMode.TopDown)
                 blocks.sort(Comparator.comparingDouble(value -> -value.getY()));
             else if (sortMode.get() != SortMode.None)
                 blocks.sort(Comparator.comparingDouble(value -> Utils.squaredDistance(pX, pY, pZ, value.getX() + 0.5, value.getY() + 0.5, value.getZ() + 0.5) * (sortMode.get() == SortMode.Closest ? 1 : -1)));
 
-            if (silentMine.get()) {
+            if (silentMine.get())
+            {
                 SilentMine silentMine = Modules.get().get(SilentMine.class);
 
-                if (silentMine.hasDelayedDestroy() || (silentMine.hasRebreakBlock() && !silentMine.canRebreakRebreakBlock())) {
+                if (silentMine.hasDelayedDestroy() || (silentMine.hasRebreakBlock() && !silentMine.canRebreakRebreakBlock()))
+                {
                     return;
                 }
 
                 int count = 0;
-                for (BlockPos block : blocks) {
-                    if (count >= 2) {
+                for (BlockPos block : blocks)
+                {
+                    if (count >= 2)
+                    {
                         break;
                     }
 
@@ -434,17 +453,19 @@ public class Nuker extends Module {
             }
 
             // Check if some block was found
-            if (blocks.isEmpty()) {
+            if (blocks.isEmpty())
+            {
                 // If no block was found for long enough then set firstBlock flag to true to not wait before breaking another again
                 if (noBlockTimer++ >= delay.get()) firstBlock = true;
                 return;
-            }
-            else {
+            } else
+            {
                 noBlockTimer = 0;
             }
 
             // Update timer
-            if (!firstBlock && !lastBlockPos.equals(blocks.getFirst())) {
+            if (!firstBlock && !lastBlockPos.equals(blocks.getFirst()))
+            {
                 timer = delay.get();
 
                 firstBlock = false;
@@ -456,19 +477,23 @@ public class Nuker extends Module {
             // Break
             int count = 0;
 
-            for (BlockPos block : blocks) {
+            for (BlockPos block : blocks)
+            {
                 if (count >= maxBlocksPerTick.get()) break;
 
                 boolean canInstaMine = BlockUtils.canInstaBreak(block);
 
-                if (rotate.get()) Rotations.rotate(Rotations.getYaw(block), Rotations.getPitch(block), () -> breakBlock(block));
+                if (rotate.get())
+                    Rotations.rotate(Rotations.getYaw(block), Rotations.getPitch(block), () -> breakBlock(block));
                 else breakBlock(block);
 
-                if (enableRenderBreaking.get()) RenderUtils.renderTickingBlock(block, sideColor.get(), lineColor.get(), shapeModeBreak.get(), 0, 8, true, false);
+                if (enableRenderBreaking.get())
+                    RenderUtils.renderTickingBlock(block, sideColor.get(), lineColor.get(), shapeModeBreak.get(), 0, 8, true, false);
                 lastBlockPos.set(block);
 
                 count++;
-                if (!canInstaMine && !packetMine.get() /* With packet mine attempt to break everything possible at once */) break;
+                if (!canInstaMine && !packetMine.get() /* With packet mine attempt to break everything possible at once */)
+                    break;
             }
 
             firstBlock = false;
@@ -476,13 +501,16 @@ public class Nuker extends Module {
             // Clear current block positions
             blocks.clear();
         });
-    
-        if (belowAirScaffold.get()) {
+
+        if (belowAirScaffold.get())
+        {
             List<BlockPos> placePoses = new ArrayList<>();
             placePoses.add(mc.player.getBlockPos().down(3));
 
-            if (!mc.player.isUsingItem() && MeteorClient.BLOCK.beginPlacement(placePoses, Items.OBSIDIAN)) {
-                placePoses.forEach(blockPos -> {
+            if (!mc.player.isUsingItem() && MeteorClient.BLOCK.beginPlacement(placePoses, Items.OBSIDIAN))
+            {
+                placePoses.forEach(blockPos ->
+                {
                     MeteorClient.BLOCK.placeBlock(blockPos);
                 });
 
@@ -491,50 +519,50 @@ public class Nuker extends Module {
         }
     }
 
-    private void breakBlock(BlockPos blockPos) {
-        if (packetMine.get()) {
+    private void breakBlock(BlockPos blockPos)
+    {
+        if (packetMine.get())
+        {
             mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockPos, BlockUtils.getDirection(blockPos)));
             mc.player.swingHand(Hand.MAIN_HAND);
             mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, blockPos, BlockUtils.getDirection(blockPos)));
-        } else {
+        } else
+        {
             BlockUtils.breakBlock(blockPos, swingHand.get());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onBlockBreakingCooldown(BlockBreakingCooldownEvent event) {
+    private void onBlockBreakingCooldown(BlockBreakingCooldownEvent event)
+    {
         event.cooldown = 0;
     }
 
-    public enum ListMode {
+    public enum ListMode
+    {
         Whitelist,
         Blacklist
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         All,
         Flatten,
         Smash
     }
 
-    public enum SortMode {
+    public enum SortMode
+    {
         None,
         Closest,
         Furthest,
         TopDown
     }
 
-    public enum Shape {
+    public enum Shape
+    {
         Cube,
         UniformCube,
         Sphere
-    }
-
-    public static int chebyshevDist(int x1, int y1, int z1, int x2, int y2, int z2) {
-        // Gets the largest X, Y or Z difference, chebyshev distance
-        int dX = Math.abs(x2 - x1);
-        int dY = Math.abs(y2 - y1);
-        int dZ = Math.abs(z2 - z1);
-        return Math.max(Math.max(dX, dY), dZ);
     }
 }

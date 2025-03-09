@@ -19,16 +19,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 @Mixin(Mouse.class)
-public abstract class MouseMixin {
+public abstract class MouseMixin
+{
     @Inject(method = "onMouseButton", at = @At("HEAD"), cancellable = true)
-    private void onMouseButton(long window, int button, int action, int mods, CallbackInfo info) {
+    private void onMouseButton(long window, int button, int action, int mods, CallbackInfo info)
+    {
         Input.setButtonState(button, action != GLFW_RELEASE);
 
-        if (MeteorClient.EVENT_BUS.post(MouseButtonEvent.get(button, KeyAction.get(action))).isCancelled()) info.cancel();
+        if (MeteorClient.EVENT_BUS.post(MouseButtonEvent.get(button, KeyAction.get(action))).isCancelled())
+            info.cancel();
     }
 
     @Inject(method = "onMouseScroll", at = @At("HEAD"), cancellable = true)
-    private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo info) {
+    private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo info)
+    {
         if (MeteorClient.EVENT_BUS.post(MouseScrollEvent.get(vertical)).isCancelled()) info.cancel();
     }
 }

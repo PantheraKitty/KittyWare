@@ -10,14 +10,16 @@ import meteordevelopment.meteorclient.utils.PreInit;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class Renderer2D {
+public class Renderer2D
+{
     public static Renderer2D COLOR;
     public static Renderer2D TEXTURE;
 
     public final Mesh triangles;
     public final Mesh lines;
 
-    public Renderer2D(boolean texture) {
+    public Renderer2D(boolean texture)
+    {
         triangles = new ShaderMesh(
             texture ? Shaders.POS_TEX_COLOR : Shaders.POS_COLOR,
             DrawMode.Triangles,
@@ -28,32 +30,38 @@ public class Renderer2D {
     }
 
     @PreInit(dependencies = Shaders.class)
-    public static void init() {
+    public static void init()
+    {
         COLOR = new Renderer2D(false);
         TEXTURE = new Renderer2D(true);
     }
 
-    public void setAlpha(double alpha) {
+    public void setAlpha(double alpha)
+    {
         triangles.alpha = alpha;
     }
 
-    public void begin() {
+    public void begin()
+    {
         triangles.begin();
         lines.begin();
     }
 
-    public void end() {
+    public void end()
+    {
         triangles.end();
         lines.end();
     }
 
-    public void render(MatrixStack matrices) {
+    public void render(MatrixStack matrices)
+    {
         triangles.render(matrices);
         lines.render(matrices);
     }
 
     // Tris
-    public void triangle(double x1, double y1, double x2, double y2, double x3, double y3, Color color) {
+    public void triangle(double x1, double y1, double x2, double y2, double x3, double y3, Color color)
+    {
         triangles.triangle(
             triangles.vec2(x1, y1).color(color).next(),
             triangles.vec2(x2, y2).color(color).next(),
@@ -63,14 +71,16 @@ public class Renderer2D {
 
     // Lines
 
-    public void line(double x1, double y1, double x2, double y2, Color color) {
+    public void line(double x1, double y1, double x2, double y2, Color color)
+    {
         lines.line(
             lines.vec2(x1, y1).color(color).next(),
             lines.vec2(x2, y2).color(color).next()
         );
     }
 
-    public void boxLines(double x, double y, double width, double height, Color color) {
+    public void boxLines(double x, double y, double width, double height, Color color)
+    {
         int i1 = lines.vec2(x, y).color(color).next();
         int i2 = lines.vec2(x, y + height).color(color).next();
         int i3 = lines.vec2(x + width, y + height).color(color).next();
@@ -84,7 +94,8 @@ public class Renderer2D {
 
     // Quads
 
-    public void quad(double x, double y, double width, double height, Color cTopLeft, Color cTopRight, Color cBottomRight, Color cBottomLeft) {
+    public void quad(double x, double y, double width, double height, Color cTopLeft, Color cTopRight, Color cBottomRight, Color cBottomLeft)
+    {
         triangles.quad(
             triangles.vec2(x, y).color(cTopLeft).next(),
             triangles.vec2(x, y + height).color(cBottomLeft).next(),
@@ -93,13 +104,15 @@ public class Renderer2D {
         );
     }
 
-    public void quad(double x, double y, double width, double height, Color color) {
+    public void quad(double x, double y, double width, double height, Color color)
+    {
         quad(x, y, width, height, color, color, color, color);
     }
 
     // Textured quads
 
-    public void texQuad(double x, double y, double width, double height, Color color) {
+    public void texQuad(double x, double y, double width, double height, Color color)
+    {
         triangles.quad(
             triangles.vec2(x, y).vec2(0, 0).color(color).next(),
             triangles.vec2(x, y + height).vec2(0, 1).color(color).next(),
@@ -108,7 +121,8 @@ public class Renderer2D {
         );
     }
 
-    public void texQuad(double x, double y, double width, double height, TextureRegion texture, Color color) {
+    public void texQuad(double x, double y, double width, double height, TextureRegion texture, Color color)
+    {
         triangles.quad(
             triangles.vec2(x, y).vec2(texture.x1, texture.y1).color(color).next(),
             triangles.vec2(x, y + height).vec2(texture.x1, texture.y2).color(color).next(),
@@ -117,7 +131,8 @@ public class Renderer2D {
         );
     }
 
-    public void texQuad(double x, double y, double width, double height, double rotation, double texX1, double texY1, double texX2, double texY2, Color color) {
+    public void texQuad(double x, double y, double width, double height, double rotation, double texX1, double texY1, double texX2, double texY2, Color color)
+    {
         double rad = Math.toRadians(rotation);
         double cos = Math.cos(rad);
         double sin = Math.sin(rad);
@@ -144,7 +159,8 @@ public class Renderer2D {
         triangles.quad(i1, i2, i3, i4);
     }
 
-    public void texQuad(double x, double y, double width, double height, double rotation, TextureRegion region, Color color) {
+    public void texQuad(double x, double y, double width, double height, double rotation, TextureRegion region, Color color)
+    {
         texQuad(x, y, width, height, rotation, region.x1, region.y1, region.x2, region.y2, color);
     }
 }

@@ -21,7 +21,8 @@ import java.util.List;
 
 import static net.minecraft.entity.effect.StatusEffects.*;
 
-public class PotionSpoof extends Module {
+public class PotionSpoof extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Reference2IntMap<StatusEffect>> spoofPotions = sgGeneral.add(new StatusEffectAmplifierMapSetting.Builder()
@@ -59,37 +60,47 @@ public class PotionSpoof extends Module {
         .build()
     );
 
-    public PotionSpoof() {
+    public PotionSpoof()
+    {
         super(Categories.Player, "potion-spoof", "Spoofs potion statuses for you. SOME effects DO NOT work.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         if (!clearEffects.get() || !Utils.canUpdate()) return;
 
-        for (Reference2IntMap.Entry<StatusEffect> entry : spoofPotions.get().reference2IntEntrySet()) {
+        for (Reference2IntMap.Entry<StatusEffect> entry : spoofPotions.get().reference2IntEntrySet())
+        {
             if (entry.getIntValue() <= 0) continue;
-            if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(entry.getKey()))) mc.player.removeStatusEffect(Registries.STATUS_EFFECT.getEntry(entry.getKey()));
+            if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(entry.getKey())))
+                mc.player.removeStatusEffect(Registries.STATUS_EFFECT.getEntry(entry.getKey()));
         }
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        for (Reference2IntMap.Entry<StatusEffect> entry : spoofPotions.get().reference2IntEntrySet()) {
+    private void onTick(TickEvent.Post event)
+    {
+        for (Reference2IntMap.Entry<StatusEffect> entry : spoofPotions.get().reference2IntEntrySet())
+        {
             int level = entry.getIntValue();
             if (level <= 0) continue;
 
-            if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(entry.getKey()))) {
+            if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(entry.getKey())))
+            {
                 StatusEffectInstance instance = mc.player.getStatusEffect(Registries.STATUS_EFFECT.getEntry(entry.getKey()));
                 ((StatusEffectInstanceAccessor) instance).setAmplifier(level - 1);
-                if (instance.getDuration() < effectDuration.get()) ((StatusEffectInstanceAccessor) instance).setDuration(effectDuration.get());
-            } else {
+                if (instance.getDuration() < effectDuration.get())
+                    ((StatusEffectInstanceAccessor) instance).setDuration(effectDuration.get());
+            } else
+            {
                 mc.player.addStatusEffect(new StatusEffectInstance(Registries.STATUS_EFFECT.getEntry(entry.getKey()), effectDuration.get(), level - 1));
             }
         }
     }
 
-    public boolean shouldBlock(StatusEffect effect) {
+    public boolean shouldBlock(StatusEffect effect)
+    {
         return isActive() && antiPotion.get().contains(effect);
     }
 }

@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.UUID;
 
 @Mixin(ProjectileEntity.class)
-public interface ProjectileEntityAccessor {
+public interface ProjectileEntityAccessor
+{
     @Accessor
     UUID getOwnerUuid();
 }

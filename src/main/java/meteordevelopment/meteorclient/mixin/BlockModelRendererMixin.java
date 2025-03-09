@@ -23,12 +23,14 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockModelRenderer.class)
-public abstract class BlockModelRendererMixin {
+public abstract class BlockModelRendererMixin
+{
     @Unique
     private final ThreadLocal<Integer> alphas = new ThreadLocal<>();
 
     @Inject(method = {"renderSmooth", "renderFlat"}, at = @At("HEAD"), cancellable = true)
-    private void onRenderSmooth(BlockRenderView world, BakedModel model, BlockState state, BlockPos pos, MatrixStack matrices, VertexConsumer vertexConsumer, boolean cull, Random random, long seed, int overlay, CallbackInfo info) {
+    private void onRenderSmooth(BlockRenderView world, BakedModel model, BlockState state, BlockPos pos, MatrixStack matrices, VertexConsumer vertexConsumer, boolean cull, Random random, long seed, int overlay, CallbackInfo info)
+    {
         int alpha = Xray.getAlpha(state, pos);
 
         if (alpha == 0) info.cancel();
@@ -36,7 +38,8 @@ public abstract class BlockModelRendererMixin {
     }
 
     @ModifyConstant(method = "renderQuad", constant = @Constant(floatValue = 1, ordinal = 3))
-    private float renderQuad_modifyAlpha(float original) {
+    private float renderQuad_modifyAlpha(float original)
+    {
         int alpha = alphas.get();
         return alpha == -1 ? original : alpha / 255f;
     }

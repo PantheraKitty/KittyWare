@@ -27,7 +27,8 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Set;
 
-public class Flamethrower extends Module {
+public class Flamethrower extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> distance = sgGeneral.add(new DoubleSetting.Builder()
@@ -89,24 +90,28 @@ public class Flamethrower extends Module {
     private int ticks = 0;
     private Hand hand;
 
-    public Flamethrower() {
+    public Flamethrower()
+    {
         super(Categories.World, "flamethrower", "Ignites every alive piece of food.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         entity = null;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         entity = null;
         ticks++;
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (!entities.get().contains(entity.getType()) || !PlayerUtils.isWithin(entity, distance.get())) continue;
             if (entity.isFireImmune()) continue;
             if (entity == mc.player) continue;
-            if (!targetBabies.get() && entity instanceof LivingEntity && ((LivingEntity)entity).isBaby()) continue;
+            if (!targetBabies.get() && entity instanceof LivingEntity && ((LivingEntity) entity).isBaby()) continue;
 
             FindItemResult findFlintAndSteel = InvUtils.findInHotbar(itemStack -> itemStack.getItem() == Items.FLINT_AND_STEEL && (!antiBreak.get() || itemStack.getDamage() < itemStack.getMaxDamage() - 1));
             if (!InvUtils.swap(findFlintAndSteel.slot(), true)) return;
@@ -114,27 +119,32 @@ public class Flamethrower extends Module {
             this.hand = findFlintAndSteel.getHand();
             this.entity = entity;
 
-            if (rotate.get()) Rotations.rotate(Rotations.getYaw(entity.getBlockPos()), Rotations.getPitch(entity.getBlockPos()), -100, this::interact);
+            if (rotate.get())
+                Rotations.rotate(Rotations.getYaw(entity.getBlockPos()), Rotations.getPitch(entity.getBlockPos()), -100, this::interact);
             else interact();
 
             return;
         }
     }
 
-    private void interact() {
+    private void interact()
+    {
         Block block = mc.world.getBlockState(entity.getBlockPos()).getBlock();
         Block bottom = mc.world.getBlockState(entity.getBlockPos().down()).getBlock();
         if (block == Blocks.WATER || bottom == Blocks.WATER || bottom == Blocks.DIRT_PATH) return;
-        if (block == Blocks.GRASS_BLOCK)  mc.interactionManager.attackBlock(entity.getBlockPos(), Direction.DOWN);
+        if (block == Blocks.GRASS_BLOCK) mc.interactionManager.attackBlock(entity.getBlockPos(), Direction.DOWN);
 
-        if (putOutFire.get() && entity instanceof LivingEntity animal && animal.getHealth() < 1) {
+        if (putOutFire.get() && entity instanceof LivingEntity animal && animal.getHealth() < 1)
+        {
             mc.interactionManager.attackBlock(entity.getBlockPos(), Direction.DOWN);
             mc.interactionManager.attackBlock(entity.getBlockPos().west(), Direction.DOWN);
             mc.interactionManager.attackBlock(entity.getBlockPos().east(), Direction.DOWN);
             mc.interactionManager.attackBlock(entity.getBlockPos().north(), Direction.DOWN);
             mc.interactionManager.attackBlock(entity.getBlockPos().south(), Direction.DOWN);
-        } else {
-            if (ticks >= tickInterval.get() && !entity.isOnFire()) {
+        } else
+        {
+            if (ticks >= tickInterval.get() && !entity.isOnFire())
+            {
                 mc.interactionManager.interactBlock(mc.player, hand, new BlockHitResult(
                     entity.getPos().subtract(new Vec3d(0, 1, 0)), Direction.UP, entity.getBlockPos().down(), false));
                 ticks = 0;

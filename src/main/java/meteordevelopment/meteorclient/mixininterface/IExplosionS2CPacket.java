@@ -5,7 +5,8 @@
 
 package meteordevelopment.meteorclient.mixininterface;
 
-public interface IExplosionS2CPacket {
+public interface IExplosionS2CPacket
+{
     void setVelocityX(float velocity);
 
     void setVelocityY(float velocity);

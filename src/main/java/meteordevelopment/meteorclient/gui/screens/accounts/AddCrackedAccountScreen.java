@@ -11,13 +11,16 @@ import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
 import meteordevelopment.meteorclient.systems.accounts.Accounts;
 import meteordevelopment.meteorclient.systems.accounts.types.CrackedAccount;
 
-public class AddCrackedAccountScreen extends AddAccountScreen {
-    public AddCrackedAccountScreen(GuiTheme theme, AccountsScreen parent) {
+public class AddCrackedAccountScreen extends AddAccountScreen
+{
+    public AddCrackedAccountScreen(GuiTheme theme, AccountsScreen parent)
+    {
         super(theme, "Add Cracked Account", parent);
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         WTable t = add(theme.table()).widget();
 
         // Name
@@ -31,10 +34,13 @@ public class AddCrackedAccountScreen extends AddAccountScreen {
 
         // Add
         add = t.add(theme.button("Add")).expandX().widget();
-        add.action = () -> {
-            if (!name.get().isEmpty() && name.get().length() < 17) {
+        add.action = () ->
+        {
+            if (!name.get().isEmpty() && name.get().length() < 17)
+            {
                 CrackedAccount account = new CrackedAccount(name.get());
-                if (!(Accounts.get().exists(account))) {
+                if (!(Accounts.get().exists(account)))
+                {
                     AccountsScreen.addAccount(this, parent, account);
                 }
             }

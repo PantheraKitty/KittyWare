@@ -17,28 +17,33 @@ import java.util.Iterator;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class WItemWithLabel extends WHorizontalList {
+public class WItemWithLabel extends WHorizontalList
+{
     private ItemStack itemStack;
     private String name;
 
     private WItem item;
     private WLabel label;
 
-    public WItemWithLabel(ItemStack itemStack, String name) {
+    public WItemWithLabel(ItemStack itemStack, String name)
+    {
         this.itemStack = itemStack;
         this.name = name;
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         item = add(theme.item(itemStack)).widget();
         label = add(theme.label(name + getStringToAppend())).widget();
     }
 
-    private String getStringToAppend() {
+    private String getStringToAppend()
+    {
         String str = "";
 
-        if (itemStack.getItem() == Items.POTION) {
+        if (itemStack.getItem() == Items.POTION)
+        {
             Iterator<StatusEffectInstance> effects = itemStack.getItem().getComponents().get(DataComponentTypes.POTION_CONTENTS).getEffects().iterator();
             if (!effects.hasNext()) return str;
 
@@ -53,7 +58,8 @@ public class WItemWithLabel extends WHorizontalList {
         return str;
     }
 
-    public void set(ItemStack itemStack) {
+    public void set(ItemStack itemStack)
+    {
         this.itemStack = itemStack;
         item.itemStack = itemStack;
 
@@ -61,7 +67,8 @@ public class WItemWithLabel extends WHorizontalList {
         label.set(name + getStringToAppend());
     }
 
-    public String getLabelText() {
+    public String getLabelText()
+    {
         return label == null ? name : label.get();
     }
 }

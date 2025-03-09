@@ -10,20 +10,24 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
 import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.input.WSlider;
 
-public class WGonbleWareSlider extends WSlider implements GonbleWareWidget {
-    public WGonbleWareSlider(double value, double min, double max) {
+public class WGonbleWareSlider extends WSlider implements GonbleWareWidget
+{
+    public WGonbleWareSlider(double value, double min, double max)
+    {
         super(value, min, max);
     }
 
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         double valueWidth = valueWidth();
 
         renderBar(renderer, valueWidth);
         renderHandle(renderer, valueWidth);
     }
 
-    private void renderBar(GuiRenderer renderer, double valueWidth) {
+    private void renderBar(GuiRenderer renderer, double valueWidth)
+    {
         GonbleWareGuiTheme theme = theme();
 
         double s = theme.scale(3);
@@ -36,7 +40,8 @@ public class WGonbleWareSlider extends WSlider implements GonbleWareWidget {
         renderer.quad(x + valueWidth, y, width - valueWidth - handleSize, s, theme.sliderRight.get());
     }
 
-    private void renderHandle(GuiRenderer renderer, double valueWidth) {
+    private void renderHandle(GuiRenderer renderer, double valueWidth)
+    {
         GonbleWareGuiTheme theme = theme();
         double s = handleSize();
 

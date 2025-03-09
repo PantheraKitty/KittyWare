@@ -5,9 +5,11 @@
 
 package meteordevelopment.meteorclient.gui.widgets.pressable;
 
-public abstract class WPlus extends WPressable {
+public abstract class WPlus extends WPressable
+{
     @Override
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
         double pad = pad();
         double s = theme.textHeight();
 

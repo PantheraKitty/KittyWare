@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.systems.accounts;
 
-public interface TokenAccount {
+public interface TokenAccount
+{
     String getToken();
 }

@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class EntityOwner extends Module {
+public class EntityOwner extends Module
+{
     private static final Color BACKGROUND = new Color(0, 0, 0, 75);
     private static final Color TEXT = new Color(255, 255, 255);
 
@@ -45,35 +46,42 @@ public class EntityOwner extends Module {
     private final Vector3d pos = new Vector3d();
     private final Map<UUID, String> uuidToName = new HashMap<>();
 
-    public EntityOwner() {
+    public EntityOwner()
+    {
         super(Categories.Render, "entity-owner", "Displays the name of the player who owns the entity you're looking at.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         uuidToName.clear();
     }
 
     @EventHandler
-    private void onRender2D(Render2DEvent event) {
-        for (Entity entity : mc.world.getEntities()) {
+    private void onRender2D(Render2DEvent event)
+    {
+        for (Entity entity : mc.world.getEntities())
+        {
             UUID ownerUuid;
 
             if (entity instanceof TameableEntity tameable) ownerUuid = tameable.getOwnerUuid();
             else continue;
 
-            if (ownerUuid != null) {
+            if (ownerUuid != null)
+            {
                 Utils.set(pos, entity, event.tickDelta);
                 pos.add(0, entity.getEyeHeight(entity.getPose()) + 0.75, 0);
 
-                if (NametagUtils.to2D(pos, scale.get())) {
+                if (NametagUtils.to2D(pos, scale.get()))
+                {
                     renderNametag(getOwnerName(ownerUuid));
                 }
             }
         }
     }
 
-    private void renderNametag(String name) {
+    private void renderNametag(String name)
+    {
         TextRenderer text = TextRenderer.get();
 
         NametagUtils.begin(pos);
@@ -94,7 +102,8 @@ public class EntityOwner extends Module {
         NametagUtils.end();
     }
 
-    private String getOwnerName(UUID uuid) {
+    private String getOwnerName(UUID uuid)
+    {
         // Check if the player is online
         PlayerEntity player = mc.world.getPlayerByUuid(uuid);
         if (player != null) return player.getName().getString();
@@ -104,11 +113,14 @@ public class EntityOwner extends Module {
         if (name != null) return name;
 
         // Makes an HTTP request to Mojang API
-        MeteorExecutor.execute(() -> {
-            if (isActive()) {
+        MeteorExecutor.execute(() ->
+        {
+            if (isActive())
+            {
                 ProfileResponse res = Http.get("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString().replace("-", "")).sendJson(ProfileResponse.class);
 
-                if (isActive()) {
+                if (isActive())
+                {
                     if (res == null) uuidToName.put(uuid, "Failed to get name");
                     else uuidToName.put(uuid, res.name);
                 }
@@ -120,7 +132,8 @@ public class EntityOwner extends Module {
         return name;
     }
 
-    private static class ProfileResponse {
+    private static class ProfileResponse
+    {
         public String name;
     }
 }

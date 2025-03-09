@@ -7,6 +7,7 @@ package meteordevelopment.meteorclient.gui.utils;
 
 import meteordevelopment.meteorclient.gui.GuiTheme;
 
-public interface BaseWidget {
+public interface BaseWidget
+{
     GuiTheme getTheme();
 }

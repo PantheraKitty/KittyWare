@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(SimpleEntityLookup.class)
-public interface SimpleEntityLookupAccessor {
+public interface SimpleEntityLookupAccessor
+{
     @Accessor("cache")
     <T extends EntityLike> SectionedEntityCache<T> getCache();
 }

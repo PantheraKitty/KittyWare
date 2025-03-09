@@ -40,7 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Jesus extends Module {
+public class Jesus extends Module
+{
     private final SettingGroup sgGeneral = settings.createGroup("General");
     private final SettingGroup sgWater = settings.createGroup("Water");
     private final SettingGroup sgLava = settings.createGroup("Lava");
@@ -143,21 +144,20 @@ public class Jesus extends Module {
     // Other
 
     private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
-
+    public boolean isInBubbleColumn = false;
     private int tickTimer = 10;
     private int packetTimer = 0;
-
     private boolean prePathManagerWalkOnWater;
     private boolean prePathManagerWalkOnLava;
 
-    public boolean isInBubbleColumn = false;
-
-    public Jesus() {
+    public Jesus()
+    {
         super(Categories.Movement, "jesus", "Walk on liquids and powder snow like Jesus.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         prePathManagerWalkOnWater = PathManagers.get().getSettings().getWalkOnWater().get();
         prePathManagerWalkOnLava = PathManagers.get().getSettings().getWalkOnLava().get();
 
@@ -166,29 +166,35 @@ public class Jesus extends Module {
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         PathManagers.get().getSettings().getWalkOnWater().set(prePathManagerWalkOnWater);
         PathManagers.get().getSettings().getWalkOnLava().set(prePathManagerWalkOnLava);
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         boolean bubbleColumn = isInBubbleColumn;
         isInBubbleColumn = false;
 
-        if ((waterMode.get() == Mode.Bob && mc.player.isTouchingWater()) || (lavaMode.get() == Mode.Bob && mc.player.isInLava())) {
+        if ((waterMode.get() == Mode.Bob && mc.player.isTouchingWater()) || (lavaMode.get() == Mode.Bob && mc.player.isInLava()))
+        {
             double fluidHeight;
             if (mc.player.isInLava()) fluidHeight = mc.player.getFluidHeight(FluidTags.LAVA);
             else fluidHeight = mc.player.getFluidHeight(FluidTags.WATER);
 
             double swimHeight = mc.player.getSwimHeight();
 
-            if (mc.player.isTouchingWater() && fluidHeight > swimHeight) {
+            if (mc.player.isTouchingWater() && fluidHeight > swimHeight)
+            {
                 ((LivingEntityAccessor) mc.player).swimUpwards(FluidTags.WATER);
-            } else if (mc.player.isOnGround() && fluidHeight <= swimHeight && ((LivingEntityAccessor) mc.player).getJumpCooldown() == 0) {
+            } else if (mc.player.isOnGround() && fluidHeight <= swimHeight && ((LivingEntityAccessor) mc.player).getJumpCooldown() == 0)
+            {
                 mc.player.jump();
                 ((LivingEntityAccessor) mc.player).setJumpCooldown(10);
-            } else {
+            } else
+            {
                 ((LivingEntityAccessor) mc.player).swimUpwards(FluidTags.LAVA);
             }
         }
@@ -198,13 +204,16 @@ public class Jesus extends Module {
         if (mc.player.isInLava() && !lavaShouldBeSolid()) return;
 
         // Move up in bubble columns
-        if (bubbleColumn) {
-            if (mc.options.jumpKey.isPressed() && mc.player.getVelocity().getY() < 0.11) ((IVec3d) mc.player.getVelocity()).setY(0.11);
+        if (bubbleColumn)
+        {
+            if (mc.options.jumpKey.isPressed() && mc.player.getVelocity().getY() < 0.11)
+                ((IVec3d) mc.player.getVelocity()).setY(0.11);
             return;
         }
 
         // Move up
-        if (mc.player.isTouchingWater() || mc.player.isInLava()) {
+        if (mc.player.isTouchingWater() || mc.player.isInLava())
+        {
             ((IVec3d) mc.player.getVelocity()).setY(0.11);
             tickTimer = 0;
             return;
@@ -212,9 +221,13 @@ public class Jesus extends Module {
 
         BlockState blockBelowState = mc.world.getBlockState(mc.player.getBlockPos().down());
         boolean waterLogger = false;
-        try {
+        try
+        {
             waterLogger = blockBelowState.get(Properties.WATERLOGGED);
-        } catch (Exception ignored) {}
+        }
+        catch (Exception ignored)
+        {
+        }
 
 
         // Simulate jumping out of water
@@ -226,41 +239,50 @@ public class Jesus extends Module {
     }
 
     @EventHandler
-    private void onCanWalkOnFluid(CanWalkOnFluidEvent event) {
+    private void onCanWalkOnFluid(CanWalkOnFluidEvent event)
+    {
         if (mc.player != null && mc.player.isInSwimmingPose()) return;
-        if ((event.fluidState.getFluid() == Fluids.WATER || event.fluidState.getFluid() == Fluids.FLOWING_WATER) && waterShouldBeSolid()) {
+        if ((event.fluidState.getFluid() == Fluids.WATER || event.fluidState.getFluid() == Fluids.FLOWING_WATER) && waterShouldBeSolid())
+        {
             event.walkOnFluid = true;
-        }
-        else if ((event.fluidState.getFluid() == Fluids.LAVA || event.fluidState.getFluid() == Fluids.FLOWING_LAVA) && lavaShouldBeSolid()) {
+        } else if ((event.fluidState.getFluid() == Fluids.LAVA || event.fluidState.getFluid() == Fluids.FLOWING_LAVA) && lavaShouldBeSolid())
+        {
             event.walkOnFluid = true;
         }
     }
 
     @EventHandler
-    private void onFluidCollisionShape(CollisionShapeEvent event) {
+    private void onFluidCollisionShape(CollisionShapeEvent event)
+    {
         if (event.state.getFluidState().isEmpty()) return;
 
-        if ((event.state.getBlock() == Blocks.WATER | event.state.getFluidState().getFluid() == Fluids.WATER) && !mc.player.isTouchingWater() && waterShouldBeSolid() && event.pos.getY() <= mc.player.getY() - 1) {
+        if ((event.state.getBlock() == Blocks.WATER | event.state.getFluidState().getFluid() == Fluids.WATER) && !mc.player.isTouchingWater() && waterShouldBeSolid() && event.pos.getY() <= mc.player.getY() - 1)
+        {
             event.shape = VoxelShapes.fullCube();
-        } else if (event.state.getBlock() == Blocks.LAVA && !mc.player.isInLava() && lavaShouldBeSolid() && (!lavaIsSafe() || event.pos.getY() <= mc.player.getY() - 1)) {
+        } else if (event.state.getBlock() == Blocks.LAVA && !mc.player.isInLava() && lavaShouldBeSolid() && (!lavaIsSafe() || event.pos.getY() <= mc.player.getY() - 1))
+        {
             event.shape = VoxelShapes.fullCube();
         }
     }
 
     @EventHandler
-    private void onSendPacket(PacketEvent.Send event) {
+    private void onSendPacket(PacketEvent.Send event)
+    {
         if (!(event.packet instanceof PlayerMoveC2SPacket packet)) return;
         if (mc.player.isTouchingWater() && !waterShouldBeSolid()) return;
         if (mc.player.isInLava() && !lavaShouldBeSolid()) return;
 
         // Check if packet contains a position
-        if (!(packet instanceof PlayerMoveC2SPacket.PositionAndOnGround || packet instanceof PlayerMoveC2SPacket.Full)) return;
+        if (!(packet instanceof PlayerMoveC2SPacket.PositionAndOnGround || packet instanceof PlayerMoveC2SPacket.Full))
+            return;
 
         // Check inWater, fallDistance and if over liquid
-        if (mc.player.isTouchingWater() || mc.player.isInLava() || mc.player.fallDistance > 3f || !isOverLiquid()) return;
+        if (mc.player.isTouchingWater() || mc.player.isInLava() || mc.player.fallDistance > 3f || !isOverLiquid())
+            return;
 
         // If not actually moving, cancel packet
-        if (mc.player.input.movementForward == 0 && mc.player.input.movementSideways == 0) {
+        if (mc.player.input.movementForward == 0 && mc.player.input.movementSideways == 0)
+        {
             event.cancel();
             return;
         }
@@ -279,10 +301,11 @@ public class Jesus extends Module {
 
         // Create new packet
         Packet<?> newPacket;
-        if (packet instanceof PlayerMoveC2SPacket.PositionAndOnGround) {
+        if (packet instanceof PlayerMoveC2SPacket.PositionAndOnGround)
+        {
             newPacket = new PlayerMoveC2SPacket.PositionAndOnGround(x, y, z, true);
-        }
-        else {
+        } else
+        {
             newPacket = new PlayerMoveC2SPacket.Full(x, y, z, packet.getYaw(0), packet.getPitch(0), true);
         }
 
@@ -290,10 +313,12 @@ public class Jesus extends Module {
         mc.getNetworkHandler().getConnection().send(newPacket);
     }
 
-    private boolean waterShouldBeSolid() {
+    private boolean waterShouldBeSolid()
+    {
         if (EntityUtils.getGameMode(mc.player) == GameMode.SPECTATOR || mc.player.getAbilities().flying) return false;
 
-        if (mc.player.getVehicle() != null) {
+        if (mc.player.getVehicle() != null)
+        {
             EntityType<?> vehicle = mc.player.getVehicle().getType();
             if (vehicle == EntityType.BOAT || vehicle == EntityType.CHEST_BOAT) return false;
         }
@@ -308,7 +333,8 @@ public class Jesus extends Module {
         return waterMode.get() == Mode.Solid;
     }
 
-    private boolean lavaShouldBeSolid() {
+    private boolean lavaShouldBeSolid()
+    {
         if (EntityUtils.getGameMode(mc.player) == GameMode.SPECTATOR || mc.player.getAbilities().flying) return false;
 
         if (!lavaIsSafe() && lavaMode.get() == Mode.Solid) return true;
@@ -319,13 +345,15 @@ public class Jesus extends Module {
         return lavaMode.get() == Mode.Solid;
     }
 
-    private boolean lavaIsSafe() {
+    private boolean lavaIsSafe()
+    {
         if (!dipIfFireResistant.get()) return false;
         return mc.player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE) && (mc.player.getStatusEffect(StatusEffects.FIRE_RESISTANCE).getDuration() > (15 * 20 * mc.player.getAttributeValue(EntityAttributes.GENERIC_BURNING_TIME)));
         // todo verify
     }
 
-    private boolean isOverLiquid() {
+    private boolean isOverLiquid()
+    {
         boolean foundLiquid = false;
         boolean foundSolid = false;
 
@@ -333,7 +361,8 @@ public class Jesus extends Module {
             .map(VoxelShape::getBoundingBox)
             .collect(Collectors.toCollection(ArrayList::new));
 
-        for (Box bb : blockCollisions) {
+        for (Box bb : blockCollisions)
+        {
             blockPos.set(MathHelper.lerp(0.5D, bb.minX, bb.maxX), MathHelper.lerp(0.5D, bb.minY, bb.maxY), MathHelper.lerp(0.5D, bb.minZ, bb.maxZ));
             BlockState blockState = mc.world.getBlockState(blockPos);
 
@@ -345,13 +374,15 @@ public class Jesus extends Module {
         return foundLiquid && !foundSolid;
     }
 
-    public enum Mode {
+    public boolean canWalkOnPowderSnow()
+    {
+        return isActive() && powderSnow.get();
+    }
+
+    public enum Mode
+    {
         Solid,
         Bob,
         Ignore
-    }
-
-    public boolean canWalkOnPowderSnow() {
-        return isActive() && powderSnow.get();
     }
 }

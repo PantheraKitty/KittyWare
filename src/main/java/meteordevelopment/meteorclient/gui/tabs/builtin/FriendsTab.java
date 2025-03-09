@@ -15,34 +15,41 @@ import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WPlus;
 import meteordevelopment.meteorclient.systems.friends.Friend;
-import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.friends.Friend.FriendType;
+import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.utils.misc.NbtUtils;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
 import net.minecraft.client.gui.screen.Screen;
 
-public class FriendsTab extends Tab {
-    public FriendsTab() {
+public class FriendsTab extends Tab
+{
+    public FriendsTab()
+    {
         super("Friends");
     }
 
     @Override
-    public TabScreen createScreen(GuiTheme theme) {
+    public TabScreen createScreen(GuiTheme theme)
+    {
         return new FriendsScreen(theme, this);
     }
 
     @Override
-    public boolean isScreen(Screen screen) {
+    public boolean isScreen(Screen screen)
+    {
         return screen instanceof FriendsScreen;
     }
 
-    private static class FriendsScreen extends WindowTabScreen {
-        public FriendsScreen(GuiTheme theme, Tab tab) {
+    private static class FriendsScreen extends WindowTabScreen
+    {
+        public FriendsScreen(GuiTheme theme, Tab tab)
+        {
             super(theme, tab);
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             WTable table = add(theme.table()).expandX().minWidth(400).widget();
             initTable(table);
 
@@ -55,15 +62,18 @@ public class FriendsTab extends Tab {
             nameW.setFocused(true);
 
             WPlus add = list.add(theme.plus()).widget();
-            add.action = () -> {
+            add.action = () ->
+            {
                 String name = nameW.get().trim();
                 Friend friend = new Friend(name, FriendType.Friend);
 
-                if (Friends.get().add(friend)) {
+                if (Friends.get().add(friend))
+                {
                     nameW.set("");
                     reload();
 
-                    MeteorExecutor.execute(() -> {
+                    MeteorExecutor.execute(() ->
+                    {
                         friend.updateInfo();
                         reload();
                     });
@@ -73,25 +83,30 @@ public class FriendsTab extends Tab {
             enterAction = add.action;
         }
 
-        private void initTable(WTable table) {
+        private void initTable(WTable table)
+        {
             table.clear();
             if (Friends.get().isEmpty()) return;
 
             Friends.get().friendStream().forEach(friend ->
-                MeteorExecutor.execute(() -> {
-                    if (friend.headTextureNeedsUpdate()) {
+                MeteorExecutor.execute(() ->
+                {
+                    if (friend.headTextureNeedsUpdate())
+                    {
                         friend.updateInfo();
                         reload();
                     }
                 })
             );
 
-            Friends.get().friendStream().forEach(friend -> {
+            Friends.get().friendStream().forEach(friend ->
+            {
                 table.add(theme.texture(32, 32, friend.getHead().needsRotate() ? 90 : 0, friend.getHead()));
                 table.add(theme.label(friend.getName()));
 
                 WMinus remove = table.add(theme.minus()).expandCellX().right().widget();
-                remove.action = () -> {
+                remove.action = () ->
+                {
                     Friends.get().remove(friend);
                     reload();
                 };
@@ -101,12 +116,14 @@ public class FriendsTab extends Tab {
         }
 
         @Override
-        public boolean toClipboard() {
+        public boolean toClipboard()
+        {
             return NbtUtils.toClipboard(Friends.get());
         }
 
         @Override
-        public boolean fromClipboard() {
+        public boolean fromClipboard()
+        {
             return NbtUtils.fromClipboard(Friends.get());
         }
     }

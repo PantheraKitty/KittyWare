@@ -11,7 +11,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ClientPlayerEntity.class)
-public interface ClientPlayerEntityAccessor {
+public interface ClientPlayerEntityAccessor
+{
     @Accessor("mountJumpStrength")
     void setMountJumpStrength(float strength);
 

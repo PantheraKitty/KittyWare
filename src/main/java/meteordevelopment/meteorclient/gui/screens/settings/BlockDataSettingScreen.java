@@ -26,7 +26,8 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class BlockDataSettingScreen extends WindowScreen {
+public class BlockDataSettingScreen extends WindowScreen
+{
     private static final List<Block> BLOCKS = new ArrayList<>(100);
 
     private final BlockDataSetting<?> setting;
@@ -34,17 +35,20 @@ public class BlockDataSettingScreen extends WindowScreen {
     private WTable table;
     private String filterText = "";
 
-    public BlockDataSettingScreen(GuiTheme theme, BlockDataSetting<?> setting) {
+    public BlockDataSettingScreen(GuiTheme theme, BlockDataSetting<?> setting)
+    {
         super(theme, "Configure Blocks");
 
         this.setting = setting;
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         WTextBox filter = add(theme.textBox("")).minWidth(400).expandX().widget();
         filter.setFocused(true);
-        filter.action = () -> {
+        filter.action = () ->
+        {
             filterText = filter.get().trim();
 
             table.clear();
@@ -56,15 +60,18 @@ public class BlockDataSettingScreen extends WindowScreen {
         initTable();
     }
 
-    public <T extends ICopyable<T> & ISerializable<T> & IChangeable & IBlockData<T>> void initTable() {
-        for (Block block : Registries.BLOCK) {
+    public <T extends ICopyable<T> & ISerializable<T> & IChangeable & IBlockData<T>> void initTable()
+    {
+        for (Block block : Registries.BLOCK)
+        {
             T blockData = (T) setting.get().get(block);
 
             if (blockData != null && blockData.isChanged()) BLOCKS.addFirst(block);
             else BLOCKS.add(block);
         }
 
-        for (Block block : BLOCKS) {
+        for (Block block : BLOCKS)
+        {
             String name = Names.get(block);
             if (!StringUtils.containsIgnoreCase(name, filterText)) continue;
 
@@ -74,7 +81,8 @@ public class BlockDataSettingScreen extends WindowScreen {
             table.add(theme.label((blockData != null && blockData.isChanged()) ? "*" : " "));
 
             WButton edit = table.add(theme.button(GuiRenderer.EDIT)).widget();
-            edit.action = () -> {
+            edit.action = () ->
+            {
                 T data = blockData;
                 if (data == null) data = (T) setting.defaultData.get().copy();
 
@@ -82,11 +90,13 @@ public class BlockDataSettingScreen extends WindowScreen {
             };
 
             WButton reset = table.add(theme.button(GuiRenderer.RESET)).widget();
-            reset.action = () -> {
+            reset.action = () ->
+            {
                 setting.get().remove(block);
                 setting.onChanged();
 
-                if (blockData != null && blockData.isChanged()) {
+                if (blockData != null && blockData.isChanged())
+                {
                     table.clear();
                     initTable();
                 }

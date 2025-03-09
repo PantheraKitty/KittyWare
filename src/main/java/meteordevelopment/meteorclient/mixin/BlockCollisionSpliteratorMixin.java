@@ -21,7 +21,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(BlockCollisionSpliterator.class)
-public abstract class BlockCollisionSpliteratorMixin {
+public abstract class BlockCollisionSpliteratorMixin
+{
 
     @WrapOperation(method = "computeNext",
         at = @At(
@@ -29,12 +30,14 @@ public abstract class BlockCollisionSpliteratorMixin {
             target = "Lnet/minecraft/block/BlockState;getCollisionShape(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/ShapeContext;)Lnet/minecraft/util/shape/VoxelShape;"
         )
     )
-    private VoxelShape onComputeNextCollisionBox(BlockState state, BlockView world, BlockPos pos, ShapeContext context, Operation<VoxelShape> original) {
+    private VoxelShape onComputeNextCollisionBox(BlockState state, BlockView world, BlockPos pos, ShapeContext context, Operation<VoxelShape> original)
+    {
         VoxelShape shape = original.call(state, world, pos, context);
 
         MinecraftClient instance = MinecraftClient.getInstance();
 
-        if (world != instance.world) {
+        if (world != instance.world)
+        {
             return shape;
         }
 

@@ -23,7 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-public class FontFaceSettingScreen extends WindowScreen {
+public class FontFaceSettingScreen extends WindowScreen
+{
     private final FontFaceSetting setting;
 
     private WTable table;
@@ -31,17 +32,20 @@ public class FontFaceSettingScreen extends WindowScreen {
     private WTextBox filter;
     private String filterText = "";
 
-    public FontFaceSettingScreen(GuiTheme theme, FontFaceSetting setting) {
+    public FontFaceSettingScreen(GuiTheme theme, FontFaceSetting setting)
+    {
         super(theme, "Select Font");
 
         this.setting = setting;
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         filter = add(theme.textBox("")).expandX().widget();
         filter.setFocused(true);
-        filter.action = () -> {
+        filter.action = () ->
+        {
             filterText = filter.get().trim();
 
             table.clear();
@@ -50,12 +54,14 @@ public class FontFaceSettingScreen extends WindowScreen {
 
         window.view.hasScrollBar = false;
 
-        enterAction = () -> {
+        enterAction = () ->
+        {
             List<Cell<?>> row = table.getRow(0);
             if (row == null) return;
 
             WWidget widget = row.get(2).widget();
-            if (widget instanceof WButton button) {
+            if (widget instanceof WButton button)
+            {
                 button.action.run();
             }
         };
@@ -67,8 +73,10 @@ public class FontFaceSettingScreen extends WindowScreen {
         initTable();
     }
 
-    private void initTable() {
-        for (FontFamily fontFamily : Fonts.FONT_FAMILIES) {
+    private void initTable()
+    {
+        for (FontFamily fontFamily : Fonts.FONT_FAMILIES)
+        {
             String name = fontFamily.getName();
 
             WLabel item = theme.label(name);
@@ -78,7 +86,8 @@ public class FontFaceSettingScreen extends WindowScreen {
             WDropdown<FontInfo.Type> dropdown = table.add(theme.dropdown(FontInfo.Type.Regular)).right().widget();
 
             WButton select = table.add(theme.button("Select")).expandCellX().right().widget();
-            select.action = () -> {
+            select.action = () ->
+            {
                 setting.set(fontFamily.get(dropdown.get()));
                 close();
             };

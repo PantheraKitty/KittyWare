@@ -18,7 +18,8 @@ import net.minecraft.item.SwordItem;
 
 import java.util.Set;
 
-public class Hitboxes extends Module {
+public class Hitboxes extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
@@ -49,17 +50,21 @@ public class Hitboxes extends Module {
         .build()
     );
 
-    public Hitboxes() {
+    public Hitboxes()
+    {
         super(Categories.Combat, "hitboxes", "Expands an entity's hitboxes.");
     }
 
-    public double getEntityValue(Entity entity) {
-        if (!(isActive() && testWeapon()) || (ignoreFriends.get() && entity instanceof PlayerEntity && Friends.get().isFriend((PlayerEntity) entity))) return 0;
+    public double getEntityValue(Entity entity)
+    {
+        if (!(isActive() && testWeapon()) || (ignoreFriends.get() && entity instanceof PlayerEntity && Friends.get().isFriend((PlayerEntity) entity)))
+            return 0;
         if (entities.get().contains(entity.getType())) return value.get();
         return 0;
     }
 
-    private boolean testWeapon() {
+    private boolean testWeapon()
+    {
         if (!onlyOnWeapon.get()) return true;
         return InvUtils.testInHands(itemStack -> itemStack.getItem() instanceof SwordItem || itemStack.getItem() instanceof AxeItem);
     }

@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.mixininterface;
 
-public interface IHorseBaseEntity {
+public interface IHorseBaseEntity
+{
     void setSaddled(boolean saddled);
 }

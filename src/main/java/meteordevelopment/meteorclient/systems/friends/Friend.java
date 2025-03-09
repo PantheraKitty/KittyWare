@@ -18,40 +18,47 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Friend implements ISerializable<Friend>, Comparable<Friend> {
+public class Friend implements ISerializable<Friend>, Comparable<Friend>
+{
     public volatile String name;
     private volatile @Nullable UUID id;
     private volatile @Nullable PlayerHeadTexture headTexture;
     private volatile boolean updating;
     private volatile FriendType type = FriendType.Friend;
 
-    public Friend(String name, @Nullable UUID id, FriendType type) {
+    public Friend(String name, @Nullable UUID id, FriendType type)
+    {
         this.name = name;
         this.id = id;
         this.headTexture = null;
         this.type = type;
     }
 
-    public Friend(PlayerEntity player, FriendType type) {
+    public Friend(PlayerEntity player, FriendType type)
+    {
         this(player.getName().getString(), player.getUuid(), type);
     }
 
-    public Friend(String name, FriendType type) {
+    public Friend(String name, FriendType type)
+    {
         this(name, null, type);
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public PlayerHeadTexture getHead() {
+    public PlayerHeadTexture getHead()
+    {
         return headTexture != null ? headTexture : PlayerHeadUtils.STEVE_HEAD;
     }
 
-    public void updateInfo() {
+    public void updateInfo()
+    {
         updating = true;
         APIResponse res = Http.get("https://api.mojang.com/users/profiles/minecraft/" + name)
-                .sendJson(APIResponse.class);
+            .sendJson(APIResponse.class);
         if (res == null || res.name == null || res.id == null)
             return;
         name = res.name;
@@ -60,20 +67,24 @@ public class Friend implements ISerializable<Friend>, Comparable<Friend> {
         updating = false;
     }
 
-    public boolean headTextureNeedsUpdate() {
+    public boolean headTextureNeedsUpdate()
+    {
         return !this.updating && headTexture == null;
     }
 
-    public FriendType getFriendType() {
+    public FriendType getFriendType()
+    {
         return type;
     }
 
-    public void setfFriendType(FriendType type) {
+    public void setfFriendType(FriendType type)
+    {
         this.type = type;
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putString("name", name);
@@ -81,7 +92,8 @@ public class Friend implements ISerializable<Friend>, Comparable<Friend> {
         if (id != null)
             tag.putString("id", UndashedUuid.toString(id));
 
-        switch (type) {
+        switch (type)
+        {
             case Friend:
                 tag.putString("friendType", "Friend");
                 break;
@@ -94,12 +106,14 @@ public class Friend implements ISerializable<Friend>, Comparable<Friend> {
     }
 
     @Override
-    public Friend fromTag(NbtCompound tag) {
+    public Friend fromTag(NbtCompound tag)
+    {
         return this;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -109,20 +123,24 @@ public class Friend implements ISerializable<Friend>, Comparable<Friend> {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hash(name);
     }
 
     @Override
-    public int compareTo(@NotNull Friend friend) {
+    public int compareTo(@NotNull Friend friend)
+    {
         return name.compareTo(friend.name);
     }
 
-    private static class APIResponse {
-        String name, id;
+    public enum FriendType
+    {
+        Friend, Enemy
     }
 
-    public enum FriendType {
-        Friend, Enemy
+    private static class APIResponse
+    {
+        String name, id;
     }
 }

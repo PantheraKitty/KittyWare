@@ -11,7 +11,8 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 
-public class AntiPacketKick extends Module {
+public class AntiPacketKick extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Boolean> catchExceptions = sgGeneral.add(new BoolSetting.Builder()
@@ -29,11 +30,13 @@ public class AntiPacketKick extends Module {
         .build()
     );
 
-    public AntiPacketKick() {
+    public AntiPacketKick()
+    {
         super(Categories.Misc, "anti-packet-kick", "Attempts to prevent you from being disconnected by large packets.");
     }
 
-    public boolean catchExceptions() {
+    public boolean catchExceptions()
+    {
         return isActive() && catchExceptions.get();
     }
 }

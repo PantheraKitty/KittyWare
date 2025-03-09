@@ -10,36 +10,46 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WWindow;
 
-public class WGonbleWareWindow extends WWindow implements GonbleWareWidget {
-    public WGonbleWareWindow(WWidget icon, String title) {
+public class WGonbleWareWindow extends WWindow implements GonbleWareWidget
+{
+    public WGonbleWareWindow(WWidget icon, String title)
+    {
         super(icon, title);
     }
 
     @Override
-    protected WHeader header(WWidget icon) {
+    protected WHeader header(WWidget icon)
+    {
         return new WGonbleWareHeader(icon);
     }
 
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
-        if (expanded || animProgress > 0) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
+        if (expanded || animProgress > 0)
+        {
             renderer.quad(x, y + header.height, width, height - header.height, theme().backgroundColor.get());
         }
     }
 
-    private class WGonbleWareHeader extends WHeader {
-        public WGonbleWareHeader(WWidget icon) {
+    private class WGonbleWareHeader extends WHeader
+    {
+        public WGonbleWareHeader(WWidget icon)
+        {
             super(icon);
         }
 
         @Override
-        public void init() {
-            if (icon != null) {
+        public void init()
+        {
+            if (icon != null)
+            {
                 super.createList();
                 add(icon).centerY();
             }
 
-            if (beforeHeaderInit != null) {
+            if (beforeHeaderInit != null)
+            {
                 createList();
                 beforeHeaderInit.accept(this);
             }
@@ -51,7 +61,8 @@ public class WGonbleWareWindow extends WWindow implements GonbleWareWidget {
         }
 
         @Override
-        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+        {
             renderer.quad(this, theme().accentColor.get());
         }
     }

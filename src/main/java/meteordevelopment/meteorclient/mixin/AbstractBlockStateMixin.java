@@ -17,9 +17,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
-public abstract class AbstractBlockStateMixin {
+public abstract class AbstractBlockStateMixin
+{
     @Inject(method = "getModelOffset", at = @At("HEAD"), cancellable = true)
-    private void modifyPos(BlockView world, BlockPos pos, CallbackInfoReturnable<Vec3d> cir) {
+    private void modifyPos(BlockView world, BlockPos pos, CallbackInfoReturnable<Vec3d> cir)
+    {
         if (Modules.get() == null) return;
 
         if (Modules.get().get(NoRender.class).noTextureRotations()) cir.setReturnValue(Vec3d.ZERO);

@@ -20,10 +20,12 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.stream.Stream;
 
-public class PacketUtils {
+public class PacketUtils
+{
     public static final Registry<Class<? extends Packet<?>>> REGISTRY = new PacketRegistry();
 
     private static final Map<Class<? extends Packet<?>>, String> S2C_PACKETS = new Reference2ObjectOpenHashMap<>();
@@ -32,7 +34,8 @@ public class PacketUtils {
     private static final Map<String, Class<? extends Packet<?>>> S2C_PACKETS_R = new Object2ReferenceOpenHashMap<>();
     private static final Map<String, Class<? extends Packet<?>>> C2S_PACKETS_R = new Object2ReferenceOpenHashMap<>();
 
-    static {
+    static
+    {
         C2S_PACKETS.put(net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket.class, "ClientStatusC2SPacket");
         C2S_PACKETS_R.put("ClientStatusC2SPacket", net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket.class);
         C2S_PACKETS.put(net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket.class, "PlayerInteractItemC2SPacket");
@@ -444,158 +447,193 @@ public class PacketUtils {
         S2C_PACKETS_R.put("EntityS2CPacket.MoveRelative", net.minecraft.network.packet.s2c.play.EntityS2CPacket.MoveRelative.class);
     }
 
-    private PacketUtils() {
+    private PacketUtils()
+    {
     }
 
-    public static String getName(Class<? extends Packet<?>> packetClass) {
+    public static String getName(Class<? extends Packet<?>> packetClass)
+    {
         String name = S2C_PACKETS.get(packetClass);
         if (name != null) return name;
         return C2S_PACKETS.get(packetClass);
     }
 
-    public static Class<? extends Packet<?>> getPacket(String name) {
+    public static Class<? extends Packet<?>> getPacket(String name)
+    {
         Class<? extends Packet<?>> packet = S2C_PACKETS_R.get(name);
         if (packet != null) return packet;
         return C2S_PACKETS_R.get(name);
     }
 
-    public static Set<Class<? extends Packet<?>>> getS2CPackets() {
+    public static Set<Class<? extends Packet<?>>> getS2CPackets()
+    {
         return S2C_PACKETS.keySet();
     }
 
-    public static Set<Class<? extends Packet<?>>> getC2SPackets() {
+    public static Set<Class<? extends Packet<?>>> getC2SPackets()
+    {
         return C2S_PACKETS.keySet();
     }
 
-    private static class PacketRegistry extends SimpleRegistry<Class<? extends Packet<?>>> {
-        public PacketRegistry() {
+    private static class PacketRegistry extends SimpleRegistry<Class<? extends Packet<?>>>
+    {
+        public PacketRegistry()
+        {
             super(RegistryKey.ofRegistry(MeteorClient.identifier("packets")), Lifecycle.stable());
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return S2C_PACKETS.keySet().size() + C2S_PACKETS.keySet().size();
         }
 
         @Override
-        public Identifier getId(Class<? extends Packet<?>> entry) {
+        public Identifier getId(Class<? extends Packet<?>> entry)
+        {
             return null;
         }
 
         @Override
-        public Optional<RegistryKey<Class<? extends Packet<?>>>> getKey(Class<? extends Packet<?>> entry) {
+        public Optional<RegistryKey<Class<? extends Packet<?>>>> getKey(Class<? extends Packet<?>> entry)
+        {
             return Optional.empty();
         }
 
         @Override
-        public int getRawId(Class<? extends Packet<?>> entry) {
+        public int getRawId(Class<? extends Packet<?>> entry)
+        {
             return 0;
         }
 
         @Override
-        public Class<? extends Packet<?>> get(RegistryKey<Class<? extends Packet<?>>> key) {
+        public Class<? extends Packet<?>> get(RegistryKey<Class<? extends Packet<?>>> key)
+        {
             return null;
         }
 
         @Override
-        public Class<? extends Packet<?>> get(Identifier id) {
+        public Class<? extends Packet<?>> get(Identifier id)
+        {
             return null;
         }
 
         @Override
-        public Lifecycle getLifecycle() {
+        public Lifecycle getLifecycle()
+        {
             return null;
         }
 
         @Override
-        public Set<Identifier> getIds() {
+        public Set<Identifier> getIds()
+        {
             return Collections.emptySet();
         }
 
         @Override
-        public boolean containsId(Identifier id) {
+        public boolean containsId(Identifier id)
+        {
             return false;
         }
 
         @Override
-        public Class<? extends Packet<?>> get(int index) {
+        public Class<? extends Packet<?>> get(int index)
+        {
             return null;
         }
 
         @NotNull
         @Override
-        public Iterator<Class<? extends Packet<?>>> iterator() {
+        public Iterator<Class<? extends Packet<?>>> iterator()
+        {
             return Stream.concat(S2C_PACKETS.keySet().stream(), C2S_PACKETS.keySet().stream()).iterator();
         }
 
         @Override
-        public boolean contains(RegistryKey<Class<? extends Packet<?>>> key) {
+        public boolean contains(RegistryKey<Class<? extends Packet<?>>> key)
+        {
             return false;
         }
 
         @Override
-        public Set<Map.Entry<RegistryKey<Class<? extends Packet<?>>>, Class<? extends Packet<?>>>> getEntrySet() {
+        public Set<Map.Entry<RegistryKey<Class<? extends Packet<?>>>, Class<? extends Packet<?>>>> getEntrySet()
+        {
             return Collections.emptySet();
         }
 
         @Override
-        public Optional<RegistryEntry.Reference<Class<? extends Packet<?>>>> getRandom(Random random) {
+        public Optional<RegistryEntry.Reference<Class<? extends Packet<?>>>> getRandom(Random random)
+        {
             return Optional.empty();
         }
 
         @Override
-        public Registry<Class<? extends Packet<?>>> freeze() {
+        public Registry<Class<? extends Packet<?>>> freeze()
+        {
             return null;
         }
 
         @Override
-        public RegistryEntry.Reference<Class<? extends Packet<?>>> createEntry(Class<? extends Packet<?>> value) {
+        public RegistryEntry.Reference<Class<? extends Packet<?>>> createEntry(Class<? extends Packet<?>> value)
+        {
             return null;
         }
 
         @Override
-        public Optional<RegistryEntry.Reference<Class<? extends Packet<?>>>> getEntry(int rawId) {
+        public Optional<RegistryEntry.Reference<Class<? extends Packet<?>>>> getEntry(int rawId)
+        {
             return Optional.empty();
         }
 
         @Override
-        public Optional<RegistryEntry.Reference<Class<? extends Packet<?>>>> getEntry(RegistryKey<Class<? extends Packet<?>>> key) {
+        public Optional<RegistryEntry.Reference<Class<? extends Packet<?>>>> getEntry(RegistryKey<Class<? extends Packet<?>>> key)
+        {
             return Optional.empty();
         }
 
         @Override
-        public Stream<RegistryEntry.Reference<Class<? extends Packet<?>>>> streamEntries() {
+        public Stream<RegistryEntry.Reference<Class<? extends Packet<?>>>> streamEntries()
+        {
             return null;
         }
 
         @Override
-        public Optional<RegistryEntryList.Named<Class<? extends Packet<?>>>> getEntryList(TagKey<Class<? extends Packet<?>>> tag) {
+        public Optional<RegistryEntryList.Named<Class<? extends Packet<?>>>> getEntryList(TagKey<Class<? extends Packet<?>>> tag)
+        {
             return Optional.empty();
         }
 
         @Override
-        public RegistryEntryList.Named<Class<? extends Packet<?>>> getOrCreateEntryList(TagKey<Class<? extends Packet<?>>> tag) {
+        public RegistryEntryList.Named<Class<? extends Packet<?>>> getOrCreateEntryList(TagKey<Class<? extends Packet<?>>> tag)
+        {
             return null;
         }
 
         @Override
-        public Stream<Pair<TagKey<Class<? extends Packet<?>>>, RegistryEntryList.Named<Class<? extends Packet<?>>>>> streamTagsAndEntries() {
+        public Stream<Pair<TagKey<Class<? extends Packet<?>>>, RegistryEntryList.Named<Class<? extends Packet<?>>>>> streamTagsAndEntries()
+        {
             return null;
         }
 
         @Override
-        public Stream<TagKey<Class<? extends Packet<?>>>> streamTags() {
+        public Stream<TagKey<Class<? extends Packet<?>>>> streamTags()
+        {
             return null;
         }
 
         @Override
-        public void clearTags() {}
+        public void clearTags()
+        {
+        }
 
         @Override
-        public void populateTags(Map<TagKey<Class<? extends Packet<?>>>, List<RegistryEntry<Class<? extends Packet<?>>>>> tagEntries) {}
+        public void populateTags(Map<TagKey<Class<? extends Packet<?>>>, List<RegistryEntry<Class<? extends Packet<?>>>>> tagEntries)
+        {
+        }
 
         @Override
-        public Set<RegistryKey<Class<? extends Packet<?>>>> getKeys() {
+        public Set<RegistryKey<Class<? extends Packet<?>>>> getKeys()
+        {
             return Collections.emptySet();
         }
     }

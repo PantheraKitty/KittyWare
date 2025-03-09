@@ -11,7 +11,8 @@ import meteordevelopment.meteorclient.utils.notebot.song.Song;
 
 import java.io.File;
 
-public abstract class SongDecoder {
+public abstract class SongDecoder
+{
     protected Notebot notebot = Modules.get().get(Notebot.class);
 
     /**

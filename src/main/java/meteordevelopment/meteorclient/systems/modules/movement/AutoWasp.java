@@ -27,7 +27,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;
 
-public class AutoWasp extends Module {
+public class AutoWasp extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> horizontalSpeed = sgGeneral.add(new DoubleSetting.Builder()
@@ -83,20 +84,25 @@ public class AutoWasp extends Module {
     private int jumpTimer = 0;
     private boolean incrementJumpTimer = false;
 
-    public AutoWasp() {
+    public AutoWasp()
+    {
         super(Categories.Movement, "auto-wasp", "Wasps for you. Unable to traverse around blocks, assumes a clear straight line to the target.");
     }
 
     @Override
-    public void onActivate() {
-        if (target == null || target.isRemoved()) {
-            target = (PlayerEntity) TargetUtils.get(entity -> {
+    public void onActivate()
+    {
+        if (target == null || target.isRemoved())
+        {
+            target = (PlayerEntity) TargetUtils.get(entity ->
+            {
                 if (!(entity instanceof PlayerEntity) || entity == mc.player) return false;
                 if (((PlayerEntity) entity).isDead() || ((PlayerEntity) entity).getHealth() <= 0) return false;
                 return !onlyFriends.get() || Friends.get().get((PlayerEntity) entity) != null;
             }, SortPriority.LowestDistance);
 
-            if (target == null) {
+            if (target == null)
+            {
                 error("No valid targets.");
                 toggle();
                 return;
@@ -108,16 +114,20 @@ public class AutoWasp extends Module {
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         target = null;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        if (target.isRemoved()) {
+    private void onTick(TickEvent.Pre event)
+    {
+        if (target.isRemoved())
+        {
             warning("Lost target!");
 
-            switch (action.get()) {
+            switch (action.get())
+            {
                 case CHOOSE_NEW_TARGET -> onActivate();
                 case TOGGLE -> toggle();
                 case DISCONNECT ->
@@ -129,32 +139,38 @@ public class AutoWasp extends Module {
 
         if (!(mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem() instanceof ElytraItem)) return;
 
-        if (incrementJumpTimer) {
+        if (incrementJumpTimer)
+        {
             jumpTimer++;
         }
 
-        if (!mc.player.isFallFlying()) {
+        if (!mc.player.isFallFlying())
+        {
             if (!incrementJumpTimer) incrementJumpTimer = true;
 
-            if (mc.player.isOnGround() && incrementJumpTimer) {
+            if (mc.player.isOnGround() && incrementJumpTimer)
+            {
                 mc.player.jump();
                 return;
             }
 
-            if (jumpTimer >= 4) {
+            if (jumpTimer >= 4)
+            {
                 jumpTimer = 0;
                 mc.player.setJumping(false);
                 mc.player.setSprinting(true);
                 mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
             }
-        } else {
+        } else
+        {
             incrementJumpTimer = false;
             jumpTimer = 0;
         }
     }
 
     @EventHandler
-    private void onMove(PlayerMoveEvent event) {
+    private void onMove(PlayerMoveEvent event)
+    {
         if (!(mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem() instanceof ElytraItem)) return;
         if (!mc.player.isFallFlying()) return;
 
@@ -165,13 +181,16 @@ public class AutoWasp extends Module {
         if (predictMovement.get()) targetPos.add(PlayerEntity.adjustMovementForCollisions(target, target.getVelocity(),
             target.getBoundingBox(), mc.world, mc.world.getEntityCollisions(target, target.getBoundingBox().stretch(target.getVelocity()))));
 
-        if (avoidLanding.get()) {
+        if (avoidLanding.get())
+        {
             double d = target.getBoundingBox().getLengthX() / 2; // x length = z length for players
 
             //get the block pos of the block underneath the corner of the targets bounding box
-            for (Direction dir : Direction.HORIZONTAL) {
+            for (Direction dir : Direction.HORIZONTAL)
+            {
                 BlockPos pos = BlockPos.ofFloored(targetPos.offset(dir, d).offset(dir.rotateYClockwise(), d)).down();
-                if (mc.world.getBlockState(pos).getBlock().collidable && Math.abs(targetPos.getY() - (pos.getY() + 1)) <= 0.25) {
+                if (mc.world.getBlockState(pos).getBlock().collidable && Math.abs(targetPos.getY() - (pos.getY() + 1)) <= 0.25)
+                {
                     targetPos = new Vec3d(targetPos.x, pos.getY() + 1.25, targetPos.z);
                     break;
                 }
@@ -187,14 +206,16 @@ public class AutoWasp extends Module {
         double diag = 0;
         if (absX > 1.0E-5F && absZ > 1.0E-5F) diag = 1 / Math.sqrt(absX * absX + absZ * absZ);
 
-        if (absX > 1.0E-5F) {
+        if (absX > 1.0E-5F)
+        {
             if (absX < horizontalSpeed.get()) xVel = xDist;
             else xVel = horizontalSpeed.get() * Math.signum(xDist);
 
             if (diag != 0) xVel *= (absX * diag);
         }
 
-        if (absZ > 1.0E-5F) {
+        if (absZ > 1.0E-5F)
+        {
             if (absZ < horizontalSpeed.get()) zVel = zDist;
             else zVel = horizontalSpeed.get() * Math.signum(zDist);
 
@@ -202,7 +223,8 @@ public class AutoWasp extends Module {
         }
 
         double yDist = targetPos.getY() - mc.player.getY();
-        if (Math.abs(yDist) > 1.0E-5F) {
+        if (Math.abs(yDist) > 1.0E-5F)
+        {
             if (Math.abs(yDist) < verticalSpeed.get()) yVel = yDist;
             else yVel = verticalSpeed.get() * Math.signum(yDist);
         }
@@ -210,14 +232,17 @@ public class AutoWasp extends Module {
         ((IVec3d) event.movement).set(xVel, yVel, zVel);
     }
 
-    public enum Action {
+    public enum Action
+    {
         TOGGLE,
         CHOOSE_NEW_TARGET,
         DISCONNECT;
 
         @Override
-        public String toString() {
-            return switch (this) {
+        public String toString()
+        {
+            return switch (this)
+            {
                 case TOGGLE -> "Toggle module";
                 case CHOOSE_NEW_TARGET -> "Choose new target";
                 case DISCONNECT -> "Disconnect";

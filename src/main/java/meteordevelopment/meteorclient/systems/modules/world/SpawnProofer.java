@@ -21,7 +21,8 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpawnProofer extends Module {
+public class SpawnProofer extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
@@ -74,20 +75,24 @@ public class SpawnProofer extends Module {
     private final List<BlockPos.Mutable> spawns = new ArrayList<>();
     private int ticksWaited;
 
-    public SpawnProofer() {
+    public SpawnProofer()
+    {
         super(Categories.World, "spawn-proofer", "Automatically spawnproofs unlit areas.");
     }
 
     @EventHandler
-    private void onTickPre(TickEvent.Pre event) {
+    private void onTickPre(TickEvent.Pre event)
+    {
         // Delay
-        if (delay.get() != 0 && ticksWaited < delay.get() - 1) {
+        if (delay.get() != 0 && ticksWaited < delay.get() - 1)
+        {
             return;
         }
 
         // Find slot
         boolean foundBlock = InvUtils.testInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
-        if (!foundBlock) {
+        if (!foundBlock)
+        {
             error("Found none of the chosen blocks in hotbar");
             toggle();
             return;
@@ -98,11 +103,13 @@ public class SpawnProofer extends Module {
         spawns.clear();
 
         int lightLevel = newMobSpawnLightLevel.get() ? 0 : 7;
-        BlockIterator.register(range.get(), range.get(), (blockPos, blockState) -> {
+        BlockIterator.register(range.get(), range.get(), (blockPos, blockState) ->
+        {
             BlockUtils.MobSpawn spawn = BlockUtils.isValidMobSpawn(blockPos, blockState, lightLevel);
 
             if ((spawn == BlockUtils.MobSpawn.Always && (mode.get() == Mode.Always || mode.get() == Mode.Both)) ||
-                    spawn == BlockUtils.MobSpawn.Potential && (mode.get() == Mode.Potential || mode.get() == Mode.Both)) {
+                spawn == BlockUtils.MobSpawn.Potential && (mode.get() == Mode.Potential || mode.get() == Mode.Both))
+            {
 
                 spawns.add(spawnPool.get().set(blockPos));
             }
@@ -110,9 +117,11 @@ public class SpawnProofer extends Module {
     }
 
     @EventHandler
-    private void onTickPost(TickEvent.Post event) {
+    private void onTickPost(TickEvent.Post event)
+    {
         // Delay
-        if (delay.get() != 0 && ticksWaited < delay.get() - 1) {
+        if (delay.get() != 0 && ticksWaited < delay.get() - 1)
+        {
             ticksWaited++;
             return;
         }
@@ -121,35 +130,40 @@ public class SpawnProofer extends Module {
 
         // Find slot
         FindItemResult block = InvUtils.findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
-        if (!block.found()) {
+        if (!block.found())
+        {
             error("Found none of the chosen blocks in hotbar");
             toggle();
             return;
         }
 
         // Place blocks
-        if (delay.get() == 0) {
+        if (delay.get() == 0)
+        {
             for (BlockPos blockPos : spawns) BlockUtils.place(blockPos, block, rotate.get(), -50, false);
-        }
-        else {
+        } else
+        {
             // Check if light source
-            if (isLightSource(Block.getBlockFromItem(mc.player.getInventory().getStack(block.slot()).getItem()))) {
+            if (isLightSource(Block.getBlockFromItem(mc.player.getInventory().getStack(block.slot()).getItem())))
+            {
 
                 // Find lowest light level
                 int lowestLightLevel = 16;
                 BlockPos.Mutable selectedBlockPos = spawns.getFirst();
 
-                for (BlockPos blockPos : spawns) {
+                for (BlockPos blockPos : spawns)
+                {
                     int lightLevel = mc.world.getLightLevel(blockPos);
-                    if (lightLevel < lowestLightLevel) {
+                    if (lightLevel < lowestLightLevel)
+                    {
                         lowestLightLevel = lightLevel;
                         selectedBlockPos.set(blockPos);
                     }
                 }
 
                 BlockUtils.place(selectedBlockPos, block, rotate.get(), -50, false);
-            }
-            else {
+            } else
+            {
                 BlockUtils.place(spawns.getFirst(), block, rotate.get(), -50, false);
             }
         }
@@ -157,11 +171,13 @@ public class SpawnProofer extends Module {
         ticksWaited = 0;
     }
 
-    private boolean filterBlocks(Block block) {
+    private boolean filterBlocks(Block block)
+    {
         return isNonOpaqueBlock(block) || isLightSource(block);
     }
 
-    private boolean isNonOpaqueBlock(Block block) {
+    private boolean isNonOpaqueBlock(Block block)
+    {
         return block instanceof ButtonBlock ||
             block instanceof SlabBlock ||
             block instanceof AbstractPressurePlateBlock ||
@@ -173,11 +189,13 @@ public class SpawnProofer extends Module {
             block instanceof AbstractRailBlock;
     }
 
-    private boolean isLightSource(Block block) {
+    private boolean isLightSource(Block block)
+    {
         return block.getDefaultState().getLuminance() > 0;
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Always,
         Potential,
         Both,

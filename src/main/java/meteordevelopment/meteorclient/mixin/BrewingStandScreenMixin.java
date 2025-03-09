@@ -15,20 +15,24 @@ import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(BrewingStandScreen.class)
-public abstract class BrewingStandScreenMixin extends HandledScreen<BrewingStandScreenHandler> {
-    public BrewingStandScreenMixin(BrewingStandScreenHandler container, PlayerInventory playerInventory, Text name) {
+public abstract class BrewingStandScreenMixin extends HandledScreen<BrewingStandScreenHandler>
+{
+    public BrewingStandScreenMixin(BrewingStandScreenHandler container, PlayerInventory playerInventory, Text name)
+    {
         super(container, playerInventory, name);
     }
 
     @Override
-    public void handledScreenTick() {
+    public void handledScreenTick()
+    {
         super.handledScreenTick();
 
         if (Modules.get().isActive(AutoBrewer.class)) Modules.get().get(AutoBrewer.class).tick(handler);
     }
 
     @Override
-    public void close() {
+    public void close()
+    {
         if (Modules.get().isActive(AutoBrewer.class)) Modules.get().get(AutoBrewer.class).onBrewingStandClose();
 
         super.close();

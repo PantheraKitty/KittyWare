@@ -15,9 +15,15 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.BlockState;
 
-public class NoGhostBlocks extends Module {
+public class NoGhostBlocks extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
+    public final Setting<Boolean> placing = sgGeneral.add(new BoolSetting.Builder()
+        .name("placing")
+        .description("Whether to apply for block placement actions.")
+        .defaultValue(true)
+        .build()
+    );
     private final Setting<Boolean> breaking = sgGeneral.add(new BoolSetting.Builder()
         .name("breaking")
         .description("Whether to apply for block breaking actions.")
@@ -25,19 +31,14 @@ public class NoGhostBlocks extends Module {
         .build()
     );
 
-    public final Setting<Boolean> placing = sgGeneral.add(new BoolSetting.Builder()
-        .name("placing")
-        .description("Whether to apply for block placement actions.")
-        .defaultValue(true)
-        .build()
-    );
-
-    public NoGhostBlocks() {
+    public NoGhostBlocks()
+    {
         super(Categories.World, "no-ghost-blocks", "Attempts to prevent ghost blocks arising.");
     }
 
     @EventHandler
-    private void onBreakBlock(BreakBlockEvent event) {
+    private void onBreakBlock(BreakBlockEvent event)
+    {
         if (mc.isInSingleplayer() || !breaking.get()) return;
 
         event.cancel();
@@ -47,7 +48,8 @@ public class NoGhostBlocks extends Module {
     }
 
     @EventHandler
-    private void onPlaceBlock(PlaceBlockEvent event) {
+    private void onPlaceBlock(PlaceBlockEvent event)
+    {
         if (!placing.get()) return;
 
         event.cancel();

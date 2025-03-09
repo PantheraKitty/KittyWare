@@ -35,32 +35,26 @@ import static meteordevelopment.meteorclient.utils.Utils.getWindowHeight;
 import static meteordevelopment.meteorclient.utils.Utils.getWindowWidth;
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class WidgetScreen extends Screen {
+public abstract class WidgetScreen extends Screen
+{
     private static final GuiRenderer RENDERER = new GuiRenderer();
     private static final GuiDebugRenderer DEBUG_RENDERER = new GuiDebugRenderer();
-
-    public Runnable taskAfterRender;
-    protected Runnable enterAction;
-
-    public Screen parent;
-    private final WContainer root;
-
     protected final GuiTheme theme;
-
+    private final WContainer root;
+    public Runnable taskAfterRender;
+    public Screen parent;
     public boolean locked, lockedAllowClose;
+    public double animProgress;
+    protected Runnable enterAction;
+    protected boolean firstInit = true;
     private boolean closed;
     private boolean onClose;
     private boolean debug;
-
     private double lastMouseX, lastMouseY;
-
-    public double animProgress;
-
     private List<Runnable> onClosed;
 
-    protected boolean firstInit = true;
-
-    public WidgetScreen(GuiTheme theme, String title) {
+    public WidgetScreen(GuiTheme theme, String title)
+    {
         super(Text.literal(title));
 
         this.parent = mc.currentScreen;
@@ -69,34 +63,41 @@ public abstract class WidgetScreen extends Screen {
 
         root.theme = theme;
 
-        if (parent != null) {
+        if (parent != null)
+        {
             animProgress = 1;
 
-            if (this instanceof TabScreen && parent instanceof TabScreen) {
+            if (this instanceof TabScreen && parent instanceof TabScreen)
+            {
                 parent = ((TabScreen) parent).parent;
             }
         }
     }
 
-    public <W extends WWidget> Cell<W> add(W widget) {
+    public <W extends WWidget> Cell<W> add(W widget)
+    {
         return root.add(widget);
     }
 
-    public void clear() {
+    public void clear()
+    {
         root.clear();
     }
 
-    public void invalidate() {
+    public void invalidate()
+    {
         root.invalidate();
     }
 
     @Override
-    protected void init() {
+    protected void init()
+    {
         MeteorClient.EVENT_BUS.subscribe(this);
 
         closed = false;
 
-        if (firstInit) {
+        if (firstInit)
+        {
             firstInit = false;
             initWidgets();
         }
@@ -104,18 +105,21 @@ public abstract class WidgetScreen extends Screen {
 
     public abstract void initWidgets();
 
-    public void reload() {
+    public void reload()
+    {
         clear();
         initWidgets();
     }
 
-    public void onClosed(Runnable action) {
+    public void onClosed(Runnable action)
+    {
         if (onClosed == null) onClosed = new ArrayList<>(2);
         onClosed.add(action);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
         if (locked) return false;
 
         double s = mc.getWindow().getScaleFactor();
@@ -126,7 +130,8 @@ public abstract class WidgetScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(double mouseX, double mouseY, int button)
+    {
         if (locked) return false;
 
         double s = mc.getWindow().getScaleFactor();
@@ -137,7 +142,8 @@ public abstract class WidgetScreen extends Screen {
     }
 
     @Override
-    public void mouseMoved(double mouseX, double mouseY) {
+    public void mouseMoved(double mouseX, double mouseY)
+    {
         if (locked) return;
 
         double s = mc.getWindow().getScaleFactor();
@@ -151,7 +157,8 @@ public abstract class WidgetScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount)
+    {
         if (locked) return false;
 
         root.mouseScrolled(verticalAmount);
@@ -160,15 +167,18 @@ public abstract class WidgetScreen extends Screen {
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers)
+    {
         if (locked) return false;
 
-        if ((modifiers == GLFW_MOD_CONTROL || modifiers == GLFW_MOD_SUPER) && keyCode == GLFW_KEY_9) {
+        if ((modifiers == GLFW_MOD_CONTROL || modifiers == GLFW_MOD_SUPER) && keyCode == GLFW_KEY_9)
+        {
             debug = !debug;
             return true;
         }
 
-        if ((keyCode == GLFW_KEY_ENTER || keyCode == GLFW_KEY_KP_ENTER) && enterAction != null) {
+        if ((keyCode == GLFW_KEY_ENTER || keyCode == GLFW_KEY_KP_ENTER) && enterAction != null)
+        {
             enterAction.run();
             return true;
         }
@@ -177,28 +187,34 @@ public abstract class WidgetScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+    {
         if (locked) return false;
 
         boolean shouldReturn = root.keyPressed(keyCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
         if (shouldReturn) return true;
 
         // Select next text box if TAB was pressed
-        if (keyCode == GLFW_KEY_TAB) {
+        if (keyCode == GLFW_KEY_TAB)
+        {
             AtomicReference<WTextBox> firstTextBox = new AtomicReference<>(null);
             AtomicBoolean done = new AtomicBoolean(false);
             AtomicBoolean foundFocused = new AtomicBoolean(false);
 
-            loopWidgets(root, wWidget -> {
+            loopWidgets(root, wWidget ->
+            {
                 if (done.get() || !(wWidget instanceof WTextBox textBox)) return;
 
-                if (foundFocused.get()) {
+                if (foundFocused.get())
+                {
                     textBox.setFocused(true);
                     textBox.setCursorMax();
 
                     done.set(true);
-                } else {
-                    if (textBox.isFocused()) {
+                } else
+                {
+                    if (textBox.isFocused())
+                    {
                         textBox.setFocused(false);
                         foundFocused.set(true);
                     }
@@ -207,7 +223,8 @@ public abstract class WidgetScreen extends Screen {
                 if (firstTextBox.get() == null) firstTextBox.set(textBox);
             });
 
-            if (!done.get() && firstTextBox.get() != null) {
+            if (!done.get() && firstTextBox.get() != null)
+            {
                 firstTextBox.get().setFocused(true);
                 firstTextBox.get().setCursorMax();
             }
@@ -217,11 +234,14 @@ public abstract class WidgetScreen extends Screen {
 
         boolean control = MinecraftClient.IS_SYSTEM_MAC ? modifiers == GLFW_MOD_SUPER : modifiers == GLFW_MOD_CONTROL;
 
-        if (control && keyCode == GLFW_KEY_C && toClipboard()) {
+        if (control && keyCode == GLFW_KEY_C && toClipboard())
+        {
             return true;
-        } else if (control && keyCode == GLFW_KEY_V && fromClipboard()) {
+        } else if (control && keyCode == GLFW_KEY_V && fromClipboard())
+        {
             reload();
-            if (parent instanceof WidgetScreen wScreen) {
+            if (parent instanceof WidgetScreen wScreen)
+            {
                 wScreen.reload();
             }
             return true;
@@ -230,21 +250,24 @@ public abstract class WidgetScreen extends Screen {
         return false;
     }
 
-    public void keyRepeated(int key, int modifiers) {
+    public void keyRepeated(int key, int modifiers)
+    {
         if (locked) return;
 
         root.keyRepeated(key, modifiers);
     }
 
     @Override
-    public boolean charTyped(char chr, int keyCode) {
+    public boolean charTyped(char chr, int keyCode)
+    {
         if (locked) return false;
 
         return root.charTyped(chr);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(DrawContext context, int mouseX, int mouseY, float delta)
+    {
         if (!Utils.canUpdate()) renderBackground(context, mouseX, mouseY, delta);
 
         double s = mc.getWindow().getScaleFactor();
@@ -272,7 +295,8 @@ public abstract class WidgetScreen extends Screen {
 
         boolean tooltip = RENDERER.renderTooltip(context, mouseX, mouseY, delta / 20);
 
-        if (debug) {
+        if (debug)
+        {
             MatrixStack matrices = context.getMatrices();
 
             DEBUG_RENDERER.render(root, matrices);
@@ -284,24 +308,31 @@ public abstract class WidgetScreen extends Screen {
         runAfterRenderTasks();
     }
 
-    protected void runAfterRenderTasks() {
-        if (taskAfterRender != null) {
+    protected void runAfterRenderTasks()
+    {
+        if (taskAfterRender != null)
+        {
             taskAfterRender.run();
             taskAfterRender = null;
         }
     }
 
-    protected void onRenderBefore(DrawContext drawContext, float delta) {}
+    protected void onRenderBefore(DrawContext drawContext, float delta)
+    {
+    }
 
     @Override
-    public void resize(MinecraftClient client, int width, int height) {
+    public void resize(MinecraftClient client, int width, int height)
+    {
         super.resize(client, width, height);
         root.invalidate();
     }
 
     @Override
-    public void close() {
-        if (!locked || lockedAllowClose) {
+    public void close()
+    {
+        if (!locked || lockedAllowClose)
+        {
             boolean preOnClose = onClose;
             onClose = true;
 
@@ -312,26 +343,32 @@ public abstract class WidgetScreen extends Screen {
     }
 
     @Override
-    public void removed() {
-        if (!closed || lockedAllowClose) {
+    public void removed()
+    {
+        if (!closed || lockedAllowClose)
+        {
             closed = true;
             onClosed();
 
             Input.setCursorStyle(CursorStyle.Default);
 
-            loopWidgets(root, widget -> {
+            loopWidgets(root, widget ->
+            {
                 if (widget instanceof WTextBox textBox && textBox.isFocused()) textBox.setFocused(false);
             });
 
             MeteorClient.EVENT_BUS.unsubscribe(this);
             GuiKeyEvents.canUseKeys = true;
 
-            if (onClosed != null) {
+            if (onClosed != null)
+            {
                 for (Runnable action : onClosed) action.run();
             }
 
-            if (onClose) {
-                taskAfterRender = () -> {
+            if (onClose)
+            {
+                taskAfterRender = () ->
+                {
                     locked = true;
                     mc.setScreen(parent);
                 };
@@ -339,51 +376,64 @@ public abstract class WidgetScreen extends Screen {
         }
     }
 
-    private void loopWidgets(WWidget widget, Consumer<WWidget> action) {
+    private void loopWidgets(WWidget widget, Consumer<WWidget> action)
+    {
         action.accept(widget);
 
-        if (widget instanceof WContainer) {
+        if (widget instanceof WContainer)
+        {
             for (Cell<?> cell : ((WContainer) widget).cells) loopWidgets(cell.widget(), action);
         }
     }
 
-    protected void onClosed() {}
+    protected void onClosed()
+    {
+    }
 
-    public boolean toClipboard() {
+    public boolean toClipboard()
+    {
         return false;
     }
 
-    public boolean fromClipboard() {
+    public boolean fromClipboard()
+    {
         return false;
     }
 
     @Override
-    public boolean shouldCloseOnEsc() {
+    public boolean shouldCloseOnEsc()
+    {
         return !locked || lockedAllowClose;
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean shouldPause()
+    {
         return false;
     }
 
-    private static class WFullScreenRoot extends WContainer implements WRoot {
+    private static class WFullScreenRoot extends WContainer implements WRoot
+    {
         private boolean valid;
 
         @Override
-        public void invalidate() {
+        public void invalidate()
+        {
             valid = false;
         }
 
         @Override
-        protected void onCalculateSize() {
+        protected void onCalculateSize()
+        {
             width = getWindowWidth();
             height = getWindowHeight();
         }
 
         @Override
-        protected void onCalculateWidgetPositions() {
-            for (Cell<?> cell : cells) {
+        protected void onCalculateWidgetPositions()
+        {
+            for (Cell<?> cell : cells)
+            {
                 cell.x = 0;
                 cell.y = 0;
 
@@ -395,8 +445,10 @@ public abstract class WidgetScreen extends Screen {
         }
 
         @Override
-        public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
-            if (!valid) {
+        public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+        {
+            if (!valid)
+            {
                 calculateSize();
                 calculateWidgetPositions();
 

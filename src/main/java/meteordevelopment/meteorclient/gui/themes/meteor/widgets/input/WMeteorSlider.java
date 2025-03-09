@@ -10,20 +10,24 @@ import meteordevelopment.meteorclient.gui.themes.meteor.MeteorGuiTheme;
 import meteordevelopment.meteorclient.gui.themes.meteor.MeteorWidget;
 import meteordevelopment.meteorclient.gui.widgets.input.WSlider;
 
-public class WMeteorSlider extends WSlider implements MeteorWidget {
-    public WMeteorSlider(double value, double min, double max) {
+public class WMeteorSlider extends WSlider implements MeteorWidget
+{
+    public WMeteorSlider(double value, double min, double max)
+    {
         super(value, min, max);
     }
 
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         double valueWidth = valueWidth();
 
         renderBar(renderer, valueWidth);
         renderHandle(renderer, valueWidth);
     }
 
-    private void renderBar(GuiRenderer renderer, double valueWidth) {
+    private void renderBar(GuiRenderer renderer, double valueWidth)
+    {
         MeteorGuiTheme theme = theme();
 
         double s = theme.scale(3);
@@ -36,7 +40,8 @@ public class WMeteorSlider extends WSlider implements MeteorWidget {
         renderer.quad(x + valueWidth, y, width - valueWidth - handleSize, s, theme.sliderRight.get());
     }
 
-    private void renderHandle(GuiRenderer renderer, double valueWidth) {
+    private void renderHandle(GuiRenderer renderer, double valueWidth)
+    {
         MeteorGuiTheme theme = theme();
         double s = handleSize();
 

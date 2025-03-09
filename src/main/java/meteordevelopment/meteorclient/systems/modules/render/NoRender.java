@@ -23,7 +23,8 @@ import net.minecraft.particle.ParticleTypes;
 import java.util.List;
 import java.util.Set;
 
-public class NoRender extends Module {
+public class NoRender extends Module
+{
     private final SettingGroup sgOverlay = settings.createGroup("Overlay");
     private final SettingGroup sgHUD = settings.createGroup("HUD");
     private final SettingGroup sgWorld = settings.createGroup("World");
@@ -379,234 +380,289 @@ public class NoRender extends Module {
         .build()
     );
 
-    public NoRender() {
+    public NoRender()
+    {
         super(Categories.Render, "no-render", "Disables certain animations or overlays from rendering.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         if (noCaveCulling.get() || noTextureRotations.get()) mc.worldRenderer.reload();
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         if (noCaveCulling.get() || noTextureRotations.get()) mc.worldRenderer.reload();
     }
 
     // Overlay
 
-    public boolean noPortalOverlay() {
+    public boolean noPortalOverlay()
+    {
         return isActive() && noPortalOverlay.get();
     }
 
-    public boolean noSpyglassOverlay() {
+    public boolean noSpyglassOverlay()
+    {
         return isActive() && noSpyglassOverlay.get();
     }
 
-    public boolean noNausea() {
+    public boolean noNausea()
+    {
         return isActive() && noNausea.get();
     }
 
-    public boolean noPumpkinOverlay() {
+    public boolean noPumpkinOverlay()
+    {
         return isActive() && noPumpkinOverlay.get();
     }
 
-    public boolean noFireOverlay() {
+    public boolean noFireOverlay()
+    {
         return isActive() && noFireOverlay.get();
     }
 
-    public boolean noLiquidOverlay() {
+    public boolean noLiquidOverlay()
+    {
         return isActive() && noLiquidOverlay.get();
     }
 
-    public boolean noPowderedSnowOverlay() {
+    public boolean noPowderedSnowOverlay()
+    {
         return isActive() && noPowderedSnowOverlay.get();
     }
 
-    public boolean noInWallOverlay() {
+    public boolean noInWallOverlay()
+    {
         return isActive() && noInWallOverlay.get();
     }
 
-    public boolean noVignette() {
+    public boolean noVignette()
+    {
         return isActive() && noVignette.get();
     }
 
-    public boolean noGuiBackground() {
+    public boolean noGuiBackground()
+    {
         return isActive() && noGuiBackground.get();
     }
 
-    public boolean noTotemAnimation() {
+    public boolean noTotemAnimation()
+    {
         return isActive() && noTotemAnimation.get();
     }
 
-    public boolean noEatParticles() {
+    public boolean noEatParticles()
+    {
         return isActive() && noEatParticles.get();
     }
 
-    public boolean noEnchantGlint() {
+    public boolean noEnchantGlint()
+    {
         return isActive() && noEnchantGlint.get();
     }
 
     // HUD
 
-    public boolean noBossBar() {
+    public boolean noBossBar()
+    {
         return isActive() && noBossBar.get();
     }
 
-    public boolean noScoreboard() {
+    public boolean noScoreboard()
+    {
         return isActive() && noScoreboard.get();
     }
 
-    public boolean noCrosshair() {
+    public boolean noCrosshair()
+    {
         return isActive() && noCrosshair.get();
     }
-    public boolean noTitle() {
+
+    public boolean noTitle()
+    {
         return isActive() && noTitle.get();
     }
 
-    public boolean noHeldItemName() {
+    public boolean noHeldItemName()
+    {
         return isActive() && noHeldItemName.get();
     }
 
-    public boolean noObfuscation() {
+    public boolean noObfuscation()
+    {
         return isActive() && noObfuscation.get();
     }
 
-    public boolean noPotionIcons() {
+    public boolean noPotionIcons()
+    {
         return isActive() && noPotionIcons.get();
     }
 
-    public boolean noMessageSignatureIndicator() {
+    public boolean noMessageSignatureIndicator()
+    {
         return isActive() && noMessageSignatureIndicator.get();
     }
 
     // World
 
-    public boolean noWeather() {
+    public boolean noWeather()
+    {
         return isActive() && noWeather.get();
     }
 
-    public boolean noBlindness() {
+    public boolean noBlindness()
+    {
         return isActive() && noBlindness.get();
     }
 
-    public boolean noDarkness() {
+    public boolean noDarkness()
+    {
         return isActive() && noDarkness.get();
     }
 
-    public boolean noFog() {
+    public boolean noFog()
+    {
         return isActive() && noFog.get();
     }
 
-    public boolean noEnchTableBook() {
+    public boolean noEnchTableBook()
+    {
         return isActive() && noEnchTableBook.get();
     }
 
-    public boolean noSignText() {
+    public boolean noSignText()
+    {
         return isActive() && noSignText.get();
     }
 
-    public boolean noBlockBreakParticles() {
+    public boolean noBlockBreakParticles()
+    {
         return isActive() && noBlockBreakParticles.get();
     }
 
-    public boolean noBlockBreakOverlay() {
+    public boolean noBlockBreakOverlay()
+    {
         return isActive() && noBlockBreakOverlay.get();
     }
 
-    public boolean noSkylightUpdates() {
+    public boolean noSkylightUpdates()
+    {
         return isActive() && noSkylightUpdates.get();
     }
 
-    public boolean noBeaconBeams() {
+    public boolean noBeaconBeams()
+    {
         return isActive() && noBeaconBeams.get();
     }
 
-    public boolean noFallingBlocks() {
+    public boolean noFallingBlocks()
+    {
         return isActive() && noFallingBlocks.get();
     }
 
     @EventHandler
-    private void onChunkOcclusion(ChunkOcclusionEvent event) {
+    private void onChunkOcclusion(ChunkOcclusionEvent event)
+    {
         if (noCaveCulling.get()) event.cancel();
     }
 
-    public boolean noMapMarkers() {
+    public boolean noMapMarkers()
+    {
         return isActive() && noMapMarkers.get();
     }
 
-    public boolean noMapContents() {
+    public boolean noMapContents()
+    {
         return isActive() && noMapContents.get();
     }
 
-    public BannerRenderMode getBannerRenderMode() {
+    public BannerRenderMode getBannerRenderMode()
+    {
         if (!isActive()) return BannerRenderMode.Everything;
         else return bannerRender.get();
     }
 
-    public boolean noFireworkExplosions() {
+    public boolean noFireworkExplosions()
+    {
         return isActive() && noFireworkExplosions.get();
     }
 
     @EventHandler
-    private void onAddParticle(ParticleEvent event) {
+    private void onAddParticle(ParticleEvent event)
+    {
         if (noWeather.get() && event.particle.getType() == ParticleTypes.RAIN) event.cancel();
         else if (noFireworkExplosions.get() && event.particle.getType() == ParticleTypes.FIREWORK) event.cancel();
         else if (particles.get().contains(event.particle.getType())) event.cancel();
     }
 
-    public boolean noBarrierInvis() {
+    public boolean noBarrierInvis()
+    {
         return isActive() && noBarrierInvis.get();
     }
 
-    public boolean noTextureRotations() {
+    public boolean noTextureRotations()
+    {
         return isActive() && noTextureRotations.get();
     }
 
     @EventHandler
-    private void onRenderBlockEntity(RenderBlockEntityEvent event) {
+    private void onRenderBlockEntity(RenderBlockEntityEvent event)
+    {
         if (blockEntities.get().contains(event.blockEntity.getCachedState().getBlock())) event.cancel();
     }
 
     // Entity
 
-    public boolean noEntity(Entity entity) {
+    public boolean noEntity(Entity entity)
+    {
         return isActive() && entities.get().contains(entity.getType());
     }
 
-    public boolean noEntity(EntityType<?> entity) {
+    public boolean noEntity(EntityType<?> entity)
+    {
         return isActive() && entities.get().contains(entity);
     }
 
-    public boolean getDropSpawnPacket() {
+    public boolean getDropSpawnPacket()
+    {
         return isActive() && dropSpawnPacket.get();
     }
 
-    public boolean noArmor() {
+    public boolean noArmor()
+    {
         return isActive() && noArmor.get();
     }
 
-    public boolean noInvisibility() {
+    public boolean noInvisibility()
+    {
         return isActive() && noInvisibility.get();
     }
 
-    public boolean noGlowing() {
+    public boolean noGlowing()
+    {
         return isActive() && noGlowing.get();
     }
 
-    public boolean noMobInSpawner() {
+    public boolean noMobInSpawner()
+    {
         return isActive() && noMobInSpawner.get();
     }
 
-    public boolean noDeadEntities() {
+    public boolean noDeadEntities()
+    {
         return isActive() && noDeadEntities.get();
     }
 
-    public boolean noNametags() {
+    public boolean noNametags()
+    {
         return isActive() && noNametags.get();
     }
 
-    public enum BannerRenderMode {
+    public enum BannerRenderMode
+    {
         Everything,
         Pillar,
         None

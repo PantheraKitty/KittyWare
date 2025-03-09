@@ -22,29 +22,37 @@ import java.util.concurrent.CompletableFuture;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class PlayerArgumentType implements ArgumentType<PlayerEntity> {
+public class PlayerArgumentType implements ArgumentType<PlayerEntity>
+{
     private static final PlayerArgumentType INSTANCE = new PlayerArgumentType();
     private static final DynamicCommandExceptionType NO_SUCH_PLAYER = new DynamicCommandExceptionType(name -> Text.literal("Player with name " + name + " doesn't exist."));
 
     private static final Collection<String> EXAMPLES = List.of("seasnail8169", "MineGame159");
 
-    public static PlayerArgumentType create() {
+    private PlayerArgumentType()
+    {
+    }
+
+    public static PlayerArgumentType create()
+    {
         return INSTANCE;
     }
 
-    public static PlayerEntity get(CommandContext<?> context) {
+    public static PlayerEntity get(CommandContext<?> context)
+    {
         return context.getArgument("player", PlayerEntity.class);
     }
 
-    private PlayerArgumentType() {}
-
     @Override
-    public PlayerEntity parse(StringReader reader) throws CommandSyntaxException {
+    public PlayerEntity parse(StringReader reader) throws CommandSyntaxException
+    {
         String argument = reader.readString();
         PlayerEntity playerEntity = null;
 
-        for (PlayerEntity p : mc.world.getPlayers()) {
-            if (p.getName().getString().equalsIgnoreCase(argument)) {
+        for (PlayerEntity p : mc.world.getPlayers())
+        {
+            if (p.getName().getString().equalsIgnoreCase(argument))
+            {
                 playerEntity = p;
                 break;
             }
@@ -55,12 +63,14 @@ public class PlayerArgumentType implements ArgumentType<PlayerEntity> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
+    {
         return CommandSource.suggestMatching(mc.world.getPlayers().stream().map(abstractClientPlayerEntity -> abstractClientPlayerEntity.getName().getString()), builder);
     }
 
     @Override
-    public Collection<String> getExamples() {
+    public Collection<String> getExamples()
+    {
         return EXAMPLES;
     }
 }

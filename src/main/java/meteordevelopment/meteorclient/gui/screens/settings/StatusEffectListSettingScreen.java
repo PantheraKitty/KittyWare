@@ -19,22 +19,27 @@ import net.minecraft.registry.Registries;
 import java.util.List;
 import java.util.Optional;
 
-public class StatusEffectListSettingScreen extends RegistryListSettingScreen<StatusEffect> {
-    public StatusEffectListSettingScreen(GuiTheme theme, Setting<List<StatusEffect>> setting) {
+public class StatusEffectListSettingScreen extends RegistryListSettingScreen<StatusEffect>
+{
+    public StatusEffectListSettingScreen(GuiTheme theme, Setting<List<StatusEffect>> setting)
+    {
         super(theme, "Select Effects", setting, setting.get(), Registries.STATUS_EFFECT);
     }
 
     @Override
-    protected WWidget getValueWidget(StatusEffect value) {
+    protected WWidget getValueWidget(StatusEffect value)
+    {
         return theme.itemWithLabel(getPotionStack(value), getValueName(value));
     }
 
     @Override
-    protected String getValueName(StatusEffect value) {
+    protected String getValueName(StatusEffect value)
+    {
         return Names.get(value);
     }
 
-    private ItemStack getPotionStack(StatusEffect effect) {
+    private ItemStack getPotionStack(StatusEffect effect)
+    {
         ItemStack potion = Items.POTION.getDefaultStack();
 
         potion.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(

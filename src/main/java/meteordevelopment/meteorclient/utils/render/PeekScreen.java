@@ -24,27 +24,32 @@ import org.lwjgl.glfw.GLFW;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class PeekScreen extends ShulkerBoxScreen {
+public class PeekScreen extends ShulkerBoxScreen
+{
     private final Identifier TEXTURE = Identifier.of("textures/gui/container/shulker_box.png");
     private final ItemStack[] contents;
     private final ItemStack storageBlock;
 
-    public PeekScreen(ItemStack storageBlock, ItemStack[] contents) {
+    public PeekScreen(ItemStack storageBlock, ItemStack[] contents)
+    {
         super(new ShulkerBoxScreenHandler(0, mc.player.getInventory(), new SimpleInventory(contents)), mc.player.getInventory(), storageBlock.getName());
         this.contents = contents;
         this.storageBlock = storageBlock;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
         BetterTooltips tooltips = Modules.get().get(BetterTooltips.class);
 
-        if (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE && focusedSlot != null && !focusedSlot.getStack().isEmpty() && mc.player.currentScreenHandler.getCursorStack().isEmpty() && tooltips.middleClickOpen()) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE && focusedSlot != null && !focusedSlot.getStack().isEmpty() && mc.player.currentScreenHandler.getCursorStack().isEmpty() && tooltips.middleClickOpen())
+        {
             ItemStack itemStack = focusedSlot.getStack();
-            if (Utils.hasItems(itemStack) || itemStack.getItem() == Items.ENDER_CHEST) {
+            if (Utils.hasItems(itemStack) || itemStack.getItem() == Items.ENDER_CHEST)
+            {
                 return Utils.openContainer(focusedSlot.getStack(), contents, false);
-            }
-            else if (itemStack.get(DataComponentTypes.WRITTEN_BOOK_CONTENT) != null || itemStack.get(DataComponentTypes.WRITABLE_BOOK_CONTENT) != null) {
+            } else if (itemStack.get(DataComponentTypes.WRITTEN_BOOK_CONTENT) != null || itemStack.get(DataComponentTypes.WRITABLE_BOOK_CONTENT) != null)
+            {
                 close();
                 mc.setScreen(new BookScreen(BookScreen.Contents.create(itemStack)));
                 return true;
@@ -55,13 +60,16 @@ public class PeekScreen extends ShulkerBoxScreen {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(double mouseX, double mouseY, int button)
+    {
         return false;
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE || mc.options.inventoryKey.matchesKey(keyCode, scanCode)) {
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+    {
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE || mc.options.inventoryKey.matchesKey(keyCode, scanCode))
+        {
             close();
             return true;
         }
@@ -69,8 +77,10 @@ public class PeekScreen extends ShulkerBoxScreen {
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers)
+    {
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE)
+        {
             close();
             return true;
         }
@@ -78,7 +88,8 @@ public class PeekScreen extends ShulkerBoxScreen {
     }
 
     @Override
-    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY)
+    {
         Color color = Utils.getShulkerColor(storageBlock);
 
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);

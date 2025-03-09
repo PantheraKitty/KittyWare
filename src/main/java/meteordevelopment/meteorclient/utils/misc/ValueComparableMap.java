@@ -10,15 +10,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ValueComparableMap<K extends Comparable<K>, V> extends TreeMap<K, V> {
+public class ValueComparableMap<K extends Comparable<K>, V> extends TreeMap<K, V>
+{
     private final transient Map<K, V> valueMap;
 
-    public ValueComparableMap(final Comparator<? super V> partialValueComparator) {
+    public ValueComparableMap(final Comparator<? super V> partialValueComparator)
+    {
         this(partialValueComparator, new HashMap<>());
     }
 
-    private ValueComparableMap(Comparator<? super V> partialValueComparator, HashMap<K, V> valueMap) {
-        super((k1, k2) -> {
+    private ValueComparableMap(Comparator<? super V> partialValueComparator, HashMap<K, V> valueMap)
+    {
+        super((k1, k2) ->
+        {
             int cmp = partialValueComparator.compare(valueMap.get(k1), valueMap.get(k2));
             return cmp != 0 ? cmp : k1.compareTo(k2);
         });
@@ -27,19 +31,22 @@ public class ValueComparableMap<K extends Comparable<K>, V> extends TreeMap<K, V
     }
 
     @Override
-    public V put(K k, V v) {
+    public V put(K k, V v)
+    {
         if (valueMap.containsKey(k)) remove(k);
         valueMap.put(k, v);
         return super.put(k, v);
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public boolean containsKey(Object key)
+    {
         return valueMap.containsKey(key);
     }
 
     @Override
-    public V getOrDefault(Object key, V defaultValue) {
+    public V getOrDefault(Object key, V defaultValue)
+    {
         return containsKey(key) ? get(key) : defaultValue;
     }
 }

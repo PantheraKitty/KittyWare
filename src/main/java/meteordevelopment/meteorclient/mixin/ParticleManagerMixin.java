@@ -25,28 +25,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ParticleManager.class)
-public abstract class ParticleManagerMixin {
+public abstract class ParticleManagerMixin
+{
     @Shadow
     @Nullable
     protected abstract <T extends ParticleEffect> Particle createParticle(T parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ);
 
     @Inject(method = "addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)Lnet/minecraft/client/particle/Particle;", at = @At("HEAD"), cancellable = true)
-    private void onAddParticle(ParticleEffect parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ, CallbackInfoReturnable<Particle> info) {
+    private void onAddParticle(ParticleEffect parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ, CallbackInfoReturnable<Particle> info)
+    {
         ParticleEvent event = MeteorClient.EVENT_BUS.post(ParticleEvent.get(parameters));
 
-        if (event.isCancelled()) {
-            if (parameters.getType() == ParticleTypes.FLASH) info.setReturnValue(createParticle(parameters, x, y, z, velocityX, velocityY, velocityZ));
+        if (event.isCancelled())
+        {
+            if (parameters.getType() == ParticleTypes.FLASH)
+                info.setReturnValue(createParticle(parameters, x, y, z, velocityX, velocityY, velocityZ));
             else info.cancel();
         }
     }
 
     @Inject(method = "addBlockBreakParticles", at = @At("HEAD"), cancellable = true)
-    private void onAddBlockBreakParticles(BlockPos blockPos, BlockState state, CallbackInfo info) {
+    private void onAddBlockBreakParticles(BlockPos blockPos, BlockState state, CallbackInfo info)
+    {
         if (Modules.get().get(NoRender.class).noBlockBreakParticles()) info.cancel();
     }
 
     @Inject(method = "addBlockBreakingParticles", at = @At("HEAD"), cancellable = true)
-    private void onAddBlockBreakingParticles(BlockPos blockPos, Direction direction, CallbackInfo info) {
+    private void onAddBlockBreakingParticles(BlockPos blockPos, Direction direction, CallbackInfo info)
+    {
         if (Modules.get().get(NoRender.class).noBlockBreakParticles()) info.cancel();
     }
 }

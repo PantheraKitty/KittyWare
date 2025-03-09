@@ -15,23 +15,28 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
-public class WaspCommand extends Command {
+public class WaspCommand extends Command
+{
     private static final SimpleCommandExceptionType CANT_WASP_SELF = new SimpleCommandExceptionType(Text.literal("You cannot target yourself!"));
 
-    public WaspCommand() {
+    public WaspCommand()
+    {
         super("wasp", "Sets the auto wasp target.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
         AutoWasp wasp = Modules.get().get(AutoWasp.class);
 
-        builder.then(literal("reset").executes(context -> {
+        builder.then(literal("reset").executes(context ->
+        {
             if (wasp.isActive()) wasp.toggle();
             return SINGLE_SUCCESS;
         }));
 
-        builder.then(argument("player", PlayerArgumentType.create()).executes(context -> {
+        builder.then(argument("player", PlayerArgumentType.create()).executes(context ->
+        {
             PlayerEntity player = PlayerArgumentType.get(context);
 
             if (player == mc.player) throw CANT_WASP_SELF.create();

@@ -12,7 +12,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.util.math.random.Random;
 
-public class RenderItemEntityEvent extends Cancellable {
+public class RenderItemEntityEvent extends Cancellable
+{
     private static final RenderItemEntityEvent INSTANCE = new RenderItemEntityEvent();
 
     public ItemEntity itemEntity;
@@ -24,7 +25,8 @@ public class RenderItemEntityEvent extends Cancellable {
     public Random random;
     public ItemRenderer itemRenderer;
 
-    public static RenderItemEntityEvent get(ItemEntity itemEntity, float f, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, Random random, ItemRenderer itemRenderer) {
+    public static RenderItemEntityEvent get(ItemEntity itemEntity, float f, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, Random random, ItemRenderer itemRenderer)
+    {
         INSTANCE.setCancelled(false);
         INSTANCE.itemEntity = itemEntity;
         INSTANCE.f = f;

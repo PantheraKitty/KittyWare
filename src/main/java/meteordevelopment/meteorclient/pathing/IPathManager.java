@@ -13,17 +13,25 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.function.Predicate;
 
-public interface IPathManager {
+public interface IPathManager
+{
     String getName();
 
     boolean isPathing();
 
     void pause();
+
     void resume();
+
     void stop();
 
-    default void moveTo(BlockPos pos) { moveTo(pos, false); }
+    default void moveTo(BlockPos pos)
+    {
+        moveTo(pos, false);
+    }
+
     void moveTo(BlockPos pos, boolean ignoreY);
+
     void moveInDirection(float yaw);
 
     void mine(Block... blocks);
@@ -31,17 +39,21 @@ public interface IPathManager {
     void follow(Predicate<Entity> entity);
 
     float getTargetYaw();
+
     float getTargetPitch();
 
     ISettings getSettings();
 
-    interface ISettings {
+    interface ISettings
+    {
         Settings get();
 
         Setting<Boolean> getWalkOnWater();
+
         Setting<Boolean> getWalkOnLava();
 
         Setting<Boolean> getStep();
+
         Setting<Boolean> getNoFall();
 
         void save();

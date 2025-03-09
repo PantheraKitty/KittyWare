@@ -15,17 +15,25 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(ChatHudLine.Visible.class)
-public abstract class ChatHudLineVisibleMixin implements IChatHudLineVisible {
-    @Shadow @Final private OrderedText content;
-    @Unique private int id;
-    @Unique private GameProfile sender;
-    @Unique private boolean startOfEntry;
+public abstract class ChatHudLineVisibleMixin implements IChatHudLineVisible
+{
+    @Shadow
+    @Final
+    private OrderedText content;
+    @Unique
+    private int id;
+    @Unique
+    private GameProfile sender;
+    @Unique
+    private boolean startOfEntry;
 
     @Override
-    public String meteor$getText() {
+    public String meteor$getText()
+    {
         StringBuilder sb = new StringBuilder();
 
-        content.accept((index, style, codePoint) -> {
+        content.accept((index, style, codePoint) ->
+        {
             sb.appendCodePoint(codePoint);
             return true;
         });
@@ -34,32 +42,38 @@ public abstract class ChatHudLineVisibleMixin implements IChatHudLineVisible {
     }
 
     @Override
-    public int meteor$getId() {
+    public int meteor$getId()
+    {
         return id;
     }
 
     @Override
-    public void meteor$setId(int id) {
+    public void meteor$setId(int id)
+    {
         this.id = id;
     }
 
     @Override
-    public GameProfile meteor$getSender() {
+    public GameProfile meteor$getSender()
+    {
         return sender;
     }
 
     @Override
-    public void meteor$setSender(GameProfile profile) {
+    public void meteor$setSender(GameProfile profile)
+    {
         sender = profile;
     }
 
     @Override
-    public boolean meteor$isStartOfEntry() {
+    public boolean meteor$isStartOfEntry()
+    {
         return startOfEntry;
     }
 
     @Override
-    public void meteor$setStartOfEntry(boolean start) {
+    public void meteor$setStartOfEntry(boolean start)
+    {
         startOfEntry = start;
     }
 }

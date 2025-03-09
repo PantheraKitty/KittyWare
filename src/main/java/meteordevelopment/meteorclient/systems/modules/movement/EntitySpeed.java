@@ -18,7 +18,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
 
-public class EntitySpeed extends Module {
+public class EntitySpeed extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
@@ -44,12 +45,14 @@ public class EntitySpeed extends Module {
         .build()
     );
 
-    public EntitySpeed() {
+    public EntitySpeed()
+    {
         super(Categories.Movement, "entity-speed", "Makes you go faster when riding entities.");
     }
 
     @EventHandler
-    private void onLivingEntityMove(LivingEntityMoveEvent event) {
+    private void onLivingEntityMove(LivingEntityMoveEvent event)
+    {
         if (event.entity.getControllingPassenger() != mc.player) return;
 
         // Check for onlyOnGround and inWater

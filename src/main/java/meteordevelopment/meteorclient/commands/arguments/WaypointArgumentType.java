@@ -22,36 +22,44 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class WaypointArgumentType implements ArgumentType<String> {
+public class WaypointArgumentType implements ArgumentType<String>
+{
     private static final WaypointArgumentType GREEDY = new WaypointArgumentType(true);
     private static final WaypointArgumentType QUOTED = new WaypointArgumentType(false);
     private static final DynamicCommandExceptionType NO_SUCH_WAYPOINT = new DynamicCommandExceptionType(name -> Text.literal("Waypoint with name '" + name + "' doesn't exist."));
     private final boolean greedyString;
 
-    private WaypointArgumentType(boolean greedyString) {
+    private WaypointArgumentType(boolean greedyString)
+    {
         this.greedyString = greedyString;
     }
 
-    public static WaypointArgumentType create() {
+    public static WaypointArgumentType create()
+    {
         return GREEDY;
     }
 
-    public static WaypointArgumentType create(boolean greedy) {
+    public static WaypointArgumentType create(boolean greedy)
+    {
         return greedy ? GREEDY : QUOTED;
     }
 
-    public static Waypoint get(CommandContext<?> context) {
+    public static Waypoint get(CommandContext<?> context)
+    {
         return Waypoints.get().get(context.getArgument("waypoint", String.class));
     }
 
-    public static Waypoint get(CommandContext<?> context, String name) {
+    public static Waypoint get(CommandContext<?> context, String name)
+    {
         return Waypoints.get().get(context.getArgument(name, String.class));
     }
 
     @Override
-    public String parse(StringReader reader) throws CommandSyntaxException {
+    public String parse(StringReader reader) throws CommandSyntaxException
+    {
         String argument;
-        if (greedyString) {
+        if (greedyString)
+        {
             argument = reader.getRemaining();
             reader.setCursor(reader.getTotalLength());
         } else argument = reader.readString();
@@ -61,12 +69,14 @@ public class WaypointArgumentType implements ArgumentType<String> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
+    {
         return CommandSource.suggestMatching(getExamples(), builder);
     }
 
     @Override
-    public Collection<String> getExamples() {
+    public Collection<String> getExamples()
+    {
         List<String> names = new ArrayList<>();
         for (Waypoint waypoint : Waypoints.get()) names.add(waypoint.name.get());
         return names;

@@ -21,15 +21,11 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class PlayerRadarHud extends HudElement {
-    public static final HudElementInfo<PlayerRadarHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-radar", "Displays players in your visual range.", PlayerRadarHud::new);
-
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+public class PlayerRadarHud extends HudElement
+{
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<PlayerRadarHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-radar", "Displays players in your visual range.", PlayerRadarHud::new);
     private final SettingGroup sgScale = settings.createGroup("Scale");
     private final SettingGroup sgBackground = settings.createGroup("Background");
-
-    // General
-
     private final Setting<Integer> limit = sgGeneral.add(new IntSetting.Builder()
         .name("limit")
         .description("The max number of players to show.")
@@ -39,71 +35,61 @@ public class PlayerRadarHud extends HudElement {
         .build()
     );
 
+    // General
     private final Setting<Boolean> distance = sgGeneral.add(new BoolSetting.Builder()
         .name("distance")
         .description("Shows the distance to the player next to their name.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Boolean> totemPops = sgGeneral.add(new BoolSetting.Builder()
         .name("display-totem-pops")
         .description("Whether to show totem pops or not.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> friends = sgGeneral.add(new BoolSetting.Builder()
         .name("display-friends")
         .description("Whether to show friends or not.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Boolean> shadow = sgGeneral.add(new BoolSetting.Builder()
         .name("shadow")
         .description("Renders shadow behind text.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<SettingColor> primaryColor = sgGeneral.add(new ColorSetting.Builder()
         .name("primary-color")
         .description("Primary color.")
         .defaultValue(new SettingColor())
         .build()
     );
-
     private final Setting<SettingColor> secondaryColor = sgGeneral.add(new ColorSetting.Builder()
         .name("secondary-color")
         .description("Secondary color.")
         .defaultValue(new SettingColor(175, 175, 175))
         .build()
     );
-
     private final Setting<SettingColor> totemPopColor = sgGeneral.add(new ColorSetting.Builder()
         .name("totem-pop-color")
         .description("Totem pop color.")
         .defaultValue(new SettingColor(225, 120, 20))
         .build()
     );
-
     private final Setting<Alignment> alignment = sgGeneral.add(new EnumSetting.Builder<Alignment>()
         .name("alignment")
         .description("Horizontal alignment.")
         .defaultValue(Alignment.Auto)
         .build()
     );
-
     private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
         .name("border")
         .description("How much space to add around the element.")
         .defaultValue(0)
         .build()
     );
-
-    // Scale
-
     private final Setting<Boolean> customScale = sgScale.add(new BoolSetting.Builder()
         .name("custom-scale")
         .description("Applies custom text scale rather than the global one.")
@@ -111,6 +97,7 @@ public class PlayerRadarHud extends HudElement {
         .build()
     );
 
+    // Scale
     private final Setting<Double> scale = sgScale.add(new DoubleSetting.Builder()
         .name("scale")
         .description("Custom scale.")
@@ -120,9 +107,6 @@ public class PlayerRadarHud extends HudElement {
         .sliderRange(0.5, 3)
         .build()
     );
-
-    // Background
-
     private final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
         .description("Displays background.")
@@ -130,6 +114,7 @@ public class PlayerRadarHud extends HudElement {
         .build()
     );
 
+    // Background
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
         .description("Color used for the background.")
@@ -137,40 +122,46 @@ public class PlayerRadarHud extends HudElement {
         .defaultValue(new SettingColor(25, 25, 25, 50))
         .build()
     );
-
     private final List<AbstractClientPlayerEntity> players = new ArrayList<>();
 
-    public PlayerRadarHud() {
+    public PlayerRadarHud()
+    {
         super(INFO);
     }
 
     @Override
-    public void setSize(double width, double height) {
+    public void setSize(double width, double height)
+    {
         super.setSize(width + border.get() * 2, height + border.get() * 2);
     }
 
     @Override
-    protected double alignX(double width, Alignment alignment) {
+    protected double alignX(double width, Alignment alignment)
+    {
         return box.alignX(getWidth() - border.get() * 2, width, alignment);
     }
 
     @Override
-    public void tick(HudRenderer renderer) {
+    public void tick(HudRenderer renderer)
+    {
         double width = renderer.textWidth("Players:", shadow.get(), getScale());
         double height = renderer.textHeight(shadow.get(), getScale());
 
-        if (mc.world == null) {
+        if (mc.world == null)
+        {
             setSize(width, height);
             return;
         }
 
-        for (PlayerEntity entity : getPlayers()) {
+        for (PlayerEntity entity : getPlayers())
+        {
             if (entity.equals(mc.player)) continue;
             if (!friends.get() && Friends.get().isFriend(entity)) continue;
 
             String text = entity.getName().getString();
             if (distance.get()) text += String.format("(%sm)", Math.round(mc.getCameraEntity().distanceTo(entity)));
-            if (totemPops.get() && MeteorClient.INFO.getPops(entity) > 0) text += "" + -MeteorClient.INFO.getPops(entity);
+            if (totemPops.get() && MeteorClient.INFO.getPops(entity) > 0)
+                text += "" + -MeteorClient.INFO.getPops(entity);
 
             width = Math.max(width, renderer.textWidth(text, shadow.get(), getScale()));
             height += renderer.textHeight(shadow.get(), getScale()) + 2;
@@ -180,10 +171,12 @@ public class PlayerRadarHud extends HudElement {
     }
 
     @Override
-    public void render(HudRenderer renderer) {
+    public void render(HudRenderer renderer)
+    {
         double y = this.y + border.get();
 
-        if (background.get()) {
+        if (background.get())
+        {
             renderer.quad(this.x, this.y, getWidth(), getHeight(), backgroundColor.get());
         }
 
@@ -192,7 +185,8 @@ public class PlayerRadarHud extends HudElement {
         if (mc.world == null) return;
         double spaceWidth = renderer.textWidth(" ", shadow.get(), getScale());
 
-        for (PlayerEntity entity : getPlayers()) {
+        for (PlayerEntity entity : getPlayers())
+        {
             if (entity.equals(mc.player)) continue;
             if (!friends.get() && Friends.get().isFriend(entity)) continue;
 
@@ -205,12 +199,14 @@ public class PlayerRadarHud extends HudElement {
             if (distance.get()) width += spaceWidth;
             if (totemPops.get() && MeteorClient.INFO.getPops(entity) > 0) width += spaceWidth;
 
-            if (distance.get()) {
+            if (distance.get())
+            {
                 distanceText = String.format("(%sm)", Math.round(mc.getCameraEntity().distanceTo(entity)));
                 width += renderer.textWidth(distanceText, shadow.get(), getScale());
             }
 
-            if (totemPops.get() && MeteorClient.INFO.getPops(entity) > 0) {
+            if (totemPops.get() && MeteorClient.INFO.getPops(entity) > 0)
+            {
                 totemPopsText = "" + -MeteorClient.INFO.getPops(entity);
                 width += renderer.textWidth(totemPopsText, shadow.get(), getScale());
             }
@@ -219,12 +215,15 @@ public class PlayerRadarHud extends HudElement {
             y += renderer.textHeight(shadow.get(), getScale()) + 2;
 
             x = renderer.text(text, x, y, color, shadow.get());
-            if (distance.get()) renderer.text(distanceText, x + spaceWidth, y, secondaryColor.get(), shadow.get(), getScale());
-            if (totemPops.get() && totemPopsText != null) renderer.text(totemPopsText, x + spaceWidth, y, totemPopColor.get(), shadow.get(), getScale());
+            if (distance.get())
+                renderer.text(distanceText, x + spaceWidth, y, secondaryColor.get(), shadow.get(), getScale());
+            if (totemPops.get() && totemPopsText != null)
+                renderer.text(totemPopsText, x + spaceWidth, y, totemPopColor.get(), shadow.get(), getScale());
         }
     }
 
-    private List<AbstractClientPlayerEntity> getPlayers() {
+    private List<AbstractClientPlayerEntity> getPlayers()
+    {
         players.clear();
         players.addAll(mc.world.getPlayers());
         if (players.size() > limit.get()) players.subList(limit.get() - 1, players.size() - 1).clear();
@@ -233,7 +232,10 @@ public class PlayerRadarHud extends HudElement {
         return players;
     }
 
-    private double getScale() {
+    private double getScale()
+    {
         return customScale.get() ? scale.get() : -1;
     }
+
+
 }

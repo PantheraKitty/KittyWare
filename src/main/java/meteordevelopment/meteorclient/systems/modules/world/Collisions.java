@@ -23,7 +23,8 @@ import net.minecraft.util.shape.VoxelShapes;
 
 import java.util.List;
 
-public class Collisions extends Module {
+public class Collisions extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
@@ -54,48 +55,60 @@ public class Collisions extends Module {
         .build()
     );
 
-    public Collisions() {
+    public Collisions()
+    {
         super(Categories.World, "collisions", "Adds collision boxes to certain blocks/areas.");
     }
 
     @EventHandler
-    private void onCollisionShape(CollisionShapeEvent event) {
+    private void onCollisionShape(CollisionShapeEvent event)
+    {
         if (mc.world == null || mc.player == null) return;
         if (!event.state.getFluidState().isEmpty()) return;
-        if (blocks.get().contains(event.state.getBlock())) {
+        if (blocks.get().contains(event.state.getBlock()))
+        {
             event.shape = VoxelShapes.fullCube();
         } else if (magma.get() && !mc.player.isSneaking()
             && event.state.isAir()
-            && mc.world.getBlockState(event.pos.down()).getBlock() == Blocks.MAGMA_BLOCK) {
+            && mc.world.getBlockState(event.pos.down()).getBlock() == Blocks.MAGMA_BLOCK)
+        {
             event.shape = VoxelShapes.fullCube();
         }
     }
 
     @EventHandler
-    private void onPlayerMove(PlayerMoveEvent event) {
+    private void onPlayerMove(PlayerMoveEvent event)
+    {
         int x = (int) (mc.player.getX() + event.movement.x) >> 4;
         int z = (int) (mc.player.getZ() + event.movement.z) >> 4;
-        if (unloadedChunks.get() && !mc.world.getChunkManager().isChunkLoaded(x, z)) {
+        if (unloadedChunks.get() && !mc.world.getChunkManager().isChunkLoaded(x, z))
+        {
             ((IVec3d) event.movement).set(0, event.movement.y, 0);
         }
     }
 
     @EventHandler
-    private void onPacketSend(PacketEvent.Send event) {
+    private void onPacketSend(PacketEvent.Send event)
+    {
         if (!unloadedChunks.get()) return;
-        if (event.packet instanceof VehicleMoveC2SPacket packet) {
-            if (!mc.world.getChunkManager().isChunkLoaded((int) packet.getX() >> 4, (int) packet.getZ() >> 4)) {
+        if (event.packet instanceof VehicleMoveC2SPacket packet)
+        {
+            if (!mc.world.getChunkManager().isChunkLoaded((int) packet.getX() >> 4, (int) packet.getZ() >> 4))
+            {
                 mc.player.getVehicle().updatePosition(mc.player.getVehicle().prevX, mc.player.getVehicle().prevY, mc.player.getVehicle().prevZ);
                 event.cancel();
             }
-        } else if (event.packet instanceof PlayerMoveC2SPacket packet) {
-            if (!mc.world.getChunkManager().isChunkLoaded((int) packet.getX(mc.player.getX()) >> 4, (int) packet.getZ(mc.player.getZ()) >> 4)) {
+        } else if (event.packet instanceof PlayerMoveC2SPacket packet)
+        {
+            if (!mc.world.getChunkManager().isChunkLoaded((int) packet.getX(mc.player.getX()) >> 4, (int) packet.getZ(mc.player.getZ()) >> 4))
+            {
                 event.cancel();
             }
         }
     }
 
-    private boolean blockFilter(Block block) {
+    private boolean blockFilter(Block block)
+    {
         return (block instanceof AbstractFireBlock
             || block instanceof AbstractPressurePlateBlock
             || block instanceof TripwireBlock
@@ -112,7 +125,8 @@ public class Collisions extends Module {
         );
     }
 
-    public boolean ignoreBorder() {
+    public boolean ignoreBorder()
+    {
         return isActive() && ignoreBorder.get();
     }
 }

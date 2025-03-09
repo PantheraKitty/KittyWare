@@ -8,15 +8,18 @@ package meteordevelopment.meteorclient.gui.widgets.pressable;
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public abstract class WFavorite extends WPressable {
+public abstract class WFavorite extends WPressable
+{
     public boolean checked;
 
-    public WFavorite(boolean checked) {
+    public WFavorite(boolean checked)
+    {
         this.checked = checked;
     }
 
     @Override
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
         double pad = pad();
         double s = theme.textHeight();
 
@@ -25,12 +28,14 @@ public abstract class WFavorite extends WPressable {
     }
 
     @Override
-    protected void onPressed(int button) {
+    protected void onPressed(int button)
+    {
         checked = !checked;
     }
 
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         double pad = pad();
         double s = theme.textHeight();
 

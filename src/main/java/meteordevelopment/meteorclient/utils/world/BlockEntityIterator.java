@@ -13,23 +13,28 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BlockEntityIterator implements Iterator<BlockEntity> {
+public class BlockEntityIterator implements Iterator<BlockEntity>
+{
     private final Iterator<Chunk> chunks;
     private Iterator<BlockEntity> blockEntities;
 
-    public BlockEntityIterator() {
+    public BlockEntityIterator()
+    {
         chunks = new ChunkIterator(false);
 
         nextChunk();
     }
 
-    private void nextChunk() {
-        while (true) {
+    private void nextChunk()
+    {
+        while (true)
+        {
             if (!chunks.hasNext()) break;
 
             Map<BlockPos, BlockEntity> blockEntityMap = ((ChunkAccessor) chunks.next()).getBlockEntities();
 
-            if (!blockEntityMap.isEmpty()) {
+            if (!blockEntityMap.isEmpty())
+            {
                 blockEntities = blockEntityMap.values().iterator();
                 break;
             }
@@ -37,7 +42,8 @@ public class BlockEntityIterator implements Iterator<BlockEntity> {
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext()
+    {
         if (blockEntities == null) return false;
         if (blockEntities.hasNext()) return true;
 
@@ -47,7 +53,8 @@ public class BlockEntityIterator implements Iterator<BlockEntity> {
     }
 
     @Override
-    public BlockEntity next() {
+    public BlockEntity next()
+    {
         return blockEntities.next();
     }
 }

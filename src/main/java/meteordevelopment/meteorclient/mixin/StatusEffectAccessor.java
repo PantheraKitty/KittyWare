@@ -14,7 +14,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.Map;
 
 @Mixin(StatusEffect.class)
-public interface StatusEffectAccessor {
+public interface StatusEffectAccessor
+{
     @Accessor
     Map<RegistryEntry<EntityAttribute>, StatusEffect.EffectAttributeModifierCreator> getAttributeModifiers();
 }

@@ -13,18 +13,22 @@ import meteordevelopment.meteorclient.systems.modules.Modules;
 
 import java.util.List;
 
-public class ModuleListSettingScreen extends RegistryListSettingScreen<Module> {
-    public ModuleListSettingScreen(GuiTheme theme, Setting<List<Module>> setting) {
+public class ModuleListSettingScreen extends RegistryListSettingScreen<Module>
+{
+    public ModuleListSettingScreen(GuiTheme theme, Setting<List<Module>> setting)
+    {
         super(theme, "Select Modules", setting, setting.get(), Modules.REGISTRY);
     }
 
     @Override
-    protected WWidget getValueWidget(Module value) {
+    protected WWidget getValueWidget(Module value)
+    {
         return theme.label(getValueName(value));
     }
 
     @Override
-    protected String getValueName(Module value) {
+    protected String getValueName(Module value)
+    {
         return value.title;
     }
 }

@@ -8,27 +8,31 @@ package meteordevelopment.meteorclient.renderer;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.opengl.GL32C.*;
 
-public class Framebuffer {
-    private int id;
+public class Framebuffer
+{
     public int texture;
     public double sizeMulti = 1; // Multiplier for the size of the framebuffer
     public int width, height; // Dimensions of the framebuffer
+    private int id;
 
     /**
      * Creates a new framebuffer with a custom size multiplier
      *
      * @param sizeMulti The multiplier for the size of the framebuffer
      */
-    public Framebuffer(double sizeMulti) {
+    public Framebuffer(double sizeMulti)
+    {
         this.sizeMulti = sizeMulti;
         init();
     }
 
-    public Framebuffer() {
+    public Framebuffer()
+    {
         init();
     }
 
-    private void init() {
+    private void init()
+    {
         id = GL.genFramebuffer();
         bind();
 
@@ -51,22 +55,26 @@ public class Framebuffer {
         unbind();
     }
 
-    public void bind() {
+    public void bind()
+    {
         GL.bindFramebuffer(id);
     }
 
     /**
      * Sets the viewport to the size of the framebuffer
      */
-    public void setViewport() {
+    public void setViewport()
+    {
         GL.viewport(0, 0, width, height);
     }
 
-    public void unbind() {
+    public void unbind()
+    {
         mc.getFramebuffer().beginWrite(false);
     }
 
-    public void resize() {
+    public void resize()
+    {
         GL.deleteFramebuffer(id);
         GL.deleteTexture(texture);
 

@@ -21,21 +21,27 @@ import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 
 import java.time.Instant;
 
-public class SayCommand extends Command {
-    public SayCommand() {
+public class SayCommand extends Command
+{
+    public SayCommand()
+    {
         super("say", "Sends messages in chat.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.then(argument("message", StringArgumentType.greedyString()).executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.then(argument("message", StringArgumentType.greedyString()).executes(context ->
+        {
             String msg = context.getArgument("message", String.class);
             Script script = MeteorStarscript.compile(msg);
 
-            if (script != null) {
+            if (script != null)
+            {
                 String message = MeteorStarscript.run(script);
 
-                if (message != null) {
+                if (message != null)
+                {
                     Instant instant = Instant.now();
                     long l = NetworkEncryptionUtils.SecureRandomUtil.nextLong();
                     ClientPlayNetworkHandler handler = mc.getNetworkHandler();

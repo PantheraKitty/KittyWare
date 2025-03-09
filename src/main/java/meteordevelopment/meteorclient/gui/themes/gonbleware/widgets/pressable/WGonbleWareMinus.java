@@ -9,9 +9,11 @@ import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
 
-public class WGonbleWareMinus extends WMinus implements GonbleWareWidget {
+public class WGonbleWareMinus extends WMinus implements GonbleWareWidget
+{
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         double pad = pad();
         double s = theme.scale(3);
 

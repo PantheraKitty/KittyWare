@@ -16,7 +16,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.BedBlock;
 import net.minecraft.util.math.BlockPos;
 
-public class ReverseStep extends Module {
+public class ReverseStep extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> fallSpeed = sgGeneral.add(new DoubleSetting.Builder()
@@ -35,18 +36,23 @@ public class ReverseStep extends Module {
         .build()
     );
 
-    public ReverseStep() {
+    public ReverseStep()
+    {
         super(Categories.Movement, "reverse-step", "Allows you to fall down blocks at a greater speed.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if (!mc.player.isOnGround() || mc.player.isHoldingOntoLadder() || mc.player.isSubmergedInWater() || mc.player.isInLava() ||mc.options.jumpKey.isPressed() || mc.player.noClip || mc.player.forwardSpeed == 0 && mc.player.sidewaysSpeed == 0) return;
+    private void onTick(TickEvent.Post event)
+    {
+        if (!mc.player.isOnGround() || mc.player.isHoldingOntoLadder() || mc.player.isSubmergedInWater() || mc.player.isInLava() || mc.options.jumpKey.isPressed() || mc.player.noClip || mc.player.forwardSpeed == 0 && mc.player.sidewaysSpeed == 0)
+            return;
 
-        if (!isOnBed() && !mc.world.isSpaceEmpty(mc.player.getBoundingBox().offset(0.0, (float) -(fallDistance.get() + 0.01), 0.0))) ((IVec3d) mc.player.getVelocity()).setY(-fallSpeed.get());
+        if (!isOnBed() && !mc.world.isSpaceEmpty(mc.player.getBoundingBox().offset(0.0, (float) -(fallDistance.get() + 0.01), 0.0)))
+            ((IVec3d) mc.player.getVelocity()).setY(-fallSpeed.get());
     }
 
-    private boolean isOnBed() {
+    private boolean isOnBed()
+    {
         BlockPos.Mutable blockPos = mc.player.getBlockPos().mutableCopy();
 
         if (check(blockPos, 0, 0)) return true;
@@ -65,7 +71,8 @@ public class ReverseStep extends Module {
         return xa >= 0.7 && za >= 0.7 && check(blockPos, 1, 1);
     }
 
-    private boolean check(BlockPos.Mutable blockPos, int x, int z) {
+    private boolean check(BlockPos.Mutable blockPos, int x, int z)
+    {
         blockPos.move(x, 0, z);
         boolean is = mc.world.getBlockState(blockPos).getBlock() instanceof BedBlock;
         blockPos.move(-x, 0, -z);

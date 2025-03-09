@@ -11,13 +11,14 @@ import java.util.List;
 import static meteordevelopment.meteorclient.utils.Utils.getWindowHeight;
 import static org.lwjgl.opengl.GL11.glScissor;
 
-public class Scissor {
+public class Scissor
+{
+    public final List<Runnable> postTasks = new ArrayList<>();
     public int x, y;
     public int width, height;
 
-    public final List<Runnable> postTasks = new ArrayList<>();
-
-    public Scissor set(double x, double y, double width, double height) {
+    public Scissor set(double x, double y, double width, double height)
+    {
         if (width < 0) width = 0;
         if (height < 0) height = 0;
 
@@ -31,7 +32,8 @@ public class Scissor {
         return this;
     }
 
-    public void apply() {
+    public void apply()
+    {
         glScissor(x, getWindowHeight() - y - height, width, height);
     }
 }

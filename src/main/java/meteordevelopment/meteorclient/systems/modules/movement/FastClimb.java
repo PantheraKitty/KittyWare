@@ -20,7 +20,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.PowderSnowBlock;
 import net.minecraft.util.math.Vec3d;
 
-public class FastClimb extends Module {
+public class FastClimb extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> timerMode = sgGeneral.add(new BoolSetting.Builder()
@@ -51,22 +52,28 @@ public class FastClimb extends Module {
 
     private boolean resetTimer;
 
-    public FastClimb() {
+    public FastClimb()
+    {
         super(Categories.Movement, "fast-climb", "Allows you to climb faster.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         resetTimer = false;
     }
 
     @EventHandler
-    private void onPreTick(TickEvent.Pre event) {
-        if (timerMode.get()) {
-            if (climbing()) {
+    private void onPreTick(TickEvent.Pre event)
+    {
+        if (timerMode.get())
+        {
+            if (climbing())
+            {
                 resetTimer = false;
                 Modules.get().get(Timer.class).setOverride(timer.get());
-            } else if (!resetTimer) {
+            } else if (!resetTimer)
+            {
                 Modules.get().get(Timer.class).setOverride(Timer.OFF);
                 resetTimer = true;
             }
@@ -74,14 +81,17 @@ public class FastClimb extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if (!timerMode.get() && climbing()) {
+    private void onTick(TickEvent.Post event)
+    {
+        if (!timerMode.get() && climbing())
+        {
             Vec3d velocity = mc.player.getVelocity();
             mc.player.setVelocity(velocity.x, speed.get(), velocity.z);
         }
     }
 
-    private boolean climbing() {
+    private boolean climbing()
+    {
         return (mc.player.horizontalCollision || ((LivingEntityAccessor) mc.player).isJumping()) && (mc.player.isClimbing() || mc.player.getBlockStateAtPos().isOf(Blocks.POWDER_SNOW) && PowderSnowBlock.canWalkOnPowderSnow(mc.player));
     }
 }

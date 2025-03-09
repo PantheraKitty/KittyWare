@@ -27,7 +27,8 @@ import net.minecraft.world.chunk.ChunkStatus;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VoidESP extends Module {
+public class VoidESP extends Module
+{
     private static final Direction[] SIDES = {Direction.EAST, Direction.NORTH, Direction.SOUTH, Direction.WEST};
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -95,12 +96,14 @@ public class VoidESP extends Module {
     private final Pool<Void> voidHolePool = new Pool<>(Void::new);
     private final List<Void> voidHoles = new ArrayList<>();
 
-    public VoidESP() {
+    public VoidESP()
+    {
         super(Categories.Render, "void-esp", "Renders holes in bedrock layers that lead to the void.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         voidHoles.clear();
         if (PlayerUtils.getDimension() == Dimension.End) return;
 
@@ -108,13 +111,17 @@ public class VoidESP extends Module {
         int pz = mc.player.getBlockPos().getZ();
         int radius = horizontalRadius.get();
 
-        for (int x = px - radius; x <= px + radius; x++) {
-            for (int z = pz - radius; z <= pz + radius; z++) {
+        for (int x = px - radius; x <= px + radius; x++)
+        {
+            for (int z = pz - radius; z <= pz + radius; z++)
+            {
                 blockPos.set(x, mc.world.getBottomY(), z);
-                if (isHole(blockPos, false)) voidHoles.add(voidHolePool.get().set(blockPos.set(x, mc.world.getBottomY(), z), false));
+                if (isHole(blockPos, false))
+                    voidHoles.add(voidHolePool.get().set(blockPos.set(x, mc.world.getBottomY(), z), false));
 
                 // Check for nether roof
-                if (netherRoof.get() && PlayerUtils.getDimension() == Dimension.Nether) {
+                if (netherRoof.get() && PlayerUtils.getDimension() == Dimension.Nether)
+                {
                     blockPos.set(x, 127, z);
                     if (isHole(blockPos, true)) voidHoles.add(voidHolePool.get().set(blockPos.set(x, 127, z), true));
                 }
@@ -123,11 +130,13 @@ public class VoidESP extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         for (Void voidHole : voidHoles) voidHole.render(event);
     }
 
-    private boolean isBlockWrong(BlockPos blockPos) {
+    private boolean isBlockWrong(BlockPos blockPos)
+    {
         Chunk chunk = mc.world.getChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4, ChunkStatus.FULL, false);
         if (chunk == null) return true;
 
@@ -137,8 +146,10 @@ public class VoidESP extends Module {
         return block == Blocks.BEDROCK;
     }
 
-    private boolean isHole(BlockPos.Mutable blockPos, boolean nether) {
-        for (int i = 0; i < holeHeight.get(); i++) {
+    private boolean isHole(BlockPos.Mutable blockPos, boolean nether)
+    {
+        for (int i = 0; i < holeHeight.get(); i++)
+        {
             blockPos.setY(nether ? 127 - i : mc.world.getBottomY());
             if (isBlockWrong(blockPos)) return false;
         }
@@ -146,18 +157,21 @@ public class VoidESP extends Module {
         return true;
     }
 
-    private class Void {
+    private class Void
+    {
         private int x, y, z;
         private int excludeDir;
 
-        public Void set(BlockPos.Mutable blockPos, boolean nether) {
+        public Void set(BlockPos.Mutable blockPos, boolean nether)
+        {
             x = blockPos.getX();
             y = blockPos.getY();
             z = blockPos.getZ();
 
             excludeDir = 0;
 
-            for (Direction side : SIDES) {
+            for (Direction side : SIDES)
+            {
                 blockPos.set(x + side.getOffsetX(), y, z + side.getOffsetZ());
                 if (isHole(blockPos, nether)) excludeDir |= Dir.get(side);
             }
@@ -165,7 +179,8 @@ public class VoidESP extends Module {
             return this;
         }
 
-        public void render(Render3DEvent event) {
+        public void render(Render3DEvent event)
+        {
             event.renderer.box(x, y, z, x + 1, y + 1, z + 1, sideColor.get(), lineColor.get(), shapeMode.get(), excludeDir);
         }
     }

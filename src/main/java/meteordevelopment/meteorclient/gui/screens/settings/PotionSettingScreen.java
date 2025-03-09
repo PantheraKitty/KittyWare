@@ -13,24 +13,29 @@ import meteordevelopment.meteorclient.settings.PotionSetting;
 import meteordevelopment.meteorclient.utils.misc.MyPotion;
 import net.minecraft.client.resource.language.I18n;
 
-public class PotionSettingScreen extends WindowScreen {
+public class PotionSettingScreen extends WindowScreen
+{
     private final PotionSetting setting;
 
-    public PotionSettingScreen(GuiTheme theme, PotionSetting setting) {
+    public PotionSettingScreen(GuiTheme theme, PotionSetting setting)
+    {
         super(theme, "Select Potion");
 
         this.setting = setting;
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         WTable table = add(theme.table()).expandX().widget();
 
-        for (MyPotion potion : MyPotion.values()) {
+        for (MyPotion potion : MyPotion.values())
+        {
             table.add(theme.itemWithLabel(potion.potion, I18n.translate(potion.potion.getTranslationKey())));
 
             WButton select = table.add(theme.button("Select")).widget();
-            select.action = () -> {
+            select.action = () ->
+            {
                 setting.set(potion);
                 close();
             };

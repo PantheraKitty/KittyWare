@@ -30,12 +30,9 @@ import org.joml.Vector3d;
 
 import java.util.Set;
 
-public class ESP extends Module {
+public class ESP extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgColors = settings.createGroup("Colors");
-
-    // General
-
     public final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
         .name("mode")
         .description("Rendering mode.")
@@ -43,6 +40,7 @@ public class ESP extends Module {
         .build()
     );
 
+    // General
     public final Setting<Integer> outlineWidth = sgGeneral.add(new IntSetting.Builder()
         .name("outline-width")
         .description("The width of the shader outline.")
@@ -52,7 +50,6 @@ public class ESP extends Module {
         .sliderRange(1, 5)
         .build()
     );
-
     public final Setting<Double> glowMultiplier = sgGeneral.add(new DoubleSetting.Builder()
         .name("glow-multiplier")
         .description("Multiplier for glow effect")
@@ -63,14 +60,6 @@ public class ESP extends Module {
         .sliderMax(10)
         .build()
     );
-
-    public final Setting<Boolean> ignoreSelf = sgGeneral.add(new BoolSetting.Builder()
-        .name("ignore-self")
-        .description("Ignores yourself drawing the shader.")
-        .defaultValue(true)
-        .build()
-    );
-
     public final Setting<ShapeMode> shapeMode = sgGeneral.add(new EnumSetting.Builder<ShapeMode>()
         .name("shape-mode")
         .description("How the shapes are rendered.")
@@ -78,7 +67,6 @@ public class ESP extends Module {
         .defaultValue(ShapeMode.Both)
         .build()
     );
-
     public final Setting<Double> fillOpacity = sgGeneral.add(new DoubleSetting.Builder()
         .name("fill-opacity")
         .description("The opacity of the shape fill.")
@@ -88,7 +76,13 @@ public class ESP extends Module {
         .sliderMax(1)
         .build()
     );
-
+    public final Setting<Boolean> ignoreSelf = sgGeneral.add(new BoolSetting.Builder()
+        .name("ignore-self")
+        .description("Ignores yourself drawing the shader.")
+        .defaultValue(true)
+        .build()
+    );
+    private final SettingGroup sgColors = settings.createGroup("Colors");
     private final Setting<Double> fadeDistance = sgGeneral.add(new DoubleSetting.Builder()
         .name("fade-distance")
         .description("The distance from an entity where the color begins to fade.")
@@ -239,19 +233,22 @@ public class ESP extends Module {
 
     private int count;
 
-    public ESP() {
+    public ESP()
+    {
         super(Categories.Render, "esp", "Renders entities through walls.");
     }
 
     // Box
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
+    private void onRender3D(Render3DEvent event)
+    {
         if (mode.get() == Mode._2D) return;
 
         count = 0;
 
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (shouldSkip(entity)) continue;
 
             if (mode.get() == Mode.Box || mode.get() == Mode.Wireframe) drawBoundingBox(event, entity);
@@ -259,31 +256,40 @@ public class ESP extends Module {
         }
     }
 
-    private void drawBoundingBox(Render3DEvent event, Entity entity) {
+    private void drawBoundingBox(Render3DEvent event, Entity entity)
+    {
         Color entitySideColor = getSideColor(entity);
         Color entityLineColor = getLineColor(entity);
-        if (entitySideColor != null && entityLineColor != null) {
+        if (entitySideColor != null && entityLineColor != null)
+        {
             double alpha = 1.0;
 
-            if (entity instanceof EndCrystalEntity) {
+            if (entity instanceof EndCrystalEntity)
+            {
                 double fadeDist = endCrystalFadeDistance.get() * endCrystalFadeDistance.get();
                 double distance = PlayerUtils.squaredDistanceToCamera(entity);
 
-                if (distance <= fadeDist / 2) {
+                if (distance <= fadeDist / 2)
+                {
                     alpha = 1.0;
-                } else if (distance >= fadeDist * 2) {
+                } else if (distance >= fadeDist * 2)
+                {
                     alpha = 0.0;
-                } else {
+                } else
+                {
                     alpha = 1.0 - (distance - fadeDist / 2) / (fadeDist * 1.5);
                 }
 
-                if (alpha <= 0.075) {
+                if (alpha <= 0.075)
+                {
                     alpha = 0.0;
-                } else {
+                } else
+                {
                     alpha += 0.1;
                 }
 
-                if (alpha > 1.0) {
+                if (alpha > 1.0)
+                {
                     alpha = 1.0;
                 }
             }
@@ -292,14 +298,16 @@ public class ESP extends Module {
             lineColor.set(entityLineColor).a((int) (lineColor.a * alpha * alpha));
         }
 
-        if (mode.get() == Mode.Box) {
+        if (mode.get() == Mode.Box)
+        {
             double x = MathHelper.lerp(event.tickDelta, entity.lastRenderX, entity.getX()) - entity.getX();
             double y = MathHelper.lerp(event.tickDelta, entity.lastRenderY, entity.getY()) - entity.getY();
             double z = MathHelper.lerp(event.tickDelta, entity.lastRenderZ, entity.getZ()) - entity.getZ();
 
             Box box = entity.getBoundingBox();
             event.renderer.box(x + box.minX, y + box.minY, z + box.minZ, x + box.maxX, y + box.maxY, z + box.maxZ, sideColor, lineColor, shapeMode.get(), 0);
-        } else {
+        } else
+        {
             WireframeEntityRenderer.render(event, entity, 1, sideColor, lineColor, shapeMode.get());
         }
     }
@@ -307,13 +315,15 @@ public class ESP extends Module {
     // 2D
 
     @EventHandler
-    private void onRender2D(Render2DEvent event) {
+    private void onRender2D(Render2DEvent event)
+    {
         if (mode.get() != Mode._2D) return;
 
         Renderer2D.COLOR.begin();
         count = 0;
 
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (shouldSkip(entity)) continue;
 
             Box box = entity.getBoundingBox();
@@ -341,17 +351,20 @@ public class ESP extends Module {
             // Setup color
             Color entitySideColor = getSideColor(entity);
             Color entityLineColor = getLineColor(entity);
-            if (entitySideColor != null && entityLineColor != null) {
+            if (entitySideColor != null && entityLineColor != null)
+            {
                 sideColor.set(entitySideColor).a((int) (sideColor.a * fillOpacity.get()));
                 lineColor.set(entityLineColor);
             }
 
             // Render
-            if (shapeMode.get() != ShapeMode.Lines && sideColor.a > 0) {
+            if (shapeMode.get() != ShapeMode.Lines && sideColor.a > 0)
+            {
                 Renderer2D.COLOR.quad(pos1.x, pos1.y, pos2.x - pos1.x, pos2.y - pos1.y, sideColor);
             }
 
-            if (shapeMode.get() != ShapeMode.Sides) {
+            if (shapeMode.get() != ShapeMode.Sides)
+            {
                 Renderer2D.COLOR.line(pos1.x, pos1.y, pos1.x, pos2.y, lineColor);
                 Renderer2D.COLOR.line(pos2.x, pos1.y, pos2.x, pos2.y, lineColor);
                 Renderer2D.COLOR.line(pos1.x, pos1.y, pos2.x, pos1.y, lineColor);
@@ -364,7 +377,8 @@ public class ESP extends Module {
         Renderer2D.COLOR.render(null);
     }
 
-    private boolean checkCorner(double x, double y, double z, Vector3d min, Vector3d max) {
+    private boolean checkCorner(double x, double y, double z, Vector3d min, Vector3d max)
+    {
         pos.set(x, y, z);
         if (!NametagUtils.to2D(pos, 1)) return true;
 
@@ -383,14 +397,16 @@ public class ESP extends Module {
 
     // Utils
 
-    public boolean shouldSkip(Entity entity) {
+    public boolean shouldSkip(Entity entity)
+    {
         if (!entities.get().contains(entity.getType())) return true;
         if (entity == mc.player && ignoreSelf.get()) return true;
         if (entity == mc.cameraEntity && mc.options.getPerspective().isFirstPerson()) return true;
         return !EntityUtils.isInRenderDistance(entity);
     }
 
-    public Color getLineColor(Entity entity) {
+    public Color getLineColor(Entity entity)
+    {
         if (!entities.get().contains(entity.getType())) return null;
 
         double alpha = getFadeAlpha(entity);
@@ -400,7 +416,8 @@ public class ESP extends Module {
         return baseLineColor.set(color.r, color.g, color.b, (int) (color.a * alpha));
     }
 
-    public Color getSideColor(Entity entity) {
+    public Color getSideColor(Entity entity)
+    {
         if (!entities.get().contains(entity.getType())) return null;
 
         double alpha = getFadeAlpha(entity);
@@ -410,19 +427,25 @@ public class ESP extends Module {
         return baseSideColor.set(color.r, color.g, color.b, (int) (color.a * alpha));
     }
 
-    public Color getEntityTypeLineColor(Entity entity) {
-        if (entity instanceof PlayerEntity player) {
-            if (Friends.get().isFriend(player)) {
+    public Color getEntityTypeLineColor(Entity entity)
+    {
+        if (entity instanceof PlayerEntity player)
+        {
+            if (Friends.get().isFriend(player))
+            {
                 return friendPlayersLineColor.get();
             }
 
-            if (Friends.get().isEnemy(player)) {
+            if (Friends.get().isEnemy(player))
+            {
                 return enemyPlayersLineColor.get();
             }
-            
+
             return playersLineColor.get();
-        } else {
-            return switch (entity.getType().getSpawnGroup()) {
+        } else
+        {
+            return switch (entity.getType().getSpawnGroup())
+            {
                 case CREATURE -> animalsLineColor.get();
                 case WATER_AMBIENT, WATER_CREATURE, UNDERGROUND_WATER_CREATURE, AXOLOTLS -> waterAnimalsLineColor.get();
                 case MONSTER -> monstersLineColor.get();
@@ -432,19 +455,25 @@ public class ESP extends Module {
         }
     }
 
-    public Color getEntityTypeSideColor(Entity entity) {
-        if (entity instanceof PlayerEntity player) {
-            if (Friends.get().isFriend(player)) {
+    public Color getEntityTypeSideColor(Entity entity)
+    {
+        if (entity instanceof PlayerEntity player)
+        {
+            if (Friends.get().isFriend(player))
+            {
                 return friendPlayersSideColor.get();
             }
 
-            if (Friends.get().isEnemy(player)) {
+            if (Friends.get().isEnemy(player))
+            {
                 return enemyPlayersSideColor.get();
             }
-            
+
             return playersSideColor.get();
-        } else {
-            return switch (entity.getType().getSpawnGroup()) {
+        } else
+        {
+            return switch (entity.getType().getSpawnGroup())
+            {
                 case CREATURE -> animalsSideColor.get();
                 case WATER_AMBIENT, WATER_CREATURE, UNDERGROUND_WATER_CREATURE, AXOLOTLS -> waterAnimalsSideColor.get();
                 case MONSTER -> monstersSideColor.get();
@@ -454,7 +483,8 @@ public class ESP extends Module {
         }
     }
 
-    private double getFadeAlpha(Entity entity) {
+    private double getFadeAlpha(Entity entity)
+    {
         double dist = PlayerUtils.squaredDistanceToCamera(entity.getX() + entity.getWidth() / 2, entity.getY() + entity.getEyeHeight(entity.getPose()), entity.getZ() + entity.getWidth() / 2);
         double fadeDist = Math.pow(fadeDistance.get(), 2);
         double alpha = 1;
@@ -464,19 +494,23 @@ public class ESP extends Module {
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return Integer.toString(count);
     }
 
-    public boolean isShader() {
+    public boolean isShader()
+    {
         return isActive() && mode.get() == Mode.Shader;
     }
 
-    public boolean isGlow() {
+    public boolean isGlow()
+    {
         return isActive() && mode.get() == Mode.Glow;
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Box,
         Wireframe,
         _2D,
@@ -484,7 +518,8 @@ public class ESP extends Module {
         Glow;
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return this == _2D ? "2D" : super.toString();
         }
     }

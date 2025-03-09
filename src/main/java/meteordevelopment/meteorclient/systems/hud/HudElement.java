@@ -14,42 +14,47 @@ import meteordevelopment.meteorclient.utils.misc.ISerializable;
 import meteordevelopment.meteorclient.utils.other.Snapper;
 import net.minecraft.nbt.NbtCompound;
 
-public abstract class HudElement implements Snapper.Element, ISerializable<HudElement> {
+public abstract class HudElement implements Snapper.Element, ISerializable<HudElement>
+{
     public final HudElementInfo<?> info;
-    private boolean active;
-
     public final Settings settings = new Settings();
     public final HudBox box = new HudBox(this);
-
     public boolean autoAnchors = true;
     public int x, y;
+    private boolean active;
 
-    public HudElement(HudElementInfo<?> info) {
+    public HudElement(HudElementInfo<?> info)
+    {
         this.info = info;
         this.active = true;
     }
 
-    public boolean isActive() {
+    public boolean isActive()
+    {
         return active;
     }
 
-    public void toggle() {
+    public void toggle()
+    {
         active = !active;
     }
 
-    public void setSize(double width, double height) {
+    public void setSize(double width, double height)
+    {
         box.setSize(width, height);
     }
 
     @Override
-    public void setPos(int x, int y) {
-        if (autoAnchors) {
+    public void setPos(int x, int y)
+    {
+        if (autoAnchors)
+        {
             box.setPos(x, y);
             box.xAnchor = XAnchor.Left;
             box.yAnchor = YAnchor.Top;
             box.updateAnchors();
-        }
-        else {
+        } else
+        {
             box.setPos(box.x + (x - this.x), box.y + (y - this.y));
         }
 
@@ -57,62 +62,79 @@ public abstract class HudElement implements Snapper.Element, ISerializable<HudEl
     }
 
     @Override
-    public void move(int deltaX, int deltaY) {
+    public void move(int deltaX, int deltaY)
+    {
         box.move(deltaX, deltaY);
         updatePos();
     }
 
-    public void updatePos() {
+    public void updatePos()
+    {
         x = box.getRenderX();
         y = box.getRenderY();
     }
 
-    protected double alignX(double width, Alignment alignment) {
+    protected double alignX(double width, Alignment alignment)
+    {
         return box.alignX(getWidth(), width, alignment);
     }
 
     @Override
-    public int getX() {
+    public int getX()
+    {
         return x;
     }
 
     @Override
-    public int getY() {
+    public int getY()
+    {
         return y;
     }
 
     @Override
-    public int getWidth() {
+    public int getWidth()
+    {
         return box.width;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight()
+    {
         return box.height;
     }
 
-    protected boolean isInEditor() {
+    protected boolean isInEditor()
+    {
         return !Utils.canUpdate() || HudEditorScreen.isOpen();
     }
 
-    public void remove() {
+    public void remove()
+    {
         Hud.get().remove(this);
     }
 
-    public void tick(HudRenderer renderer) {}
+    public void tick(HudRenderer renderer)
+    {
+    }
 
-    public void render(HudRenderer renderer) {}
+    public void render(HudRenderer renderer)
+    {
+    }
 
-    public void onFontChanged() {}
+    public void onFontChanged()
+    {
+    }
 
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         return null;
     }
 
     // Serialization
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putString("name", info.name);
@@ -127,7 +149,8 @@ public abstract class HudElement implements Snapper.Element, ISerializable<HudEl
     }
 
     @Override
-    public HudElement fromTag(NbtCompound tag) {
+    public HudElement fromTag(NbtCompound tag)
+    {
         settings.reset();
 
         active = tag.getBoolean("active");

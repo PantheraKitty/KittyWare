@@ -10,7 +10,10 @@ import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Text.class)
-public interface TextMixin extends IText {
+public interface TextMixin extends IText
+{
     @Override
-    default void meteor$invalidateCache() {}
+    default void meteor$invalidateCache()
+    {
+    }
 }

@@ -29,7 +29,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-public class AnchorAura extends Module {
+public class AnchorAura extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgPlace = settings.createGroup("Place");
     private final SettingGroup sgBreak = settings.createGroup("Break");
@@ -222,26 +223,29 @@ public class AnchorAura extends Module {
         .visible(renderBreak::get)
         .build()
     );
-
+    private final BlockPos.Mutable mutable = new BlockPos.Mutable();
     private int placeDelayLeft;
     private int breakDelayLeft;
     private PlayerEntity target;
-    private final BlockPos.Mutable mutable = new BlockPos.Mutable();
 
-    public AnchorAura() {
+    public AnchorAura()
+    {
         super(Categories.Combat, "anchor-aura", "Automatically places and breaks Respawn Anchors to harm entities.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         placeDelayLeft = 0;
         breakDelayLeft = 0;
         target = null;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if (mc.world.getDimension().respawnAnchorWorks()) {
+    private void onTick(TickEvent.Post event)
+    {
+        if (mc.world.getDimension().respawnAnchorWorks())
+        {
             error("You are in the Nether... disabling.");
             toggle();
             return;
@@ -250,7 +254,8 @@ public class AnchorAura extends Module {
         if (PlayerUtils.shouldPause(pauseOnMine.get(), pauseOnEat.get(), pauseOnDrink.get())) return;
         if (EntityUtils.getTotalHealth(mc.player) <= minHealth.get()) return;
 
-        if (TargetUtils.isBadTarget(target, targetRange.get())) {
+        if (TargetUtils.isBadTarget(target, targetRange.get()))
+        {
             target = TargetUtils.getPlayerTarget(targetRange.get(), targetPriority.get());
             if (TargetUtils.isBadTarget(target, targetRange.get())) return;
         }
@@ -260,22 +265,27 @@ public class AnchorAura extends Module {
 
         if (!anchor.found() || !glowStone.found()) return;
 
-        if (breakDelayLeft >= breakDelay.get()) {
+        if (breakDelayLeft >= breakDelay.get())
+        {
             BlockPos breakPos = findBreakPos(target.getBlockPos());
-            if (breakPos != null) {
+            if (breakPos != null)
+            {
                 breakDelayLeft = 0;
 
-                if (rotationMode.get() == RotationMode.Both || rotationMode.get() == RotationMode.Break) {
+                if (rotationMode.get() == RotationMode.Both || rotationMode.get() == RotationMode.Break)
+                {
                     BlockPos immutableBreakPos = breakPos.toImmutable();
                     Rotations.rotate(Rotations.getYaw(breakPos), Rotations.getPitch(breakPos), 50, () -> breakAnchor(immutableBreakPos, anchor, glowStone));
                 } else breakAnchor(breakPos, anchor, glowStone);
             }
         }
 
-        if (placeDelayLeft >= placeDelay.get() && place.get()) {
+        if (placeDelayLeft >= placeDelay.get() && place.get())
+        {
             BlockPos placePos = findPlacePos(target.getBlockPos());
 
-            if (placePos != null) {
+            if (placePos != null)
+            {
                 placeDelayLeft = 0;
                 BlockUtils.place(placePos.toImmutable(), anchor, (rotationMode.get() == RotationMode.Place || rotationMode.get() == RotationMode.Both), 50);
             }
@@ -286,17 +296,20 @@ public class AnchorAura extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (target == null) return;
 
-        if (renderPlace.get()) {
+        if (renderPlace.get())
+        {
             BlockPos placePos = findPlacePos(target.getBlockPos());
             if (placePos == null) return;
 
             event.renderer.box(placePos, placeSideColor.get(), placeLineColor.get(), shapeMode.get(), 0);
         }
 
-        if (renderBreak.get()) {
+        if (renderBreak.get())
+        {
             BlockPos breakPos = findBreakPos(target.getBlockPos());
             if (breakPos == null) return;
 
@@ -305,9 +318,12 @@ public class AnchorAura extends Module {
     }
 
     @Nullable
-    private BlockPos findPlacePos(BlockPos targetPlacePos) {
-        switch (placePositions.get()) {
-            case All -> {
+    private BlockPos findPlacePos(BlockPos targetPlacePos)
+    {
+        switch (placePositions.get())
+        {
+            case All ->
+            {
                 if (isValidPlace(targetPlacePos, 0, -1, 0)) return mutable;
                 else if (isValidPlace(targetPlacePos, 0, 2, 0)) return mutable;
                 else if (isValidPlace(targetPlacePos, 1, 0, 0)) return mutable;
@@ -319,14 +335,17 @@ public class AnchorAura extends Module {
                 else if (isValidPlace(targetPlacePos, 0, 1, 1)) return mutable;
                 else if (isValidPlace(targetPlacePos, 0, 0, -1)) return mutable;
             }
-            case Above -> {
+            case Above ->
+            {
                 if (isValidPlace(targetPlacePos, 0, 2, 0)) return mutable;
             }
-            case AboveAndBelow -> {
+            case AboveAndBelow ->
+            {
                 if (isValidPlace(targetPlacePos, 0, -1, 0)) return mutable;
                 else if (isValidPlace(targetPlacePos, 0, 2, 0)) return mutable;
             }
-            case Around -> {
+            case Around ->
+            {
                 if (isValidPlace(targetPlacePos, 0, 0, -1)) return mutable;
                 else if (isValidPlace(targetPlacePos, 1, 0, 0)) return mutable;
                 else if (isValidPlace(targetPlacePos, -1, 0, 0)) return mutable;
@@ -337,7 +356,8 @@ public class AnchorAura extends Module {
     }
 
     @Nullable
-    private BlockPos findBreakPos(BlockPos targetPos) {
+    private BlockPos findBreakPos(BlockPos targetPos)
+    {
         if (isValidBreak(targetPos, 0, -1, 0)) return mutable;
         else if (isValidBreak(targetPos, 0, 2, 0)) return mutable;
         else if (isValidBreak(targetPos, 1, 0, 0)) return mutable;
@@ -351,39 +371,48 @@ public class AnchorAura extends Module {
         return null;
     }
 
-    private boolean getDamagePlace(BlockPos pos) {
+    private boolean getDamagePlace(BlockPos pos)
+    {
         return placeMode.get() == Safety.Suicide || DamageUtils.bedDamage(mc.player, pos.toCenterPos()) <= maxDamage.get();
     }
 
-    private boolean getDamageBreak(BlockPos pos) {
+    private boolean getDamageBreak(BlockPos pos)
+    {
         return breakMode.get() == Safety.Suicide || DamageUtils.anchorDamage(mc.player, pos.toCenterPos()) <= maxDamage.get();
     }
 
-    private boolean isValidPlace(BlockPos origin, int xOffset, int yOffset, int zOffset) {
-    	BlockUtils.mutateAround(mutable, origin, xOffset, yOffset, zOffset);
+    private boolean isValidPlace(BlockPos origin, int xOffset, int yOffset, int zOffset)
+    {
+        BlockUtils.mutateAround(mutable, origin, xOffset, yOffset, zOffset);
         return Math.sqrt(mc.player.getBlockPos().getSquaredDistance(mutable)) <= placeRange.get() && getDamagePlace(mutable) && BlockUtils.canPlace(mutable);
     }
 
-    private boolean isValidBreak(BlockPos origin, int xOffset, int yOffset, int zOffset) {
-    	BlockUtils.mutateAround(mutable, origin, xOffset, yOffset, zOffset);
+    private boolean isValidBreak(BlockPos origin, int xOffset, int yOffset, int zOffset)
+    {
+        BlockUtils.mutateAround(mutable, origin, xOffset, yOffset, zOffset);
         return mc.world.getBlockState(mutable).getBlock() == Blocks.RESPAWN_ANCHOR && Math.sqrt(mc.player.getBlockPos().getSquaredDistance(mutable)) <= breakRange.get() && getDamageBreak(mutable);
     }
 
-    private void breakAnchor(BlockPos pos, FindItemResult anchor, FindItemResult glowStone) {
+    private void breakAnchor(BlockPos pos, FindItemResult anchor, FindItemResult glowStone)
+    {
         if (pos == null || mc.world.getBlockState(pos).getBlock() != Blocks.RESPAWN_ANCHOR) return;
 
         mc.player.setSneaking(false);
 
-        if (glowStone.isOffhand()) {
+        if (glowStone.isOffhand())
+        {
             mc.interactionManager.interactBlock(mc.player, Hand.OFF_HAND, new BlockHitResult(new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.UP, pos, true));
-        } else {
+        } else
+        {
             InvUtils.swap(glowStone.slot(), true);
             mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.UP, pos, true));
         }
 
-        if (anchor.isOffhand()) {
+        if (anchor.isOffhand())
+        {
             mc.interactionManager.interactBlock(mc.player, Hand.OFF_HAND, new BlockHitResult(new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.UP, pos, true));
-        } else {
+        } else
+        {
             InvUtils.swap(anchor.slot(), true);
             mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.UP, pos, true));
         }
@@ -392,18 +421,21 @@ public class AnchorAura extends Module {
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return EntityUtils.getName(target);
     }
 
-    public enum PlaceMode {
+    public enum PlaceMode
+    {
         Above,
         Around,
         AboveAndBelow,
         All
     }
 
-    public enum RotationMode {
+    public enum RotationMode
+    {
         Place,
         Break,
         Both,

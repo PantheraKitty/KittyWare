@@ -19,23 +19,22 @@ import net.minecraft.text.Text;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 
-public class BossStack extends Module {
+public class BossStack extends Module
+{
+    public static final WeakHashMap<ClientBossBar, Integer> barMap = new WeakHashMap<>();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
     public final Setting<Boolean> stack = sgGeneral.add(new BoolSetting.Builder()
         .name("stack")
         .description("Stacks boss bars and adds a counter to the text.")
         .defaultValue(true)
         .build()
     );
-
     public final Setting<Boolean> hideName = sgGeneral.add(new BoolSetting.Builder()
         .name("hide-name")
         .description("Hides the names of boss bars.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<Double> spacing = sgGeneral.add(new DoubleSetting.Builder()
         .name("bar-spacing")
         .description("The spacing reduction between each boss bar.")
@@ -44,15 +43,16 @@ public class BossStack extends Module {
         .build()
     );
 
-    public static final WeakHashMap<ClientBossBar, Integer> barMap = new WeakHashMap<>();
-
-    public BossStack() {
+    public BossStack()
+    {
         super(Categories.Render, "boss-stack", "Stacks boss bars to make your HUD less cluttered.");
     }
 
     @EventHandler
-    private void onFetchText(RenderBossBarEvent.BossText event) {
-        if (hideName.get()) {
+    private void onFetchText(RenderBossBarEvent.BossText event)
+    {
+        if (hideName.get())
+        {
             event.name = Text.of("");
             return;
         } else if (barMap.isEmpty() || !stack.get()) return;
@@ -63,19 +63,25 @@ public class BossStack extends Module {
     }
 
     @EventHandler
-    private void onSpaceBars(RenderBossBarEvent.BossSpacing event) {
+    private void onSpaceBars(RenderBossBarEvent.BossSpacing event)
+    {
         event.spacing = spacing.get().intValue();
     }
 
     @EventHandler
-    private void onGetBars(RenderBossBarEvent.BossIterator event) {
-        if (stack.get()) {
+    private void onGetBars(RenderBossBarEvent.BossIterator event)
+    {
+        if (stack.get())
+        {
             HashMap<String, ClientBossBar> chosenBarMap = new HashMap<>();
-            event.iterator.forEachRemaining(bar -> {
+            event.iterator.forEachRemaining(bar ->
+            {
                 String name = bar.getName().getString();
-                if (chosenBarMap.containsKey(name)) {
+                if (chosenBarMap.containsKey(name))
+                {
                     barMap.compute(chosenBarMap.get(name), (clientBossBar, integer) -> (integer == null) ? 2 : integer + 1);
-                } else {
+                } else
+                {
                     chosenBarMap.put(name, bar);
                 }
             });

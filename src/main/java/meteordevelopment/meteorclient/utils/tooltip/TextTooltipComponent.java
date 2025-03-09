@@ -10,17 +10,21 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
-public class TextTooltipComponent extends OrderedTextTooltipComponent implements MeteorTooltipData {
-    public TextTooltipComponent(OrderedText text) {
+public class TextTooltipComponent extends OrderedTextTooltipComponent implements MeteorTooltipData
+{
+    public TextTooltipComponent(OrderedText text)
+    {
         super(text);
     }
 
-    public TextTooltipComponent(Text text) {
+    public TextTooltipComponent(Text text)
+    {
         this(text.asOrderedText());
     }
 
     @Override
-    public TooltipComponent getComponent() {
+    public TooltipComponent getComponent()
+    {
         return this;
     }
 }

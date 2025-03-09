@@ -5,29 +5,36 @@
 
 package meteordevelopment.meteorclient.utils.render.color;
 
-public class RainbowColor extends Color {
-    private double speed;
+public class RainbowColor extends Color
+{
     private static final float[] hsb = new float[3];
+    private double speed;
 
-    public RainbowColor() {
+    public RainbowColor()
+    {
         super();
     }
 
-    public double getSpeed() {
+    public double getSpeed()
+    {
         return speed;
     }
 
-    public RainbowColor setSpeed(double speed) {
+    public RainbowColor setSpeed(double speed)
+    {
         this.speed = speed;
         return this;
     }
 
-    public RainbowColor getNext() {
+    public RainbowColor getNext()
+    {
         return getNext(1);
     }
 
-    public RainbowColor getNext(double delta) {
-        if (speed > 0) {
+    public RainbowColor getNext(double delta)
+    {
+        if (speed > 0)
+        {
             java.awt.Color.RGBtoHSB(r, g, b, hsb);
             int c = java.awt.Color.HSBtoRGB(hsb[0] + (float) (speed * delta), 1, 1);
 
@@ -38,7 +45,8 @@ public class RainbowColor extends Color {
         return this;
     }
 
-    public RainbowColor set(RainbowColor color) {
+    public RainbowColor set(RainbowColor color)
+    {
         this.r = color.r;
         this.g = color.g;
         this.b = color.b;
@@ -48,7 +56,8 @@ public class RainbowColor extends Color {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
@@ -57,7 +66,8 @@ public class RainbowColor extends Color {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = super.hashCode();
         long temp;
         temp = Double.doubleToLongBits(speed);

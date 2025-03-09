@@ -23,27 +23,30 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class Fonts {
-    public static final String[] BUILTIN_FONTS = { "JetBrains Mono", "Comfortaa", "Tw Cen MT", "Pixelation" };
-
+public class Fonts
+{
+    public static final String[] BUILTIN_FONTS = {"JetBrains Mono", "Comfortaa", "Tw Cen MT", "Pixelation"};
+    public static final List<FontFamily> FONT_FAMILIES = new ArrayList<>();
     public static String DEFAULT_FONT_FAMILY;
     public static FontFace DEFAULT_FONT;
-
-    public static final List<FontFamily> FONT_FAMILIES = new ArrayList<>();
     public static CustomTextRenderer RENDERER;
 
-    private Fonts() {
+    private Fonts()
+    {
     }
 
     @PreInit(dependencies = Shaders.class)
-    public static void refresh() {
+    public static void refresh()
+    {
         FONT_FAMILIES.clear();
 
-        for (String builtinFont : BUILTIN_FONTS) {
+        for (String builtinFont : BUILTIN_FONTS)
+        {
             FontUtils.loadBuiltin(FONT_FAMILIES, builtinFont);
         }
 
-        for (String fontPath : FontUtils.getSearchPaths()) {
+        for (String fontPath : FontUtils.getSearchPaths())
+        {
             FontUtils.loadSystem(FONT_FAMILIES, new File(fontPath));
         }
 
@@ -58,18 +61,23 @@ public class Fonts {
         load(config != null ? config.font.get() : DEFAULT_FONT);
     }
 
-    public static void load(FontFace fontFace) {
-        if (RENDERER != null) {
+    public static void load(FontFace fontFace)
+    {
+        if (RENDERER != null)
+        {
             if (RENDERER.fontFace.equals(fontFace)) return;
             else RENDERER.destroy();
         }
 
-        try {
+        try
+        {
             RENDERER = new CustomTextRenderer(fontFace);
             MeteorClient.EVENT_BUS.post(CustomFontChangedEvent.get());
         }
-        catch (Exception e) {
-            if (fontFace.equals(DEFAULT_FONT)) {
+        catch (Exception e)
+        {
+            if (fontFace.equals(DEFAULT_FONT))
+            {
                 throw new RuntimeException("Failed to load default font: " + fontFace, e);
             }
 
@@ -77,14 +85,18 @@ public class Fonts {
             load(Fonts.DEFAULT_FONT);
         }
 
-        if (mc.currentScreen instanceof WidgetScreen && Config.get().customFont.get()) {
+        if (mc.currentScreen instanceof WidgetScreen && Config.get().customFont.get())
+        {
             ((WidgetScreen) mc.currentScreen).invalidate();
         }
     }
 
-    public static FontFamily getFamily(String name) {
-        for (FontFamily fontFamily : Fonts.FONT_FAMILIES) {
-            if (fontFamily.getName().equalsIgnoreCase(name)) {
+    public static FontFamily getFamily(String name)
+    {
+        for (FontFamily fontFamily : Fonts.FONT_FAMILIES)
+        {
+            if (fontFamily.getName().equalsIgnoreCase(name))
+            {
                 return fontFamily;
             }
         }

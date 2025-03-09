@@ -17,7 +17,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 
-public class AutoWeb extends Module {
+public class AutoWeb extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
@@ -52,20 +53,24 @@ public class AutoWeb extends Module {
 
     private PlayerEntity target = null;
 
-    public AutoWeb() {
+    public AutoWeb()
+    {
         super(Categories.Combat, "auto-web", "Automatically places webs on other players.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        if (TargetUtils.isBadTarget(target, range.get())) {
+    private void onTick(TickEvent.Pre event)
+    {
+        if (TargetUtils.isBadTarget(target, range.get()))
+        {
             target = TargetUtils.getPlayerTarget(range.get(), priority.get());
             if (TargetUtils.isBadTarget(target, range.get())) return;
         }
 
         BlockUtils.place(target.getBlockPos(), InvUtils.findInHotbar(Items.COBWEB), rotate.get(), 0, false);
 
-        if (doubles.get()) {
+        if (doubles.get())
+        {
             BlockUtils.place(target.getBlockPos().add(0, 1, 0), InvUtils.findInHotbar(Items.COBWEB), rotate.get(), 0, false);
         }
     }

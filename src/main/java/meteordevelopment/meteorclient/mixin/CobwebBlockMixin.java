@@ -24,33 +24,39 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(CobwebBlock.class)
-public abstract class CobwebBlockMixin {
+public abstract class CobwebBlockMixin
+{
     @Inject(method = "onEntityCollision", at = @At("HEAD"), cancellable = true)
     private void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity,
-            CallbackInfo info) {
-        if (entity == mc.player) {
+                                   CallbackInfo info)
+    {
+        if (entity == mc.player)
+        {
             NoSlow noSlow = Modules.get().get(NoSlow.class);
 
-            if (noSlow.cobweb()) {
+            if (noSlow.cobweb())
+            {
                 info.cancel();
             }
 
-            if (noSlow.cobwebGrim()) {
+            if (noSlow.cobwebGrim())
+            {
                 info.cancel();
 
                 int s1 = mc.world.getPendingUpdateManager().incrementSequence().getSequence();
                 //int s2 = mc.world.getPendingUpdateManager().incrementSequence().getSequence();
                 mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                        PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP, s1));
+                    PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP, s1));
 
                 MovementFix.inWebs = true;
 
-                if (Modules.get().get(SilentMine.class).isActive() && Modules.get().get(SilentMine.class).antiRubberband.get()) {
+                if (Modules.get().get(SilentMine.class).isActive() && Modules.get().get(SilentMine.class).antiRubberband.get())
+                {
                     return;
                 }
-                
+
                 mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
-                        PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
+                    PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
 
             }
         }

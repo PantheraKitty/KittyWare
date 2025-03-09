@@ -28,7 +28,8 @@ import org.joml.Vector3d;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class ProjectileEntitySimulator {
+public class ProjectileEntitySimulator
+{
     private static final BlockPos.Mutable blockPos = new BlockPos.Mutable();
 
     private static final Vec3d pos3d = new Vec3d(0, 0, 0);
@@ -45,37 +46,49 @@ public class ProjectileEntitySimulator {
 
     // held items
 
-    public boolean set(Entity user, ItemStack itemStack, double simulated, boolean accurate, float tickDelta) {
+    public boolean set(Entity user, ItemStack itemStack, double simulated, boolean accurate, float tickDelta)
+    {
         Item item = itemStack.getItem();
 
-        switch (item) {
-            case BowItem ignored -> {
+        switch (item)
+        {
+            case BowItem ignored ->
+            {
                 double charge = BowItem.getPullProgress(mc.player.getItemUseTime());
                 if (charge <= 0.1) return false;
 
                 set(user, 0, charge * 3, simulated, 0.05, 0.6, accurate, tickDelta, EntityType.ARROW);
             }
-            case CrossbowItem ignored -> {
+            case CrossbowItem ignored ->
+            {
                 ChargedProjectilesComponent projectilesComponent = itemStack.get(DataComponentTypes.CHARGED_PROJECTILES);
                 if (projectilesComponent == null) return false;
 
-                if (projectilesComponent.contains(Items.FIREWORK_ROCKET)) {
+                if (projectilesComponent.contains(Items.FIREWORK_ROCKET))
+                {
                     set(user, 0, CrossbowItemAccessor.getSpeed(projectilesComponent), simulated, 0, 0.6, accurate, tickDelta, EntityType.FIREWORK_ROCKET);
-                }
-                else set(user, 0, CrossbowItemAccessor.getSpeed(projectilesComponent), simulated, 0.05, 0.6, accurate, tickDelta, EntityType.ARROW);
+                } else
+                    set(user, 0, CrossbowItemAccessor.getSpeed(projectilesComponent), simulated, 0.05, 0.6, accurate, tickDelta, EntityType.ARROW);
             }
-            case WindChargeItem ignored -> {
+            case WindChargeItem ignored ->
+            {
                 set(user, 0, 1.5, simulated, 0, 1.0, accurate, tickDelta, EntityType.WIND_CHARGE);
                 this.airDrag = 1.0;
             }
-            case FishingRodItem ignored         -> setFishingBobber(user, tickDelta);
-            case TridentItem ignored            -> set(user, 0, 2.5, simulated, 0.05, 0.99, accurate, tickDelta, EntityType.TRIDENT);
-            case SnowballItem ignored           -> set(user, 0, 1.5, simulated, 0.03, 0.8, accurate, tickDelta, EntityType.SNOWBALL);
-            case EggItem ignored                -> set(user, 0, 1.5, simulated, 0.03, 0.8, accurate, tickDelta, EntityType.EGG);
-            case EnderPearlItem ignored         -> set(user, 0, 1.5, simulated, 0.03, 0.8, accurate, tickDelta, EntityType.ENDER_PEARL);
-            case ExperienceBottleItem ignored   -> set(user, -20, 0.7, simulated, 0.07, 0.8, accurate, tickDelta, EntityType.EXPERIENCE_BOTTLE);
-            case ThrowablePotionItem ignored    -> set(user, -20, 0.5, simulated, 0.05, 0.8, accurate, tickDelta, EntityType.POTION);
-            default -> {
+            case FishingRodItem ignored -> setFishingBobber(user, tickDelta);
+            case TridentItem ignored ->
+                set(user, 0, 2.5, simulated, 0.05, 0.99, accurate, tickDelta, EntityType.TRIDENT);
+            case SnowballItem ignored ->
+                set(user, 0, 1.5, simulated, 0.03, 0.8, accurate, tickDelta, EntityType.SNOWBALL);
+            case EggItem ignored -> set(user, 0, 1.5, simulated, 0.03, 0.8, accurate, tickDelta, EntityType.EGG);
+            case EnderPearlItem ignored ->
+                set(user, 0, 1.5, simulated, 0.03, 0.8, accurate, tickDelta, EntityType.ENDER_PEARL);
+            case ExperienceBottleItem ignored ->
+                set(user, -20, 0.7, simulated, 0.07, 0.8, accurate, tickDelta, EntityType.EXPERIENCE_BOTTLE);
+            case ThrowablePotionItem ignored ->
+                set(user, -20, 0.5, simulated, 0.05, 0.8, accurate, tickDelta, EntityType.POTION);
+            default ->
+            {
                 return false;
             }
         }
@@ -83,28 +96,32 @@ public class ProjectileEntitySimulator {
         return true;
     }
 
-    public void set(Entity user, double roll, double speed, double simulated, double gravity, double waterDrag, boolean accurate, float tickDelta, EntityType<?> type) {
+    public void set(Entity user, double roll, double speed, double simulated, double gravity, double waterDrag, boolean accurate, float tickDelta, EntityType<?> type)
+    {
         Utils.set(pos, user, tickDelta).add(0, user.getEyeHeight(user.getPose()), 0);
 
         double yaw;
         double pitch;
 
-        if (user == mc.player && Rotations.rotating) {
+        if (user == mc.player && Rotations.rotating)
+        {
             yaw = Rotations.serverYaw;
             pitch = Rotations.serverPitch;
-        } else {
+        } else
+        {
             yaw = user.getYaw(tickDelta);
             pitch = user.getPitch(tickDelta);
         }
 
         double x, y, z;
 
-        if (simulated == 0) {
+        if (simulated == 0)
+        {
             x = -Math.sin(yaw * 0.017453292) * Math.cos(pitch * 0.017453292);
             y = -Math.sin((pitch + roll) * 0.017453292);
             z = Math.cos(yaw * 0.017453292) * Math.cos(pitch * 0.017453292);
-        }
-        else {
+        } else
+        {
             Vec3d vec3d = user.getOppositeRotationVector(1.0F);
             Quaterniond quaternion = new Quaterniond().setAngleAxis(simulated, vec3d.x, vec3d.y, vec3d.z);
             Vec3d vec3d2 = user.getRotationVec(1.0F);
@@ -118,7 +135,8 @@ public class ProjectileEntitySimulator {
 
         velocity.set(x, y, z).normalize().mul(speed);
 
-        if (accurate) {
+        if (accurate)
+        {
             Vec3d vel = user.getVelocity();
             velocity.add(vel.x, user.isOnGround() ? 0.0D : vel.y, vel.z);
         }
@@ -134,47 +152,53 @@ public class ProjectileEntitySimulator {
 
     // fired projectiles
 
-    public boolean set(Entity entity, boolean accurate) {
+    public boolean set(Entity entity, boolean accurate)
+    {
         // skip entities in ground
         if (entity instanceof ProjectileInGroundAccessor ppe && ppe.getInGround()) return false;
 
-        if (entity instanceof ArrowEntity) {
+        if (entity instanceof ArrowEntity)
+        {
             set(entity, 0.05, 0.6, accurate);
-        } else if (entity instanceof TridentEntity) {
+        } else if (entity instanceof TridentEntity)
+        {
             set(entity, 0.05, 0.99, accurate);
-        }
-
-        else if (entity instanceof EnderPearlEntity || entity instanceof SnowballEntity || entity instanceof EggEntity) {
+        } else if (entity instanceof EnderPearlEntity || entity instanceof SnowballEntity || entity instanceof EggEntity)
+        {
             set(entity, 0.03, 0.8, accurate);
-        } else if (entity instanceof ExperienceBottleEntity) {
-            set(entity,  0.07, 0.8, accurate);
-        } else if (entity instanceof PotionEntity) {
+        } else if (entity instanceof ExperienceBottleEntity)
+        {
+            set(entity, 0.07, 0.8, accurate);
+        } else if (entity instanceof PotionEntity)
+        {
             set(entity, 0.05, 0.8, accurate);
-        }
-
-        else if (entity instanceof WitherSkullEntity || entity instanceof FireballEntity || entity instanceof DragonFireballEntity || entity instanceof WindChargeEntity) {
+        } else if (entity instanceof WitherSkullEntity || entity instanceof FireballEntity || entity instanceof DragonFireballEntity || entity instanceof WindChargeEntity)
+        {
             // drag isn't actually 1, but this provides accurate results in 99.9% in of real situations.
             set(entity, 0, 1.0, accurate);
             this.airDrag = 1.0;
-        }
-        else {
+        } else
+        {
             return false;
         }
 
-        if (entity.hasNoGravity()) {
+        if (entity.hasNoGravity())
+        {
             this.gravity = 0;
         }
 
         return true;
     }
 
-    public void set(Entity entity, double gravity, double waterDrag, boolean accurate) {
+    public void set(Entity entity, double gravity, double waterDrag, boolean accurate)
+    {
         pos.set(entity.getX(), entity.getY(), entity.getZ());
 
         double speed = entity.getVelocity().length();
         velocity.set(entity.getVelocity().x, entity.getVelocity().y, entity.getVelocity().z).normalize().mul(speed);
 
-        if (accurate) {
+        if (accurate)
+        {
             Vec3d vel = entity.getVelocity();
             velocity.add(vel.x, entity.isOnGround() ? 0.0D : vel.y, vel.z);
         }
@@ -187,14 +211,17 @@ public class ProjectileEntitySimulator {
         this.height = entity.getHeight();
     }
 
-    public void setFishingBobber(Entity user, float tickDelta) {
+    public void setFishingBobber(Entity user, float tickDelta)
+    {
         double yaw;
         double pitch;
 
-        if (user == mc.player && Rotations.rotating) {
+        if (user == mc.player && Rotations.rotating)
+        {
             yaw = Rotations.serverYaw;
             pitch = Rotations.serverPitch;
-        } else {
+        } else
+        {
             yaw = user.getYaw(tickDelta);
             pitch = user.getPitch(tickDelta);
         }
@@ -219,7 +246,8 @@ public class ProjectileEntitySimulator {
         height = EntityType.FISHING_BOBBER.getHeight();
     }
 
-    public HitResult tick() {
+    public HitResult tick()
+    {
         // Apply velocity
         ((IVec3d) prevPos3d).set(pos);
         pos.add(velocity);
@@ -245,7 +273,8 @@ public class ProjectileEntitySimulator {
         return hitResult.getType() == HitResult.Type.MISS ? null : hitResult;
     }
 
-    private boolean isTouchingWater() {
+    private boolean isTouchingWater()
+    {
         blockPos.set(pos.x, pos.y, pos.z);
 
         FluidState fluidState = mc.world.getFluidState(blockPos);
@@ -254,9 +283,11 @@ public class ProjectileEntitySimulator {
         return pos.y - (int) pos.y <= fluidState.getHeight();
     }
 
-    private HitResult getCollision() {
+    private HitResult getCollision()
+    {
         HitResult hitResult = mc.world.raycast(new RaycastContext(prevPos3d, pos3d, RaycastContext.ShapeType.COLLIDER, waterDrag == 0 ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE, simulatingEntity));
-        if (hitResult.getType() != HitResult.Type.MISS) {
+        if (hitResult.getType() != HitResult.Type.MISS)
+        {
             ((IVec3d) pos3d).set(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
         }
 
@@ -266,7 +297,8 @@ public class ProjectileEntitySimulator {
         HitResult hitResult2 = ProjectileUtil.getEntityCollision(
             mc.world, simulatingEntity == mc.player ? null : simulatingEntity, prevPos3d, pos3d, box, entity -> !entity.isSpectator() && entity.isAlive() && entity.canHit()
         );
-        if (hitResult2 != null) {
+        if (hitResult2 != null)
+        {
             hitResult = hitResult2;
         }
 

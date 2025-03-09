@@ -24,41 +24,48 @@ import net.minecraft.util.DyeColor;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class BannerTooltipComponent implements MeteorTooltipData, TooltipComponent {
+public class BannerTooltipComponent implements MeteorTooltipData, TooltipComponent
+{
     private final DyeColor color;
     private final BannerPatternsComponent patterns;
     private final ModelPart bannerField;
 
     // should only be used when the ItemStack is a banner
-    public BannerTooltipComponent(ItemStack banner) {
+    public BannerTooltipComponent(ItemStack banner)
+    {
         this.color = ((BannerItem) banner.getItem()).getColor();
         this.patterns = banner.getOrDefault(DataComponentTypes.BANNER_PATTERNS, BannerPatternsComponent.DEFAULT);
         this.bannerField = mc.getEntityModelLoader().getModelPart(EntityModelLayers.BANNER).getChild("flag");
     }
 
-    public BannerTooltipComponent(DyeColor color, BannerPatternsComponent patterns) {
+    public BannerTooltipComponent(DyeColor color, BannerPatternsComponent patterns)
+    {
         this.color = color;
         this.patterns = patterns;
         this.bannerField = mc.getEntityModelLoader().getModelPart(EntityModelLayers.BANNER).getChild("flag");
     }
 
     @Override
-    public TooltipComponent getComponent() {
+    public TooltipComponent getComponent()
+    {
         return this;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight()
+    {
         return 32 * 5 - 2;
     }
 
     @Override
-    public int getWidth(TextRenderer textRenderer) {
+    public int getWidth(TextRenderer textRenderer)
+    {
         return 16 * 5;
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
+    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context)
+    {
         DiffuseLighting.disableGuiDepthLighting();
         MatrixStack matrices = context.getMatrices();
         matrices.push();

@@ -19,45 +19,58 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ParticleTypeListSetting extends Setting<List<ParticleType<?>>> {
-    public ParticleTypeListSetting(String name, String description, List<ParticleType<?>> defaultValue, Consumer<List<ParticleType<?>>> onChanged, Consumer<Setting<List<ParticleType<?>>>> onModuleActivated, IVisible visible) {
+public class ParticleTypeListSetting extends Setting<List<ParticleType<?>>>
+{
+    public ParticleTypeListSetting(String name, String description, List<ParticleType<?>> defaultValue, Consumer<List<ParticleType<?>>> onChanged, Consumer<Setting<List<ParticleType<?>>>> onModuleActivated, IVisible visible)
+    {
         super(name, description, defaultValue, onChanged, onModuleActivated, visible);
     }
 
     @Override
-    public void resetImpl() {
+    public void resetImpl()
+    {
         value = new ArrayList<>(defaultValue);
     }
 
     @Override
-    protected List<ParticleType<?>> parseImpl(String str) {
+    protected List<ParticleType<?>> parseImpl(String str)
+    {
         String[] values = str.split(",");
         List<ParticleType<?>> particleTypes = new ArrayList<>(values.length);
 
-        try {
-            for (String value : values) {
+        try
+        {
+            for (String value : values)
+            {
                 ParticleType<?> particleType = parseId(Registries.PARTICLE_TYPE, value);
                 if (particleType instanceof ParticleEffect) particleTypes.add(particleType);
             }
-        } catch (Exception ignored) {}
+        }
+        catch (Exception ignored)
+        {
+        }
 
         return particleTypes;
     }
 
     @Override
-    protected boolean isValueValid(List<ParticleType<?>> value) {
+    protected boolean isValueValid(List<ParticleType<?>> value)
+    {
         return true;
     }
 
     @Override
-    public Iterable<Identifier> getIdentifierSuggestions() {
+    public Iterable<Identifier> getIdentifierSuggestions()
+    {
         return Registries.PARTICLE_TYPE.getIds();
     }
 
     @Override
-    public NbtCompound save(NbtCompound tag) {
+    public NbtCompound save(NbtCompound tag)
+    {
         NbtList valueTag = new NbtList();
-        for (ParticleType<?> particleType : get()) {
+        for (ParticleType<?> particleType : get())
+        {
             Identifier id = Registries.PARTICLE_TYPE.getId(particleType);
             if (id != null) valueTag.add(NbtString.of(id.toString()));
         }
@@ -67,11 +80,13 @@ public class ParticleTypeListSetting extends Setting<List<ParticleType<?>>> {
     }
 
     @Override
-    public List<ParticleType<?>> load(NbtCompound tag) {
+    public List<ParticleType<?>> load(NbtCompound tag)
+    {
         get().clear();
 
         NbtList valueTag = tag.getList("value", 8);
-        for (NbtElement tagI : valueTag) {
+        for (NbtElement tagI : valueTag)
+        {
             ParticleType<?> particleType = Registries.PARTICLE_TYPE.get(Identifier.of(tagI.asString()));
             if (particleType != null) get().add(particleType);
         }
@@ -79,17 +94,21 @@ public class ParticleTypeListSetting extends Setting<List<ParticleType<?>>> {
         return get();
     }
 
-    public static class Builder extends SettingBuilder<Builder, List<ParticleType<?>>, ParticleTypeListSetting> {
-        public Builder() {
+    public static class Builder extends SettingBuilder<Builder, List<ParticleType<?>>, ParticleTypeListSetting>
+    {
+        public Builder()
+        {
             super(new ArrayList<>(0));
         }
 
-        public Builder defaultValue(ParticleType<?>... defaults) {
+        public Builder defaultValue(ParticleType<?>... defaults)
+        {
             return defaultValue(defaults != null ? Arrays.asList(defaults) : new ArrayList<>());
         }
 
         @Override
-        public ParticleTypeListSetting build() {
+        public ParticleTypeListSetting build()
+        {
             return new ParticleTypeListSetting(name, description, defaultValue, onChanged, onModuleActivated, visible);
         }
     }

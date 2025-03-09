@@ -10,18 +10,22 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
 import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WHorizontalSeparator;
 
-public class WGonbleWareHorizontalSeparator extends WHorizontalSeparator implements GonbleWareWidget {
-    public WGonbleWareHorizontalSeparator(String text) {
+public class WGonbleWareHorizontalSeparator extends WHorizontalSeparator implements GonbleWareWidget
+{
+    public WGonbleWareHorizontalSeparator(String text)
+    {
         super(text);
     }
 
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         if (text == null) renderWithoutText(renderer);
         else renderWithText(renderer);
     }
 
-    private void renderWithoutText(GuiRenderer renderer) {
+    private void renderWithoutText(GuiRenderer renderer)
+    {
         GonbleWareGuiTheme theme = theme();
         double s = theme.scale(1);
         double w = width / 2;
@@ -30,7 +34,8 @@ public class WGonbleWareHorizontalSeparator extends WHorizontalSeparator impleme
         renderer.quad(x + w, y + s, w, s, theme.separatorCenter.get(), theme.separatorEdges.get());
     }
 
-    private void renderWithText(GuiRenderer renderer) {
+    private void renderWithText(GuiRenderer renderer)
+    {
         GonbleWareGuiTheme theme = theme();
         double s = theme.scale(2);
         double h = theme.scale(1);

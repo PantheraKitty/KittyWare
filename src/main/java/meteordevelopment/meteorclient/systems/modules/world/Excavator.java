@@ -22,7 +22,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.hit.BlockHitResult;
 import org.lwjgl.glfw.GLFW;
 
-public class Excavator extends Module {
+public class Excavator extends Module
+{
     private final IBaritone baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRendering = settings.createGroup("Rendering");
@@ -71,56 +72,59 @@ public class Excavator extends Module {
         .defaultValue(new SettingColor(255, 255, 255, 255))
         .build()
     );
-
-    private enum Status {
-        SEL_START,
-        SEL_END,
-        WORKING
-    }
-
     private Status status = Status.SEL_START;
     private BetterBlockPos start, end;
-
-    public Excavator() {
+    public Excavator()
+    {
         super(Categories.World, "excavator", "Excavate a selection area.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         baritone.getSelectionManager().removeSelection(baritone.getSelectionManager().getLastSelection());
         if (baritone.getBuilderProcess().isActive()) baritone.getCommandManager().execute("stop");
         status = Status.SEL_START;
     }
 
     @EventHandler
-    private void onMouseButton(MouseButtonEvent event) {
-        if (event.action != KeyAction.Press || !selectionBind.get().isPressed() || mc.currentScreen != null) {
+    private void onMouseButton(MouseButtonEvent event)
+    {
+        if (event.action != KeyAction.Press || !selectionBind.get().isPressed() || mc.currentScreen != null)
+        {
             return;
         }
         selectCorners();
     }
 
     @EventHandler
-    private void onKey(KeyEvent event) {
-        if (event.action != KeyAction.Press || !selectionBind.get().isPressed() || mc.currentScreen != null) {
+    private void onKey(KeyEvent event)
+    {
+        if (event.action != KeyAction.Press || !selectionBind.get().isPressed() || mc.currentScreen != null)
+        {
             return;
         }
         selectCorners();
     }
 
-    private void selectCorners() {
+    private void selectCorners()
+    {
         if (!(mc.crosshairTarget instanceof BlockHitResult result)) return;
 
-        if (status == Status.SEL_START) {
+        if (status == Status.SEL_START)
+        {
             start = BetterBlockPos.from(result.getBlockPos());
             status = Status.SEL_END;
-            if (logSelection.get()) {
+            if (logSelection.get())
+            {
                 info("Start corner set: (%d, %d, %d)".formatted(start.getX(), start.getY(), start.getZ()));
             }
-        } else if (status == Status.SEL_END) {
+        } else if (status == Status.SEL_END)
+        {
             end = BetterBlockPos.from(result.getBlockPos());
             status = Status.WORKING;
-            if (logSelection.get()) {
+            if (logSelection.get())
+            {
                 info("End corner set: (%d, %d, %d)".formatted(end.getX(), end.getY(), end.getZ()));
             }
             baritone.getSelectionManager().addSelection(start, end);
@@ -129,15 +133,26 @@ public class Excavator extends Module {
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
-        if (status == Status.SEL_START || status == Status.SEL_END) {
+    private void onRender3D(Render3DEvent event)
+    {
+        if (status == Status.SEL_START || status == Status.SEL_END)
+        {
             if (!(mc.crosshairTarget instanceof BlockHitResult result)) return;
             event.renderer.box(result.getBlockPos(), sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-        } else if (status == Status.WORKING && !baritone.getBuilderProcess().isActive()) {
-            if (keepActive.get()) {
+        } else if (status == Status.WORKING && !baritone.getBuilderProcess().isActive())
+        {
+            if (keepActive.get())
+            {
                 baritone.getSelectionManager().removeSelection(baritone.getSelectionManager().getLastSelection());
                 status = Status.SEL_START;
             } else toggle();
         }
+    }
+
+    private enum Status
+    {
+        SEL_START,
+        SEL_END,
+        WORKING
     }
 }

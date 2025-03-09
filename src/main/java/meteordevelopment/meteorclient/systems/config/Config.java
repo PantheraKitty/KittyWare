@@ -22,22 +22,17 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class Config extends System<Config> {
+public class Config extends System<Config>
+{
     public final Settings settings = new Settings();
 
     private final SettingGroup sgVisual = settings.createGroup("Visual");
-    private final SettingGroup sgChat = settings.createGroup("Chat");
-    private final SettingGroup sgMisc = settings.createGroup("Misc");
-
-    // Visual
-
     public final Setting<Boolean> customFont = sgVisual.add(new BoolSetting.Builder()
         .name("custom-font")
         .description("Use a custom font.")
         .defaultValue(true)
         .build()
     );
-
     public final Setting<FontFace> font = sgVisual.add(new FontFaceSetting.Builder()
         .name("font")
         .description("Custom font to use.")
@@ -46,6 +41,7 @@ public class Config extends System<Config> {
         .build()
     );
 
+    // Visual
     public final Setting<Double> rainbowSpeed = sgVisual.add(new DoubleSetting.Builder()
         .name("rainbow-speed")
         .description("The global rainbow speed.")
@@ -54,21 +50,18 @@ public class Config extends System<Config> {
         .sliderMax(5)
         .build()
     );
-
     public final Setting<Boolean> titleScreenCredits = sgVisual.add(new BoolSetting.Builder()
         .name("title-screen-credits")
         .description("Show Meteor credits on title screen")
         .defaultValue(true)
         .build()
     );
-
     public final Setting<Boolean> titleScreenSplashes = sgVisual.add(new BoolSetting.Builder()
         .name("title-screen-splashes")
         .description("Show Meteor splash texts on title screen")
         .defaultValue(true)
         .build()
     );
-
     public final Setting<Boolean> customWindowTitle = sgVisual.add(new BoolSetting.Builder()
         .name("custom-window-title")
         .description("Show custom text in the window title.")
@@ -77,7 +70,6 @@ public class Config extends System<Config> {
         .onChanged(value -> mc.updateWindowTitle())
         .build()
     );
-
     public final Setting<String> customWindowTitleText = sgVisual.add(new StringSetting.Builder()
         .name("window-title-text")
         .description("The text it displays in the window title.")
@@ -86,23 +78,19 @@ public class Config extends System<Config> {
         .onChanged(value -> mc.updateWindowTitle())
         .build()
     );
-
     public final Setting<SettingColor> friendColor = sgVisual.add(new ColorSetting.Builder()
         .name("friend-color")
         .description("The color used to show friends.")
         .defaultValue(new SettingColor(0, 255, 180))
         .build()
     );
-
     public final Setting<SettingColor> enemyColor = sgVisual.add(new ColorSetting.Builder()
         .name("enemy-color")
         .description("The color used to show enemy.")
         .defaultValue(new SettingColor(240, 10, 10))
         .build()
     );
-
-    // Chat
-
+    private final SettingGroup sgChat = settings.createGroup("Chat");
     public final Setting<String> prefix = sgChat.add(new StringSetting.Builder()
         .name("prefix")
         .description("Prefix.")
@@ -110,13 +98,13 @@ public class Config extends System<Config> {
         .build()
     );
 
+    // Chat
     public final Setting<Boolean> chatFeedback = sgChat.add(new BoolSetting.Builder()
         .name("chat-feedback")
         .description("Sends chat feedback when meteor performs certain actions.")
         .defaultValue(true)
         .build()
     );
-
     public final Setting<Boolean> deleteChatFeedback = sgChat.add(new BoolSetting.Builder()
         .name("delete-chat-feedback")
         .description("Delete previous matching chat feedback to keep chat clear.")
@@ -124,9 +112,9 @@ public class Config extends System<Config> {
         .defaultValue(true)
         .build()
     );
+    private final SettingGroup sgMisc = settings.createGroup("Misc");
 
     // Misc
-
     public final Setting<Integer> rotationHoldTicks = sgMisc.add(new IntSetting.Builder()
         .name("rotation-hold")
         .description("Hold long to hold server side rotation when not sending any packets.")
@@ -158,16 +146,19 @@ public class Config extends System<Config> {
 
     public List<String> dontShowAgainPrompts = new ArrayList<>();
 
-    public Config() {
+    public Config()
+    {
         super("config");
     }
 
-    public static Config get() {
+    public static Config get()
+    {
         return Systems.get(Config.class);
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putString("version", MeteorClient.VERSION.toString());
@@ -178,20 +169,23 @@ public class Config extends System<Config> {
     }
 
     @Override
-    public Config fromTag(NbtCompound tag) {
+    public Config fromTag(NbtCompound tag)
+    {
         if (tag.contains("settings")) settings.fromTag(tag.getCompound("settings"));
         if (tag.contains("dontShowAgainPrompts")) dontShowAgainPrompts = listFromTag(tag, "dontShowAgainPrompts");
 
         return this;
     }
 
-    private NbtList listToTag(List<String> list) {
+    private NbtList listToTag(List<String> list)
+    {
         NbtList nbt = new NbtList();
         for (String item : list) nbt.add(NbtString.of(item));
         return nbt;
     }
 
-    private List<String> listFromTag(NbtCompound tag, String key) {
+    private List<String> listFromTag(NbtCompound tag, String key)
+    {
         List<String> list = new ArrayList<>();
         for (NbtElement item : tag.getList(key, 8)) list.add(item.asString());
         return list;

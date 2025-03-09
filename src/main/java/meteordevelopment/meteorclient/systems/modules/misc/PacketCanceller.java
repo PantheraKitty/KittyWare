@@ -18,7 +18,8 @@ import net.minecraft.network.packet.Packet;
 
 import java.util.Set;
 
-public class PacketCanceller extends Module {
+public class PacketCanceller extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Set<Class<? extends Packet<?>>>> s2cPackets = sgGeneral.add(new PacketListSetting.Builder()
@@ -35,18 +36,21 @@ public class PacketCanceller extends Module {
         .build()
     );
 
-    public PacketCanceller() {
+    public PacketCanceller()
+    {
         super(Categories.Misc, "packet-canceller", "Allows you to cancel certain packets.");
         runInMainMenu = true;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST + 1)
-    private void onReceivePacket(PacketEvent.Receive event) {
+    private void onReceivePacket(PacketEvent.Receive event)
+    {
         if (s2cPackets.get().contains(event.packet.getClass())) event.cancel();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST + 1)
-    private void onSendPacket(PacketEvent.Send event) {
+    private void onSendPacket(PacketEvent.Send event)
+    {
         if (c2sPackets.get().contains(event.packet.getClass())) event.cancel();
     }
 }

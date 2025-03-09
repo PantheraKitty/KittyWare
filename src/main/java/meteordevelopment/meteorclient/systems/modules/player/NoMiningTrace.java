@@ -17,7 +17,8 @@ import net.minecraft.item.PickaxeItem;
 
 import java.util.Set;
 
-public class NoMiningTrace extends Module {
+public class NoMiningTrace extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
@@ -34,11 +35,13 @@ public class NoMiningTrace extends Module {
         .build()
     );
 
-    public NoMiningTrace() {
+    public NoMiningTrace()
+    {
         super(Categories.Player, "no-mining-trace", "Allows you to mine blocks through entities.");
     }
 
-    public boolean canWork(Entity entity) {
+    public boolean canWork(Entity entity)
+    {
         if (!isActive()) return false;
 
         return (!onlyWhenHoldingPickaxe.get() || mc.player.getMainHandStack().getItem() instanceof PickaxeItem || mc.player.getOffHandStack().getItem() instanceof PickaxeItem) &&

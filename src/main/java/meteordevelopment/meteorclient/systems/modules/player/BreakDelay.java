@@ -16,7 +16,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.orbit.EventHandler;
 
-public class BreakDelay extends Module {
+public class BreakDelay extends Module
+{
     SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> cooldown = sgGeneral.add(new IntSetting.Builder()
@@ -37,28 +38,35 @@ public class BreakDelay extends Module {
 
     private boolean breakBlockCooldown = false;
 
-    public BreakDelay() {
+    public BreakDelay()
+    {
         super(Categories.Player, "break-delay", "Changes the delay between breaking blocks.");
     }
 
     @EventHandler
-    private void onBlockBreakingCooldown(BlockBreakingCooldownEvent event) {
-        if (breakBlockCooldown) {
+    private void onBlockBreakingCooldown(BlockBreakingCooldownEvent event)
+    {
+        if (breakBlockCooldown)
+        {
             event.cooldown = 5;
             breakBlockCooldown = false;
-        } else {
+        } else
+        {
             event.cooldown = cooldown.get();
         }
     }
 
     @EventHandler
-    private void onClick(MouseButtonEvent event) {
-        if (event.action == KeyAction.Press && noInstaBreak.get()) {
+    private void onClick(MouseButtonEvent event)
+    {
+        if (event.action == KeyAction.Press && noInstaBreak.get())
+        {
             breakBlockCooldown = true;
         }
     }
 
-    public boolean preventInstaBreak() {
+    public boolean preventInstaBreak()
+    {
         return isActive() && noInstaBreak.get();
     }
 }

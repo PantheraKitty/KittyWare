@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.utils.render;
 
-public enum AlignmentY {
+public enum AlignmentY
+{
     Top, Center, Bottom
 }

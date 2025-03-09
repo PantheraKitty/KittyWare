@@ -19,15 +19,18 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.registry.Registries;
 import net.minecraft.world.LightType;
 
-public class Fullbright extends Module {
+public class Fullbright extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
         .name("mode")
         .description("The mode to use for Fullbright.")
         .defaultValue(Mode.Gamma)
-        .onChanged(mode -> {
-            if (isActive()) {
+        .onChanged(mode ->
+        {
+            if (isActive())
+            {
                 if (mode != Mode.Potion) disableNightVision();
                 if (mc.worldRenderer != null) mc.worldRenderer.reload();
             }
@@ -40,7 +43,8 @@ public class Fullbright extends Module {
         .description("Which type of light to use for Luminance mode.")
         .defaultValue(LightType.BLOCK)
         .visible(() -> mode.get() == Mode.Luminance)
-        .onChanged(integer -> {
+        .onChanged(integer ->
+        {
             if (mc.worldRenderer != null && isActive()) mc.worldRenderer.reload();
         })
         .build()
@@ -53,55 +57,68 @@ public class Fullbright extends Module {
         .defaultValue(8)
         .range(0, 15)
         .sliderMax(15)
-        .onChanged(integer -> {
+        .onChanged(integer ->
+        {
             if (mc.worldRenderer != null && isActive()) mc.worldRenderer.reload();
         })
         .build()
     );
 
-    public Fullbright() {
+    public Fullbright()
+    {
         super(Categories.Render, "fullbright", "Lights up your world!");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         if (mode.get() == Mode.Luminance) mc.worldRenderer.reload();
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         if (mode.get() == Mode.Luminance) mc.worldRenderer.reload();
         else if (mode.get() == Mode.Potion) disableNightVision();
     }
 
-    public int getLuminance(LightType type) {
+    public int getLuminance(LightType type)
+    {
         if (!isActive() || mode.get() != Mode.Luminance || type != lightType.get()) return 0;
         return minimumLightLevel.get();
     }
 
-    public boolean getGamma() {
+    public boolean getGamma()
+    {
         return isActive() && mode.get() == Mode.Gamma;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (mc.player == null || !mode.get().equals(Mode.Potion)) return;
-        if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(StatusEffects.NIGHT_VISION.value()))) {
+        if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(StatusEffects.NIGHT_VISION.value())))
+        {
             StatusEffectInstance instance = mc.player.getStatusEffect(Registries.STATUS_EFFECT.getEntry(StatusEffects.NIGHT_VISION.value()));
-            if (instance != null && instance.getDuration() < 420) ((StatusEffectInstanceAccessor) instance).setDuration(420);
-        } else {
+            if (instance != null && instance.getDuration() < 420)
+                ((StatusEffectInstanceAccessor) instance).setDuration(420);
+        } else
+        {
             mc.player.addStatusEffect(new StatusEffectInstance(Registries.STATUS_EFFECT.getEntry(StatusEffects.NIGHT_VISION.value()), 420, 0));
         }
     }
 
-    private void disableNightVision() {
+    private void disableNightVision()
+    {
         if (mc.player == null) return;
-        if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(StatusEffects.NIGHT_VISION.value()))) {
+        if (mc.player.hasStatusEffect(Registries.STATUS_EFFECT.getEntry(StatusEffects.NIGHT_VISION.value())))
+        {
             mc.player.removeStatusEffect(Registries.STATUS_EFFECT.getEntry(StatusEffects.NIGHT_VISION.value()));
         }
     }
 
-    public enum Mode {
+    public enum Mode
+    {
         Gamma,
         Potion,
         Luminance

@@ -11,7 +11,8 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 
-public class Multitask extends Module {
+public class Multitask extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> attackingEntities = sgGeneral.add(new BoolSetting.Builder()
@@ -21,11 +22,13 @@ public class Multitask extends Module {
         .build()
     );
 
-    public Multitask() {
+    public Multitask()
+    {
         super(Categories.Player, "multitask", "Lets you use items and attack at the same time.");
     }
 
-    public boolean attackingEntities() {
+    public boolean attackingEntities()
+    {
         return isActive() && attackingEntities.get();
     }
 }

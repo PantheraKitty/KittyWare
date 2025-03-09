@@ -11,43 +11,51 @@ import meteordevelopment.meteorclient.gui.tabs.Tab;
 import meteordevelopment.meteorclient.gui.tabs.TabScreen;
 import meteordevelopment.meteorclient.gui.tabs.WindowTabScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
-import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.gui.widgets.input.WDropdown;
+import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.utils.misc.NbtUtils;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.nbt.NbtCompound;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class GuiTab extends Tab {
-    public GuiTab() {
+public class GuiTab extends Tab
+{
+    public GuiTab()
+    {
         super("GUI");
     }
 
     @Override
-    public TabScreen createScreen(GuiTheme theme) {
+    public TabScreen createScreen(GuiTheme theme)
+    {
         return new GuiScreen(theme, this);
     }
 
     @Override
-    public boolean isScreen(Screen screen) {
+    public boolean isScreen(Screen screen)
+    {
         return screen instanceof GuiScreen;
     }
 
-    private static class GuiScreen extends WindowTabScreen {
-        public GuiScreen(GuiTheme theme, Tab tab) {
+    private static class GuiScreen extends WindowTabScreen
+    {
+        public GuiScreen(GuiTheme theme, Tab tab)
+        {
             super(theme, tab);
 
             theme.settings.onActivated();
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             WTable table = add(theme.table()).expandX().widget();
 
             table.add(theme.label("Theme:"));
             WDropdown<String> themeW = table.add(theme.dropdown(GuiThemes.getNames(), GuiThemes.get().name)).widget();
-            themeW.action = () -> {
+            themeW.action = () ->
+            {
                 GuiThemes.select(themeW.get());
 
                 mc.setScreen(null);
@@ -61,15 +69,18 @@ public class GuiTab extends Tab {
         }
 
         @Override
-        public boolean toClipboard() {
+        public boolean toClipboard()
+        {
             return NbtUtils.toClipboard(theme.name + " GUI Theme", theme.toTag());
         }
 
         @Override
-        public boolean fromClipboard() {
+        public boolean fromClipboard()
+        {
             NbtCompound clipboard = NbtUtils.fromClipboard(theme.toTag());
 
-            if (clipboard != null) {
+            if (clipboard != null)
+            {
                 theme.fromTag(clipboard);
                 return true;
             }

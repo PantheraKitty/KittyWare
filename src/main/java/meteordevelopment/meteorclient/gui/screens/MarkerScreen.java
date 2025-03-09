@@ -12,20 +12,24 @@ import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
 import meteordevelopment.meteorclient.systems.modules.render.marker.BaseMarker;
 
-public class MarkerScreen extends WindowScreen {
+public class MarkerScreen extends WindowScreen
+{
     private final BaseMarker marker;
     private WContainer settingsContainer;
 
-    public MarkerScreen(GuiTheme theme, BaseMarker marker) {
+    public MarkerScreen(GuiTheme theme, BaseMarker marker)
+    {
         super(theme, marker.name.get());
 
         this.marker = marker;
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         // Settings
-        if (!marker.settings.groups.isEmpty()) {
+        if (!marker.settings.groups.isEmpty())
+        {
             settingsContainer = add(theme.verticalList()).expandX().widget();
             settingsContainer.add(theme.settings(marker.settings)).expandX();
         }
@@ -33,7 +37,8 @@ public class MarkerScreen extends WindowScreen {
         // Custom widget
         WWidget widget = getWidget(theme);
 
-        if (widget != null) {
+        if (widget != null)
+        {
             add(theme.horizontalSeparator()).expandX();
             Cell<WWidget> cell = add(widget);
             if (widget instanceof WContainer) cell.expandX();
@@ -41,13 +46,15 @@ public class MarkerScreen extends WindowScreen {
     }
 
     @Override
-    public void tick() {
+    public void tick()
+    {
         super.tick();
 
         marker.settings.tick(settingsContainer, theme);
     }
 
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         return null;
     }
 }

@@ -22,7 +22,8 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public abstract class Command {
+public abstract class Command
+{
     protected static final CommandRegistryAccess REGISTRY_ACCESS = CommandManager.createRegistryAccess(BuiltinRegistries.createWrapperLookup());
     protected static final int SINGLE_SUCCESS = com.mojang.brigadier.Command.SINGLE_SUCCESS;
     protected static final MinecraftClient mc = MeteorClient.mc;
@@ -32,7 +33,8 @@ public abstract class Command {
     private final String description;
     private final List<String> aliases;
 
-    public Command(String name, String description, String... aliases) {
+    public Command(String name, String description, String... aliases)
+    {
         this.name = name;
         this.title = Utils.nameToTitle(name);
         this.description = description;
@@ -40,20 +42,24 @@ public abstract class Command {
     }
 
     // Helper methods to painlessly infer the CommandSource generic type argument
-    protected static <T> RequiredArgumentBuilder<CommandSource, T> argument(final String name, final ArgumentType<T> type) {
+    protected static <T> RequiredArgumentBuilder<CommandSource, T> argument(final String name, final ArgumentType<T> type)
+    {
         return RequiredArgumentBuilder.argument(name, type);
     }
 
-    protected static LiteralArgumentBuilder<CommandSource> literal(final String name) {
+    protected static LiteralArgumentBuilder<CommandSource> literal(final String name)
+    {
         return LiteralArgumentBuilder.literal(name);
     }
 
-    public final void registerTo(CommandDispatcher<CommandSource> dispatcher) {
+    public final void registerTo(CommandDispatcher<CommandSource> dispatcher)
+    {
         register(dispatcher, name);
         for (String alias : aliases) register(dispatcher, alias);
     }
 
-    public void register(CommandDispatcher<CommandSource> dispatcher, String name) {
+    public void register(CommandDispatcher<CommandSource> dispatcher, String name)
+    {
         LiteralArgumentBuilder<CommandSource> builder = LiteralArgumentBuilder.literal(name);
         build(builder);
         dispatcher.register(builder);
@@ -61,44 +67,53 @@ public abstract class Command {
 
     public abstract void build(LiteralArgumentBuilder<CommandSource> builder);
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return description;
     }
 
-    public List<String> getAliases() {
+    public List<String> getAliases()
+    {
         return aliases;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return Config.get().prefix.get() + name;
     }
 
-    public String toString(String... args) {
+    public String toString(String... args)
+    {
         StringBuilder base = new StringBuilder(toString());
         for (String arg : args) base.append(' ').append(arg);
         return base.toString();
     }
 
-    public void info(Text message) {
+    public void info(Text message)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.sendMsg(title, message);
     }
 
-    public void info(String message, Object... args) {
+    public void info(String message, Object... args)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.infoPrefix(title, message, args);
     }
 
-    public void warning(String message, Object... args) {
+    public void warning(String message, Object... args)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.warningPrefix(title, message, args);
     }
 
-    public void error(String message, Object... args) {
+    public void error(String message, Object... args)
+    {
         ChatUtils.forceNextPrefixClass(getClass());
         ChatUtils.errorPrefix(title, message, args);
     }

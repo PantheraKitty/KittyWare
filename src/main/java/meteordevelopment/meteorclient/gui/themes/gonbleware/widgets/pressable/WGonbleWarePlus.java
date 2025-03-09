@@ -10,9 +10,11 @@ import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
 import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WPlus;
 
-public class WGonbleWarePlus extends WPlus implements GonbleWareWidget {
+public class WGonbleWarePlus extends WPlus implements GonbleWareWidget
+{
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         GonbleWareGuiTheme theme = theme();
         double pad = pad();
         double s = theme.scale(3);

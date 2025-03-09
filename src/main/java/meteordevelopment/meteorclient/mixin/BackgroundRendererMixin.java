@@ -19,11 +19,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BackgroundRenderer.class)
-public abstract class BackgroundRendererMixin {
+public abstract class BackgroundRendererMixin
+{
     @Inject(method = "applyFog", at = @At("TAIL"))
-    private static void onApplyFog(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info) {
-        if (Modules.get().get(NoRender.class).noFog() || Modules.get().isActive(Xray.class)) {
-            if (fogType == BackgroundRenderer.FogType.FOG_TERRAIN) {
+    private static void onApplyFog(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info)
+    {
+        if (Modules.get().get(NoRender.class).noFog() || Modules.get().isActive(Xray.class))
+        {
+            if (fogType == BackgroundRenderer.FogType.FOG_TERRAIN)
+            {
                 RenderSystem.setShaderFogStart(viewDistance * 4);
                 RenderSystem.setShaderFogEnd(viewDistance * 4.25f);
             }
@@ -31,7 +35,8 @@ public abstract class BackgroundRendererMixin {
     }
 
     @Inject(method = "getFogModifier(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/client/render/BackgroundRenderer$StatusEffectFogModifier;", at = @At("HEAD"), cancellable = true)
-    private static void onGetFogModifier(Entity entity, float tickDelta, CallbackInfoReturnable<Object> info) {
+    private static void onGetFogModifier(Entity entity, float tickDelta, CallbackInfoReturnable<Object> info)
+    {
         if (Modules.get().get(NoRender.class).noBlindness()) info.setReturnValue(null);
     }
 }

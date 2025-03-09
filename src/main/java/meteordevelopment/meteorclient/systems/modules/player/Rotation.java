@@ -14,7 +14,8 @@ import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 
-public class Rotation extends Module {
+public class Rotation extends Module
+{
     private final SettingGroup sgYaw = settings.createGroup("Yaw");
     private final SettingGroup sgPitch = settings.createGroup("Pitch");
 
@@ -56,43 +57,52 @@ public class Rotation extends Module {
         .build()
     );
 
-    public Rotation() {
+    public Rotation()
+    {
         super(Categories.Player, "rotation", "Changes/locks your yaw and pitch.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         onTick(null);
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        switch (yawLockMode.get()) {
+    private void onTick(TickEvent.Post event)
+    {
+        switch (yawLockMode.get())
+        {
             case Simple -> setYawAngle(yawAngle.get().floatValue());
-            case Smart  -> setYawAngle(getSmartYawDirection());
+            case Smart -> setYawAngle(getSmartYawDirection());
         }
 
-        switch (pitchLockMode.get()) {
+        switch (pitchLockMode.get())
+        {
             case Simple -> mc.player.setPitch(pitchAngle.get().floatValue());
-            case Smart  -> mc.player.setPitch(getSmartPitchDirection());
+            case Smart -> mc.player.setPitch(getSmartPitchDirection());
         }
     }
 
-    private float getSmartYawDirection() {
+    private float getSmartYawDirection()
+    {
         return Math.round((mc.player.getYaw() + 1f) / 45f) * 45f;
     }
 
-    private float getSmartPitchDirection() {
+    private float getSmartPitchDirection()
+    {
         return Math.round((mc.player.getPitch() + 1f) / 30f) * 30f;
     }
 
-    private void setYawAngle(float yawAngle) {
+    private void setYawAngle(float yawAngle)
+    {
         mc.player.setYaw(yawAngle);
         mc.player.headYaw = yawAngle;
         mc.player.bodyYaw = yawAngle;
     }
 
-    public enum LockMode {
+    public enum LockMode
+    {
         Smart,
         Simple,
         None

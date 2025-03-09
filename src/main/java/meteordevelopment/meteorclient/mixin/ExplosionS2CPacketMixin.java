@@ -13,25 +13,38 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ExplosionS2CPacket.class)
-public abstract class ExplosionS2CPacketMixin implements IExplosionS2CPacket {
-    @Shadow @Final @Mutable private float playerVelocityX;
+public abstract class ExplosionS2CPacketMixin implements IExplosionS2CPacket
+{
+    @Shadow
+    @Final
+    @Mutable
+    private float playerVelocityX;
 
-    @Shadow @Final @Mutable private float playerVelocityY;
+    @Shadow
+    @Final
+    @Mutable
+    private float playerVelocityY;
 
-    @Shadow @Final @Mutable private float playerVelocityZ;
+    @Shadow
+    @Final
+    @Mutable
+    private float playerVelocityZ;
 
     @Override
-    public void setVelocityX(float velocity) {
+    public void setVelocityX(float velocity)
+    {
         playerVelocityX = velocity;
     }
 
     @Override
-    public void setVelocityY(float velocity) {
+    public void setVelocityY(float velocity)
+    {
         playerVelocityY = velocity;
     }
 
     @Override
-    public void setVelocityZ(float velocity) {
+    public void setVelocityZ(float velocity)
+    {
         playerVelocityZ = velocity;
     }
 }

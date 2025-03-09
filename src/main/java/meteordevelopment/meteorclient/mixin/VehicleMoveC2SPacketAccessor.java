@@ -6,7 +6,8 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(VehicleMoveC2SPacket.class)
-public interface VehicleMoveC2SPacketAccessor {
+public interface VehicleMoveC2SPacketAccessor
+{
 
     @Mutable
     @Accessor("x")

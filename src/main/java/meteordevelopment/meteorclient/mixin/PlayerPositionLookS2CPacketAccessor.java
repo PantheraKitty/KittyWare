@@ -11,7 +11,8 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PlayerPositionLookS2CPacket.class)
-public interface PlayerPositionLookS2CPacketAccessor {
+public interface PlayerPositionLookS2CPacketAccessor
+{
     @Mutable
     @Accessor("yaw")
     void setYaw(float yaw);

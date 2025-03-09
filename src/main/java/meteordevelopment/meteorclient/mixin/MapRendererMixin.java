@@ -19,14 +19,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MapRenderer.MapTexture.class)
-public abstract class MapRendererMixin {
+public abstract class MapRendererMixin
+{
     @ModifyExpressionValue(method = "draw(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ZI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/map/MapState;getDecorations()Ljava/lang/Iterable;"))
-    private Iterable<MapDecoration> getIconsProxy(Iterable<MapDecoration> original) {
+    private Iterable<MapDecoration> getIconsProxy(Iterable<MapDecoration> original)
+    {
         return (Modules.get().get(NoRender.class).noMapMarkers()) ? EmptyIterator::new : original;
     }
 
     @Inject(method = "draw(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ZI)V", at = @At("HEAD"), cancellable = true)
-    private void onDraw(MatrixStack matrices, VertexConsumerProvider vertexConsumers, boolean hidePlayerIcons, int light, CallbackInfo ci) {
+    private void onDraw(MatrixStack matrices, VertexConsumerProvider vertexConsumers, boolean hidePlayerIcons, int light, CallbackInfo ci)
+    {
         if (Modules.get().get(NoRender.class).noMapContents()) ci.cancel();
     }
 }

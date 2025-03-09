@@ -22,23 +22,10 @@ import org.joml.Vector3f;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class PlayerModelHud extends HudElement {
-    public static final HudElementInfo<PlayerModelHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-model", "Displays a model of your player.", PlayerModelHud::new);
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+public class PlayerModelHud extends HudElement
+{
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<PlayerModelHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-model", "Displays a model of your player.", PlayerModelHud::new);
     private final SettingGroup sgBackground = settings.createGroup("Background");
-
-    // General
-
-    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("The scale.")
-        .defaultValue(2)
-        .min(1)
-        .sliderRange(1, 5)
-        .onChanged(aDouble -> calculateSize())
-        .build()
-    );
-
     private final Setting<Boolean> copyYaw = sgGeneral.add(new BoolSetting.Builder()
         .name("copy-yaw")
         .description("Makes the player model's yaw equal to yours.")
@@ -46,6 +33,7 @@ public class PlayerModelHud extends HudElement {
         .build()
     );
 
+    // General
     private final Setting<Integer> customYaw = sgGeneral.add(new IntSetting.Builder()
         .name("custom-yaw")
         .description("Custom yaw for when copy yaw is off.")
@@ -54,15 +42,21 @@ public class PlayerModelHud extends HudElement {
         .sliderRange(-180, 180)
         .visible(() -> !copyYaw.get())
         .build()
+    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("The scale.")
+        .defaultValue(2)
+        .min(1)
+        .sliderRange(1, 5)
+        .onChanged(aDouble -> calculateSize())
+        .build()
     );
-
     private final Setting<Boolean> copyPitch = sgGeneral.add(new BoolSetting.Builder()
         .name("copy-pitch")
         .description("Makes the player model's pitch equal to yours.")
         .defaultValue(true)
         .build()
     );
-
     private final Setting<Integer> customPitch = sgGeneral.add(new IntSetting.Builder()
         .name("custom-pitch")
         .description("Custom pitch for when copy pitch is off.")
@@ -72,23 +66,18 @@ public class PlayerModelHud extends HudElement {
         .visible(() -> !copyPitch.get())
         .build()
     );
-
     private final Setting<CenterOrientation> centerOrientation = sgGeneral.add(new EnumSetting.Builder<CenterOrientation>()
         .name("center-orientation")
         .description("Which direction the player faces when the HUD model faces directly forward.")
         .defaultValue(CenterOrientation.South)
         .build()
     );
-
-    // Background
-
     private final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
         .description("Displays background.")
         .defaultValue(false)
         .build()
     );
-
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
         .description("Color used for the background.")
@@ -97,15 +86,20 @@ public class PlayerModelHud extends HudElement {
         .build()
     );
 
-    public PlayerModelHud() {
+    // Background
+
+    public PlayerModelHud()
+    {
         super(INFO);
 
         calculateSize();
     }
 
     @Override
-    public void render(HudRenderer renderer) {
-        renderer.post(() -> {
+    public void render(HudRenderer renderer)
+    {
+        renderer.post(() ->
+        {
             PlayerEntity player = mc.player;
             if (player == null) return;
 
@@ -117,16 +111,19 @@ public class PlayerModelHud extends HudElement {
             drawEntity(renderer.drawContext, x, y, (int) (30 * scale.get()), -yaw, -pitch, player);
         });
 
-        if (background.get()) {
+        if (background.get())
+        {
             renderer.quad(x, y, getWidth(), getHeight(), backgroundColor.get());
-        } else if (mc.player == null) {
+        } else if (mc.player == null)
+        {
             renderer.quad(x, y, getWidth(), getHeight(), backgroundColor.get());
             renderer.line(x, y, x + getWidth(), y + getHeight(), Color.GRAY);
             renderer.line(x + getWidth(), y, x, y + getHeight(), Color.GRAY);
         }
     }
 
-    private void calculateSize() {
+    private void calculateSize()
+    {
         setSize(50 * scale.get(), 75 * scale.get());
     }
 
@@ -138,7 +135,8 @@ public class PlayerModelHud extends HudElement {
      * Additionally, it uses OpenGL scissors, which causes the player model to get cut when the Minecraft GUI scale is not 1x.
      * This version of drawEntity should fix these issues.
      */
-    private void drawEntity(DrawContext context, int x, int y, int size, float yaw, float pitch, LivingEntity entity) {
+    private void drawEntity(DrawContext context, int x, int y, int size, float yaw, float pitch, LivingEntity entity)
+    {
 
         float tanYaw = (float) Math.atan((yaw) / 40.0f);
         float tanPitch = (float) Math.atan((pitch) / 40.0f);
@@ -181,8 +179,13 @@ public class PlayerModelHud extends HudElement {
         entity.headYaw = prevHeadYaw;
     }
 
-    private enum CenterOrientation {
+    private enum CenterOrientation
+    {
         North,
         South
     }
+
+
+
+
 }

@@ -34,84 +34,73 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class LogoutSpots extends Module {
+public class LogoutSpots extends Module
+{
     private static final Color GREEN = new Color(25, 225, 25);
     private static final Color ORANGE = new Color(225, 105, 25);
     private static final Color RED = new Color(225, 25, 25);
-
+    private static final Vector3d pos = new Vector3d();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgRender = settings.createGroup("Render");
 
     // General
-
+    private final SettingGroup sgRender = settings.createGroup("Render");
     private final Setting<Boolean> notifyOnRejoin =
-            sgGeneral.add(new BoolSetting.Builder().name("notify-on-rejoin")
-                    .description("Notifies you when a player rejoins.").defaultValue(true).build());
-
+        sgGeneral.add(new BoolSetting.Builder().name("notify-on-rejoin")
+            .description("Notifies you when a player rejoins.").defaultValue(true).build());
     private final Setting<Boolean> notifyOnRejoinShowCoords =
-            sgGeneral.add(new BoolSetting.Builder().name("notify-on-show-coords")
-                    .description("Shows the coords of the player when they rejoin.")
-                    .defaultValue(true).visible(() -> notifyOnRejoin.get()).build());
-
+        sgGeneral.add(new BoolSetting.Builder().name("notify-on-show-coords")
+            .description("Shows the coords of the player when they rejoin.")
+            .defaultValue(true).visible(() -> notifyOnRejoin.get()).build());
     private final Setting<Boolean> notifyOnRejoinLimitDistance =
-            sgGeneral.add(new BoolSetting.Builder().name("notify-on-rejoin-limit-distance")
-                    .description(
-                            "Whether or not to limit distances for rejoin coord notifications.")
-                    .defaultValue(true)
-                    .visible(() -> notifyOnRejoin.get() && notifyOnRejoinShowCoords.get()).build());
-
+        sgGeneral.add(new BoolSetting.Builder().name("notify-on-rejoin-limit-distance")
+            .description(
+                "Whether or not to limit distances for rejoin coord notifications.")
+            .defaultValue(true)
+            .visible(() -> notifyOnRejoin.get() && notifyOnRejoinShowCoords.get()).build());
     private final Setting<Double> notifyOnRejoinDistance = sgGeneral.add(new DoubleSetting.Builder()
-            .name("notify-on-rejoin-distance").description("The limit to show coords on rejoin.")
-            .defaultValue(5000).min(0).visible(() -> notifyOnRejoin.get()
-                    && notifyOnRejoinShowCoords.get() && notifyOnRejoinLimitDistance.get())
-            .build());
-
+        .name("notify-on-rejoin-distance").description("The limit to show coords on rejoin.")
+        .defaultValue(5000).min(0).visible(() -> notifyOnRejoin.get()
+            && notifyOnRejoinShowCoords.get() && notifyOnRejoinLimitDistance.get())
+        .build());
     private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder().name("scale")
-            .description("The scale.").defaultValue(1).min(0).build());
-
-    private final Setting<Boolean> fullHeight = sgGeneral.add(new BoolSetting.Builder()
-            .name("full-height").description("Displays the height as the player's full height.")
-            .defaultValue(true).build());
+        .description("The scale.").defaultValue(1).min(0).build());
 
     // Render
-
+    private final Setting<Boolean> fullHeight = sgGeneral.add(new BoolSetting.Builder()
+        .name("full-height").description("Displays the height as the player's full height.")
+        .defaultValue(true).build());
     private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("shape-mode").description("How the shapes are rendered.")
-            .defaultValue(ShapeMode.Both).build());
-
+        .name("shape-mode").description("How the shapes are rendered.")
+        .defaultValue(ShapeMode.Both).build());
     private final Setting<SettingColor> sideColor = sgRender
-            .add(new ColorSetting.Builder().name("side-color").description("The side color.")
-                    .defaultValue(new SettingColor(255, 0, 255, 55)).build());
-
+        .add(new ColorSetting.Builder().name("side-color").description("The side color.")
+            .defaultValue(new SettingColor(255, 0, 255, 55)).build());
     private final Setting<SettingColor> lineColor = sgRender
-            .add(new ColorSetting.Builder().name("line-color").description("The line color.")
-                    .defaultValue(new SettingColor(255, 0, 255)).build());
-
+        .add(new ColorSetting.Builder().name("line-color").description("The line color.")
+            .defaultValue(new SettingColor(255, 0, 255)).build());
     private final Setting<SettingColor> nameColor = sgRender
-            .add(new ColorSetting.Builder().name("name-color").description("The name color.")
-                    .defaultValue(new SettingColor(255, 255, 255)).build());
-
+        .add(new ColorSetting.Builder().name("name-color").description("The name color.")
+            .defaultValue(new SettingColor(255, 255, 255)).build());
     private final Setting<SettingColor> nameBackgroundColor =
-            sgRender.add(new ColorSetting.Builder().name("name-background-color")
-                    .description("The name background color.")
-                    .defaultValue(new SettingColor(0, 0, 0, 75)).build());
-
+        sgRender.add(new ColorSetting.Builder().name("name-background-color")
+            .description("The name background color.")
+            .defaultValue(new SettingColor(0, 0, 0, 75)).build());
     private final List<Entry> players = new ArrayList<>();
-
     private final List<PlayerListEntry> lastPlayerList = new ArrayList<>();
     private final List<PlayerEntity> lastPlayers = new ArrayList<>();
-
     private int timer;
     private Dimension lastDimension;
 
-    public LogoutSpots() {
+    public LogoutSpots()
+    {
         super(Categories.Render, "logout-spots",
-                "Displays a box where another player has logged out at.");
+            "Displays a box where another player has logged out at.");
         lineColor.onChanged();
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         lastPlayerList.addAll(mc.getNetworkHandler().getPlayerList());
         updateLastPlayers();
 
@@ -120,35 +109,45 @@ public class LogoutSpots extends Module {
     }
 
     @Override
-    public void onDeactivate() {
-        synchronized (players) {
+    public void onDeactivate()
+    {
+        synchronized (players)
+        {
             players.clear();
         }
         lastPlayerList.clear();
     }
 
-    private void updateLastPlayers() {
+    private void updateLastPlayers()
+    {
         lastPlayers.clear();
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (entity instanceof PlayerEntity)
                 lastPlayers.add((PlayerEntity) entity);
         }
     }
 
     @EventHandler
-    private void onEntityAdded(EntityAddedEvent event) {
-        if (event.entity instanceof PlayerEntity) {
+    private void onEntityAdded(EntityAddedEvent event)
+    {
+        if (event.entity instanceof PlayerEntity)
+        {
             int toRemove = -1;
 
-            synchronized (players) {
-                for (int i = 0; i < players.size(); i++) {
-                    if (players.get(i).uuid.equals(event.entity.getUuid())) {
+            synchronized (players)
+            {
+                for (int i = 0; i < players.size(); i++)
+                {
+                    if (players.get(i).uuid.equals(event.entity.getUuid()))
+                    {
                         toRemove = i;
                         break;
                     }
                 }
 
-                if (toRemove != -1) {
+                if (toRemove != -1)
+                {
                     players.remove(toRemove);
                 }
             }
@@ -156,15 +155,20 @@ public class LogoutSpots extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if (mc.getNetworkHandler().getPlayerList().size() != lastPlayerList.size()) {
-            for (PlayerListEntry entry : lastPlayerList) {
+    private void onTick(TickEvent.Post event)
+    {
+        if (mc.getNetworkHandler().getPlayerList().size() != lastPlayerList.size())
+        {
+            for (PlayerListEntry entry : lastPlayerList)
+            {
                 if (mc.getNetworkHandler().getPlayerList().stream().anyMatch(
-                        playerListEntry -> playerListEntry.getProfile().equals(entry.getProfile())))
+                    playerListEntry -> playerListEntry.getProfile().equals(entry.getProfile())))
                     continue;
 
-                for (PlayerEntity player : lastPlayers) {
-                    if (player.getUuid().equals(entry.getProfile().getId())) {
+                for (PlayerEntity player : lastPlayers)
+                {
+                    if (player.getUuid().equals(entry.getProfile().getId()))
+                    {
                         add(new Entry(player));
                     }
                 }
@@ -175,15 +179,18 @@ public class LogoutSpots extends Module {
             updateLastPlayers();
         }
 
-        if (timer <= 0) {
+        if (timer <= 0)
+        {
             updateLastPlayers();
             timer = 10;
-        } else {
+        } else
+        {
             timer--;
         }
 
         Dimension dimension = PlayerUtils.getDimension();
-        synchronized (players) {
+        synchronized (players)
+        {
             if (dimension != lastDimension)
                 players.clear();
         }
@@ -191,44 +198,53 @@ public class LogoutSpots extends Module {
     }
 
     @EventHandler
-    private void onPlayerJoin(PlayerJoinLeaveEvent.Join event) {
+    private void onPlayerJoin(PlayerJoinLeaveEvent.Join event)
+    {
         if (event.getEntry().profileId() == null)
             return;
 
         int toRemove = -1;
 
-        synchronized (players) {
-            for (int i = 0; i < players.size(); i++) {
-                if (players.get(i).uuid.equals(event.getEntry().profileId())) {
+        synchronized (players)
+        {
+            for (int i = 0; i < players.size(); i++)
+            {
+                if (players.get(i).uuid.equals(event.getEntry().profileId()))
+                {
                     toRemove = i;
                     break;
                 }
             }
 
-            if (toRemove != -1) {
+            if (toRemove != -1)
+            {
                 Entry player = players.get(toRemove);
 
-                if (notifyOnRejoin.get()) {
+                if (notifyOnRejoin.get())
+                {
                     boolean showCoords = notifyOnRejoinShowCoords.get();
 
                     if (notifyOnRejoinLimitDistance.get() && notifyOnRejoinDistance
-                            .get() < new Vec3d(player.x, player.y, player.z)
-                                    .distanceTo(Vec3d.ZERO)) {
+                        .get() < new Vec3d(player.x, player.y, player.z)
+                        .distanceTo(Vec3d.ZERO))
+                    {
                         showCoords = false;
                     }
 
-                    if (showCoords) {
+                    if (showCoords)
+                    {
                         info("(highlight)%s(default) rejoined at %d, %d, %d (highlight)(%.1fm away)(default).",
-                                player.name, (int) Math.floor(player.x), (int) Math.floor(player.y),
-                                (int) Math.floor(player.z), mc.player.getPos()
-                                        .distanceTo(new Vec3d(player.x, player.y, player.z)));
-                    } else {
+                            player.name, (int) Math.floor(player.x), (int) Math.floor(player.y),
+                            (int) Math.floor(player.z), mc.player.getPos()
+                                .distanceTo(new Vec3d(player.x, player.y, player.z)));
+                    } else
+                    {
                         info("(highlight)%s(default) rejoined", player.name);
                     }
 
                     mc.world.playSoundFromEntity(mc.player, mc.player,
-                            SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.AMBIENT, 3.0F,
-                            1.0F);
+                        SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.AMBIENT, 3.0F,
+                        1.0F);
                 }
 
                 players.remove(toRemove);
@@ -236,37 +252,43 @@ public class LogoutSpots extends Module {
         }
     }
 
-    private void add(Entry entry) {
-        synchronized (players) {
+    private void add(Entry entry)
+    {
+        synchronized (players)
+        {
             players.removeIf(player -> player.uuid.equals(entry.uuid));
             players.add(entry);
         }
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
-        synchronized (players) {
+    private void onRender3D(Render3DEvent event)
+    {
+        synchronized (players)
+        {
             for (Entry player : players)
                 player.render3D(event);
         }
     }
 
     @EventHandler
-    private void onRender2D(Render2DEvent event) {
-        synchronized (players) {
+    private void onRender2D(Render2DEvent event)
+    {
+        synchronized (players)
+        {
             for (Entry player : players)
                 player.render2D();
         }
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return Integer.toString(players.size());
     }
 
-    private static final Vector3d pos = new Vector3d();
-
-    private class Entry {
+    private class Entry
+    {
         public final double x, y, z;
         public final double xWidth, zWidth, halfWidth, height;
 
@@ -275,7 +297,8 @@ public class LogoutSpots extends Module {
         public final int health, maxHealth;
         public final String healthText;
 
-        public Entry(PlayerEntity entity) {
+        public Entry(PlayerEntity entity)
+        {
             halfWidth = entity.getWidth() / 2;
             x = entity.getX() - halfWidth;
             y = entity.getY();
@@ -293,16 +316,18 @@ public class LogoutSpots extends Module {
             healthText = " " + health;
         }
 
-        public void render3D(Render3DEvent event) {
+        public void render3D(Render3DEvent event)
+        {
             if (fullHeight.get())
                 event.renderer.box(x, y, z, x + xWidth, y + height, z + zWidth, sideColor.get(),
-                        lineColor.get(), shapeMode.get(), 0);
+                    lineColor.get(), shapeMode.get(), 0);
             else
                 event.renderer.sideHorizontal(x, y, z, x + xWidth, z, sideColor.get(),
-                        lineColor.get(), shapeMode.get());
+                    lineColor.get(), shapeMode.get());
         }
 
-        public void render2D() {
+        public void render2D()
+        {
             if (!PlayerUtils.isWithinCamera(x, y, z, mc.options.getViewDistance().getValue() * 16))
                 return;
 

@@ -17,7 +17,8 @@ import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 
-public class AutoWeapon extends Module {
+public class AutoWeapon extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Weapon> weapon = sgGeneral.add(new EnumSetting.Builder<Weapon>()
@@ -41,37 +42,46 @@ public class AutoWeapon extends Module {
         .build()
     );
 
-    public AutoWeapon() {
+    public AutoWeapon()
+    {
         super(Categories.Combat, "auto-weapon", "Finds the best weapon to use in your hotbar.");
     }
 
     @EventHandler
-    private void onAttack(AttackEntityEvent event) {
-        if (event.entity instanceof LivingEntity livingEntity) {
+    private void onAttack(AttackEntityEvent event)
+    {
+        if (event.entity instanceof LivingEntity livingEntity)
+        {
             InvUtils.swap(getBestWeapon(livingEntity), false);
         }
     }
 
-    private int getBestWeapon(LivingEntity target) {
+    private int getBestWeapon(LivingEntity target)
+    {
         int slotS = mc.player.getInventory().selectedSlot;
         int slotA = mc.player.getInventory().selectedSlot;
         double damageS = 0;
         double damageA = 0;
         double currentDamageS;
         double currentDamageA;
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 9; i++)
+        {
             ItemStack stack = mc.player.getInventory().getStack(i);
             if (stack.getItem() instanceof SwordItem
-                && (!antiBreak.get() || (stack.getMaxDamage() - stack.getDamage()) > 10)) {
+                && (!antiBreak.get() || (stack.getMaxDamage() - stack.getDamage()) > 10))
+            {
                 currentDamageS = DamageUtils.getAttackDamage(mc.player, target, stack);
-                if (currentDamageS > damageS) {
+                if (currentDamageS > damageS)
+                {
                     damageS = currentDamageS;
                     slotS = i;
                 }
             } else if (stack.getItem() instanceof AxeItem
-                && (!antiBreak.get() || (stack.getMaxDamage() - stack.getDamage()) > 10)) {
+                && (!antiBreak.get() || (stack.getMaxDamage() - stack.getDamage()) > 10))
+            {
                 currentDamageA = DamageUtils.getAttackDamage(mc.player, target, stack);
-                if (currentDamageA > damageA) {
+                if (currentDamageA > damageA)
+                {
                     damageA = currentDamageA;
                     slotA = i;
                 }
@@ -84,7 +94,8 @@ public class AutoWeapon extends Module {
         else return mc.player.getInventory().selectedSlot;
     }
 
-    public enum Weapon {
+    public enum Weapon
+    {
         Sword,
         Axe
     }

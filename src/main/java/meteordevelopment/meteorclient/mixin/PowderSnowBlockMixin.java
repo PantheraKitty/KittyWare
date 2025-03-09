@@ -16,9 +16,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(PowderSnowBlock.class)
-public abstract class PowderSnowBlockMixin {
+public abstract class PowderSnowBlockMixin
+{
     @ModifyReturnValue(method = "canWalkOnPowderSnow", at = @At("RETURN"))
-    private static boolean onCanWalkOnPowderSnow(boolean original, Entity entity) {
+    private static boolean onCanWalkOnPowderSnow(boolean original, Entity entity)
+    {
         if (entity == mc.player && Modules.get().get(Jesus.class).canWalkOnPowderSnow()) return true;
         return original;
     }

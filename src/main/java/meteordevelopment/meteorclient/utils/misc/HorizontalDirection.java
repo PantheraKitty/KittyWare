@@ -5,7 +5,8 @@
 
 package meteordevelopment.meteorclient.utils.misc;
 
-public enum HorizontalDirection {
+public enum HorizontalDirection
+{
     South("South", "Z+", false, 0, 0, 1),
     SouthEast("South East", "X+ Z+", true, -45, 1, 1),
     West("West", "X-", false, 90, -1, 0),
@@ -21,7 +22,8 @@ public enum HorizontalDirection {
     public final float yaw;
     public final int offsetX, offsetZ;
 
-    HorizontalDirection(String name, String axis, boolean diagonal, float yaw, int offsetX, int offsetZ) {
+    HorizontalDirection(String name, String axis, boolean diagonal, float yaw, int offsetX, int offsetZ)
+    {
         this.axis = axis;
         this.name = name;
         this.diagonal = diagonal;
@@ -30,59 +32,8 @@ public enum HorizontalDirection {
         this.offsetZ = offsetZ;
     }
 
-    public HorizontalDirection opposite() {
-        return switch (this) {
-            case South -> North;
-            case SouthEast -> NorthWest;
-            case West -> East;
-            case NorthWest -> SouthEast;
-            case North -> South;
-            case NorthEast -> SouthWest;
-            case East -> West;
-            case SouthWest -> NorthEast;
-        };
-    }
-
-    public HorizontalDirection rotateLeft() {
-        return switch (this) {
-            case South -> SouthEast;
-            case SouthEast -> East;
-            case East -> NorthEast;
-            case NorthEast -> North;
-            case North -> NorthWest;
-            case NorthWest -> West;
-            case West -> SouthWest;
-            case SouthWest -> South;
-        };
-    }
-
-    public HorizontalDirection rotateLeftSkipOne() {
-        return switch (this) {
-            case South -> East;
-            case East -> North;
-            case North -> West;
-            case West -> South;
-            case SouthEast -> NorthEast;
-            case NorthEast -> NorthWest;
-            case NorthWest -> SouthWest;
-            case SouthWest -> SouthEast;
-        };
-    }
-
-    public HorizontalDirection rotateRight() {
-        return switch (this) {
-            case South -> SouthWest;
-            case SouthWest -> West;
-            case West -> NorthWest;
-            case NorthWest -> North;
-            case North -> NorthEast;
-            case NorthEast -> East;
-            case East -> SouthEast;
-            case SouthEast -> South;
-        };
-    }
-
-    public static HorizontalDirection get(float yaw) {
+    public static HorizontalDirection get(float yaw)
+    {
         yaw = yaw % 360;
         if (yaw < 0) yaw += 360;
 
@@ -96,5 +47,65 @@ public enum HorizontalDirection {
         else if (yaw >= 292.5 && yaw < 337.5) return SouthEast;
 
         return South;
+    }
+
+    public HorizontalDirection opposite()
+    {
+        return switch (this)
+        {
+            case South -> North;
+            case SouthEast -> NorthWest;
+            case West -> East;
+            case NorthWest -> SouthEast;
+            case North -> South;
+            case NorthEast -> SouthWest;
+            case East -> West;
+            case SouthWest -> NorthEast;
+        };
+    }
+
+    public HorizontalDirection rotateLeft()
+    {
+        return switch (this)
+        {
+            case South -> SouthEast;
+            case SouthEast -> East;
+            case East -> NorthEast;
+            case NorthEast -> North;
+            case North -> NorthWest;
+            case NorthWest -> West;
+            case West -> SouthWest;
+            case SouthWest -> South;
+        };
+    }
+
+    public HorizontalDirection rotateLeftSkipOne()
+    {
+        return switch (this)
+        {
+            case South -> East;
+            case East -> North;
+            case North -> West;
+            case West -> South;
+            case SouthEast -> NorthEast;
+            case NorthEast -> NorthWest;
+            case NorthWest -> SouthWest;
+            case SouthWest -> SouthEast;
+        };
+    }
+
+    public HorizontalDirection rotateRight()
+    {
+        return switch (this)
+        {
+            case South -> SouthWest;
+            case SouthWest -> West;
+            case West -> NorthWest;
+            case NorthWest -> North;
+            case North -> NorthEast;
+            case NorthEast -> East;
+            case East -> SouthEast;
+            case SouthEast -> South;
+        };
     }
 }

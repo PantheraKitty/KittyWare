@@ -19,7 +19,8 @@ import net.minecraft.particle.ParticleTypes;
 
 import java.util.List;
 
-public class Trail extends Module {
+public class Trail extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<List<ParticleType<?>>> particles = sgGeneral.add(new ParticleTypeListSetting.Builder()
@@ -36,18 +37,21 @@ public class Trail extends Module {
         .build()
     );
 
-    public Trail() {
+    public Trail()
+    {
         super(Categories.Render, "trail", "Renders a customizable trail behind your player.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (pause.get()
             && mc.player.getX() == mc.player.prevX
             && mc.player.getY() == mc.player.prevY
             && mc.player.getZ() == mc.player.prevZ) return;
 
-        for (ParticleType<?> particleType : particles.get()) {
+        for (ParticleType<?> particleType : particles.get())
+        {
             mc.world.addParticle((ParticleEffect) particleType, mc.player.getX(), mc.player.getY(), mc.player.getZ(), 0, 0, 0);
         }
     }

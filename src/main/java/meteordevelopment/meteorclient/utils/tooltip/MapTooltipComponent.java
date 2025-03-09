@@ -21,33 +21,39 @@ import net.minecraft.util.Identifier;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class MapTooltipComponent implements TooltipComponent, MeteorTooltipData {
+public class MapTooltipComponent implements TooltipComponent, MeteorTooltipData
+{
     private static final Identifier TEXTURE_MAP_BACKGROUND = Identifier.of("textures/map/map_background.png");
     private final int mapId;
 
-    public MapTooltipComponent(int mapId) {
+    public MapTooltipComponent(int mapId)
+    {
         this.mapId = mapId;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight()
+    {
         double scale = Modules.get().get(BetterTooltips.class).mapsScale.get();
         return (int) ((128 + 16) * scale) + 2;
     }
 
     @Override
-    public int getWidth(TextRenderer textRenderer) {
+    public int getWidth(TextRenderer textRenderer)
+    {
         double scale = Modules.get().get(BetterTooltips.class).mapsScale.get();
         return (int) ((128 + 16) * scale);
     }
 
     @Override
-    public TooltipComponent getComponent() {
+    public TooltipComponent getComponent()
+    {
         return this;
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
+    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context)
+    {
         double scale = Modules.get().get(BetterTooltips.class).mapsScale.get();
 
         // Background

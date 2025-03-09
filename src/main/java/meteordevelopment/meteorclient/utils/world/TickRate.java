@@ -18,7 +18,8 @@ import java.util.Arrays;
 /**
  * Copied from <a href="https://github.com/S-B99/kamiblue/blob/feature/master/src/main/java/me/zeroeightsix/kami/util/LagCompensator.java">KAMI Blue</a>
  */
-public class TickRate {
+public class TickRate
+{
     public static TickRate INSTANCE = new TickRate();
 
     private final float[] tickRates = new float[20];
@@ -26,13 +27,16 @@ public class TickRate {
     private long timeLastTimeUpdate = -1;
     private long timeGameJoined;
 
-    private TickRate() {
+    private TickRate()
+    {
         MeteorClient.EVENT_BUS.subscribe(this);
     }
 
     @EventHandler
-    private void onReceivePacket(PacketEvent.Receive event) {
-        if (event.packet instanceof WorldTimeUpdateS2CPacket) {
+    private void onReceivePacket(PacketEvent.Receive event)
+    {
+        if (event.packet instanceof WorldTimeUpdateS2CPacket)
+        {
             long now = System.currentTimeMillis();
             float timeElapsed = (now - timeLastTimeUpdate) / 1000.0F;
             tickRates[nextIndex] = MathHelper.clamp(20.0f / timeElapsed, 0.0f, 20.0f);
@@ -42,20 +46,24 @@ public class TickRate {
     }
 
     @EventHandler
-    private void onGameJoined(GameJoinedEvent event) {
+    private void onGameJoined(GameJoinedEvent event)
+    {
         Arrays.fill(tickRates, 0);
         nextIndex = 0;
         timeGameJoined = timeLastTimeUpdate = System.currentTimeMillis();
     }
 
-    public float getTickRate() {
+    public float getTickRate()
+    {
         if (!Utils.canUpdate()) return 0;
         if (System.currentTimeMillis() - timeGameJoined < 4000) return 20;
 
         int numTicks = 0;
         float sumTickRates = 0.0f;
-        for (float tickRate : tickRates) {
-            if (tickRate > 0) {
+        for (float tickRate : tickRates)
+        {
+            if (tickRate > 0)
+            {
                 sumTickRates += tickRate;
                 numTicks++;
             }
@@ -63,7 +71,8 @@ public class TickRate {
         return sumTickRates / numTicks;
     }
 
-    public float getTimeSinceLastTick() {
+    public float getTimeSinceLastTick()
+    {
         long now = System.currentTimeMillis();
         if (now - timeGameJoined < 4000) return 0;
         return (now - timeLastTimeUpdate) / 1000f;

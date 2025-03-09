@@ -26,7 +26,8 @@ import net.minecraft.util.Pair;
 import java.util.*;
 import java.util.function.Consumer;
 
-public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
+public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen
+{
     protected final Setting<?> setting;
     protected final Collection<RegistryKey<E>> collection;
     private final RegistryKey<Registry<E>> registryKey;
@@ -37,7 +38,8 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
 
     private WTable table;
 
-    public DynamicRegistryListSettingScreen(GuiTheme theme, String title, Setting<?> setting, Collection<RegistryKey<E>> collection, RegistryKey<Registry<E>> registryKey) {
+    public DynamicRegistryListSettingScreen(GuiTheme theme, String title, Setting<?> setting, Collection<RegistryKey<E>> collection, RegistryKey<Registry<E>> registryKey)
+    {
         super(theme, title);
 
         this.registryKey = registryKey;
@@ -48,11 +50,13 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         // Filter
         filter = add(theme.textBox("")).minWidth(400).expandX().widget();
         filter.setFocused(true);
-        filter.action = () -> {
+        filter.action = () ->
+        {
             filterText = filter.get().trim();
 
             table.clear();
@@ -64,20 +68,24 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
         generateWidgets();
     }
 
-    private void generateWidgets() {
+    private void generateWidgets()
+    {
         // Left (all)
-        WTable left = abc(pairs -> registry.ifPresent(registry -> {
-            registry.streamEntries()
-                .map(RegistryEntry.Reference::getKey)
-                .filter(Optional::isPresent)
-                .map(Optional::get).forEach(t -> {
-                    if (skipValue(t) || collection.contains(t)) return;
+        WTable left = abc(pairs -> registry.ifPresent(registry ->
+            {
+                registry.streamEntries()
+                    .map(RegistryEntry.Reference::getKey)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get).forEach(t ->
+                    {
+                        if (skipValue(t) || collection.contains(t)) return;
 
-                    int words = Utils.searchInWords(getValueName(t), filterText);
-                    int diff = Utils.searchLevenshteinDefault(getValueName(t), filterText, false);
-                    if (words > 0 || diff <= getValueName(t).length() / 2) pairs.add(new Pair<>(t, -diff));
-                });
-            }), true, t -> {
+                        int words = Utils.searchInWords(getValueName(t), filterText);
+                        int diff = Utils.searchLevenshteinDefault(getValueName(t), filterText, false);
+                        if (words > 0 || diff <= getValueName(t).length() / 2) pairs.add(new Pair<>(t, -diff));
+                    });
+            }), true, t ->
+            {
                 addValue(t);
 
                 RegistryKey<E> v = getAdditionalValue(t);
@@ -85,33 +93,42 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
             }
         );
 
-        if (!left.cells.isEmpty()) {
+        if (!left.cells.isEmpty())
+        {
             left.add(theme.horizontalSeparator()).expandX();
             left.row();
         }
 
         WHorizontalList manualEntry = left.add(theme.horizontalList()).expandX().widget();
         WTextBox textBox = manualEntry.add(theme.textBox("minecraft:")).expandX().minWidth(120d).widget();
-        manualEntry.add(theme.plus()).expandCellX().right().widget().action = () -> {
+        manualEntry.add(theme.plus()).expandCellX().right().widget().action = () ->
+        {
             String entry = textBox.get().trim();
-            try {
+            try
+            {
                 Identifier id = entry.contains(":") ? Identifier.of(entry) : Identifier.ofVanilla(entry);
                 addValue(RegistryKey.of(registryKey, id));
-            } catch (InvalidIdentifierException e) {}
+            }
+            catch (InvalidIdentifierException e)
+            {
+            }
         };
 
         table.add(theme.verticalSeparator()).expandWidgetY();
 
         // Right (selected)
-        abc(pairs -> {
-            for (RegistryKey<E> value : collection) {
+        abc(pairs ->
+        {
+            for (RegistryKey<E> value : collection)
+            {
                 if (skipValue(value)) continue;
 
                 int words = Utils.searchInWords(getValueName(value), filterText);
                 int diff = Utils.searchLevenshteinDefault(getValueName(value), filterText, false);
                 if (words > 0 || diff <= getValueName(value).length() / 2) pairs.add(new Pair<>(value, -diff));
             }
-        }, false, t -> {
+        }, false, t ->
+        {
             removeValue(t);
 
             RegistryKey<E> v = getAdditionalValue(t);
@@ -119,8 +136,10 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
         });
     }
 
-    private void addValue(RegistryKey<E> value) {
-        if (!collection.contains(value)) {
+    private void addValue(RegistryKey<E> value)
+    {
+        if (!collection.contains(value))
+        {
             collection.add(value);
 
             setting.onChanged();
@@ -129,20 +148,24 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
         }
     }
 
-    private void removeValue(RegistryKey<E> value) {
-        if (collection.remove(value)) {
+    private void removeValue(RegistryKey<E> value)
+    {
+        if (collection.remove(value))
+        {
             setting.onChanged();
             table.clear();
             generateWidgets();
         }
     }
 
-    private WTable abc(Consumer<List<Pair<RegistryKey<E>, Integer>>> addValues, boolean isLeft, Consumer<RegistryKey<E>> buttonAction) {
+    private WTable abc(Consumer<List<Pair<RegistryKey<E>, Integer>>> addValues, boolean isLeft, Consumer<RegistryKey<E>> buttonAction)
+    {
         // Create
         Cell<WTable> cell = this.table.add(theme.table()).top();
         WTable table = cell.widget();
 
-        Consumer<RegistryKey<E>> forEach = t -> {
+        Consumer<RegistryKey<E>> forEach = t ->
+        {
             if (!includeValue(t)) return;
 
             table.add(getValueWidget(t));
@@ -164,7 +187,8 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
         return table;
     }
 
-    protected boolean includeValue(RegistryKey<E> value) {
+    protected boolean includeValue(RegistryKey<E> value)
+    {
         return true;
     }
 
@@ -172,11 +196,13 @@ public abstract class DynamicRegistryListSettingScreen<E> extends WindowScreen {
 
     protected abstract String getValueName(RegistryKey<E> value);
 
-    protected boolean skipValue(RegistryKey<E> value) {
+    protected boolean skipValue(RegistryKey<E> value)
+    {
         return false;
     }
 
-    protected RegistryKey<E> getAdditionalValue(RegistryKey<E> value) {
+    protected RegistryKey<E> getAdditionalValue(RegistryKey<E> value)
+    {
         return null;
     }
 }

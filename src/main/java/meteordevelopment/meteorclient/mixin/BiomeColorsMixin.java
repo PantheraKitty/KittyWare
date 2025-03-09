@@ -16,15 +16,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BiomeColors.class)
-public abstract class BiomeColorsMixin {
+public abstract class BiomeColorsMixin
+{
     /**
      * @author Walaryne
      */
     @Inject(method = "getWaterColor", at = @At("HEAD"), cancellable = true)
-    private static void onGetWaterColor(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info) {
+    private static void onGetWaterColor(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info)
+    {
         Ambience ambience = Modules.get().get(Ambience.class);
 
-        if (ambience.isActive() && ambience.customWaterColor.get()) {
+        if (ambience.isActive() && ambience.customWaterColor.get())
+        {
             info.setReturnValue(ambience.waterColor.get().getPacked());
         }
     }
@@ -33,10 +36,12 @@ public abstract class BiomeColorsMixin {
      * @author Walaryne
      */
     @Inject(method = "getFoliageColor", at = @At("HEAD"), cancellable = true)
-    private static void onGetFoliageColor(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info) {
+    private static void onGetFoliageColor(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info)
+    {
         Ambience ambience = Modules.get().get(Ambience.class);
 
-        if (ambience.isActive() && ambience.customFoliageColor.get()) {
+        if (ambience.isActive() && ambience.customFoliageColor.get())
+        {
             info.setReturnValue(ambience.foliageColor.get().getPacked());
         }
     }
@@ -45,10 +50,12 @@ public abstract class BiomeColorsMixin {
      * @author Walaryne
      */
     @Inject(method = "getGrassColor", at = @At("HEAD"), cancellable = true)
-    private static void onGetGrassColor(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info) {
+    private static void onGetGrassColor(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info)
+    {
         Ambience ambience = Modules.get().get(Ambience.class);
 
-        if (ambience.isActive() && ambience.customGrassColor.get()) {
+        if (ambience.isActive() && ambience.customGrassColor.get())
+        {
             info.setReturnValue(ambience.grassColor.get().getPacked());
         }
     }

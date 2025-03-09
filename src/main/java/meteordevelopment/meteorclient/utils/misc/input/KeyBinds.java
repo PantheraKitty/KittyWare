@@ -12,21 +12,25 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 
-public class KeyBinds {
+public class KeyBinds
+{
     private static final String CATEGORY = "Meteor Client";
 
     public static KeyBinding OPEN_GUI = new KeyBinding("key.meteor-client.open-gui", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, CATEGORY);
     public static KeyBinding OPEN_COMMANDS = new KeyBinding("key.meteor-client.open-commands", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_PERIOD, CATEGORY);
 
-    private KeyBinds() {
+    private KeyBinds()
+    {
     }
 
-    public static KeyBinding[] apply(KeyBinding[] binds) {
+    public static KeyBinding[] apply(KeyBinding[] binds)
+    {
         // Add category
         Map<String, Integer> categories = KeyBindingAccessor.getCategoryOrderMap();
 
         int highest = 0;
-        for (int i : categories.values()) {
+        for (int i : categories.values())
+        {
             if (i > highest) highest = i;
         }
 

@@ -18,7 +18,8 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NbtCompound;
 
-public class ESPBlockData implements ICopyable<ESPBlockData>, ISerializable<ESPBlockData>, IChangeable, IBlockData<ESPBlockData>, IScreenFactory {
+public class ESPBlockData implements ICopyable<ESPBlockData>, ISerializable<ESPBlockData>, IChangeable, IBlockData<ESPBlockData>, IScreenFactory
+{
     public ShapeMode shapeMode;
     public SettingColor lineColor;
     public SettingColor sideColor;
@@ -28,7 +29,8 @@ public class ESPBlockData implements ICopyable<ESPBlockData>, ISerializable<ESPB
 
     private boolean changed;
 
-    public ESPBlockData(ShapeMode shapeMode, SettingColor lineColor, SettingColor sideColor, boolean tracer, SettingColor tracerColor) {
+    public ESPBlockData(ShapeMode shapeMode, SettingColor lineColor, SettingColor sideColor, boolean tracer, SettingColor tracerColor)
+    {
         this.shapeMode = shapeMode;
         this.lineColor = lineColor;
         this.sideColor = sideColor;
@@ -38,32 +40,38 @@ public class ESPBlockData implements ICopyable<ESPBlockData>, ISerializable<ESPB
     }
 
     @Override
-    public WidgetScreen createScreen(GuiTheme theme, Block block, BlockDataSetting<ESPBlockData> setting) {
+    public WidgetScreen createScreen(GuiTheme theme, Block block, BlockDataSetting<ESPBlockData> setting)
+    {
         return new ESPBlockDataScreen(theme, this, block, setting);
     }
 
     @Override
-    public WidgetScreen createScreen(GuiTheme theme) {
+    public WidgetScreen createScreen(GuiTheme theme)
+    {
         return new ESPBlockDataScreen(theme, this, null, null);
     }
 
     @Override
-    public boolean isChanged() {
+    public boolean isChanged()
+    {
         return changed;
     }
 
-    public void changed() {
+    public void changed()
+    {
         changed = true;
     }
 
-    public void tickRainbow() {
+    public void tickRainbow()
+    {
         lineColor.update();
         sideColor.update();
         tracerColor.update();
     }
 
     @Override
-    public ESPBlockData set(ESPBlockData value) {
+    public ESPBlockData set(ESPBlockData value)
+    {
         shapeMode = value.shapeMode;
         lineColor.set(value.lineColor);
         sideColor.set(value.sideColor);
@@ -77,12 +85,14 @@ public class ESPBlockData implements ICopyable<ESPBlockData>, ISerializable<ESPB
     }
 
     @Override
-    public ESPBlockData copy() {
+    public ESPBlockData copy()
+    {
         return new ESPBlockData(shapeMode, new SettingColor(lineColor), new SettingColor(sideColor), tracer, new SettingColor(tracerColor));
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putString("shapeMode", shapeMode.name());
@@ -98,7 +108,8 @@ public class ESPBlockData implements ICopyable<ESPBlockData>, ISerializable<ESPB
     }
 
     @Override
-    public ESPBlockData fromTag(NbtCompound tag) {
+    public ESPBlockData fromTag(NbtCompound tag)
+    {
         shapeMode = ShapeMode.valueOf(tag.getString("shapeMode"));
         lineColor.fromTag(tag.getCompound("lineColor"));
         sideColor.fromTag(tag.getCompound("sideColor"));

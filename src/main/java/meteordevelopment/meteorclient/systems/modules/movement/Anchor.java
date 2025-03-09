@@ -17,7 +17,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
-public class Anchor extends Module {
+public class Anchor extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> maxHeight = sgGeneral.add(new IntSetting.Builder()
@@ -62,39 +63,42 @@ public class Anchor extends Module {
     );
 
     private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
+    public boolean cancelJump;
+    public boolean controlMovement;
+    public double deltaX, deltaZ;
     private boolean wasInHole;
     private boolean foundHole;
     private int holeX, holeZ;
 
-    public boolean cancelJump;
-
-    public boolean controlMovement;
-    public double deltaX, deltaZ;
-
-    public Anchor() {
+    public Anchor()
+    {
         super(Categories.Movement, "anchor", "Helps you get into holes by stopping your movement completely over a hole.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         wasInHole = false;
         holeX = holeZ = 0;
     }
 
     @EventHandler
-    private void onPreTick(TickEvent.Pre event) {
+    private void onPreTick(TickEvent.Pre event)
+    {
         cancelJump = foundHole && cancelMove.get() && mc.player.getPitch() >= minPitch.get();
     }
 
     @EventHandler
-    private void onPostTick(TickEvent.Post event) {
+    private void onPostTick(TickEvent.Post event)
+    {
         controlMovement = false;
 
         int x = MathHelper.floor(mc.player.getX());
         int y = MathHelper.floor(mc.player.getY());
         int z = MathHelper.floor(mc.player.getZ());
 
-        if (isHole(x, y, z)) {
+        if (isHole(x, y, z))
+        {
             wasInHole = true;
             holeX = x;
             holeZ = z;
@@ -110,11 +114,13 @@ public class Anchor extends Module {
         double holeX = 0;
         double holeZ = 0;
 
-        for (int i = 0; i < maxHeight.get(); i++) {
+        for (int i = 0; i < maxHeight.get(); i++)
+        {
             y--;
             if (y <= mc.world.getBottomY() || !isAir(x, y, z)) break;
 
-            if (isHole(x, y, z)) {
+            if (isHole(x, y, z))
+            {
                 foundHole = true;
                 holeX = x + 0.5;
                 holeZ = z + 0.5;
@@ -122,7 +128,8 @@ public class Anchor extends Module {
             }
         }
 
-        if (foundHole) {
+        if (foundHole)
+        {
             controlMovement = true;
             deltaX = MathHelper.clamp(holeX - mc.player.getX(), -0.05, 0.05);
             deltaZ = MathHelper.clamp(holeZ - mc.player.getZ(), -0.05, 0.05);
@@ -131,22 +138,25 @@ public class Anchor extends Module {
         }
     }
 
-    private boolean isHole(int x, int y, int z) {
+    private boolean isHole(int x, int y, int z)
+    {
         return isHoleBlock(x, y - 1, z) &&
-                isHoleBlock(x + 1, y, z) &&
-                isHoleBlock(x - 1, y, z) &&
-                isHoleBlock(x, y, z + 1) &&
-                isHoleBlock(x, y, z - 1);
+            isHoleBlock(x + 1, y, z) &&
+            isHoleBlock(x - 1, y, z) &&
+            isHoleBlock(x, y, z + 1) &&
+            isHoleBlock(x, y, z - 1);
     }
 
-    private boolean isHoleBlock(int x, int y, int z) {
+    private boolean isHoleBlock(int x, int y, int z)
+    {
         blockPos.set(x, y, z);
         Block block = mc.world.getBlockState(blockPos).getBlock();
         return block == Blocks.BEDROCK || block == Blocks.OBSIDIAN || block == Blocks.CRYING_OBSIDIAN;
     }
 
-    private boolean isAir(int x, int y, int z) {
+    private boolean isAir(int x, int y, int z)
+    {
         blockPos.set(x, y, z);
-        return !((AbstractBlockAccessor)mc.world.getBlockState(blockPos).getBlock()).isCollidable();
+        return !((AbstractBlockAccessor) mc.world.getBlockState(blockPos).getBlock()).isCollidable();
     }
 }

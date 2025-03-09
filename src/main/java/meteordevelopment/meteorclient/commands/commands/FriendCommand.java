@@ -11,29 +11,33 @@ import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.commands.arguments.FriendArgumentType;
 import meteordevelopment.meteorclient.commands.arguments.PlayerListEntryArgumentType;
 import meteordevelopment.meteorclient.systems.friends.Friend;
-import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.friends.Friend.FriendType;
+import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.Formatting;
 
-public class FriendCommand extends Command {
-    public FriendCommand() {
+public class FriendCommand extends Command
+{
+    public FriendCommand()
+    {
         super("friend", "Manages friends.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
         builder.then(literal("add")
             .then(argument("player", PlayerListEntryArgumentType.create())
-                .executes(context -> {
+                .executes(context ->
+                {
                     GameProfile profile = PlayerListEntryArgumentType.get(context).getProfile();
                     Friend friend = new Friend(profile.getName(), profile.getId(), FriendType.Friend);
 
-                    if (Friends.get().add(friend)) {
+                    if (Friends.get().add(friend))
+                    {
                         ChatUtils.sendMsg(friend.hashCode(), Formatting.GRAY, "Added (highlight)%s (default)to friends.".formatted(friend.getName()));
-                    }
-                    else error("Already friends with that player.");
+                    } else error("Already friends with that player.");
 
                     return SINGLE_SUCCESS;
                 })
@@ -42,24 +46,27 @@ public class FriendCommand extends Command {
 
         builder.then(literal("remove")
             .then(argument("friend", FriendArgumentType.create())
-                .executes(context -> {
+                .executes(context ->
+                {
                     Friend friend = FriendArgumentType.get(context);
-                    if (friend == null) {
+                    if (friend == null)
+                    {
                         error("Not friends with that player.");
                         return SINGLE_SUCCESS;
                     }
 
-                    if (Friends.get().remove(friend)) {
+                    if (Friends.get().remove(friend))
+                    {
                         ChatUtils.sendMsg(friend.hashCode(), Formatting.GRAY, "Removed (highlight)%s (default)from friends.".formatted(friend.getName()));
-                    }
-                    else error("Failed to remove that friend.");
+                    } else error("Failed to remove that friend.");
 
                     return SINGLE_SUCCESS;
                 })
             )
         );
 
-        builder.then(literal("list").executes(context -> {
+        builder.then(literal("list").executes(context ->
+            {
                 info("--- Friends ((highlight)%s(default)) ---", Friends.get().count());
                 Friends.get().enemyStream().forEach(friend -> ChatUtils.info("(highlight)%s".formatted(friend.getName())));
                 return SINGLE_SUCCESS;

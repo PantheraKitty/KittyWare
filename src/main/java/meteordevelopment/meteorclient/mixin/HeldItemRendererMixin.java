@@ -28,7 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(HeldItemRenderer.class)
-public abstract class HeldItemRendererMixin {
+public abstract class HeldItemRendererMixin
+{
     @Shadow
     private float equipProgressMainHand;
 
@@ -42,15 +43,19 @@ public abstract class HeldItemRendererMixin {
     private ItemStack offHand;
 
     @ModifyVariable(method = "renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;Lnet/minecraft/client/network/ClientPlayerEntity;I)V", at = @At(value = "STORE", ordinal = 0), index = 6)
-    private float modifySwing(float swingProgress) {
+    private float modifySwing(float swingProgress)
+    {
         HandView module = Modules.get().get(HandView.class);
         Hand hand = MoreObjects.firstNonNull(mc.player.preferredHand, Hand.MAIN_HAND);
 
-        if (module.isActive()) {
-            if (hand == Hand.OFF_HAND && !mc.player.getOffHandStack().isEmpty()) {
+        if (module.isActive())
+        {
+            if (hand == Hand.OFF_HAND && !mc.player.getOffHandStack().isEmpty())
+            {
                 return swingProgress + module.offSwing.get().floatValue();
             }
-            if (hand == Hand.MAIN_HAND && !mc.player.getMainHandStack().isEmpty()) {
+            if (hand == Hand.MAIN_HAND && !mc.player.getMainHandStack().isEmpty())
+            {
                 return swingProgress + module.mainSwing.get().floatValue();
             }
         }
@@ -59,12 +64,14 @@ public abstract class HeldItemRendererMixin {
     }
 
     @Redirect(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;areEqual(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;)Z"))
-    private boolean redirectSwapping(ItemStack left, ItemStack right) {
+    private boolean redirectSwapping(ItemStack left, ItemStack right)
+    {
         return showSwapping(left, right);
     }
 
     @ModifyArg(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;clamp(FFF)F", ordinal = 2), index = 0)
-    private float modifyEquipProgressMainhand(float value) {
+    private float modifyEquipProgressMainhand(float value)
+    {
         float f = mc.player.getAttackCooldownProgress(1f);
         float modified = Modules.get().get(HandView.class).oldAnimations() ? 1 : f * f * f;
 
@@ -72,28 +79,33 @@ public abstract class HeldItemRendererMixin {
     }
 
     @ModifyArg(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;clamp(FFF)F", ordinal = 3), index = 0)
-    private float modifyEquipProgressOffhand(float value) {
+    private float modifyEquipProgressOffhand(float value)
+    {
         return (showSwapping(offHand, mc.player.getOffHandStack()) ? 1 : 0) - equipProgressOffHand;
     }
 
     @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"))
-    private void onRenderItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+    private void onRenderItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
+    {
         MeteorClient.EVENT_BUS.post(HeldItemRendererEvent.get(hand, matrices));
     }
 
     @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderArmHoldingItem(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IFFLnet/minecraft/util/Arm;)V"))
-    private void onRenderArm(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+    private void onRenderArm(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
+    {
         MeteorClient.EVENT_BUS.post(ArmRenderEvent.get(hand, matrices));
     }
 
     @Inject(method = "applyEatOrDrinkTransformation", at = @At(value = "INVOKE", target = "Ljava/lang/Math;pow(DD)D", shift = At.Shift.BEFORE), cancellable = true)
-    private void cancelTransformations(MatrixStack matrices, float tickDelta, Arm arm, ItemStack stack, PlayerEntity player, CallbackInfo ci) {
+    private void cancelTransformations(MatrixStack matrices, float tickDelta, Arm arm, ItemStack stack, PlayerEntity player, CallbackInfo ci)
+    {
         if (Modules.get().get(HandView.class).disableFoodAnimation()) ci.cancel();
     }
 
 
     @Unique
-    private boolean showSwapping(ItemStack stack1, ItemStack stack2) {
+    private boolean showSwapping(ItemStack stack1, ItemStack stack2)
+    {
         return !Modules.get().get(HandView.class).showSwapping() || ItemStack.areEqual(stack1, stack2);
     }
 }

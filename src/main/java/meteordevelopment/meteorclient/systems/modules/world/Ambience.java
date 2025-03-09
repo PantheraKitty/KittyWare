@@ -19,12 +19,9 @@ import net.minecraft.util.math.Vec3d;
 /**
  * @author Walaryne
  */
-public class Ambience extends Module {
+public class Ambience extends Module
+{
     private final SettingGroup sgSky = settings.createGroup("Sky");
-    private final SettingGroup sgWorld = settings.createGroup("World");
-
-    // Sky
-
     public final Setting<Boolean> endSky = sgSky.add(new BoolSetting.Builder()
         .name("end-sky")
         .description("Makes the sky like the end.")
@@ -32,13 +29,13 @@ public class Ambience extends Module {
         .build()
     );
 
+    // Sky
     public final Setting<Boolean> customSkyColor = sgSky.add(new BoolSetting.Builder()
         .name("custom-sky-color")
         .description("Whether the sky color should be changed.")
         .defaultValue(false)
         .build()
     );
-
     public final Setting<SettingColor> overworldSkyColor = sgSky.add(new ColorSetting.Builder()
         .name("overworld-sky-color")
         .description("The color of the overworld sky.")
@@ -46,7 +43,6 @@ public class Ambience extends Module {
         .visible(customSkyColor::get)
         .build()
     );
-
     public final Setting<SettingColor> netherSkyColor = sgSky.add(new ColorSetting.Builder()
         .name("nether-sky-color")
         .description("The color of the nether sky.")
@@ -54,7 +50,6 @@ public class Ambience extends Module {
         .visible(customSkyColor::get)
         .build()
     );
-
     public final Setting<SettingColor> endSkyColor = sgSky.add(new ColorSetting.Builder()
         .name("end-sky-color")
         .description("The color of the end sky.")
@@ -62,14 +57,12 @@ public class Ambience extends Module {
         .visible(customSkyColor::get)
         .build()
     );
-
     public final Setting<Boolean> customCloudColor = sgSky.add(new BoolSetting.Builder()
         .name("custom-cloud-color")
         .description("Whether the clouds color should be changed.")
         .defaultValue(false)
         .build()
     );
-
     public final Setting<SettingColor> cloudColor = sgSky.add(new ColorSetting.Builder()
         .name("cloud-color")
         .description("The color of the clouds.")
@@ -77,14 +70,12 @@ public class Ambience extends Module {
         .visible(customCloudColor::get)
         .build()
     );
-
     public final Setting<Boolean> changeLightningColor = sgSky.add(new BoolSetting.Builder()
         .name("custom-lightning-color")
         .description("Whether the lightning color should be changed.")
         .defaultValue(false)
         .build()
     );
-
     public final Setting<SettingColor> lightningColor = sgSky.add(new ColorSetting.Builder()
         .name("lightning-color")
         .description("The color of the lightning.")
@@ -92,7 +83,7 @@ public class Ambience extends Module {
         .visible(changeLightningColor::get)
         .build()
     );
-
+    private final SettingGroup sgWorld = settings.createGroup("World");
     // World
     public final Setting<Boolean> customGrassColor = sgWorld.add(new BoolSetting.Builder()
         .name("custom-grass-color")
@@ -162,58 +153,72 @@ public class Ambience extends Module {
         .build()
     );
 
-    public Ambience() {
+    public Ambience()
+    {
         super(Categories.World, "ambience", "Change the color of various pieces of the environment.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         reload();
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         reload();
     }
 
-    private void reload() {
+    private void reload()
+    {
         if (mc.worldRenderer != null && isActive()) mc.worldRenderer.reload();
     }
 
-    public static class Custom extends DimensionEffects {
-        public Custom() {
-            super(Float.NaN, true, DimensionEffects.SkyType.END, true, false);
-        }
-
-        @Override
-        public Vec3d adjustFogColor(Vec3d color, float sunHeight) {
-            return color.multiply(0.15000000596046448D);
-        }
-
-        @Override
-        public boolean useThickFog(int camX, int camY) {
-            return false;
-        }
-
-        @Override
-        public float[] getFogColorOverride(float skyAngle, float tickDelta) {
-            return null;
-        }
-    }
-
-    public SettingColor skyColor() {
-        switch (PlayerUtils.getDimension()) {
-            case Overworld -> {
+    public SettingColor skyColor()
+    {
+        switch (PlayerUtils.getDimension())
+        {
+            case Overworld ->
+            {
                 return overworldSkyColor.get();
             }
-            case Nether -> {
+            case Nether ->
+            {
                 return netherSkyColor.get();
             }
-            case End -> {
+            case End ->
+            {
                 return endSkyColor.get();
             }
         }
 
         return null;
+    }
+
+    public static class Custom extends DimensionEffects
+    {
+        public Custom()
+        {
+            super(Float.NaN, true, DimensionEffects.SkyType.END, true, false);
+        }
+
+        @Override
+        public Vec3d adjustFogColor(Vec3d color, float sunHeight)
+        {
+            return color.multiply(0.15000000596046448D);
+        }
+
+        @Override
+        public boolean useThickFog(int camX, int camY)
+        {
+            return false;
+        }
+
+        @Override
+        public float[] getFogColorOverride(float skyAngle, float tickDelta)
+        {
+            return null;
+        }
     }
 }

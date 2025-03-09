@@ -13,9 +13,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(UnbreakableComponent.class)
-public abstract class UnbreakableComponentMixin {
+public abstract class UnbreakableComponentMixin
+{
     @ModifyExpressionValue(method = "appendTooltip", at = @At(value = "FIELD", target = "Lnet/minecraft/component/type/UnbreakableComponent;showInTooltip:Z"))
-    private boolean modifyShowInTooltip(boolean original) {
+    private boolean modifyShowInTooltip(boolean original)
+    {
         BetterTooltips bt = Modules.get().get(BetterTooltips.class);
         return (bt.isActive() && bt.unbreakable.get()) || original;
     }

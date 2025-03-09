@@ -17,23 +17,24 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 
-public class MixinPlugin implements IMixinConfigPlugin {
+public class MixinPlugin implements IMixinConfigPlugin
+{
     private static final String mixinPackage = "meteordevelopment.meteorclient.mixin";
-
+    public static boolean isSodiumPresent;
+    public static boolean isIrisPresent;
     private static boolean loaded;
-
     private static boolean isOriginsPresent;
     private static boolean isIndigoPresent;
-    public static boolean isSodiumPresent;
     private static boolean isLithiumPresent;
-    public static boolean isIrisPresent;
     private static boolean isVFPPresent;
 
     @Override
-    public void onLoad(String mixinPackage) {
+    public void onLoad(String mixinPackage)
+    {
         if (loaded) return;
 
-        try {
+        try
+        {
             // Get class loader
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             Class<?> classLoaderClass = classLoader.getClass();
@@ -61,7 +62,9 @@ public class MixinPlugin implements IMixinConfigPlugin {
             mixinTransformer.delegate = (IMixinTransformer) mixinTransformerField.get(delegate);
 
             mixinTransformerField.set(delegate, mixinTransformer);
-        } catch (NoSuchFieldException | IllegalAccessException | InstantiationException e) {
+        }
+        catch (NoSuchFieldException | IllegalAccessException | InstantiationException e)
+        {
             e.printStackTrace();
         }
 
@@ -76,28 +79,31 @@ public class MixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public String getRefMapperConfig() {
+    public String getRefMapperConfig()
+    {
         return null;
     }
 
     @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!mixinClassName.startsWith(mixinPackage)) {
+    public boolean shouldApplyMixin(String targetClassName, String mixinClassName)
+    {
+        if (!mixinClassName.startsWith(mixinPackage))
+        {
             throw new RuntimeException("Mixin " + mixinClassName + " is not in the mixin package");
-        }
-        else if (mixinClassName.endsWith("PlayerEntityRendererMixin")) {
+        } else if (mixinClassName.endsWith("PlayerEntityRendererMixin"))
+        {
             return !isOriginsPresent;
-        }
-        else if (mixinClassName.startsWith(mixinPackage + ".sodium")) {
+        } else if (mixinClassName.startsWith(mixinPackage + ".sodium"))
+        {
             return isSodiumPresent;
-        }
-        else if (mixinClassName.startsWith(mixinPackage + ".indigo")) {
+        } else if (mixinClassName.startsWith(mixinPackage + ".indigo"))
+        {
             return isIndigoPresent;
-        }
-        else if (mixinClassName.startsWith(mixinPackage + ".lithium")) {
+        } else if (mixinClassName.startsWith(mixinPackage + ".lithium"))
+        {
             return isLithiumPresent;
-        }
-        else if (mixinClassName.startsWith(mixinPackage + ".viafabricplus")) {
+        } else if (mixinClassName.startsWith(mixinPackage + ".viafabricplus"))
+        {
             return isVFPPresent;
         }
 
@@ -106,16 +112,23 @@ public class MixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}
+    public void acceptTargets(Set<String> myTargets, Set<String> otherTargets)
+    {
+    }
 
     @Override
-    public List<String> getMixins() {
+    public List<String> getMixins()
+    {
         return null;
     }
 
     @Override
-    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
+    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo)
+    {
+    }
 
     @Override
-    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
+    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo)
+    {
+    }
 }

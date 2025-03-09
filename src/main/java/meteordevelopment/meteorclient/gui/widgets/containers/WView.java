@@ -12,47 +12,50 @@ import net.minecraft.util.math.MathHelper;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
-public abstract class WView extends WVerticalList {
+public abstract class WView extends WVerticalList
+{
     public double maxHeight = Double.MAX_VALUE;
     public boolean scrollOnlyWhenMouseOver = true;
     public boolean hasScrollBar = true;
 
     protected boolean canScroll;
+    protected boolean handleMouseOver;
+    protected boolean handlePressed;
     private double actualHeight;
-
     private double scroll;
     private double targetScroll;
     private boolean moveAfterPositionWidgets;
 
-    protected boolean handleMouseOver;
-    protected boolean handlePressed;
-
     @Override
-    public void init() {
+    public void init()
+    {
         maxHeight = Utils.getWindowHeight() - theme.scale(128);
     }
 
     @Override
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
         boolean couldScroll = canScroll;
         canScroll = false;
         widthRemove = 0;
 
         super.onCalculateSize();
 
-        if (height > maxHeight) {
+        if (height > maxHeight)
+        {
             actualHeight = height;
             height = maxHeight;
             canScroll = true;
 
-            if (hasScrollBar) {
+            if (hasScrollBar)
+            {
                 widthRemove = handleWidth() * 2;
                 width += widthRemove;
             }
 
             if (couldScroll) moveAfterPositionWidgets = true;
-        }
-        else {
+        } else
+        {
             actualHeight = height;
             scroll = 0;
             targetScroll = 0;
@@ -60,10 +63,12 @@ public abstract class WView extends WVerticalList {
     }
 
     @Override
-    protected void onCalculateWidgetPositions() {
+    protected void onCalculateWidgetPositions()
+    {
         super.onCalculateWidgetPositions();
 
-        if (moveAfterPositionWidgets) {
+        if (moveAfterPositionWidgets)
+        {
             scroll = MathHelper.clamp(scroll, 0, actualHeight - height);
             targetScroll = scroll;
 
@@ -74,8 +79,10 @@ public abstract class WView extends WVerticalList {
     }
 
     @Override
-    public boolean onMouseClicked(double mouseX, double mouseY, int button, boolean used) {
-        if (handleMouseOver && button == GLFW_MOUSE_BUTTON_LEFT && !used) {
+    public boolean onMouseClicked(double mouseX, double mouseY, int button, boolean used)
+    {
+        if (handleMouseOver && button == GLFW_MOUSE_BUTTON_LEFT && !used)
+        {
             handlePressed = true;
             return true;
         }
@@ -84,26 +91,31 @@ public abstract class WView extends WVerticalList {
     }
 
     @Override
-    public boolean onMouseReleased(double mouseX, double mouseY, int button) {
+    public boolean onMouseReleased(double mouseX, double mouseY, int button)
+    {
         if (handlePressed) handlePressed = false;
 
         return false;
     }
 
     @Override
-    public void onMouseMoved(double mouseX, double mouseY, double lastMouseX, double lastMouseY) {
+    public void onMouseMoved(double mouseX, double mouseY, double lastMouseX, double lastMouseY)
+    {
         handleMouseOver = false;
 
-        if (canScroll && hasScrollBar) {
+        if (canScroll && hasScrollBar)
+        {
             double x = handleX();
             double y = handleY();
 
-            if (mouseX >= x && mouseX <= x + handleWidth() && mouseY >= y && mouseY <= y + handleHeight()) {
+            if (mouseX >= x && mouseX <= x + handleWidth() && mouseY >= y && mouseY <= y + handleHeight())
+            {
                 handleMouseOver = true;
             }
         }
 
-        if (handlePressed) {
+        if (handlePressed)
+        {
             double preScroll = scroll;
             double mouseDelta = mouseY - lastMouseY;
 
@@ -120,8 +132,10 @@ public abstract class WView extends WVerticalList {
     }
 
     @Override
-    public boolean onMouseScrolled(double amount) {
-        if (!scrollOnlyWhenMouseOver || mouseOver) {
+    public boolean onMouseScrolled(double amount)
+    {
+        if (!scrollOnlyWhenMouseOver || mouseOver)
+        {
             targetScroll -= Math.round(theme.scale(amount * 40));
             targetScroll = MathHelper.clamp(targetScroll, 0, actualHeight - height);
             return true;
@@ -131,7 +145,8 @@ public abstract class WView extends WVerticalList {
     }
 
     @Override
-    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         updateScroll(delta);
 
         if (canScroll) renderer.scissorStart(x, y, width, height);
@@ -141,16 +156,18 @@ public abstract class WView extends WVerticalList {
         return render;
     }
 
-    private void updateScroll(double delta) {
+    private void updateScroll(double delta)
+    {
         double preScroll = scroll;
         double max = actualHeight - height;
 
         if (Math.abs(targetScroll - scroll) < 1) scroll = targetScroll;
-        else if (targetScroll > scroll) {
+        else if (targetScroll > scroll)
+        {
             scroll += Math.round(theme.scale(delta * 300 + delta * 100 * (Math.abs(targetScroll - scroll) / 10)));
             if (scroll > targetScroll) scroll = targetScroll;
-        }
-        else if (targetScroll < scroll) {
+        } else if (targetScroll < scroll)
+        {
             scroll -= Math.round(theme.scale(delta * 300 + delta * 100 * (Math.abs(targetScroll - scroll) / 10)));
             if (scroll < targetScroll) scroll = targetScroll;
         }
@@ -162,23 +179,28 @@ public abstract class WView extends WVerticalList {
     }
 
     @Override
-    protected boolean propagateEvents(WWidget widget) {
+    protected boolean propagateEvents(WWidget widget)
+    {
         return ((widget.y >= y && widget.y <= y + height) || (widget.y + widget.height >= y && widget.y + widget.height <= y + height)) || ((y >= widget.y && y <= widget.y + widget.height) || (y + height >= widget.y && y + height <= widget.y + widget.height));
     }
 
-    protected double handleWidth() {
+    protected double handleWidth()
+    {
         return theme.scale(6);
     }
 
-    protected double handleHeight() {
+    protected double handleHeight()
+    {
         return height / actualHeight * height;
     }
 
-    protected double handleX() {
+    protected double handleX()
+    {
         return x + width - handleWidth();
     }
 
-    protected double handleY() {
+    protected double handleY()
+    {
         return y + (height - handleHeight()) * (scroll / (actualHeight - height));
     }
 }

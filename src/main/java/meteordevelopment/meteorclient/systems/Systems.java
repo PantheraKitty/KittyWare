@@ -25,16 +25,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Systems {
+public class Systems
+{
     @SuppressWarnings("rawtypes")
     private static final Map<Class<? extends System>, System<?>> systems = new Reference2ReferenceOpenHashMap<>();
     private static final List<Runnable> preLoadTasks = new ArrayList<>(1);
 
-    public static void addPreLoadTask(Runnable task) {
+    public static void addPreLoadTask(Runnable task)
+    {
         preLoadTasks.add(task);
     }
 
-    public static void init() {
+    public static void init()
+    {
         Config config = new Config();
         System<?> configSystem = add(config);
         configSystem.init();
@@ -56,7 +59,8 @@ public class Systems {
         MeteorClient.EVENT_BUS.subscribe(Systems.class);
     }
 
-    private static System<?> add(System<?> system) {
+    private static System<?> add(System<?> system)
+    {
         systems.put(system.getClass(), system);
         MeteorClient.EVENT_BUS.subscribe(system);
         system.init();
@@ -67,11 +71,13 @@ public class Systems {
     // save/load
 
     @EventHandler
-    private static void onGameLeft(GameLeftEvent event) {
+    private static void onGameLeft(GameLeftEvent event)
+    {
         save();
     }
 
-    public static void save(File folder) {
+    public static void save(File folder)
+    {
         long start = java.lang.System.currentTimeMillis();
         MeteorClient.LOG.info("Saving");
 
@@ -80,11 +86,13 @@ public class Systems {
         MeteorClient.LOG.info("Saved in {} milliseconds.", java.lang.System.currentTimeMillis() - start);
     }
 
-    public static void save() {
+    public static void save()
+    {
         save(null);
     }
 
-    public static void load(File folder) {
+    public static void load(File folder)
+    {
         long start = java.lang.System.currentTimeMillis();
         MeteorClient.LOG.info("Loading");
 
@@ -94,12 +102,14 @@ public class Systems {
         MeteorClient.LOG.info("Loaded in {} milliseconds", java.lang.System.currentTimeMillis() - start);
     }
 
-    public static void load() {
+    public static void load()
+    {
         load(null);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends System<?>> T get(Class<T> klass) {
+    public static <T extends System<?>> T get(Class<T> klass)
+    {
         return (T) systems.get(klass);
     }
 }

@@ -5,7 +5,8 @@
 
 package meteordevelopment.meteorclient.systems.hud;
 
-public enum XAnchor {
+public enum XAnchor
+{
     Left,
     Center,
     Right

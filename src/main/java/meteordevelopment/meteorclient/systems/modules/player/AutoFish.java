@@ -18,7 +18,8 @@ import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.Items;
 
-public class AutoFish extends Module {
+public class AutoFish extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgSplashRangeDetection = settings.createGroup("Splash Detection");
 
@@ -91,24 +92,29 @@ public class AutoFish extends Module {
 
     private int autoCastCheckTimer;
 
-    public AutoFish() {
+    public AutoFish()
+    {
         super(Categories.Player, "auto-fish", "Automatically fishes for you.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         ticksEnabled = false;
         autoCastEnabled = false;
         autoCastCheckTimer = 0;
     }
 
     @EventHandler
-    private void onPlaySound(PlaySoundEvent event) {
+    private void onPlaySound(PlaySoundEvent event)
+    {
         SoundInstance p = event.sound;
         FishingBobberEntity b = mc.player.fishHook;
 
-        if (p.getId().getPath().equals("entity.fishing_bobber.splash")) {
-            if (!splashDetectionRangeEnabled.get() || Utils.distance(b.getX(), b.getY(), b.getZ(), p.getX(), p.getY(), p.getZ()) <= splashDetectionRange.get()) {
+        if (p.getId().getPath().equals("entity.fishing_bobber.splash"))
+        {
+            if (!splashDetectionRangeEnabled.get() || Utils.distance(b.getX(), b.getY(), b.getZ(), p.getX(), p.getY(), p.getZ()) <= splashDetectionRange.get())
+            {
                 ticksEnabled = true;
                 ticksToRightClick = ticksCatch.get();
                 ticksData = 0;
@@ -117,37 +123,45 @@ public class AutoFish extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         // Auto cast
-        if (autoCastCheckTimer <= 0) {
+        if (autoCastCheckTimer <= 0)
+        {
             autoCastCheckTimer = 30;
 
-            if (autoCast.get() && !ticksEnabled && !autoCastEnabled && mc.player.fishHook == null && hasFishingRod()) {
+            if (autoCast.get() && !ticksEnabled && !autoCastEnabled && mc.player.fishHook == null && hasFishingRod())
+            {
                 autoCastTimer = 0;
                 autoCastEnabled = true;
             }
-        } else {
+        } else
+        {
             autoCastCheckTimer--;
         }
 
         // Check for auto cast timer
-        if (autoCastEnabled) {
+        if (autoCastEnabled)
+        {
             autoCastTimer++;
 
-            if (autoCastTimer > ticksAutoCast.get()) {
+            if (autoCastTimer > ticksAutoCast.get())
+            {
                 autoCastEnabled = false;
                 Utils.rightClick();
             }
         }
 
         // Handle logic
-        if (ticksEnabled && ticksToRightClick <= 0) {
-            if (ticksData == 0) {
+        if (ticksEnabled && ticksToRightClick <= 0)
+        {
+            if (ticksData == 0)
+            {
                 Utils.rightClick();
                 ticksToRightClick = ticksThrow.get();
                 ticksData = 1;
-            }
-            else if (ticksData == 1) {
+            } else if (ticksData == 1)
+            {
                 Utils.rightClick();
                 ticksEnabled = false;
             }
@@ -157,11 +171,13 @@ public class AutoFish extends Module {
     }
 
     @EventHandler
-    private void onKey(KeyEvent event) {
+    private void onKey(KeyEvent event)
+    {
         if (mc.options.useKey.isPressed()) ticksEnabled = false;
     }
 
-    private boolean hasFishingRod() {
+    private boolean hasFishingRod()
+    {
         return InvUtils.swap(InvUtils.findInHotbar(itemStack -> itemStack.getItem() == Items.FISHING_ROD && (!antiBreak.get() || itemStack.getDamage() < itemStack.getMaxDamage() - 1)).slot(), false);
     }
 }

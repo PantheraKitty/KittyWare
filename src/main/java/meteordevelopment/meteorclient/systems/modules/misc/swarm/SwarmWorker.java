@@ -14,14 +14,19 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class SwarmWorker extends Thread {
-    private Socket socket;
+public class SwarmWorker extends Thread
+{
     public Block target;
+    private Socket socket;
 
-    public SwarmWorker(String ip, int port) {
-        try {
+    public SwarmWorker(String ip, int port)
+    {
+        try
+        {
             socket = new Socket(ip, port);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             socket = null;
             ChatUtils.warningPrefix("Swarm", "Server not found at %s on port %s.", ip, port);
             e.printStackTrace();
@@ -31,22 +36,29 @@ public class SwarmWorker extends Thread {
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         ChatUtils.infoPrefix("Swarm", "Connected to Swarm host on at %s on port %s.", getIp(socket.getInetAddress().getHostAddress()), socket.getPort());
 
-        try {
+        try
+        {
             DataInputStream in = new DataInputStream(socket.getInputStream());
 
 
-            while (!isInterrupted()) {
+            while (!isInterrupted())
+            {
                 String read = in.readUTF();
 
-                if (read.startsWith("swarm")) {
+                if (read.startsWith("swarm"))
+                {
                     ChatUtils.infoPrefix("Swarm", "Received command: (highlight)%s", read);
 
-                    try {
+                    try
+                    {
                         Commands.dispatch(read);
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e)
+                    {
                         ChatUtils.error("Error fetching command.");
                         e.printStackTrace();
                     }
@@ -54,17 +66,23 @@ public class SwarmWorker extends Thread {
             }
 
             in.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             ChatUtils.errorPrefix("Swarm", "Error in connection to host.");
             e.printStackTrace();
             disconnect();
         }
     }
 
-    public void disconnect() {
-        try {
+    public void disconnect()
+    {
+        try
+        {
             socket.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
 
@@ -75,7 +93,8 @@ public class SwarmWorker extends Thread {
         interrupt();
     }
 
-    public void tick() {
+    public void tick()
+    {
         if (target == null) return;
 
         PathManagers.get().stop();
@@ -84,11 +103,13 @@ public class SwarmWorker extends Thread {
         target = null;
     }
 
-    public String getConnection() {
+    public String getConnection()
+    {
         return getIp(socket.getInetAddress().getHostAddress()) + ":" + socket.getPort();
     }
 
-    private String getIp(String ip) {
+    private String getIp(String ip)
+    {
         return ip.equals("127.0.0.1") ? "localhost" : ip;
     }
 }

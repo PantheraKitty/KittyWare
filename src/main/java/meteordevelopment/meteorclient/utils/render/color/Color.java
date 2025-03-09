@@ -15,7 +15,8 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
 @SuppressWarnings("unused")
-public class Color implements ICopyable<Color>, ISerializable<Color> {
+public class Color implements ICopyable<Color>, ISerializable<Color>
+{
 
     public static final Color WHITE = new Color(java.awt.Color.WHITE);
     public static final Color LIGHT_GRAY = new Color(java.awt.Color.LIGHT_GRAY);
@@ -33,11 +34,13 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
 
     public int r, g, b, a;
 
-    public Color() {
+    public Color()
+    {
         this(255, 255, 255, 255);
     }
 
-    public Color(int r, int g, int b) {
+    public Color(int r, int g, int b)
+    {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -46,7 +49,8 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         validate();
     }
 
-    public Color(int r, int g, int b, int a) {
+    public Color(int r, int g, int b, int a)
+    {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -55,43 +59,50 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         validate();
     }
 
-    public Color(float r, float g, float b, float a) {
-        this.r = (int)(r*255);
-        this.g = (int)(g*255);
-        this.b = (int)(b*255);
-        this.a = (int)(a*255);
+    public Color(float r, float g, float b, float a)
+    {
+        this.r = (int) (r * 255);
+        this.g = (int) (g * 255);
+        this.b = (int) (b * 255);
+        this.a = (int) (a * 255);
 
         validate();
     }
 
-    public Color(int packed) {
+    public Color(int packed)
+    {
         this.r = toRGBAR(packed);
         this.g = toRGBAG(packed);
         this.b = toRGBAB(packed);
         this.a = toRGBAA(packed);
     }
 
-    public Color(Color color) {
+    public Color(Color color)
+    {
         this.r = color.r;
         this.g = color.g;
         this.b = color.b;
         this.a = color.a;
     }
 
-    public Color(java.awt.Color color) {
+    public Color(java.awt.Color color)
+    {
         this.r = color.getRed();
         this.g = color.getGreen();
         this.b = color.getBlue();
         this.a = color.getAlpha();
     }
 
-    public Color(Formatting formatting) {
-        if (formatting.isColor()) {
+    public Color(Formatting formatting)
+    {
+        if (formatting.isColor())
+        {
             this.r = toRGBAR(formatting.getColorValue());
             this.g = toRGBAG(formatting.getColorValue());
             this.b = toRGBAB(formatting.getColorValue());
             this.a = toRGBAA(formatting.getColorValue());
-        } else {
+        } else
+        {
             this.r = 255;
             this.g = 255;
             this.b = 255;
@@ -99,21 +110,25 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         }
     }
 
-    public Color(TextColor textColor) {
+    public Color(TextColor textColor)
+    {
         this.r = toRGBAR(textColor.getRgb());
         this.g = toRGBAG(textColor.getRgb());
         this.b = toRGBAB(textColor.getRgb());
         this.a = toRGBAA(textColor.getRgb());
     }
 
-    public Color(Style style) {
+    public Color(Style style)
+    {
         TextColor textColor = style.getColor();
-        if (textColor == null) {
+        if (textColor == null)
+        {
             this.r = 255;
             this.g = 255;
             this.b = 255;
             this.a = 255;
-        } else {
+        } else
+        {
             this.r = toRGBAR(textColor.getRgb());
             this.g = toRGBAG(textColor.getRgb());
             this.b = toRGBAB(textColor.getRgb());
@@ -121,32 +136,39 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         }
     }
 
-    public static int fromRGBA(int r, int g, int b, int a) {
+    public static int fromRGBA(int r, int g, int b, int a)
+    {
         return (r << 16) + (g << 8) + (b) + (a << 24);
     }
 
-    public static int toRGBAR(int color) {
+    public static int toRGBAR(int color)
+    {
         return (color >> 16) & 0x000000FF;
     }
 
-    public static int toRGBAG(int color) {
+    public static int toRGBAG(int color)
+    {
         return (color >> 8) & 0x000000FF;
     }
 
-    public static int toRGBAB(int color) {
+    public static int toRGBAB(int color)
+    {
         return (color) & 0x000000FF;
     }
 
-    public static int toRGBAA(int color) {
+    public static int toRGBAA(int color)
+    {
         return (color >> 24) & 0x000000FF;
     }
 
-    public static Color fromHsv(double h, double s, double v) {
+    public static Color fromHsv(double h, double s, double v)
+    {
         double hh, p, q, t, ff;
         int i;
         double r, g, b;
 
-        if (s <= 0.0) {       // < is bogus, just shuts up warnings
+        if (s <= 0.0)
+        {       // < is bogus, just shuts up warnings
             r = v;
             g = v;
             b = v;
@@ -161,7 +183,8 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         q = v * (1.0 - (s * ff));
         t = v * (1.0 - (s * (1.0 - ff)));
 
-        switch (i) {
+        switch (i)
+        {
             case 0:
                 r = v;
                 g = t;
@@ -198,7 +221,8 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         return new Color((int) (r * 255), (int) (g * 255), (int) (b * 255), 255);
     }
 
-    public Color set(int r, int g, int b, int a) {
+    public Color set(int r, int g, int b, int a)
+    {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -209,32 +233,37 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         return this;
     }
 
-    public Color r(int r) {
+    public Color r(int r)
+    {
         this.r = r;
         validate();
         return this;
     }
 
-    public Color g(int g) {
+    public Color g(int g)
+    {
         this.g = g;
         validate();
         return this;
     }
 
-    public Color b(int b) {
+    public Color b(int b)
+    {
         this.b = b;
         validate();
         return this;
     }
 
-    public Color a(int a) {
+    public Color a(int a)
+    {
         this.a = a;
         validate();
         return this;
     }
 
     @Override
-    public Color set(Color value) {
+    public Color set(Color value)
+    {
         r = value.r;
         g = value.g;
         b = value.b;
@@ -245,11 +274,13 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         return this;
     }
 
-    public boolean parse(String text) {
+    public boolean parse(String text)
+    {
         String[] split = text.split(",");
         if (split.length != 3 && split.length != 4) return false;
 
-        try {
+        try
+        {
             // Not assigned directly because of exception handling
             int r = Integer.parseInt(split[0]);
             int g = Integer.parseInt(split[1]);
@@ -262,33 +293,41 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
             this.a = a;
 
             return true;
-        } catch (NumberFormatException ignored) {
+        }
+        catch (NumberFormatException ignored)
+        {
             return false;
         }
     }
 
     @Override
-    public Color copy() {
+    public Color copy()
+    {
         return new Color(r, g, b, a);
     }
 
-    public SettingColor toSetting() {
+    public SettingColor toSetting()
+    {
         return new SettingColor(r, g, b, a);
     }
 
-    public TextColor toTextColor() {
+    public TextColor toTextColor()
+    {
         return TextColor.fromRgb(getPacked());
     }
 
-    public Style toStyle() {
+    public Style toStyle()
+    {
         return Style.EMPTY.withColor(toTextColor());
     }
 
-    public Style styleWith(Style style) {
+    public Style styleWith(Style style)
+    {
         return style.withColor(toTextColor());
     }
 
-    public void validate() {
+    public void validate()
+    {
         if (r < 0) r = 0;
         else if (r > 255) r = 255;
 
@@ -302,20 +341,24 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
         else if (a > 255) a = 255;
     }
 
-    public Vec3d getVec3d() {
+    public Vec3d getVec3d()
+    {
         return new Vec3d(r / 255.0, g / 255.0, b / 255.0);
     }
 
-    public Vector3f getVec3f() {
+    public Vector3f getVec3f()
+    {
         return new Vector3f(r / 255.0f, g / 255.0f, b / 255.0f);
     }
 
-    public int getPacked() {
+    public int getPacked()
+    {
         return fromRGBA(r, g, b, a);
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putInt("r", r);
@@ -327,7 +370,8 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
     }
 
     @Override
-    public Color fromTag(NbtCompound tag) {
+    public Color fromTag(NbtCompound tag)
+    {
         r = tag.getInt("r");
         g = tag.getInt("g");
         b = tag.getInt("b");
@@ -338,12 +382,14 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return r + " " + g + " " + b + " " + a;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -353,7 +399,8 @@ public class Color implements ICopyable<Color>, ISerializable<Color> {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = r;
         result = 31 * result + g;
         result = 31 * result + b;

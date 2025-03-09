@@ -1,7 +1,10 @@
 package meteordevelopment.meteorclient.systems.modules.misc;
 
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.settings.DoubleSetting;
+import meteordevelopment.meteorclient.settings.ItemListSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.Timer;
@@ -26,7 +29,7 @@ public final class ItemDropper extends Module
         .build()
     );
 
-   private final Setting<List<Item>> itemsSetting = sgGeneral.add(new ItemListSetting.Builder()
+    private final Setting<List<Item>> itemsSetting = sgGeneral.add(new ItemListSetting.Builder()
         .name("items")
         .description("description")
         .defaultValue()
@@ -87,7 +90,7 @@ public final class ItemDropper extends Module
         }
 
         mc.interactionManager.clickSlot(
-            mc.player.currentScreenHandler.syncId, slot,0, SlotActionType.THROW, mc.player
+            mc.player.currentScreenHandler.syncId, slot, 0, SlotActionType.THROW, mc.player
         );
     }
 }

@@ -65,7 +65,8 @@ import java.util.stream.Stream;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class Modules extends System<Modules> {
+public class Modules extends System<Modules>
+{
     public static final ModuleRegistry REGISTRY = new ModuleRegistry();
 
     private static final List<Category> CATEGORIES = new ArrayList<>();
@@ -78,16 +79,43 @@ public class Modules extends System<Modules> {
     private Module moduleToBind;
     private boolean awaitingKeyRelease = false;
 
-    public Modules() {
+    public Modules()
+    {
         super("modules");
     }
 
-    public static Modules get() {
+    public static Modules get()
+    {
         return Systems.get(Modules.class);
     }
 
+    public static void registerCategory(Category category)
+    {
+        if (!Categories.REGISTERING)
+            throw new RuntimeException("Modules.registerCategory - Cannot register category outside of onRegisterCategories callback.");
+
+        CATEGORIES.add(category);
+    }
+
+    public static Iterable<Category> loopCategories()
+    {
+        return CATEGORIES;
+    }
+
+    @Deprecated(forRemoval = true)
+    public static Category getCategoryByHash(int hash)
+    {
+        for (Category category : CATEGORIES)
+        {
+            if (category.hashCode() == hash) return category;
+        }
+
+        return null;
+    }
+
     @Override
-    public void init() {
+    public void init()
+    {
         initCombat();
         initPlayer();
         initMovement();
@@ -97,9 +125,12 @@ public class Modules extends System<Modules> {
     }
 
     @Override
-    public void load(File folder) {
-        for (Module module : modules) {
-            for (SettingGroup group : module.settings) {
+    public void load(File folder)
+    {
+        for (Module module : modules)
+        {
+            for (SettingGroup group : module.settings)
+            {
                 for (Setting<?> setting : group) setting.reset();
             }
         }
@@ -107,79 +138,76 @@ public class Modules extends System<Modules> {
         super.load(folder);
     }
 
-    public void sortModules() {
-        for (List<Module> modules : groups.values()) {
+    public void sortModules()
+    {
+        for (List<Module> modules : groups.values())
+        {
             modules.sort(Comparator.comparing(o -> o.title));
         }
         modules.sort(Comparator.comparing(o -> o.title));
     }
 
-    public static void registerCategory(Category category) {
-        if (!Categories.REGISTERING) throw new RuntimeException("Modules.registerCategory - Cannot register category outside of onRegisterCategories callback.");
-
-        CATEGORIES.add(category);
-    }
-
-    public static Iterable<Category> loopCategories() {
-        return CATEGORIES;
-    }
-
-    @Deprecated(forRemoval = true)
-    public static Category getCategoryByHash(int hash) {
-        for (Category category : CATEGORIES) {
-            if (category.hashCode() == hash) return category;
-        }
-
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
-    public <T extends Module> T get(Class<T> klass) {
+    public <T extends Module> T get(Class<T> klass)
+    {
         return (T) moduleInstances.get(klass);
     }
 
-    public Module get(String name) {
-        for (Module module : moduleInstances.values()) {
+    public Module get(String name)
+    {
+        for (Module module : moduleInstances.values())
+        {
             if (module.name.equalsIgnoreCase(name)) return module;
         }
 
         return null;
     }
 
-    public boolean isActive(Class<? extends Module> klass) {
+    public boolean isActive(Class<? extends Module> klass)
+    {
         Module module = get(klass);
         return module != null && module.isActive();
     }
 
-    public List<Module> getGroup(Category category) {
+    public List<Module> getGroup(Category category)
+    {
         return groups.computeIfAbsent(category, category1 -> new ArrayList<>());
     }
 
-    public Collection<Module> getAll() {
+    public Collection<Module> getAll()
+    {
         return moduleInstances.values();
     }
 
-    public List<Module> getList() {
+    public List<Module> getList()
+    {
         return modules;
     }
 
-    public int getCount() {
+    public int getCount()
+    {
         return moduleInstances.values().size();
     }
 
-    public List<Module> getActive() {
-        synchronized (active) {
+    public List<Module> getActive()
+    {
+        synchronized (active)
+        {
             return active;
         }
     }
 
-    public Map<Module, Integer> searchTitles(String text) {
+    public Map<Module, Integer> searchTitles(String text)
+    {
         Map<Module, Integer> modules = new ValueComparableMap<>(Comparator.naturalOrder());
 
-        for (Module module : this.moduleInstances.values()) {
+        for (Module module : this.moduleInstances.values())
+        {
             int score = Utils.searchLevenshteinDefault(module.title, text, false);
-            if (Config.get().moduleAliases.get()) {
-                for (String alias : module.aliases) {
+            if (Config.get().moduleAliases.get())
+            {
+                for (String alias : module.aliases)
+                {
                     int aliasScore = Utils.searchLevenshteinDefault(alias, text, false);
                     if (aliasScore < score) score = aliasScore;
                 }
@@ -190,13 +218,17 @@ public class Modules extends System<Modules> {
         return modules;
     }
 
-    public Set<Module> searchSettingTitles(String text) {
+    public Set<Module> searchSettingTitles(String text)
+    {
         Map<Module, Integer> modules = new ValueComparableMap<>(Comparator.naturalOrder());
 
-        for (Module module : this.moduleInstances.values()) {
+        for (Module module : this.moduleInstances.values())
+        {
             int lowest = Integer.MAX_VALUE;
-            for (SettingGroup sg : module.settings) {
-                for (Setting<?> setting : sg) {
+            for (SettingGroup sg : module.settings)
+            {
+                for (Setting<?> setting : sg)
+                {
                     int score = Utils.searchLevenshteinDefault(setting.title, text, false);
                     if (score < lowest) lowest = score;
                 }
@@ -207,18 +239,24 @@ public class Modules extends System<Modules> {
         return modules.keySet();
     }
 
-    void addActive(Module module) {
-        synchronized (active) {
-            if (!active.contains(module)) {
+    void addActive(Module module)
+    {
+        synchronized (active)
+        {
+            if (!active.contains(module))
+            {
                 active.add(module);
                 MeteorClient.EVENT_BUS.post(ActiveModulesChangedEvent.get());
             }
         }
     }
 
-    void removeActive(Module module) {
-        synchronized (active) {
-            if (active.remove(module)) {
+    void removeActive(Module module)
+    {
+        synchronized (active)
+        {
+            if (active.remove(module))
+            {
                 MeteorClient.EVENT_BUS.post(ActiveModulesChangedEvent.get());
             }
         }
@@ -226,7 +264,8 @@ public class Modules extends System<Modules> {
 
     // Binding
 
-    public void setModuleToBind(Module moduleToBind) {
+    public void setModuleToBind(Module moduleToBind)
+    {
         this.moduleToBind = moduleToBind;
     }
 
@@ -234,43 +273,49 @@ public class Modules extends System<Modules> {
      * @see meteordevelopment.meteorclient.commands.commands.BindCommand
      * For ensuring we don't instantly bind the module to the enter key.
      */
-    public void awaitKeyRelease() {
+    public void awaitKeyRelease()
+    {
         this.awaitingKeyRelease = true;
     }
 
-    public boolean isBinding() {
+    public boolean isBinding()
+    {
         return moduleToBind != null;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onKeyBinding(KeyEvent event) {
+    private void onKeyBinding(KeyEvent event)
+    {
         if (event.action == KeyAction.Release && onBinding(true, event.key, event.modifiers)) event.cancel();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onButtonBinding(MouseButtonEvent event) {
+    private void onButtonBinding(MouseButtonEvent event)
+    {
         if (event.action == KeyAction.Release && onBinding(false, event.button, 0)) event.cancel();
     }
 
-    private boolean onBinding(boolean isKey, int value, int modifiers) {
+    private boolean onBinding(boolean isKey, int value, int modifiers)
+    {
         if (!isBinding()) return false;
 
-        if (awaitingKeyRelease) {
+        if (awaitingKeyRelease)
+        {
             if (!isKey || (value != GLFW.GLFW_KEY_ENTER && value != GLFW.GLFW_KEY_KP_ENTER)) return false;
 
             awaitingKeyRelease = false;
             return false;
         }
 
-        if (moduleToBind.keybind.canBindTo(isKey, value, modifiers)) {
+        if (moduleToBind.keybind.canBindTo(isKey, value, modifiers))
+        {
             moduleToBind.keybind.set(isKey, value, modifiers);
             moduleToBind.info("Bound to (highlight)%s(default).", moduleToBind.keybind);
-        }
-        else if (value == GLFW.GLFW_KEY_ESCAPE) {
+        } else if (value == GLFW.GLFW_KEY_ESCAPE)
+        {
             moduleToBind.keybind.set(Keybind.none());
             moduleToBind.info("Removed bind.");
-        }
-        else return false;
+        } else return false;
 
         MeteorClient.EVENT_BUS.post(ModuleBindChangedEvent.get(moduleToBind));
         moduleToBind = null;
@@ -279,22 +324,27 @@ public class Modules extends System<Modules> {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    private void onKey(KeyEvent event) {
+    private void onKey(KeyEvent event)
+    {
         if (event.action == KeyAction.Repeat) return;
         onAction(true, event.key, event.modifiers, event.action == KeyAction.Press);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    private void onMouseButton(MouseButtonEvent event) {
+    private void onMouseButton(MouseButtonEvent event)
+    {
         if (event.action == KeyAction.Repeat) return;
         onAction(false, event.button, 0, event.action == KeyAction.Press);
     }
 
-    private void onAction(boolean isKey, int value, int modifiers, boolean isPress) {
+    private void onAction(boolean isKey, int value, int modifiers, boolean isPress)
+    {
         if (mc.currentScreen != null || Input.isKeyPressed(GLFW.GLFW_KEY_F3)) return;
 
-        for (Module module : moduleInstances.values()) {
-            if (module.keybind.matches(isKey, value, modifiers) && isPress) {
+        for (Module module : moduleInstances.values())
+        {
+            if (module.keybind.matches(isKey, value, modifiers) && isPress)
+            {
                 module.toggle();
                 module.sendToggledMsg();
             }
@@ -304,11 +354,14 @@ public class Modules extends System<Modules> {
     // End of binding
 
     @EventHandler(priority = EventPriority.HIGHEST + 1)
-    private void onOpenScreen(OpenScreenEvent event) {
+    private void onOpenScreen(OpenScreenEvent event)
+    {
         if (!Utils.canUpdate()) return;
 
-        for (Module module : moduleInstances.values()) {
-            if (module.toggleOnBindRelease && module.isActive()) {
+        for (Module module : moduleInstances.values())
+        {
+            if (module.toggleOnBindRelease && module.isActive())
+            {
                 module.toggle();
                 module.sendToggledMsg();
             }
@@ -316,10 +369,14 @@ public class Modules extends System<Modules> {
     }
 
     @EventHandler
-    private void onGameJoined(GameJoinedEvent event) {
-        synchronized (active) {
-            for (Module module : modules) {
-                if (module.isActive() && !module.runInMainMenu) {
+    private void onGameJoined(GameJoinedEvent event)
+    {
+        synchronized (active)
+        {
+            for (Module module : modules)
+            {
+                if (module.isActive() && !module.runInMainMenu)
+                {
                     MeteorClient.EVENT_BUS.subscribe(module);
                     module.onActivate();
                 }
@@ -328,10 +385,14 @@ public class Modules extends System<Modules> {
     }
 
     @EventHandler
-    private void onGameLeft(GameLeftEvent event) {
-        synchronized (active) {
-            for (Module module : modules) {
-                if (module.isActive() && !module.runInMainMenu) {
+    private void onGameLeft(GameLeftEvent event)
+    {
+        synchronized (active)
+        {
+            for (Module module : modules)
+            {
+                if (module.isActive() && !module.runInMainMenu)
+                {
                     MeteorClient.EVENT_BUS.unsubscribe(module);
                     module.onDeactivate();
                 }
@@ -340,15 +401,22 @@ public class Modules extends System<Modules> {
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
-        for (Module module : moduleInstances.values()) {
-            if (module.toggleOnBindRelease) {
-                if (module.keybind.isPressed() && !(mc.currentScreen instanceof ChatScreen)) {
-                    if (!module.isActive()) {
+    private void onRender3D(Render3DEvent event)
+    {
+        for (Module module : moduleInstances.values())
+        {
+            if (module.toggleOnBindRelease)
+            {
+                if (module.keybind.isPressed() && !(mc.currentScreen instanceof ChatScreen))
+                {
+                    if (!module.isActive())
+                    {
                         module.toggle();
                     }
-                } else {
-                    if (module.isActive()) {
+                } else
+                {
+                    if (module.isActive())
+                    {
                         module.toggle();
                     }
                 }
@@ -356,20 +424,25 @@ public class Modules extends System<Modules> {
         }
     }
 
-    public void disableAll() {
-        synchronized (active) {
-            for (Module module : modules) {
+    public void disableAll()
+    {
+        synchronized (active)
+        {
+            for (Module module : modules)
+            {
                 if (module.isActive()) module.toggle();
             }
         }
     }
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         NbtList modulesTag = new NbtList();
-        for (Module module : getAll()) {
+        for (Module module : getAll())
+        {
             NbtCompound moduleTag = module.toTag();
             if (moduleTag != null) modulesTag.add(moduleTag);
         }
@@ -379,11 +452,13 @@ public class Modules extends System<Modules> {
     }
 
     @Override
-    public Modules fromTag(NbtCompound tag) {
+    public Modules fromTag(NbtCompound tag)
+    {
         disableAll();
 
         NbtList modulesTag = tag.getList("modules", 10);
-        for (NbtElement moduleTagI : modulesTag) {
+        for (NbtElement moduleTagI : modulesTag)
+        {
             NbtCompound moduleTag = (NbtCompound) moduleTagI;
             Module module = get(moduleTag.getString("name"));
             if (module != null) module.fromTag(moduleTag);
@@ -394,16 +469,20 @@ public class Modules extends System<Modules> {
 
     // INIT MODULES
 
-    public void add(Module module) {
+    public void add(Module module)
+    {
         // Check if the module's category is registered
-        if (!CATEGORIES.contains(module.category)) {
+        if (!CATEGORIES.contains(module.category))
+        {
             throw new RuntimeException("Modules.addModule - Module's category was not registered.");
         }
 
         // Remove the previous module with the same name
         AtomicReference<Module> removedModule = new AtomicReference<>();
-        if (moduleInstances.values().removeIf(module1 -> {
-            if (module1.name.equals(module.name)) {
+        if (moduleInstances.values().removeIf(module1 ->
+        {
+            if (module1.name.equals(module.name))
+            {
                 removedModule.set(module1);
                 module1.settings.unregisterColorSettings();
 
@@ -411,7 +490,8 @@ public class Modules extends System<Modules> {
             }
 
             return false;
-        })) {
+        }))
+        {
             getGroup(removedModule.get().category).remove(removedModule.get());
         }
 
@@ -424,7 +504,8 @@ public class Modules extends System<Modules> {
         module.settings.registerColorSettings(module);
     }
 
-    private void initCombat() {
+    private void initCombat()
+    {
         add(new AnchorAura());
         add(new AntiAnvil());
         add(new AntiBed());
@@ -458,7 +539,8 @@ public class Modules extends System<Modules> {
         add(new AntiDigDown());
     }
 
-    private void initPlayer() {
+    private void initPlayer()
+    {
         add(new AntiHunger());
         add(new AutoEat());
         add(new AutoClicker());
@@ -490,7 +572,8 @@ public class Modules extends System<Modules> {
         add(new PearlPhase());
     }
 
-    private void initMovement() {
+    private void initMovement()
+    {
         add(new AirJump());
         add(new Anchor());
         add(new AntiAFK());
@@ -534,7 +617,8 @@ public class Modules extends System<Modules> {
         // add(new GrimBoatTeleport());
     }
 
-    private void initRender() {
+    private void initRender()
+    {
         add(new BetterTooltips());
         add(new BlockSelection());
         add(new BossStack());
@@ -576,7 +660,8 @@ public class Modules extends System<Modules> {
         add(new PhaseESP());
     }
 
-    private void initWorld() {
+    private void initWorld()
+    {
         add(new AirPlace());
         add(new Ambience());
         add(new AutoBreed());
@@ -606,13 +691,15 @@ public class Modules extends System<Modules> {
         add(new SourceFiller());
         add(new MapAura());
 
-        if (BaritoneUtils.IS_AVAILABLE) {
+        if (BaritoneUtils.IS_AVAILABLE)
+        {
             add(new Excavator());
             add(new InfinityMiner());
         }
     }
 
-    private void initMisc() {
+    private void initMisc()
+    {
         add(new Swarm());
         add(new AntiPacketKick());
         add(new AutoLog());
@@ -636,147 +723,181 @@ public class Modules extends System<Modules> {
         add(new PacketSaver());
     }
 
-    public static class ModuleRegistry extends SimpleRegistry<Module> {
-        public ModuleRegistry() {
+    public static class ModuleRegistry extends SimpleRegistry<Module>
+    {
+        public ModuleRegistry()
+        {
             super(RegistryKey.ofRegistry(MeteorClient.identifier("modules")), Lifecycle.stable());
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return Modules.get().getAll().size();
         }
 
         @Override
-        public Identifier getId(Module entry) {
+        public Identifier getId(Module entry)
+        {
             return null;
         }
 
         @Override
-        public Optional<RegistryKey<Module>> getKey(Module entry) {
+        public Optional<RegistryKey<Module>> getKey(Module entry)
+        {
             return Optional.empty();
         }
 
         @Override
-        public int getRawId(Module entry) {
+        public int getRawId(Module entry)
+        {
             return 0;
         }
 
         @Override
-        public Module get(RegistryKey<Module> key) {
+        public Module get(RegistryKey<Module> key)
+        {
             return null;
         }
 
         @Override
-        public Module get(Identifier id) {
+        public Module get(Identifier id)
+        {
             return null;
         }
 
         @Override
-        public Lifecycle getLifecycle() {
+        public Lifecycle getLifecycle()
+        {
             return null;
         }
 
         @Override
-        public Set<Identifier> getIds() {
+        public Set<Identifier> getIds()
+        {
             return null;
         }
+
         @Override
-        public boolean containsId(Identifier id) {
+        public boolean containsId(Identifier id)
+        {
             return false;
         }
 
         @Nullable
         @Override
-        public Module get(int index) {
+        public Module get(int index)
+        {
             return null;
         }
 
         @Override
-        public @NotNull Iterator<Module> iterator() {
+        public @NotNull Iterator<Module> iterator()
+        {
             return new ModuleIterator();
         }
 
         @Override
-        public boolean contains(RegistryKey<Module> key) {
+        public boolean contains(RegistryKey<Module> key)
+        {
             return false;
         }
 
         @Override
-        public Set<Map.Entry<RegistryKey<Module>, Module>> getEntrySet() {
+        public Set<Map.Entry<RegistryKey<Module>, Module>> getEntrySet()
+        {
             return null;
         }
 
         @Override
-        public Set<RegistryKey<Module>> getKeys() {
+        public Set<RegistryKey<Module>> getKeys()
+        {
             return null;
         }
 
         @Override
-        public Optional<RegistryEntry.Reference<Module>> getRandom(Random random) {
+        public Optional<RegistryEntry.Reference<Module>> getRandom(Random random)
+        {
             return Optional.empty();
         }
 
         @Override
-        public Registry<Module> freeze() {
+        public Registry<Module> freeze()
+        {
             return null;
         }
 
         @Override
-        public RegistryEntry.Reference<Module> createEntry(Module value) {
+        public RegistryEntry.Reference<Module> createEntry(Module value)
+        {
             return null;
         }
 
         @Override
-        public Optional<RegistryEntry.Reference<Module>> getEntry(int rawId) {
+        public Optional<RegistryEntry.Reference<Module>> getEntry(int rawId)
+        {
             return Optional.empty();
         }
 
         @Override
-        public Optional<RegistryEntry.Reference<Module>> getEntry(RegistryKey<Module> key) {
+        public Optional<RegistryEntry.Reference<Module>> getEntry(RegistryKey<Module> key)
+        {
             return Optional.empty();
         }
 
         @Override
-        public Stream<RegistryEntry.Reference<Module>> streamEntries() {
+        public Stream<RegistryEntry.Reference<Module>> streamEntries()
+        {
             return null;
         }
 
         @Override
-        public Optional<RegistryEntryList.Named<Module>> getEntryList(TagKey<Module> tag) {
+        public Optional<RegistryEntryList.Named<Module>> getEntryList(TagKey<Module> tag)
+        {
             return Optional.empty();
         }
 
         @Override
-        public RegistryEntryList.Named<Module> getOrCreateEntryList(TagKey<Module> tag) {
+        public RegistryEntryList.Named<Module> getOrCreateEntryList(TagKey<Module> tag)
+        {
             return null;
         }
 
         @Override
-        public Stream<Pair<TagKey<Module>, RegistryEntryList.Named<Module>>> streamTagsAndEntries() {
+        public Stream<Pair<TagKey<Module>, RegistryEntryList.Named<Module>>> streamTagsAndEntries()
+        {
             return null;
         }
 
         @Override
-        public Stream<TagKey<Module>> streamTags() {
+        public Stream<TagKey<Module>> streamTags()
+        {
             return null;
         }
 
         @Override
-        public void clearTags() {}
+        public void clearTags()
+        {
+        }
 
         @Override
-        public void populateTags(Map<TagKey<Module>, List<RegistryEntry<Module>>> tagEntries) {}
+        public void populateTags(Map<TagKey<Module>, List<RegistryEntry<Module>>> tagEntries)
+        {
+        }
 
-        private static class ModuleIterator implements Iterator<Module> {
+        private static class ModuleIterator implements Iterator<Module>
+        {
             private final Iterator<Module> iterator = Modules.get().getAll().iterator();
 
             @Override
-            public boolean hasNext() {
+            public boolean hasNext()
+            {
                 return iterator.hasNext();
             }
 
             @Override
-            public Module next() {
+            public Module next()
+            {
                 return iterator.next();
             }
         }

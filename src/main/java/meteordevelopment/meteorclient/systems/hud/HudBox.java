@@ -9,7 +9,8 @@ import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.misc.ISerializable;
 import net.minecraft.nbt.NbtCompound;
 
-public class HudBox implements ISerializable<HudBox> {
+public class HudBox implements ISerializable<HudBox>
+{
     private final HudElement element;
 
     public XAnchor xAnchor = XAnchor.Left;
@@ -18,25 +19,31 @@ public class HudBox implements ISerializable<HudBox> {
     public int x, y;
     int width, height;
 
-    public HudBox(HudElement element) {
+    public HudBox(HudElement element)
+    {
         this.element = element;
     }
 
-    public void setSize(double width, double height) {
+    public void setSize(double width, double height)
+    {
         if (width >= 0) this.width = (int) Math.ceil(width);
         if (height >= 0) this.height = (int) Math.ceil(height);
     }
 
-    public void setPos(int x, int y) {
+    public void setPos(int x, int y)
+    {
         this.x = x;
         this.y = y;
     }
 
-    public void setXAnchor(XAnchor anchor) {
-        if (xAnchor != anchor) {
+    public void setXAnchor(XAnchor anchor)
+    {
+        if (xAnchor != anchor)
+        {
             int renderX = getRenderX();
 
-            switch (anchor) {
+            switch (anchor)
+            {
                 case Left -> x = renderX;
                 case Center -> x = renderX + width / 2 - Utils.getWindowWidth() / 2;
                 case Right -> x = renderX + width - Utils.getWindowWidth();
@@ -46,11 +53,14 @@ public class HudBox implements ISerializable<HudBox> {
         }
     }
 
-    public void setYAnchor(YAnchor anchor) {
-        if (yAnchor != anchor) {
+    public void setYAnchor(YAnchor anchor)
+    {
+        if (yAnchor != anchor)
+        {
             int renderY = getRenderY();
 
-            switch (anchor) {
+            switch (anchor)
+            {
                 case Top -> y = renderY;
                 case Center -> y = renderY + height / 2 - Utils.getWindowHeight() / 2;
                 case Bottom -> y = renderY + height - Utils.getWindowHeight();
@@ -60,12 +70,14 @@ public class HudBox implements ISerializable<HudBox> {
         }
     }
 
-    public void updateAnchors() {
+    public void updateAnchors()
+    {
         setXAnchor(getXAnchor(getRenderX()));
         setYAnchor(getYAnchor(getRenderY()));
     }
 
-    public void move(int deltaX, int deltaY) {
+    public void move(int deltaX, int deltaY)
+    {
         x += deltaX;
         y += deltaY;
 
@@ -82,7 +94,8 @@ public class HudBox implements ISerializable<HudBox> {
         else if (yAnchor == YAnchor.Bottom && y > border) y = border;
     }
 
-    public XAnchor getXAnchor(double x) {
+    public XAnchor getXAnchor(double x)
+    {
         double splitLeft = Utils.getWindowWidth() / 3.0;
         double splitRight = splitLeft * 2;
 
@@ -93,7 +106,8 @@ public class HudBox implements ISerializable<HudBox> {
         return left ? XAnchor.Left : XAnchor.Right;
     }
 
-    public YAnchor getYAnchor(double y) {
+    public YAnchor getYAnchor(double y)
+    {
         double splitTop = Utils.getWindowHeight() / 3.0;
         double splitBottom = splitTop * 2;
 
@@ -104,30 +118,36 @@ public class HudBox implements ISerializable<HudBox> {
         return top ? YAnchor.Top : YAnchor.Bottom;
     }
 
-    public int getRenderX() {
-        return switch (xAnchor) {
+    public int getRenderX()
+    {
+        return switch (xAnchor)
+        {
             case Left -> x;
             case Center -> Utils.getWindowWidth() / 2 - width / 2 + x;
             case Right -> Utils.getWindowWidth() - width + x;
         };
     }
 
-    public int getRenderY() {
-        return switch (yAnchor) {
+    public int getRenderY()
+    {
+        return switch (yAnchor)
+        {
             case Top -> y;
             case Center -> Utils.getWindowHeight() / 2 - height / 2 + y;
             case Bottom -> Utils.getWindowHeight() - height + y;
         };
     }
 
-    public double alignX(double selfWidth, double width, Alignment alignment) {
+    public double alignX(double selfWidth, double width, Alignment alignment)
+    {
         XAnchor anchor = xAnchor;
 
         if (alignment == Alignment.Left) anchor = XAnchor.Left;
         else if (alignment == Alignment.Center) anchor = XAnchor.Center;
         else if (alignment == Alignment.Right) anchor = XAnchor.Right;
 
-        return switch (anchor) {
+        return switch (anchor)
+        {
             case Left -> 0;
             case Center -> selfWidth / 2.0 - width / 2.0;
             case Right -> selfWidth - width;
@@ -137,7 +157,8 @@ public class HudBox implements ISerializable<HudBox> {
     // Serialization
 
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putString("x-anchor", xAnchor.name());
@@ -149,7 +170,8 @@ public class HudBox implements ISerializable<HudBox> {
     }
 
     @Override
-    public HudBox fromTag(NbtCompound tag) {
+    public HudBox fromTag(NbtCompound tag)
+    {
         if (tag.contains("x-anchor")) xAnchor = XAnchor.valueOf(tag.getString("x-anchor"));
         if (tag.contains("y-anchor")) yAnchor = YAnchor.valueOf(tag.getString("y-anchor"));
         if (tag.contains("x")) x = tag.getInt("x");

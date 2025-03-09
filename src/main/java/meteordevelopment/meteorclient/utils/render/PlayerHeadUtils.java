@@ -10,25 +10,30 @@ import meteordevelopment.meteorclient.utils.network.Http;
 import java.util.Base64;
 import java.util.UUID;
 
-public class PlayerHeadUtils {
+public class PlayerHeadUtils
+{
     public static PlayerHeadTexture STEVE_HEAD;
 
-    private PlayerHeadUtils() {
+    private PlayerHeadUtils()
+    {
     }
 
     @PostInit
-    public static void init() {
+    public static void init()
+    {
         STEVE_HEAD = new PlayerHeadTexture();
     }
 
-    public static PlayerHeadTexture fetchHead(UUID id) {
+    public static PlayerHeadTexture fetchHead(UUID id)
+    {
         if (id == null) return null;
 
         String url = getSkinUrl(id);
         return url != null ? new PlayerHeadTexture(url) : null;
     }
 
-    public static String getSkinUrl(UUID id) {
+    public static String getSkinUrl(UUID id)
+    {
         UuidToProfileResponse res2 = Http.get("https://sessionserver.mojang.com/session/minecraft/profile/" + id)
             .exceptionHandler(e -> MeteorClient.LOG.error("Could not contact mojang session servers.", e))
             .sendJson(UuidToProfileResponse.class);

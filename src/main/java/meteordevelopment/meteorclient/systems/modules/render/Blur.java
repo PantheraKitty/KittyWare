@@ -10,8 +10,14 @@ import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.game.ResolutionChangedEvent;
 import meteordevelopment.meteorclient.events.render.RenderAfterWorldEvent;
 import meteordevelopment.meteorclient.gui.WidgetScreen;
-import meteordevelopment.meteorclient.renderer.*;
-import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.renderer.Framebuffer;
+import meteordevelopment.meteorclient.renderer.GL;
+import meteordevelopment.meteorclient.renderer.PostProcessRenderer;
+import meteordevelopment.meteorclient.renderer.Shader;
+import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.listeners.ConsumerListener;
@@ -20,7 +26,8 @@ import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 
-public class Blur extends Module {
+public class Blur extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgScreens = settings.createGroup("Screens");
 
@@ -96,23 +103,26 @@ public class Blur extends Module {
         .defaultValue(true)
         .build()
     );
-
-    private Shader shaderDown, shaderUp, shaderPassthrough;
     private final Framebuffer[] fbos = new Framebuffer[6];
-
+    private Shader shaderDown, shaderUp, shaderPassthrough;
     private boolean enabled;
     private long fadeEndAt;
 
-    public Blur() {
+    public Blur()
+    {
         super(Categories.Render, "blur", "Blurs background when in GUI screens.");
 
         // The listeners need to run even when the module is not enabled
-        MeteorClient.EVENT_BUS.subscribe(new ConsumerListener<>(ResolutionChangedEvent.class, event -> {
+        MeteorClient.EVENT_BUS.subscribe(new ConsumerListener<>(ResolutionChangedEvent.class, event ->
+        {
             // Resize all fbos
-            for (int i = 0; i < fbos.length; i++) {
-                if (fbos[i] != null) {
+            for (int i = 0; i < fbos.length; i++)
+            {
+                if (fbos[i] != null)
+                {
                     fbos[i].resize();
-                } else {
+                } else
+                {
                     fbos[i] = new Framebuffer(1 / Math.pow(2, i));
                 }
             }
@@ -121,22 +131,28 @@ public class Blur extends Module {
         MeteorClient.EVENT_BUS.subscribe(new ConsumerListener<>(RenderAfterWorldEvent.class, event -> onRenderAfterWorld()));
     }
 
-    private void onRenderAfterWorld() {
+    private void onRenderAfterWorld()
+    {
         // Enable / disable with fading
         boolean shouldRender = shouldRender();
         long time = System.currentTimeMillis();
 
-        if (enabled) {
-            if (!shouldRender) {
+        if (enabled)
+        {
+            if (!shouldRender)
+            {
                 if (fadeEndAt == -1) fadeEndAt = System.currentTimeMillis() + fadeTime.get();
 
-                if (time >= fadeEndAt) {
+                if (time >= fadeEndAt)
+                {
                     enabled = false;
                     fadeEndAt = -1;
                 }
             }
-        } else {
-            if (shouldRender) {
+        } else
+        {
+            if (shouldRender)
+            {
                 enabled = true;
                 fadeEndAt = System.currentTimeMillis() + fadeTime.get();
             }
@@ -145,12 +161,15 @@ public class Blur extends Module {
         if (!enabled) return;
 
         // Initialize shader and framebuffer if running for the first time
-        if (shaderDown == null) {
+        if (shaderDown == null)
+        {
             shaderDown = new Shader("blur.vert", "blur_down.frag");
             shaderUp = new Shader("blur.vert", "blur_up.frag");
             shaderPassthrough = new Shader("passthrough.vert", "passthrough.frag");
-            for (int i = 0; i < fbos.length; i++) {
-                if (fbos[i] == null) {
+            for (int i = 0; i < fbos.length; i++)
+            {
+                if (fbos[i] == null)
+                {
                     fbos[i] = new Framebuffer(1 / Math.pow(2, i));
                 }
             }
@@ -159,10 +178,12 @@ public class Blur extends Module {
         // Update progress
         double progress = 1;
 
-        if (time < fadeEndAt) {
+        if (time < fadeEndAt)
+        {
             if (shouldRender) progress = 1 - (fadeEndAt - time) / fadeTime.get().doubleValue();
             else progress = (fadeEndAt - time) / fadeTime.get().doubleValue();
-        } else {
+        } else
+        {
             fadeEndAt = -1;
         }
 
@@ -178,12 +199,14 @@ public class Blur extends Module {
         renderToFbo(fbos[0], MinecraftClient.getInstance().getFramebuffer().getColorAttachment(), shaderDown, offset);
 
         // Downsample
-        for (int i = 0; i < iterations; i++) {
+        for (int i = 0; i < iterations; i++)
+        {
             renderToFbo(fbos[i + 1], fbos[i].texture, shaderDown, offset);
         }
 
         // Upsample
-        for (int i = iterations; i >= 1; i--) {
+        for (int i = iterations; i >= 1; i--)
+        {
             renderToFbo(fbos[i - 1], fbos[i].texture, shaderUp, offset);
         }
 
@@ -200,11 +223,12 @@ public class Blur extends Module {
     /**
      * Renders one iteration of the blur.
      *
-     * @param targetFbo The framebuffer to render to.
+     * @param targetFbo  The framebuffer to render to.
      * @param sourceText The texture to use.
-     * @param shader The shader to use.
+     * @param shader     The shader to use.
      */
-    private void renderToFbo(Framebuffer targetFbo, int sourceText, Shader shader, double offset) {
+    private void renderToFbo(Framebuffer targetFbo, int sourceText, Shader shader, double offset)
+    {
         targetFbo.bind();
         targetFbo.setViewport();
         shader.bind();
@@ -215,7 +239,8 @@ public class Blur extends Module {
         PostProcessRenderer.render();
     }
 
-    private boolean shouldRender() {
+    private boolean shouldRender()
+    {
         if (!isActive()) return false;
         Screen screen = mc.currentScreen;
 

@@ -28,28 +28,31 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.random.Random;
 
-public class ItemPhysics extends Module {
-    private static final Direction[] FACES = { null, Direction.UP, Direction.DOWN, Direction.EAST, Direction.NORTH, Direction.SOUTH, Direction.WEST };
+public class ItemPhysics extends Module
+{
+    private static final Direction[] FACES = {null, Direction.UP, Direction.DOWN, Direction.EAST, Direction.NORTH, Direction.SOUTH, Direction.WEST};
     private static final float PIXEL_SIZE = 1f / 16f;
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> randomRotation = sgGeneral.add(new BoolSetting.Builder()
-            .name("random-rotation")
-            .description("Adds a random rotation to every item.")
-            .defaultValue(true)
-            .build()
+        .name("random-rotation")
+        .description("Adds a random rotation to every item.")
+        .defaultValue(true)
+        .build()
     );
 
     private final Random random = Random.createLocal();
     private boolean renderingItem;
 
-    public ItemPhysics() {
+    public ItemPhysics()
+    {
         super(Categories.Render, "item-physics", "Applies physics to items on the ground.");
     }
 
     @EventHandler
-    private void onRenderItemEntity(RenderItemEntityEvent event) {
+    private void onRenderItemEntity(RenderItemEntityEvent event)
+    {
         MatrixStack matrices = event.matrixStack;
         matrices.push();
 
@@ -64,12 +67,14 @@ public class ItemPhysics extends Module {
         offsetInWater(matrices, event.itemEntity);
         preventZFighting(matrices, event.itemEntity);
 
-        if (info.flat) {
+        if (info.flat)
+        {
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
             matrices.translate(0, 0, info.offsetZ);
         }
 
-        if (randomRotation.get()) {
+        if (randomRotation.get())
+        {
             RotationAxis axis = RotationAxis.POSITIVE_Y;
             if (info.flat) axis = RotationAxis.POSITIVE_Z;
 
@@ -84,18 +89,22 @@ public class ItemPhysics extends Module {
     }
 
     @EventHandler
-    private void onApplyTransformation(ApplyTransformationEvent event) {
+    private void onApplyTransformation(ApplyTransformationEvent event)
+    {
         if (renderingItem) event.cancel();
     }
 
-    private void renderItem(RenderItemEntityEvent event, MatrixStack matrices, ItemStack itemStack, BakedModel model, ModelInfo info) {
+    private void renderItem(RenderItemEntityEvent event, MatrixStack matrices, ItemStack itemStack, BakedModel model, ModelInfo info)
+    {
         renderingItem = true;
         int count = getRenderedCount(itemStack);
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             matrices.push();
 
-            if (i > 0) {
+            if (i > 0)
+            {
                 float x = (random.nextFloat() * 2 - 1) * 0.25f;
                 float z = (random.nextFloat() * 2 - 1) * 0.25f;
                 translate(matrices, info, x, 0, z);
@@ -112,8 +121,10 @@ public class ItemPhysics extends Module {
         renderingItem = false;
     }
 
-    private void translate(MatrixStack matrices, ModelInfo info, float x, float y, float z) {
-        if (info.flat) {
+    private void translate(MatrixStack matrices, ModelInfo info, float x, float y, float z)
+    {
+        if (info.flat)
+        {
             float temp = y;
             y = z;
             z = -temp;
@@ -122,7 +133,8 @@ public class ItemPhysics extends Module {
         matrices.translate(x, y, z);
     }
 
-    private int getRenderedCount(ItemStack stack) {
+    private int getRenderedCount(ItemStack stack)
+    {
         int i = 1;
 
         if (stack.getCount() > 48) i = 5;
@@ -133,7 +145,8 @@ public class ItemPhysics extends Module {
         return i;
     }
 
-    private void applyTransformation(MatrixStack matrices, BakedModel model) {
+    private void applyTransformation(MatrixStack matrices, BakedModel model)
+    {
         Transformation transformation = model.getTransformation().ground;
 
         float prevY = transformation.translation.y;
@@ -144,13 +157,16 @@ public class ItemPhysics extends Module {
         transformation.translation.y = prevY;
     }
 
-    private void offsetInWater(MatrixStack matrices, ItemEntity entity) {
-        if (entity.isTouchingWater()) {
+    private void offsetInWater(MatrixStack matrices, ItemEntity entity)
+    {
+        if (entity.isTouchingWater())
+        {
             matrices.translate(0, 0.333f, 0);
         }
     }
 
-    private void preventZFighting(MatrixStack matrices, ItemEntity entity) {
+    private void preventZFighting(MatrixStack matrices, ItemEntity entity)
+    {
         float offset = 0.0001f;
 
         float distance = (float) mc.gameRenderer.getCamera().getPos().distanceTo(entity.getPos());
@@ -159,29 +175,37 @@ public class ItemPhysics extends Module {
         matrices.translate(0, offset, 0);
     }
 
-    private BakedModel getModel(ItemEntity entity) {
+    private BakedModel getModel(ItemEntity entity)
+    {
         ItemStack itemStack = entity.getStack();
 
         // Mojang be like
-        if (itemStack.isOf(Items.TRIDENT)) return mc.getItemRenderer().getModels().getModelManager().getModel(ItemRenderer.TRIDENT);
-        if (itemStack.isOf(Items.SPYGLASS)) return mc.getItemRenderer().getModels().getModelManager().getModel(ItemRenderer.SPYGLASS);
+        if (itemStack.isOf(Items.TRIDENT))
+            return mc.getItemRenderer().getModels().getModelManager().getModel(ItemRenderer.TRIDENT);
+        if (itemStack.isOf(Items.SPYGLASS))
+            return mc.getItemRenderer().getModels().getModelManager().getModel(ItemRenderer.SPYGLASS);
 
         return mc.getItemRenderer().getModel(itemStack, entity.getWorld(), null, entity.getId());
     }
 
-    private ModelInfo getInfo(BakedModel model) {
+    private ModelInfo getInfo(BakedModel model)
+    {
         Random random = Random.createLocal();
 
         float minX = Float.MAX_VALUE, maxX = Float.MIN_VALUE;
         float minY = Float.MAX_VALUE, maxY = Float.MIN_VALUE;
         float minZ = Float.MAX_VALUE, maxZ = Float.MIN_VALUE;
 
-        for (Direction face : FACES) {
-            for (BakedQuad _quad : model.getQuads(null, face, random)) {
+        for (Direction face : FACES)
+        {
+            for (BakedQuad _quad : model.getQuads(null, face, random))
+            {
                 IBakedQuad quad = (IBakedQuad) _quad;
 
-                for (int i = 0; i < 4; i++) {
-                    switch (_quad.getFace()) {
+                for (int i = 0; i < 4; i++)
+                {
+                    switch (_quad.getFace())
+                    {
                         case DOWN -> minY = Math.min(minY, quad.meteor$getY(i));
                         case UP -> maxY = Math.max(maxY, quad.meteor$getY(i));
                         case NORTH -> minZ = Math.min(minZ, quad.meteor$getZ(i));
@@ -210,5 +234,7 @@ public class ItemPhysics extends Module {
         return new ModelInfo(flat, 0.5f - minY, minZ - minY);
     }
 
-    record ModelInfo(boolean flat, float offsetY, float offsetZ) {}
+    record ModelInfo(boolean flat, float offsetY, float offsetZ)
+    {
+    }
 }

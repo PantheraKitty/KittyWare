@@ -5,15 +5,18 @@
 
 package meteordevelopment.meteorclient.gui.widgets.pressable;
 
-public abstract class WCheckbox extends WPressable {
+public abstract class WCheckbox extends WPressable
+{
     public boolean checked;
 
-    public WCheckbox(boolean checked) {
+    public WCheckbox(boolean checked)
+    {
         this.checked = checked;
     }
 
     @Override
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
         double pad = pad();
         double s = theme.textHeight();
 
@@ -22,7 +25,8 @@ public abstract class WCheckbox extends WPressable {
     }
 
     @Override
-    protected void onPressed(int button) {
+    protected void onPressed(int button)
+    {
         checked = !checked;
     }
 }

@@ -14,7 +14,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(SectionedEntityCache.class)
-public interface SectionedEntityCacheAccessor {
+public interface SectionedEntityCacheAccessor
+{
     @Accessor("trackedPositions")
     LongSortedSet getTrackedPositions();
 

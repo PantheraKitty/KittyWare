@@ -16,30 +16,39 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL30C.*;
 
-public class ByteTexture extends AbstractTexture {
-    public ByteTexture(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag) {
-        if (!RenderSystem.isOnRenderThread()) {
+public class ByteTexture extends AbstractTexture
+{
+    public ByteTexture(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag)
+    {
+        if (!RenderSystem.isOnRenderThread())
+        {
             RenderSystem.recordRenderCall(() -> upload(width, height, data, format, filterMin, filterMag));
-        } else {
+        } else
+        {
             upload(width, height, data, format, filterMin, filterMag);
         }
     }
 
-    public ByteTexture(int width, int height, ByteBuffer buffer, Format format, Filter filterMin, Filter filterMag) {
-        if (!RenderSystem.isOnRenderThread()) {
+    public ByteTexture(int width, int height, ByteBuffer buffer, Format format, Filter filterMin, Filter filterMag)
+    {
+        if (!RenderSystem.isOnRenderThread())
+        {
             RenderSystem.recordRenderCall(() -> upload(width, height, buffer, format, filterMin, filterMag));
-        } else {
+        } else
+        {
             upload(width, height, buffer, format, filterMin, filterMag);
         }
     }
 
-    private void upload(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag) {
+    private void upload(int width, int height, byte[] data, Format format, Filter filterMin, Filter filterMag)
+    {
         ByteBuffer buffer = BufferUtils.createByteBuffer(data.length).put(data);
 
         upload(width, height, buffer, format, filterMin, filterMag);
     }
 
-    private void upload(int width, int height, ByteBuffer buffer, Format format, Filter filterMin, Filter filterMag) {
+    private void upload(int width, int height, ByteBuffer buffer, Format format, Filter filterMin, Filter filterMag)
+    {
         bindTexture();
 
         glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
@@ -61,15 +70,20 @@ public class ByteTexture extends AbstractTexture {
     }
 
     @Override
-    public void load(ResourceManager manager) throws IOException {}
+    public void load(ResourceManager manager) throws IOException
+    {
+    }
 
-    public enum Format {
+    public enum Format
+    {
         A,
         RGB,
         RGBA;
 
-        public int toOpenGL() {
-            return switch (this) {
+        public int toOpenGL()
+        {
+            return switch (this)
+            {
                 case A -> GL_RED;
                 case RGB -> GL_RGB;
                 case RGBA -> GL_RGBA;
@@ -77,11 +91,13 @@ public class ByteTexture extends AbstractTexture {
         }
     }
 
-    public enum Filter {
+    public enum Filter
+    {
         Nearest,
         Linear;
 
-        public int toOpenGL() {
+        public int toOpenGL()
+        {
             return this == Nearest ? GL_NEAREST : GL_LINEAR;
         }
     }

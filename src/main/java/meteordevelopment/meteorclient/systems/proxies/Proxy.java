@@ -14,32 +14,28 @@ import net.minecraft.nbt.NbtElement;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 
-public class Proxy implements ISerializable<Proxy> {
+public class Proxy implements ISerializable<Proxy>
+{
     public final Settings settings = new Settings();
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgOptional = settings.createGroup("Optional");
-
     public Setting<String> name = sgGeneral.add(new StringSetting.Builder()
         .name("name")
         .description("The name of the proxy.")
         .build()
     );
-
     public Setting<ProxyType> type = sgGeneral.add(new EnumSetting.Builder<ProxyType>()
         .name("type")
         .description("The type of proxy.")
         .defaultValue(ProxyType.Socks5)
         .build()
     );
-
     public Setting<String> address = sgGeneral.add(new StringSetting.Builder()
         .name("address")
         .description("The ip address of the proxy.")
         .filter(Utils::ipFilter)
         .build()
     );
-
     public Setting<Integer> port = sgGeneral.add(new IntSetting.Builder()
         .name("port")
         .description("The port of the proxy.")
@@ -49,16 +45,15 @@ public class Proxy implements ISerializable<Proxy> {
         .noSlider()
         .build()
     );
-
     public Setting<Boolean> enabled = sgGeneral.add(new BoolSetting.Builder()
         .name("enabled")
         .description("Whether the proxy is enabled.")
         .defaultValue(true)
         .build()
     );
+    private final SettingGroup sgOptional = settings.createGroup("Optional");
 
     // Optional
-
     public Setting<String> username = sgOptional.add(new StringSetting.Builder()
         .name("username")
         .description("The username of the proxy.")
@@ -72,12 +67,17 @@ public class Proxy implements ISerializable<Proxy> {
         .build()
     );
 
-    private Proxy() {}
-    public Proxy(NbtElement tag) {
+    private Proxy()
+    {
+    }
+
+    public Proxy(NbtElement tag)
+    {
         fromTag((NbtCompound) tag);
     }
 
-    public boolean resolveAddress() {
+    public boolean resolveAddress()
+    {
         int port = this.port.get();
         String address = this.address.get();
 
@@ -86,7 +86,38 @@ public class Proxy implements ISerializable<Proxy> {
         return !socketAddress.isUnresolved();
     }
 
-    public static class Builder {
+    @Override
+    public NbtCompound toTag()
+    {
+        NbtCompound tag = new NbtCompound();
+
+        tag.put("settings", settings.toTag());
+
+        return tag;
+    }
+
+    @Override
+    public Proxy fromTag(NbtCompound tag)
+    {
+        if (tag.contains("settings"))
+        {
+            settings.fromTag(tag.getCompound("settings"));
+        }
+
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Proxy proxy = (Proxy) o;
+        return Objects.equals(proxy.address.get(), this.address.get()) && Objects.equals(proxy.port.get(), this.port.get());
+    }
+
+    public static class Builder
+    {
         protected ProxyType type = ProxyType.Socks5;
         protected String address = "";
         protected int port = 0;
@@ -94,37 +125,44 @@ public class Proxy implements ISerializable<Proxy> {
         protected String username = "";
         protected boolean enabled = false;
 
-        public Builder type(ProxyType type) {
+        public Builder type(ProxyType type)
+        {
             this.type = type;
             return this;
         }
 
-        public Builder address(String address) {
+        public Builder address(String address)
+        {
             this.address = address;
             return this;
         }
 
-        public Builder port(int port) {
+        public Builder port(int port)
+        {
             this.port = port;
             return this;
         }
 
-        public Builder name(String name) {
+        public Builder name(String name)
+        {
             this.name = name;
             return this;
         }
 
-        public Builder username(String username) {
+        public Builder username(String username)
+        {
             this.username = username;
             return this;
         }
 
-        public Builder enabled(boolean enabled) {
+        public Builder enabled(boolean enabled)
+        {
             this.enabled = enabled;
             return this;
         }
 
-        public Proxy build() {
+        public Proxy build()
+        {
             Proxy proxy = new Proxy();
 
             if (!type.equals(proxy.type.getDefaultValue())) proxy.type.set(type);
@@ -136,31 +174,5 @@ public class Proxy implements ISerializable<Proxy> {
 
             return proxy;
         }
-    }
-
-    @Override
-    public NbtCompound toTag() {
-        NbtCompound tag = new NbtCompound();
-
-        tag.put("settings", settings.toTag());
-
-        return tag;
-    }
-
-    @Override
-    public Proxy fromTag(NbtCompound tag) {
-        if (tag.contains("settings")) {
-            settings.fromTag(tag.getCompound("settings"));
-        }
-
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Proxy proxy = (Proxy) o;
-        return Objects.equals(proxy.address.get(), this.address.get()) && Objects.equals(proxy.port.get(), this.port.get());
     }
 }

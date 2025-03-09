@@ -16,20 +16,20 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Set;
 
-public class ESPGroup {
+public class ESPGroup
+{
     private static final BlockESP blockEsp = Modules.get().get(BlockESP.class);
-
-    private final Block block;
-
     public final UnorderedArrayList<ESPBlock> blocks = new UnorderedArrayList<>();
-
+    private final Block block;
     private double sumX, sumY, sumZ;
 
-    public ESPGroup(Block block) {
+    public ESPGroup(Block block)
+    {
         this.block = block;
     }
 
-    public void add(ESPBlock block, boolean removeFromOld, boolean splitGroup) {
+    public void add(ESPBlock block, boolean removeFromOld, boolean splitGroup)
+    {
         blocks.add(block);
         sumX += block.x;
         sumY += block.y;
@@ -39,31 +39,38 @@ public class ESPGroup {
         block.group = this;
     }
 
-    public void add(ESPBlock block) {
+    public void add(ESPBlock block)
+    {
         add(block, true, true);
     }
 
-    public void remove(ESPBlock block, boolean splitGroup) {
+    public void remove(ESPBlock block, boolean splitGroup)
+    {
         blocks.remove(block);
         sumX -= block.x;
         sumY -= block.y;
         sumZ -= block.z;
 
         if (blocks.isEmpty()) blockEsp.removeGroup(block.group);
-        else if (splitGroup) {
+        else if (splitGroup)
+        {
             trySplit(block);
         }
     }
 
-    public void remove(ESPBlock block) {
+    public void remove(ESPBlock block)
+    {
         remove(block, true);
     }
 
-    private void trySplit(ESPBlock block) {
+    private void trySplit(ESPBlock block)
+    {
         Set<ESPBlock> neighbours = new ObjectOpenHashSet<>(6);
 
-        for (int side : ESPBlock.SIDES) {
-            if ((block.neighbours & side) == side) {
+        for (int side : ESPBlock.SIDES)
+        {
+            if ((block.neighbours & side) == side)
+            {
                 ESPBlock neighbour = block.getSideBlock(side);
                 if (neighbour != null) neighbours.add(neighbour);
             }
@@ -77,15 +84,19 @@ public class ESPGroup {
         remainingBlocks.remove(blocks.getFirst());
         neighbours.remove(blocks.getFirst());
 
-        loop: {
-            while (!blocksToCheck.isEmpty()) {
+        loop:
+        {
+            while (!blocksToCheck.isEmpty())
+            {
                 ESPBlock b = blocksToCheck.poll();
 
-                for (int side : ESPBlock.SIDES) {
+                for (int side : ESPBlock.SIDES)
+                {
                     if ((b.neighbours & side) != side) continue;
                     ESPBlock neighbour = b.getSideBlock(side);
 
-                    if (neighbour != null && remainingBlocks.contains(neighbour)) {
+                    if (neighbour != null && remainingBlocks.contains(neighbour))
+                    {
                         blocksToCheck.offer(neighbour);
                         remainingBlocks.remove(neighbour);
 
@@ -96,13 +107,15 @@ public class ESPGroup {
             }
         }
 
-        if (!neighbours.isEmpty()) {
+        if (!neighbours.isEmpty())
+        {
             ESPGroup group = blockEsp.newGroup(this.block);
             group.blocks.ensureCapacity(remainingBlocks.size());
 
             blocks.removeIf(remainingBlocks::contains);
 
-            for (ESPBlock b : remainingBlocks) {
+            for (ESPBlock b : remainingBlocks)
+            {
                 group.add(b, false, false);
 
                 sumX -= b.x;
@@ -110,10 +123,12 @@ public class ESPGroup {
                 sumZ -= b.z;
             }
 
-            if (neighbours.size() > 1) {
+            if (neighbours.size() > 1)
+            {
                 block.neighbours = 0;
 
-                for (ESPBlock b : neighbours) {
+                for (ESPBlock b : neighbours)
+                {
                     int x = b.x - block.x;
                     if (x == 1) block.neighbours |= ESPBlock.RI;
                     else if (x == -1) block.neighbours |= ESPBlock.LE;
@@ -132,16 +147,19 @@ public class ESPGroup {
         }
     }
 
-    public void merge(ESPGroup group) {
+    public void merge(ESPGroup group)
+    {
         blocks.ensureCapacity(blocks.size() + group.blocks.size());
         for (ESPBlock block : group.blocks) add(block, false, false);
         blockEsp.removeGroup(group);
     }
 
-    public void render(Render3DEvent event) {
+    public void render(Render3DEvent event)
+    {
         ESPBlockData blockData = blockEsp.getBlockData(block);
 
-        if (blockData.tracer) {
+        if (blockData.tracer)
+        {
             event.renderer.line(RenderUtils.center.x, RenderUtils.center.y, RenderUtils.center.z, sumX / blocks.size() + 0.5, sumY / blocks.size() + 0.5, sumZ / blocks.size() + 0.5, blockData.tracerColor);
         }
     }

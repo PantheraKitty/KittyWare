@@ -7,11 +7,13 @@ import net.minecraft.client.render.WorldRenderer;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public abstract class EntityShader extends PostProcessShader {
+public abstract class EntityShader extends PostProcessShader
+{
     private Framebuffer prevBuffer;
 
     @Override
-    protected void preDraw() {
+    protected void preDraw()
+    {
         WorldRenderer worldRenderer = mc.worldRenderer;
         WorldRendererAccessor wra = (WorldRendererAccessor) worldRenderer;
         prevBuffer = worldRenderer.getEntityOutlinesFramebuffer();
@@ -19,7 +21,8 @@ public abstract class EntityShader extends PostProcessShader {
     }
 
     @Override
-    protected void postDraw() {
+    protected void postDraw()
+    {
         if (prevBuffer == null) return;
 
         WorldRenderer worldRenderer = mc.worldRenderer;
@@ -28,7 +31,8 @@ public abstract class EntityShader extends PostProcessShader {
         prevBuffer = null;
     }
 
-    public void endRender() {
+    public void endRender()
+    {
         endRender(() -> ((OutlineVertexConsumerProvider) vertexConsumerProvider).draw());
     }
 }

@@ -33,8 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class AutoGap extends Module {
-    private static final Class<? extends Module>[] AURAS = new Class[] { KillAura.class, AnchorAura.class, BedAura.class };
+public class AutoGap extends Module
+{
+    private static final Class<? extends Module>[] AURAS = new Class[]{KillAura.class, AnchorAura.class, BedAura.class};
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgPotions = settings.createGroup("Potions");
@@ -48,37 +49,6 @@ public class AutoGap extends Module {
         .defaultValue(true)
         .build()
     );
-
-    private final Setting<Boolean> always = sgGeneral.add(new BoolSetting.Builder()
-        .name("always")
-        .description("If it should always eat.")
-        .defaultValue(false)
-        .build()
-    );
-
-    private final Setting<Boolean> pauseAuras = sgGeneral.add(new BoolSetting.Builder()
-        .name("pause-auras")
-        .description("Pauses all auras when eating.")
-        .defaultValue(true)
-        .build()
-    );
-
-    private final Setting<Boolean> pauseBaritone = sgGeneral.add(new BoolSetting.Builder()
-        .name("pause-baritone")
-        .description("Pause baritone when eating.")
-        .defaultValue(true)
-        .build()
-    );
-
-    // Potions
-
-    private final Setting<Boolean> potionsRegeneration = sgPotions.add(new BoolSetting.Builder()
-        .name("potions-regeneration")
-        .description("If it should eat when Regeneration runs out.")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<Boolean> potionsFireResistance = sgPotions.add(new BoolSetting.Builder()
         .name("potions-fire-resistance")
         .description("If it should eat when Fire Resistance runs out. Requires E-Gaps.")
@@ -86,7 +56,6 @@ public class AutoGap extends Module {
         .visible(allowEgap::get)
         .build()
     );
-
     private final Setting<Boolean> potionsResistance = sgPotions.add(new BoolSetting.Builder()
         .name("potions-absorption")
         .description("If it should eat when Resistance runs out. Requires E-Gaps.")
@@ -94,9 +63,34 @@ public class AutoGap extends Module {
         .visible(allowEgap::get)
         .build()
     );
+    private final Setting<Boolean> always = sgGeneral.add(new BoolSetting.Builder()
+        .name("always")
+        .description("If it should always eat.")
+        .defaultValue(false)
+        .build()
+    );
+
+    // Potions
+    private final Setting<Boolean> pauseAuras = sgGeneral.add(new BoolSetting.Builder()
+        .name("pause-auras")
+        .description("Pauses all auras when eating.")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> pauseBaritone = sgGeneral.add(new BoolSetting.Builder()
+        .name("pause-baritone")
+        .description("Pause baritone when eating.")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> potionsRegeneration = sgPotions.add(new BoolSetting.Builder()
+        .name("potions-regeneration")
+        .description("If it should eat when Regeneration runs out.")
+        .defaultValue(false)
+        .build()
+    );
 
     // Health
-
     private final Setting<Boolean> healthEnabled = sgHealth.add(new BoolSetting.Builder()
         .name("health-enabled")
         .description("If it should eat when health drops below threshold.")
@@ -112,41 +106,46 @@ public class AutoGap extends Module {
         .sliderMax(40)
         .build()
     );
-
+    private final List<Class<? extends Module>> wasAura = new ArrayList<>();
     private boolean requiresEGap;
-
     private boolean eating;
     private int slot, prevSlot;
-
-    private final List<Class<? extends Module>> wasAura = new ArrayList<>();
     private boolean wasBaritone;
 
-    public AutoGap() {
+    public AutoGap()
+    {
         super(Categories.Player, "auto-gap", "Automatically eats Gaps or E-Gaps.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         if (eating) stopEating();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        if (eating) {
+    private void onTick(TickEvent.Pre event)
+    {
+        if (eating)
+        {
             // If we are eating check if we should still be still eating
-            if (shouldEat()) {
+            if (shouldEat())
+            {
                 // Check if the item in current slot is not gap or egap
-                if (isNotGapOrEGap(mc.player.getInventory().getStack(slot))) {
+                if (isNotGapOrEGap(mc.player.getInventory().getStack(slot)))
+                {
                     // If not try finding a new slot
                     int slot = findSlot();
 
                     // If no valid slot was found then stop eating
-                    if (slot == -1) {
+                    if (slot == -1)
+                    {
                         stopEating();
                         return;
                     }
                     // Otherwise change to the new slot
-                    else {
+                    else
+                    {
                         changeSlot(slot);
                     }
                 }
@@ -155,13 +154,15 @@ public class AutoGap extends Module {
                 eat();
             }
             // If we shouldn't be eating anymore then stop
-            else {
+            else
+            {
                 stopEating();
             }
-        }
-        else {
+        } else
+        {
             // If we are not eating check if we should start eating
-            if (shouldEat()) {
+            if (shouldEat())
+            {
                 // Try to find a valid slot
                 slot = findSlot();
 
@@ -172,21 +173,26 @@ public class AutoGap extends Module {
     }
 
     @EventHandler
-    private void onItemUseCrosshairTarget(ItemUseCrosshairTargetEvent event) {
+    private void onItemUseCrosshairTarget(ItemUseCrosshairTargetEvent event)
+    {
         if (eating) event.target = null;
     }
 
-    private void startEating() {
+    private void startEating()
+    {
         prevSlot = mc.player.getInventory().selectedSlot;
         eat();
 
         // Pause auras
         wasAura.clear();
-        if (pauseAuras.get()) {
-            for (Class<? extends Module> klass : AURAS) {
+        if (pauseAuras.get())
+        {
+            for (Class<? extends Module> klass : AURAS)
+            {
                 Module module = Modules.get().get(klass);
 
-                if (module.isActive()) {
+                if (module.isActive())
+                {
                     wasAura.add(klass);
                     module.toggle();
                 }
@@ -195,13 +201,15 @@ public class AutoGap extends Module {
 
         // Pause baritone
         wasBaritone = false;
-        if (pauseBaritone.get() && PathManagers.get().isPathing()) {
+        if (pauseBaritone.get() && PathManagers.get().isPathing())
+        {
             wasBaritone = true;
             PathManagers.get().pause();
         }
     }
 
-    private void eat() {
+    private void eat()
+    {
         changeSlot(slot);
         setPressed(true);
         if (!mc.player.isUsingItem()) Utils.rightClick();
@@ -209,39 +217,47 @@ public class AutoGap extends Module {
         eating = true;
     }
 
-    private void stopEating() {
+    private void stopEating()
+    {
         changeSlot(prevSlot);
         setPressed(false);
 
         eating = false;
 
         // Resume auras
-        if (pauseAuras.get()) {
-            for (Class<? extends Module> klass : AURAS) {
+        if (pauseAuras.get())
+        {
+            for (Class<? extends Module> klass : AURAS)
+            {
                 Module module = Modules.get().get(klass);
 
-                if (wasAura.contains(klass) && !module.isActive()) {
+                if (wasAura.contains(klass) && !module.isActive())
+                {
                     module.toggle();
                 }
             }
         }
 
         // Resume baritone
-        if (pauseBaritone.get() && wasBaritone) {
+        if (pauseBaritone.get() && wasBaritone)
+        {
             PathManagers.get().resume();
         }
     }
 
-    private void setPressed(boolean pressed) {
+    private void setPressed(boolean pressed)
+    {
         mc.options.useKey.setPressed(pressed);
     }
 
-    private void changeSlot(int slot) {
+    private void changeSlot(int slot)
+    {
         InvUtils.swap(slot, false);
         this.slot = slot;
     }
 
-    private boolean shouldEat() {
+    private boolean shouldEat()
+    {
         requiresEGap = false;
 
         if (always.get()) return true;
@@ -249,20 +265,23 @@ public class AutoGap extends Module {
         return shouldEatHealth();
     }
 
-    private boolean shouldEatPotions() {
+    private boolean shouldEatPotions()
+    {
         Map<RegistryEntry<StatusEffect>, StatusEffectInstance> effects = mc.player.getActiveStatusEffects();
 
         // Regeneration
         if (potionsRegeneration.get() && !effects.containsKey(StatusEffects.REGENERATION)) return true;
 
         // Fire resistance
-        if (potionsFireResistance.get() && !effects.containsKey(StatusEffects.FIRE_RESISTANCE)) {
+        if (potionsFireResistance.get() && !effects.containsKey(StatusEffects.FIRE_RESISTANCE))
+        {
             requiresEGap = true;
             return true;
         }
 
         // Absorption
-        if (potionsResistance.get() && !effects.containsKey(StatusEffects.RESISTANCE)) {
+        if (potionsResistance.get() && !effects.containsKey(StatusEffects.RESISTANCE))
+        {
             requiresEGap = true;
             return true;
         }
@@ -270,18 +289,21 @@ public class AutoGap extends Module {
         return false;
     }
 
-    private boolean shouldEatHealth() {
+    private boolean shouldEatHealth()
+    {
         if (!healthEnabled.get()) return false;
 
         int health = Math.round(mc.player.getHealth() + mc.player.getAbsorptionAmount());
         return health < healthThreshold.get();
     }
 
-    private int findSlot() {
+    private int findSlot()
+    {
         boolean preferEGap = this.allowEgap.get() || requiresEGap;
         int slot = -1;
 
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 9; i++)
+        {
             // Skip if item stack is empty
             ItemStack stack = mc.player.getInventory().getStack(i);
             if (stack.isEmpty()) continue;
@@ -291,12 +313,14 @@ public class AutoGap extends Module {
             Item item = stack.getItem();
 
             // If egap was found and preferEGap is true we can return the current slot
-            if (item == Items.ENCHANTED_GOLDEN_APPLE && preferEGap) {
+            if (item == Items.ENCHANTED_GOLDEN_APPLE && preferEGap)
+            {
                 slot = i;
                 break;
             }
             // If gap was found and egap is not required we can return the current slot
-            else if (item == Items.GOLDEN_APPLE && !requiresEGap) {
+            else if (item == Items.GOLDEN_APPLE && !requiresEGap)
+            {
                 slot = i;
                 if (!preferEGap) break;
             }
@@ -305,12 +329,14 @@ public class AutoGap extends Module {
         return slot;
     }
 
-    private boolean isNotGapOrEGap(ItemStack stack) {
+    private boolean isNotGapOrEGap(ItemStack stack)
+    {
         Item item = stack.getItem();
         return item != Items.GOLDEN_APPLE && item != Items.ENCHANTED_GOLDEN_APPLE;
     }
 
-    public boolean isEating() {
+    public boolean isEating()
+    {
         return isActive() && eating;
     }
 }

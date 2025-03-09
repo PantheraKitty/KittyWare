@@ -27,7 +27,8 @@ import net.minecraft.util.ActionResult;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ElytraBoost extends Module {
+public class ElytraBoost extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> dontConsumeFirework = sgGeneral.add(new BoolSetting.Builder()
@@ -52,7 +53,7 @@ public class ElytraBoost extends Module {
         .defaultValue(true)
         .build()
     );
-
+    private final List<FireworkRocketEntity> fireworks = new ArrayList<>();
     @SuppressWarnings("unused")
     private final Setting<Keybind> keybind = sgGeneral.add(new KeybindSetting.Builder()
         .name("keybind")
@@ -61,22 +62,24 @@ public class ElytraBoost extends Module {
         .build()
     );
 
-    private final List<FireworkRocketEntity> fireworks = new ArrayList<>();
-
-    public ElytraBoost() {
+    public ElytraBoost()
+    {
         super(Categories.Movement, "elytra-boost", "Boosts your elytra as if you used a firework.");
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         fireworks.clear();
     }
 
     @EventHandler
-    private void onInteractItem(InteractItemEvent event) {
+    private void onInteractItem(InteractItemEvent event)
+    {
         ItemStack itemStack = mc.player.getStackInHand(event.hand);
 
-        if (itemStack.getItem() instanceof FireworkRocketItem && dontConsumeFirework.get()) {
+        if (itemStack.getItem() instanceof FireworkRocketItem && dontConsumeFirework.get())
+        {
             event.toReturn = ActionResult.PASS;
 
             boost();
@@ -84,25 +87,30 @@ public class ElytraBoost extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         fireworks.removeIf(Entity::isRemoved);
     }
 
-    private void boost() {
+    private void boost()
+    {
         if (!Utils.canUpdate()) return;
 
-        if (mc.player.isFallFlying() && mc.currentScreen == null) {
+        if (mc.player.isFallFlying() && mc.currentScreen == null)
+        {
             ItemStack itemStack = Items.FIREWORK_ROCKET.getDefaultStack();
             itemStack.set(DataComponentTypes.FIREWORKS, new FireworksComponent(fireworkLevel.get(), itemStack.get(DataComponentTypes.FIREWORKS).explosions()));
 
             FireworkRocketEntity entity = new FireworkRocketEntity(mc.world, itemStack, mc.player);
             fireworks.add(entity);
-            if (playSound.get()) mc.world.playSoundFromEntity(mc.player, entity, SoundEvents.ENTITY_FIREWORK_ROCKET_LAUNCH, SoundCategory.AMBIENT, 3.0F, 1.0F);
+            if (playSound.get())
+                mc.world.playSoundFromEntity(mc.player, entity, SoundEvents.ENTITY_FIREWORK_ROCKET_LAUNCH, SoundCategory.AMBIENT, 3.0F, 1.0F);
             mc.world.addEntity(entity);
         }
     }
 
-    public boolean isFirework(FireworkRocketEntity firework) {
+    public boolean isFirework(FireworkRocketEntity firework)
+    {
         return isActive() && fireworks.contains(firework);
     }
 }

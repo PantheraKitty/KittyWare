@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ContainerComponent.class)
-public interface ContainerComponentAccessor {
+public interface ContainerComponentAccessor
+{
     @Accessor
     DefaultedList<ItemStack> getStacks();
 }

@@ -10,12 +10,15 @@ import meteordevelopment.meteorclient.gui.utils.BaseWidget;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public interface GonbleWareWidget extends BaseWidget {
-    default GonbleWareGuiTheme theme() {
+public interface GonbleWareWidget extends BaseWidget
+{
+    default GonbleWareGuiTheme theme()
+    {
         return (GonbleWareGuiTheme) getTheme();
     }
 
-    default void renderBackground(GuiRenderer renderer, WWidget widget, boolean pressed, boolean mouseOver) {
+    default void renderBackground(GuiRenderer renderer, WWidget widget, boolean pressed, boolean mouseOver)
+    {
         GonbleWareGuiTheme theme = theme();
         double s = theme.scale(2);
 

@@ -46,132 +46,122 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class BetterChat extends Module {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgFilter = settings.createGroup("Filter");
-    private final SettingGroup sgLongerChat = settings.createGroup("Longer Chat");
-    private final SettingGroup sgPrefix = settings.createGroup("Prefix");
-    private final SettingGroup sgSuffix = settings.createGroup("Suffix");
-
-    private final Setting<Boolean> annoy = sgGeneral.add(new BoolSetting.Builder().name("annoy")
-            .description("Makes your messages aNnOyInG.").defaultValue(false).build());
-
-    private final Setting<Boolean> fancy =
-            sgGeneral.add(new BoolSetting.Builder().name("fancy-chat")
-                    .description("Makes your messages ғᴀɴᴄʏ!").defaultValue(false).build());
-
-    private final Setting<Boolean> timestamps =
-            sgGeneral.add(new BoolSetting.Builder().name("timestamps")
-                    .description("Adds client-side time stamps to the beginning of chat messages.")
-                    .defaultValue(false).build());
-
-    private final Setting<Boolean> playerHeads = sgGeneral.add(new BoolSetting.Builder()
-            .name("player-heads").description("Displays player heads next to their messages.")
-            .defaultValue(true).build());
-
-    private final Setting<Boolean> coordsProtection = sgGeneral.add(new BoolSetting.Builder()
-            .name("coords-protection")
-            .description("Prevents you from sending messages in chat that may contain coordinates.")
-            .defaultValue(true).build());
-
-    private final Setting<Boolean> keepHistory =
-            sgGeneral.add(new BoolSetting.Builder().name("keep-history")
-                    .description("Prevents the chat history from being cleared when disconnecting.")
-                    .defaultValue(true).build());
-
-    private final Setting<Boolean> highlightNearby =
-            sgGeneral.add(new BoolSetting.Builder().name("highlight-nearby")
-                    .description("Highlights a message when a player in visual range sends it.")
-                    .defaultValue(true).build());
-
-    private final Setting<Boolean> dingNearby =
-            sgGeneral.add(new BoolSetting.Builder().name("ding-nearby")
-                    .description("Plays a tone when when a player in visual range sends a message.")
-                    .defaultValue(true).build());
-
-    // Filter
-
-    private final Setting<Boolean> antiSpam = sgFilter.add(new BoolSetting.Builder()
-            .name("anti-spam").description("Blocks duplicate messages from filling your chat.")
-            .defaultValue(true).build());
-
-    private final Setting<Integer> antiSpamDepth = sgFilter
-            .add(new IntSetting.Builder().name("depth").description("How many messages to filter.")
-                    .defaultValue(20).min(1).sliderMin(1).visible(antiSpam::get).build());
-
-    private final Setting<Boolean> antiClear = sgFilter.add(new BoolSetting.Builder()
-            .name("anti-clear").description("Prevents servers from clearing chat.")
-            .defaultValue(true).build());
-
-    private final Setting<Boolean> filterRegex =
-            sgFilter.add(new BoolSetting.Builder().name("filter-regex")
-                    .description("Filter out chat messages that match the regex filter.")
-                    .defaultValue(false).build());
-
-    private final Setting<List<String>> regexFilters = sgFilter.add(new StringListSetting.Builder()
-            .name("regex-filter").description("Regex filter used for filtering chat messages.")
-            .visible(filterRegex::get).onChanged(strings -> compileFilterRegexList()).build());
-
-
-    // Longer chat
-
-    private final Setting<Boolean> infiniteChatBox = sgLongerChat.add(new BoolSetting.Builder()
-            .name("infinite-chat-box").description("Lets you type infinitely long messages.")
-            .defaultValue(true).build());
-
-    private final Setting<Boolean> longerChatHistory =
-            sgLongerChat.add(new BoolSetting.Builder().name("longer-chat-history")
-                    .description("Extends chat length.").defaultValue(true).build());
-
-    private final Setting<Integer> longerChatLines = sgLongerChat.add(new IntSetting.Builder()
-            .name("extra-lines").description("The amount of extra chat lines.").defaultValue(1000)
-            .min(0).sliderRange(0, 1000).visible(longerChatHistory::get).build());
-
-    // Prefix
-
-    private final Setting<Boolean> prefix = sgPrefix.add(new BoolSetting.Builder().name("prefix")
-            .description("Adds a prefix to your chat messages.").defaultValue(false).build());
-
-    private final Setting<Boolean> prefixRandom = sgPrefix.add(new BoolSetting.Builder()
-            .name("random").description("Uses a random number as your prefix.").defaultValue(false)
-            .build());
-
-    private final Setting<String> prefixText = sgPrefix.add(
-            new StringSetting.Builder().name("text").description("The text to add as your prefix.")
-                    .defaultValue("> ").visible(() -> !prefixRandom.get()).build());
-
-    private final Setting<Boolean> prefixSmallCaps = sgPrefix.add(new BoolSetting.Builder()
-            .name("small-caps").description("Uses small caps in the prefix.").defaultValue(false)
-            .visible(() -> !prefixRandom.get()).build());
-
-    // Suffix
-
-    private final Setting<Boolean> suffix = sgSuffix.add(new BoolSetting.Builder().name("suffix")
-            .description("Adds a suffix to your chat messages.").defaultValue(false).build());
-
-    private final Setting<Boolean> suffixRandom = sgSuffix.add(new BoolSetting.Builder()
-            .name("random").description("Uses a random number as your suffix.").defaultValue(false)
-            .build());
-
-    private final Setting<String> suffixText = sgSuffix.add(new StringSetting.Builder().name("text")
-            .description("The text to add as your suffix.").defaultValue(" | meteor on crack!")
-            .visible(() -> !suffixRandom.get()).build());
-
-    private final Setting<Boolean> suffixSmallCaps = sgSuffix.add(new BoolSetting.Builder()
-            .name("small-caps").description("Uses small caps in the suffix.").defaultValue(true)
-            .visible(() -> !suffixRandom.get()).build());
-
+public class BetterChat extends Module
+{
     private static final Pattern antiSpamRegex = Pattern.compile(" \\(([0-9]+)\\)$");
     private static final Pattern antiClearRegex = Pattern.compile("\\n(\\n|\\s)+\\n");
     private static final Pattern timestampRegex = Pattern.compile("^(<[0-9]{2}:[0-9]{2}>\\s)");
     private static final Pattern usernameRegex =
-            Pattern.compile("^(?:<[0-9]{2}:[0-9]{2}>\\s)?<(.*?)>.*");
+        Pattern.compile("^(?:<[0-9]{2}:[0-9]{2}>\\s)?<(.*?)>.*");
+    private static final List<CustomHeadEntry> CUSTOM_HEAD_ENTRIES = new ArrayList<>();
+    private static final Pattern TIMESTAMP_REGEX = Pattern.compile("^<\\d{1,2}:\\d{1,2}>");
+    private static final Pattern coordRegex = Pattern.compile(
+        "(?<x>-?\\d{3,}(?:\\.\\d*)?)(?:\\s+(?<y>-?\\d{1,3}(?:\\.\\d*)?))?\\s+(?<z>-?\\d{3,}(?:\\.\\d*)?)");
 
+    static
+    {
+        //registerCustomHead("[GWare]", MeteorClient.identifier("textures/icons/chat/gware.png"));
+        registerCustomHead("[Baritone]",
+            MeteorClient.identifier("textures/icons/chat/baritone.png"));
+    }
+
+    public final IntList lines = new IntArrayList();
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgFilter = settings.createGroup("Filter");
+    private final SettingGroup sgLongerChat = settings.createGroup("Longer Chat");
+    private final SettingGroup sgPrefix = settings.createGroup("Prefix");
+
+    // Filter
+    private final SettingGroup sgSuffix = settings.createGroup("Suffix");
+    private final Setting<Boolean> annoy = sgGeneral.add(new BoolSetting.Builder().name("annoy")
+        .description("Makes your messages aNnOyInG.").defaultValue(false).build());
+    private final Setting<Boolean> fancy =
+        sgGeneral.add(new BoolSetting.Builder().name("fancy-chat")
+            .description("Makes your messages ғᴀɴᴄʏ!").defaultValue(false).build());
+    private final Setting<Boolean> timestamps =
+        sgGeneral.add(new BoolSetting.Builder().name("timestamps")
+            .description("Adds client-side time stamps to the beginning of chat messages.")
+            .defaultValue(false).build());
+    private final Setting<Boolean> playerHeads = sgGeneral.add(new BoolSetting.Builder()
+        .name("player-heads").description("Displays player heads next to their messages.")
+        .defaultValue(true).build());    private final Setting<List<String>> regexFilters = sgFilter.add(new StringListSetting.Builder()
+        .name("regex-filter").description("Regex filter used for filtering chat messages.")
+        .visible(filterRegex::get).onChanged(strings -> compileFilterRegexList()).build());
+
+
+    // Longer chat
+    private final Setting<Boolean> coordsProtection = sgGeneral.add(new BoolSetting.Builder()
+        .name("coords-protection")
+        .description("Prevents you from sending messages in chat that may contain coordinates.")
+        .defaultValue(true).build());
+    private final Setting<Boolean> keepHistory =
+        sgGeneral.add(new BoolSetting.Builder().name("keep-history")
+            .description("Prevents the chat history from being cleared when disconnecting.")
+            .defaultValue(true).build());
+    private final Setting<Boolean> highlightNearby =
+        sgGeneral.add(new BoolSetting.Builder().name("highlight-nearby")
+            .description("Highlights a message when a player in visual range sends it.")
+            .defaultValue(true).build());
+
+    // Prefix
+    private final Setting<Boolean> dingNearby =
+        sgGeneral.add(new BoolSetting.Builder().name("ding-nearby")
+            .description("Plays a tone when when a player in visual range sends a message.")
+            .defaultValue(true).build());
+    private final Setting<Boolean> antiSpam = sgFilter.add(new BoolSetting.Builder()
+        .name("anti-spam").description("Blocks duplicate messages from filling your chat.")
+        .defaultValue(true).build());
+    private final Setting<Integer> antiSpamDepth = sgFilter
+        .add(new IntSetting.Builder().name("depth").description("How many messages to filter.")
+            .defaultValue(20).min(1).sliderMin(1).visible(antiSpam::get).build());
+    private final Setting<Boolean> antiClear = sgFilter.add(new BoolSetting.Builder()
+        .name("anti-clear").description("Prevents servers from clearing chat.")
+        .defaultValue(true).build());
+
+    // Suffix
+    private final Setting<Boolean> filterRegex =
+        sgFilter.add(new BoolSetting.Builder().name("filter-regex")
+            .description("Filter out chat messages that match the regex filter.")
+            .defaultValue(false).build());
+    private final Setting<Boolean> infiniteChatBox = sgLongerChat.add(new BoolSetting.Builder()
+        .name("infinite-chat-box").description("Lets you type infinitely long messages.")
+        .defaultValue(true).build());
+    private final Setting<Boolean> longerChatHistory =
+        sgLongerChat.add(new BoolSetting.Builder().name("longer-chat-history")
+            .description("Extends chat length.").defaultValue(true).build());
+    private final Setting<Integer> longerChatLines = sgLongerChat.add(new IntSetting.Builder()
+        .name("extra-lines").description("The amount of extra chat lines.").defaultValue(1000)
+        .min(0).sliderRange(0, 1000).visible(longerChatHistory::get).build());
+    private final Setting<Boolean> prefix = sgPrefix.add(new BoolSetting.Builder().name("prefix")
+        .description("Adds a prefix to your chat messages.").defaultValue(false).build());
+    private final Setting<Boolean> prefixRandom = sgPrefix.add(new BoolSetting.Builder()
+        .name("random").description("Uses a random number as your prefix.").defaultValue(false)
+        .build());
+    private final Setting<String> prefixText = sgPrefix.add(
+        new StringSetting.Builder().name("text").description("The text to add as your prefix.")
+            .defaultValue("> ").visible(() -> !prefixRandom.get()).build());
+    private final Setting<Boolean> prefixSmallCaps = sgPrefix.add(new BoolSetting.Builder()
+        .name("small-caps").description("Uses small caps in the prefix.").defaultValue(false)
+        .visible(() -> !prefixRandom.get()).build());
+    private final Setting<Boolean> suffix = sgSuffix.add(new BoolSetting.Builder().name("suffix")
+        .description("Adds a suffix to your chat messages.").defaultValue(false).build());
+    private final Setting<Boolean> suffixRandom = sgSuffix.add(new BoolSetting.Builder()
+        .name("random").description("Uses a random number as your suffix.").defaultValue(false)
+        .build());
+    private final Setting<String> suffixText = sgSuffix.add(new StringSetting.Builder().name("text")
+        .description("The text to add as your suffix.").defaultValue(" | meteor on crack!")
+        .visible(() -> !suffixRandom.get()).build());
+    private final Setting<Boolean> suffixSmallCaps = sgSuffix.add(new BoolSetting.Builder()
+        .name("small-caps").description("Uses small caps in the suffix.").defaultValue(true)
+        .visible(() -> !suffixRandom.get()).build());
     private final Char2CharMap SMALL_CAPS = new Char2CharOpenHashMap();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-    public final IntList lines = new IntArrayList();
 
-    public BetterChat() {
+    // Anti Spam
+    private final List<Pattern> filterRegexList = new ArrayList<>();
+
+    public BetterChat()
+    {
         super(Categories.Misc, "better-chat", "Improves your chat experience in various ways.");
 
         String[] a = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -181,31 +171,50 @@ public class BetterChat extends Module {
         compileFilterRegexList();
     }
 
+    // Player Heads
+
+    /**
+     * Registers a custom player head to render based on a message prefix
+     */
+    public static void registerCustomHead(String prefix, Identifier texture)
+    {
+        CUSTOM_HEAD_ENTRIES.add(new CustomHeadEntry(prefix, texture));
+    }
+
     @EventHandler
-    private void onMessageReceive(ReceiveMessageEvent event) {
+    private void onMessageReceive(ReceiveMessageEvent event)
+    {
         Text message = event.getMessage();
 
-        if (filterRegex.get()) {
+        if (filterRegex.get())
+        {
             String messageString = message.getString();
-            for (Pattern pattern : filterRegexList) {
-                if (pattern.matcher(messageString).find()) {
+            for (Pattern pattern : filterRegexList)
+            {
+                if (pattern.matcher(messageString).find())
+                {
                     event.cancel();
                     return;
                 }
             }
         }
 
-        if (antiClear.get()) {
+        if (antiClear.get())
+        {
             String messageString = message.getString();
-            if (antiClearRegex.matcher(messageString).find()) {
+            if (antiClearRegex.matcher(messageString).find())
+            {
                 MutableText newMessage = Text.empty();
-                TextVisitor.visit(message, (text, style, string) -> {
+                TextVisitor.visit(message, (text, style, string) ->
+                {
                     Matcher antiClearMatcher = antiClearRegex.matcher(string);
-                    if (antiClearMatcher.find()) {
+                    if (antiClearMatcher.find())
+                    {
                         // assume literal text content
                         newMessage.append(
-                                Text.literal(antiClearMatcher.replaceAll("\n\n")).setStyle(style));
-                    } else {
+                            Text.literal(antiClearMatcher.replaceAll("\n\n")).setStyle(style));
+                    } else
+                    {
                         newMessage.append(text.copyContentOnly().setStyle(style));
                     }
 
@@ -215,40 +224,48 @@ public class BetterChat extends Module {
             }
         }
 
-        if (antiSpam.get()) {
+        if (antiSpam.get())
+        {
             Text antiSpammed = appendAntiSpam(message);
 
-            if (antiSpammed != null) {
+            if (antiSpammed != null)
+            {
                 message = antiSpammed;
             }
         }
 
-        if (timestamps.get()) {
+        if (timestamps.get())
+        {
             Text timestamp = Text.literal("<" + dateFormat.format(new Date()) + "> ")
-                    .formatted(Formatting.GRAY);
+                .formatted(Formatting.GRAY);
 
             message = Text.empty().append(timestamp).append(message);
         }
 
-        if (highlightNearby.get()) {
+        if (highlightNearby.get())
+        {
 
             Matcher usernameMatcher = usernameRegex.matcher(message.getString());
 
-            if (usernameMatcher.matches()) {
+            if (usernameMatcher.matches())
+            {
                 String username = usernameMatcher.group(1);
 
                 PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(username);
 
-                if (entry != null) {
+                if (entry != null)
+                {
                     PlayerEntity sender = mc.world.getPlayerByUuid(entry.getProfile().getId());
 
-                    if (sender != null && !sender.equals(mc.player)) {
+                    if (sender != null && !sender.equals(mc.player))
+                    {
                         message = Text.empty().append(message).formatted(Formatting.AQUA);
 
-                        if (dingNearby.get()) {
+                        if (dingNearby.get())
+                        {
                             mc.world.playSoundFromEntity(mc.player, mc.player,
-                                    SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.AMBIENT,
-                                    3.0F, 1.0F);
+                                SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.AMBIENT,
+                                3.0F, 1.0F);
                         }
                     }
                 }
@@ -259,7 +276,8 @@ public class BetterChat extends Module {
     }
 
     @EventHandler
-    private void onMessageSend(SendMessageEvent event) {
+    private void onMessageSend(SendMessageEvent event)
+    {
         String message = event.message;
 
         if (annoy.get())
@@ -270,9 +288,10 @@ public class BetterChat extends Module {
 
         message = getPrefix() + message + getSuffix();
 
-        if (coordsProtection.get() && containsCoordinates(message)) {
+        if (coordsProtection.get() && containsCoordinates(message))
+        {
             MutableText warningMessage =
-                    Text.literal("It looks like there are coordinates in your message! ");
+                Text.literal("It looks like there are coordinates in your message! ");
 
             MutableText sendButton = getSendButton(message);
             warningMessage.append(sendButton);
@@ -286,9 +305,8 @@ public class BetterChat extends Module {
         event.message = message;
     }
 
-    // Anti Spam
-
-    private Text appendAntiSpam(Text text) {
+    private Text appendAntiSpam(Text text)
+    {
         String textString = text.getString();
         Text returnText = null;
         int messageIndex = -1;
@@ -297,19 +315,23 @@ public class BetterChat extends Module {
         if (messages.isEmpty())
             return null;
 
-        for (int i = 0; i < Math.min(antiSpamDepth.get(), messages.size()); i++) {
+        for (int i = 0; i < Math.min(antiSpamDepth.get(), messages.size()); i++)
+        {
             String stringToCheck = messages.get(i).content().getString();
 
             Matcher timestampMatcher = timestampRegex.matcher(stringToCheck);
-            if (timestampMatcher.find()) {
+            if (timestampMatcher.find())
+            {
                 stringToCheck = stringToCheck.substring(8);
             }
 
-            if (textString.equals(stringToCheck)) {
+            if (textString.equals(stringToCheck))
+            {
                 messageIndex = i;
                 returnText = text.copy().append(Text.literal(" (2)").formatted(Formatting.GRAY));
                 break;
-            } else {
+            } else
+            {
                 Matcher matcher = antiSpamRegex.matcher(stringToCheck);
                 if (!matcher.find())
                     continue;
@@ -317,26 +339,30 @@ public class BetterChat extends Module {
                 String group = matcher.group(matcher.groupCount());
                 int number = Integer.parseInt(group);
 
-                if (stringToCheck.substring(0, matcher.start()).equals(textString)) {
+                if (stringToCheck.substring(0, matcher.start()).equals(textString))
+                {
                     messageIndex = i;
                     returnText = text.copy().append(
-                            Text.literal(" (" + (number + 1) + ")").formatted(Formatting.GRAY));
+                        Text.literal(" (" + (number + 1) + ")").formatted(Formatting.GRAY));
                     break;
                 }
             }
         }
 
-        if (returnText != null) {
+        if (returnText != null)
+        {
             List<ChatHudLine.Visible> visible =
-                    ((ChatHudAccessor) mc.inGameHud.getChatHud()).getVisibleMessages();
+                ((ChatHudAccessor) mc.inGameHud.getChatHud()).getVisibleMessages();
 
             int start = -1;
-            for (int i = 0; i < messageIndex; i++) {
+            for (int i = 0; i < messageIndex; i++)
+            {
                 start += lines.getInt(i);
             }
 
             int i = lines.getInt(messageIndex);
-            while (i > 0) {
+            while (i > 0)
+            {
                 visible.remove(start + 1);
                 i--;
             }
@@ -348,9 +374,12 @@ public class BetterChat extends Module {
         return returnText;
     }
 
-    public void removeLine(int index) {
-        if (index >= lines.size()) {
-            if (antiSpam.get()) {
+    public void removeLine(int index)
+    {
+        if (index >= lines.size())
+        {
+            if (antiSpam.get())
+            {
                 error("Issue detected with the anti-spam system! Likely a compatibility issue with another mod. Disabling anti-spam to protect chat integrity.");
                 antiSpam.set(false);
             }
@@ -361,38 +390,21 @@ public class BetterChat extends Module {
         lines.removeInt(index);
     }
 
-    // Player Heads
-
-    private record CustomHeadEntry(String prefix, Identifier texture) {
-    }
-
-    private static final List<CustomHeadEntry> CUSTOM_HEAD_ENTRIES = new ArrayList<>();
-
-    private static final Pattern TIMESTAMP_REGEX = Pattern.compile("^<\\d{1,2}:\\d{1,2}>");
-
-    /** Registers a custom player head to render based on a message prefix */
-    public static void registerCustomHead(String prefix, Identifier texture) {
-        CUSTOM_HEAD_ENTRIES.add(new CustomHeadEntry(prefix, texture));
-    }
-
-    static {
-        //registerCustomHead("[GWare]", MeteorClient.identifier("textures/icons/chat/gware.png"));
-        registerCustomHead("[Baritone]",
-                MeteorClient.identifier("textures/icons/chat/baritone.png"));
-    }
-
-    public int modifyChatWidth(int width) {
+    public int modifyChatWidth(int width)
+    {
         if (isActive() && playerHeads.get())
             return width + 10;
         return width;
     }
 
-    public void drawPlayerHead(DrawContext context, ChatHudLine.Visible line, int y, int color) {
+    public void drawPlayerHead(DrawContext context, ChatHudLine.Visible line, int y, int color)
+    {
         if (!isActive() || !playerHeads.get())
             return;
 
         // Only draw the first line of multi line messages
-        if (((IChatHudLineVisible) (Object) line).meteor$isStartOfEntry()) {
+        if (((IChatHudLineVisible) (Object) line).meteor$isStartOfEntry())
+        {
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1, 1, 1, Color.toRGBAA(color) / 255f);
 
@@ -404,27 +416,34 @@ public class BetterChat extends Module {
 
         // Offset
         // Dont offset when it's the GWare
-        if (!((IChatHudLine) (Object) line).meteor$getText().trim().startsWith("[GWare]")) {
+        if (!((IChatHudLine) (Object) line).meteor$getText().trim().startsWith("[GWare]"))
+        {
             context.getMatrices().translate(10, 0, 0);
         }
     }
 
-    private void drawTexture(DrawContext context, IChatHudLine line, int y) {
+    private void drawTexture(DrawContext context, IChatHudLine line, int y)
+    {
         String text = line.meteor$getText().trim();
 
         // Custom
         int startOffset = 0;
 
-        try {
+        try
+        {
             Matcher m = TIMESTAMP_REGEX.matcher(text);
             if (m.find())
                 startOffset = m.end() + 1;
-        } catch (IllegalStateException ignored) {
+        }
+        catch (IllegalStateException ignored)
+        {
         }
 
-        for (CustomHeadEntry entry : CUSTOM_HEAD_ENTRIES) {
+        for (CustomHeadEntry entry : CUSTOM_HEAD_ENTRIES)
+        {
             // Check prefix
-            if (text.startsWith(entry.prefix(), startOffset)) {
+            if (text.startsWith(entry.prefix(), startOffset))
+            {
                 context.drawTexture(entry.texture(), 0, y, 8, 8, 0, 0, 64, 64, 64, 64);
                 return;
             }
@@ -445,14 +464,17 @@ public class BetterChat extends Module {
         context.drawTexture(skin, 0, y, 8, 8, 40, 8, 8, 8, 64, 64);
     }
 
-    private GameProfile getSender(IChatHudLine line, String text) {
+    private GameProfile getSender(IChatHudLine line, String text)
+    {
         GameProfile sender = line.meteor$getSender();
 
         // If the packet did not contain a sender field then try to get the sender from the message
-        if (sender == null) {
+        if (sender == null)
+        {
             Matcher usernameMatcher = usernameRegex.matcher(text);
 
-            if (usernameMatcher.matches()) {
+            if (usernameMatcher.matches())
+            {
                 String username = usernameMatcher.group(1);
 
                 PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(username);
@@ -466,10 +488,12 @@ public class BetterChat extends Module {
 
     // Annoy
 
-    private String applyAnnoy(String message) {
+    private String applyAnnoy(String message)
+    {
         StringBuilder sb = new StringBuilder(message.length());
         boolean upperCase = true;
-        for (int cp : message.codePoints().toArray()) {
+        for (int cp : message.codePoints().toArray())
+        {
             if (upperCase)
                 sb.appendCodePoint(Character.toUpperCase(cp));
             else
@@ -482,10 +506,12 @@ public class BetterChat extends Module {
 
     // Fancy
 
-    private String applyFancy(String message) {
+    private String applyFancy(String message)
+    {
         StringBuilder sb = new StringBuilder();
 
-        for (char ch : message.toCharArray()) {
+        for (char ch : message.toCharArray())
+        {
             sb.append(SMALL_CAPS.getOrDefault(ch, ch));
         }
 
@@ -494,34 +520,40 @@ public class BetterChat extends Module {
 
     // Filter Regex
 
-    private final List<Pattern> filterRegexList = new ArrayList<>();
-
-    private void compileFilterRegexList() {
+    private void compileFilterRegexList()
+    {
         filterRegexList.clear();
 
-        for (int i = 0; i < regexFilters.get().size(); i++) {
-            try {
+        for (int i = 0; i < regexFilters.get().size(); i++)
+        {
+            try
+            {
                 filterRegexList.add(Pattern.compile(regexFilters.get().get(i)));
-            } catch (PatternSyntaxException e) {
+            }
+            catch (PatternSyntaxException e)
+            {
                 String removed = regexFilters.get().remove(i);
                 error("Removing Invalid regex: %s", removed);
             }
         }
     }
 
+    private String getPrefix()
+    {
+        return prefix.get() ? getAffix(prefixText.get(), prefixSmallCaps.get(), prefixRandom.get())
+            : "";
+    }
+
     // Prefix and Suffix
 
-    private String getPrefix() {
-        return prefix.get() ? getAffix(prefixText.get(), prefixSmallCaps.get(), prefixRandom.get())
-                : "";
-    }
-
-    private String getSuffix() {
+    private String getSuffix()
+    {
         return suffix.get() ? getAffix(suffixText.get(), suffixSmallCaps.get(), suffixRandom.get())
-                : "";
+            : "";
     }
 
-    private String getAffix(String text, boolean smallcaps, boolean random) {
+    private String getAffix(String text, boolean smallcaps, boolean random)
+    {
         if (random)
             return String.format("(%03d) ", Utils.random(0, 1000));
         else if (smallcaps)
@@ -530,48 +562,57 @@ public class BetterChat extends Module {
             return text;
     }
 
-    // Coords Protection
-
-    private static final Pattern coordRegex = Pattern.compile(
-            "(?<x>-?\\d{3,}(?:\\.\\d*)?)(?:\\s+(?<y>-?\\d{1,3}(?:\\.\\d*)?))?\\s+(?<z>-?\\d{3,}(?:\\.\\d*)?)");
-
-    private boolean containsCoordinates(String message) {
+    private boolean containsCoordinates(String message)
+    {
         return coordRegex.matcher(message).find();
     }
 
-    private MutableText getSendButton(String message) {
+    // Coords Protection
+
+    private MutableText getSendButton(String message)
+    {
         MutableText sendButton = Text.literal("[SEND ANYWAY]");
         MutableText hintBaseText = Text.literal("");
 
         MutableText hintMsg =
-                Text.literal("Send your message to the global chat even if there are coordinates:");
+            Text.literal("Send your message to the global chat even if there are coordinates:");
         hintMsg.setStyle(hintBaseText.getStyle().withFormatting(Formatting.GRAY));
         hintBaseText.append(hintMsg);
 
         hintBaseText.append(Text.literal('\n' + message));
 
         sendButton.setStyle(sendButton.getStyle().withFormatting(Formatting.DARK_RED)
-                .withClickEvent(new MeteorClickEvent(ClickEvent.Action.RUN_COMMAND,
-                        Commands.get("say").toString(message)))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hintBaseText)));
+            .withClickEvent(new MeteorClickEvent(ClickEvent.Action.RUN_COMMAND,
+                Commands.get("say").toString(message)))
+            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hintBaseText)));
         return sendButton;
+    }
+
+    public boolean isInfiniteChatBox()
+    {
+        return isActive() && infiniteChatBox.get();
+    }
+
+    public boolean isLongerChat()
+    {
+        return isActive() && longerChatHistory.get();
     }
 
     // Longer chat
 
-    public boolean isInfiniteChatBox() {
-        return isActive() && infiniteChatBox.get();
-    }
-
-    public boolean isLongerChat() {
-        return isActive() && longerChatHistory.get();
-    }
-
-    public boolean keepHistory() {
+    public boolean keepHistory()
+    {
         return isActive() && keepHistory.get();
     }
 
-    public int getExtraChatLines() {
+    public int getExtraChatLines()
+    {
         return longerChatLines.get();
     }
+
+    private record CustomHeadEntry(String prefix, Identifier texture)
+    {
+    }
+
+
 }

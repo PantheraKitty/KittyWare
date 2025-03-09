@@ -15,13 +15,16 @@ import net.minecraft.registry.Registries;
 
 import java.util.function.Predicate;
 
-public class ItemListSettingScreen extends RegistryListSettingScreen<Item> {
-    public ItemListSettingScreen(GuiTheme theme, ItemListSetting setting) {
+public class ItemListSettingScreen extends RegistryListSettingScreen<Item>
+{
+    public ItemListSettingScreen(GuiTheme theme, ItemListSetting setting)
+    {
         super(theme, "Select Items", setting, setting.get(), Registries.ITEM);
     }
 
     @Override
-    protected boolean includeValue(Item value) {
+    protected boolean includeValue(Item value)
+    {
         Predicate<Item> filter = ((ItemListSetting) setting).filter;
         if (filter != null && !filter.test(value)) return false;
 
@@ -29,12 +32,14 @@ public class ItemListSettingScreen extends RegistryListSettingScreen<Item> {
     }
 
     @Override
-    protected WWidget getValueWidget(Item value) {
+    protected WWidget getValueWidget(Item value)
+    {
         return theme.itemWithLabel(value.getDefaultStack());
     }
 
     @Override
-    protected String getValueName(Item value) {
+    protected String getValueName(Item value)
+    {
         return Names.get(value);
     }
 }

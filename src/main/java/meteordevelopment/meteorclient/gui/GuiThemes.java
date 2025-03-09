@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class GuiThemes {
+public class GuiThemes
+{
     private static final File FOLDER = new File(MeteorClient.FOLDER, "gui");
     private static final File THEMES_FOLDER = new File(FOLDER, "themes");
     private static final File FILE = new File(FOLDER, "gui.nbt");
@@ -28,48 +29,64 @@ public class GuiThemes {
     private static GuiTheme theme;
     private static boolean hadGonbleWareTheme = false;
 
-    private GuiThemes() {
+    private GuiThemes()
+    {
     }
 
     @PreInit
-    public static void init() {
+    public static void init()
+    {
         add(new GonbleWareGuiTheme());
         add(new MeteorGuiTheme());
     }
 
     @PostInit
-    public static void postInit() {
-        if (FILE.exists()) {
-            try {
+    public static void postInit()
+    {
+        if (FILE.exists())
+        {
+            try
+            {
                 NbtCompound tag = NbtIo.read(FILE.toPath());
 
                 if (tag != null) select(tag.getString("currentTheme"));
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }
 
         if (theme == null) select("GonbleWare");
 
-        if (FILE.exists()) {
-            try {
+        if (FILE.exists())
+        {
+            try
+            {
                 NbtCompound tag = NbtIo.read(FILE.toPath());
 
-                if (tag != null) {
-                    if (!tag.getBoolean("hadGonbleWareTheme")) {
+                if (tag != null)
+                {
+                    if (!tag.getBoolean("hadGonbleWareTheme"))
+                    {
                         select("GonbleWare");
                         hadGonbleWareTheme = true;
                     }
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }
     }
 
-    public static void add(GuiTheme theme) {
-        for (Iterator<GuiTheme> it = themes.iterator(); it.hasNext();) {
-            if (it.next().name.equals(theme.name)) {
+    public static void add(GuiTheme theme)
+    {
+        for (Iterator<GuiTheme> it = themes.iterator(); it.hasNext(); )
+        {
+            if (it.next().name.equals(theme.name))
+            {
                 it.remove();
 
                 MeteorClient.LOG.error("Theme with the name '{}' has already been added.", theme.name);
@@ -80,18 +97,22 @@ public class GuiThemes {
         themes.add(theme);
     }
 
-    public static void select(String name) {
+    public static void select(String name)
+    {
         // Find theme with the provided name
         GuiTheme theme = null;
 
-        for (GuiTheme t : themes) {
-            if (t.name.equals(name)) {
+        for (GuiTheme t : themes)
+        {
+            if (t.name.equals(name))
+            {
                 theme = t;
                 break;
             }
         }
 
-        if (theme != null) {
+        if (theme != null)
+        {
             // Save current theme
             saveTheme();
 
@@ -99,14 +120,18 @@ public class GuiThemes {
             GuiThemes.theme = theme;
 
             // Load new theme
-            try {
+            try
+            {
                 File file = new File(THEMES_FOLDER, get().name + ".nbt");
 
-                if (file.exists()) {
+                if (file.exists())
+                {
                     NbtCompound tag = NbtIo.read(file.toPath());
                     if (tag != null) get().fromTag(tag);
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
 
@@ -115,14 +140,17 @@ public class GuiThemes {
         }
     }
 
-    public static GuiTheme get() {
+    public static GuiTheme get()
+    {
         return theme;
     }
 
-    public static String[] getNames() {
+    public static String[] getNames()
+    {
         String[] names = new String[themes.size()];
 
-        for (int i = 0; i < themes.size(); i++) {
+        for (int i = 0; i < themes.size(); i++)
+        {
             names[i] = themes.get(i).name;
         }
 
@@ -131,33 +159,43 @@ public class GuiThemes {
 
     // Saving
 
-    private static void saveTheme() {
-        if (get() != null) {
-            try {
+    private static void saveTheme()
+    {
+        if (get() != null)
+        {
+            try
+            {
                 NbtCompound tag = get().toTag();
 
                 THEMES_FOLDER.mkdirs();
                 NbtIo.write(tag, new File(THEMES_FOLDER, get().name + ".nbt").toPath());
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }
     }
 
-    private static void saveGlobal() {
-        try {
+    private static void saveGlobal()
+    {
+        try
+        {
             NbtCompound tag = new NbtCompound();
             tag.putString("currentTheme", get().name);
             tag.putBoolean("hadGonbleWareTheme", hadGonbleWareTheme);
 
             FOLDER.mkdirs();
             NbtIo.write(tag, FILE.toPath());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    public static void save() {
+    public static void save()
+    {
         saveTheme();
         saveGlobal();
     }

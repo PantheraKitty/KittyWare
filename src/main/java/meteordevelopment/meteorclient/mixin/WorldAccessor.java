@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(World.class)
-public interface WorldAccessor {
+public interface WorldAccessor
+{
     @Invoker("getEntityLookup")
     EntityLookup<Entity> getEntityLookup();
 }

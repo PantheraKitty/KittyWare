@@ -31,24 +31,26 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class RenderUtils {
-    public static Vec3d center;
-
+public class RenderUtils
+{
     private static final Pool<RenderBlock> renderBlockPool = new Pool<>(RenderBlock::new);
     private static final List<RenderBlock> renderBlocks = new ArrayList<>();
-
     private static final long initTime = System.nanoTime();
+    public static Vec3d center;
 
-    private RenderUtils() {
+    private RenderUtils()
+    {
     }
 
     @PostInit
-    public static void init() {
+    public static void init()
+    {
         MeteorClient.EVENT_BUS.subscribe(RenderUtils.class);
     }
 
     // Items
-    public static void drawItem(DrawContext drawContext, ItemStack itemStack, int x, int y, float scale, boolean overlay, String countOverride) {
+    public static void drawItem(DrawContext drawContext, ItemStack itemStack, int x, int y, float scale, boolean overlay, String countOverride)
+    {
         MatrixStack matrices = drawContext.getMatrices();
         matrices.push();
         matrices.scale(scale, scale, 1f);
@@ -63,16 +65,19 @@ public class RenderUtils {
         matrices.pop();
     }
 
-    public static void drawItem(DrawContext drawContext, ItemStack itemStack, int x, int y, float scale, boolean overlay) {
+    public static void drawItem(DrawContext drawContext, ItemStack itemStack, int x, int y, float scale, boolean overlay)
+    {
         drawItem(drawContext, itemStack, x, y, scale, overlay, null);
     }
 
-    public static void updateScreenCenter() {
+    public static void updateScreenCenter()
+    {
         MinecraftClient mc = MinecraftClient.getInstance();
 
         Vector3f pos = new Vector3f(0, 0, 1);
 
-        if (mc.options.getBobView().getValue()) {
+        if (mc.options.getBobView().getValue())
+        {
             MatrixStack bobViewMatrices = new MatrixStack();
 
             bobView(bobViewMatrices);
@@ -85,10 +90,12 @@ public class RenderUtils {
             .add(mc.gameRenderer.getCamera().getPos());
     }
 
-    private static void bobView(MatrixStack matrices) {
+    private static void bobView(MatrixStack matrices)
+    {
         Entity cameraEntity = MinecraftClient.getInstance().getCameraEntity();
 
-        if (cameraEntity instanceof PlayerEntity playerEntity) {
+        if (cameraEntity instanceof PlayerEntity playerEntity)
+        {
             float f = mc.getRenderTickCounter().getTickDelta(true);
             float g = playerEntity.horizontalSpeed - playerEntity.prevHorizontalSpeed;
             float h = -(playerEntity.horizontalSpeed + g * f);
@@ -100,12 +107,15 @@ public class RenderUtils {
         }
     }
 
-    public static void renderTickingBlock(BlockPos blockPos, Color sideColor, Color lineColor, ShapeMode shapeMode, int excludeDir, int duration, boolean fade, boolean shrink) {
+    public static void renderTickingBlock(BlockPos blockPos, Color sideColor, Color lineColor, ShapeMode shapeMode, int excludeDir, int duration, boolean fade, boolean shrink)
+    {
         // Ensure there aren't multiple fading blocks in one pos
         Iterator<RenderBlock> iterator = renderBlocks.iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             RenderBlock next = iterator.next();
-            if (next.pos.equals(blockPos)) {
+            if (next.pos.equals(blockPos))
+            {
                 iterator.remove();
                 renderBlockPool.free(next);
             }
@@ -115,15 +125,18 @@ public class RenderUtils {
     }
 
     @EventHandler
-    private static void onTick(TickEvent.Pre event) {
+    private static void onTick(TickEvent.Pre event)
+    {
         if (renderBlocks.isEmpty()) return;
 
         renderBlocks.forEach(RenderBlock::tick);
 
         Iterator<RenderBlock> iterator = renderBlocks.iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             RenderBlock next = iterator.next();
-            if (next.ticks <= 0) {
+            if (next.ticks <= 0)
+            {
                 iterator.remove();
                 renderBlockPool.free(next);
             }
@@ -131,11 +144,24 @@ public class RenderUtils {
     }
 
     @EventHandler
-    private static void onRender(Render3DEvent event) {
+    private static void onRender(Render3DEvent event)
+    {
         renderBlocks.forEach(block -> block.render(event));
     }
 
-    public static class RenderBlock {
+    public static double getCurrentGameTickCalculated()
+    {
+        return getCurrentGameTickCalculatedNano(System.nanoTime());
+    }
+
+    public static double getCurrentGameTickCalculatedNano(long nanoTime)
+    {
+        return (double) (nanoTime - initTime)
+            / (double) (java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(50L));
+    }
+
+    public static class RenderBlock
+    {
         public BlockPos.Mutable pos = new BlockPos.Mutable();
 
         public Color sideColor, lineColor;
@@ -145,7 +171,8 @@ public class RenderUtils {
         public int ticks, duration;
         public boolean fade, shrink;
 
-        public RenderBlock set(BlockPos blockPos, Color sideColor, Color lineColor, ShapeMode shapeMode, int excludeDir, int duration, boolean fade, boolean shrink) {
+        public RenderBlock set(BlockPos blockPos, Color sideColor, Color lineColor, ShapeMode shapeMode, int excludeDir, int duration, boolean fade, boolean shrink)
+        {
             pos.set(blockPos);
             this.sideColor = sideColor;
             this.lineColor = lineColor;
@@ -159,25 +186,33 @@ public class RenderUtils {
             return this;
         }
 
-        public void tick() {
+        public void tick()
+        {
             ticks--;
         }
 
-        public void render(Render3DEvent event) {
+        public void render(Render3DEvent event)
+        {
             int preSideA = sideColor.a;
             int preLineA = lineColor.a;
             double x1 = pos.getX(), y1 = pos.getY(), z1 = pos.getZ(),
-                   x2 = pos.getX() + 1, y2 = pos.getY() + 1, z2 = pos.getZ() + 1;
+                x2 = pos.getX() + 1, y2 = pos.getY() + 1, z2 = pos.getZ() + 1;
 
             double d = (double) (ticks - event.tickDelta) / duration;
 
-            if (fade) {
+            if (fade)
+            {
                 sideColor.a = (int) (sideColor.a * d);
                 lineColor.a = (int) (lineColor.a * d);
             }
-            if (shrink) {
-                x1 += d; y1 += d; z1 += d;
-                x2 -= d; y2 -= d; z2 -= d;
+            if (shrink)
+            {
+                x1 += d;
+                y1 += d;
+                z1 += d;
+                x2 -= d;
+                y2 -= d;
+                z2 -= d;
             }
 
             event.renderer.box(x1, y1, z1, x2, y2, z2, sideColor, lineColor, shapeMode, excludeDir);
@@ -185,15 +220,6 @@ public class RenderUtils {
             sideColor.a = preSideA;
             lineColor.a = preLineA;
         }
-    }
-    
-    public static double getCurrentGameTickCalculated() {
-        return getCurrentGameTickCalculatedNano(System.nanoTime());
-    }
-
-    public static double getCurrentGameTickCalculatedNano(long nanoTime) {
-        return (double) (nanoTime - initTime)
-                / (double) (java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(50L));
     }
 }
 

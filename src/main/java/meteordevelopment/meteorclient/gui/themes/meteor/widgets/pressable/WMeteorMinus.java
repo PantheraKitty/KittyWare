@@ -9,9 +9,11 @@ import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.themes.meteor.MeteorWidget;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
 
-public class WMeteorMinus extends WMinus implements MeteorWidget {
+public class WMeteorMinus extends WMinus implements MeteorWidget
+{
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         double pad = pad();
         double s = theme.scale(3);
 

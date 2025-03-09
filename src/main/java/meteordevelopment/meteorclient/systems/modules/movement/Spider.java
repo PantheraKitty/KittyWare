@@ -14,7 +14,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.Vec3d;
 
-public class Spider extends Module {
+public class Spider extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
@@ -25,12 +26,14 @@ public class Spider extends Module {
         .build()
     );
 
-    public Spider() {
+    public Spider()
+    {
         super(Categories.Movement, "spider", "Allows you to climb walls like a spider.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (!mc.player.horizontalCollision) return;
 
         Vec3d velocity = mc.player.getVelocity();

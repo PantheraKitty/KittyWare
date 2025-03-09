@@ -42,13 +42,12 @@ import java.util.Iterator;
 
 import static meteordevelopment.meteorclient.utils.player.ChatUtils.formatCoords;
 
-public class WaypointsModule extends Module {
+public class WaypointsModule extends Module
+{
     private static final Color GRAY = new Color(200, 200, 200);
     private static final Color TEXT = new Color(255, 255, 255);
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgDeathPosition = settings.createGroup("Death Position");
-
     public final Setting<Integer> textRenderDistance = sgGeneral.add(new IntSetting.Builder()
         .name("text-render-distance")
         .description("Maximum distance from the center of the screen at which text will be rendered.")
@@ -57,7 +56,7 @@ public class WaypointsModule extends Module {
         .sliderMax(200)
         .build()
     );
-
+    private final SettingGroup sgDeathPosition = settings.createGroup("Death Position");
     private final Setting<Integer> waypointFadeDistance = sgGeneral.add(new IntSetting.Builder()
         .name("waypoint-fade-distance")
         .description("The distance to a waypoint at which it begins to start fading.")
@@ -83,20 +82,22 @@ public class WaypointsModule extends Module {
         .defaultValue(false)
         .build()
     );
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    public WaypointsModule() {
+    public WaypointsModule()
+    {
         super(Categories.Render, "waypoints", "Allows you to create waypoints.");
     }
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-
     @EventHandler
-    private void onRender2D(Render2DEvent event) {
+    private void onRender2D(Render2DEvent event)
+    {
         TextRenderer text = TextRenderer.get();
         Vector3d center = new Vector3d(mc.getWindow().getFramebufferWidth() / 2.0, mc.getWindow().getFramebufferHeight() / 2.0, 0);
         int textRenderDist = textRenderDistance.get();
 
-        for (Waypoint waypoint : Waypoints.get()) {
+        for (Waypoint waypoint : Waypoints.get())
+        {
             // Continue if this waypoint should not be rendered
             if (!waypoint.visible.get() || !Waypoints.checkDimension(waypoint)) continue;
 
@@ -113,7 +114,8 @@ public class WaypointsModule extends Module {
             double distToCenter = pos.distance(center);
             double a = 1;
 
-            if (dist < waypointFadeDistance.get()) {
+            if (dist < waypointFadeDistance.get())
+            {
                 a = (dist - (waypointFadeDistance.get() / 2d)) / (waypointFadeDistance.get() / 2d);
                 if (a < 0.01) continue;
             }
@@ -125,7 +127,8 @@ public class WaypointsModule extends Module {
             waypoint.renderIcon(-16, -16, a, 32);
 
             // Render text if cursor is close enough
-            if (distToCenter <= textRenderDist) {
+            if (distToCenter <= textRenderDist)
+            {
                 // Setup text rendering
                 int preTextA = TEXT.a;
                 TEXT.a *= (int) a;
@@ -148,15 +151,18 @@ public class WaypointsModule extends Module {
     }
 
     @EventHandler
-    private void onOpenScreen(OpenScreenEvent event) {
+    private void onOpenScreen(OpenScreenEvent event)
+    {
         if (!(event.screen instanceof DeathScreen)) return;
 
         if (!event.isCancelled()) addDeath(mc.player.getPos());
     }
 
-    public void addDeath(Vec3d deathPos) {
+    public void addDeath(Vec3d deathPos)
+    {
         String time = dateFormat.format(new Date());
-        if (dpChat.get()) {
+        if (dpChat.get())
+        {
             MutableText text = Text.literal("Died at ");
             text.append(formatCoords(deathPos));
             text.append(String.format(" on %s.", time));
@@ -164,7 +170,8 @@ public class WaypointsModule extends Module {
         }
 
         // Create waypoint
-        if (maxDeathPositions.get() > 0) {
+        if (maxDeathPositions.get() > 0)
+        {
             Waypoint waypoint = new Waypoint.Builder()
                 .name("Death " + time)
                 .icon("skull")
@@ -178,13 +185,16 @@ public class WaypointsModule extends Module {
         cleanDeathWPs(maxDeathPositions.get());
     }
 
-    private void cleanDeathWPs(int max) {
+    private void cleanDeathWPs(int max)
+    {
         int oldWpC = 0;
 
-        for (Iterator<Waypoint> it = Waypoints.get().iterator(); it.hasNext();) {
+        for (Iterator<Waypoint> it = Waypoints.get().iterator(); it.hasNext(); )
+        {
             Waypoint wp = it.next();
 
-            if (wp.name.get().startsWith("Death ") && wp.icon.get().equals("skull")) {
+            if (wp.name.get().startsWith("Death ") && wp.icon.get().equals("skull"))
+            {
                 oldWpC++;
 
                 if (oldWpC > max)
@@ -194,7 +204,8 @@ public class WaypointsModule extends Module {
     }
 
     @Override
-    public WWidget getWidget(GuiTheme theme) {
+    public WWidget getWidget(GuiTheme theme)
+    {
         if (!Utils.canUpdate()) return theme.label("You need to be in a world.");
 
         WTable table = theme.table();
@@ -202,10 +213,12 @@ public class WaypointsModule extends Module {
         return table;
     }
 
-    private void initTable(GuiTheme theme, WTable table) {
+    private void initTable(GuiTheme theme, WTable table)
+    {
         table.clear();
 
-        for (Waypoint waypoint : Waypoints.get()) {
+        for (Waypoint waypoint : Waypoints.get())
+        {
             boolean validDim = Waypoints.checkDimension(waypoint);
 
             table.add(new WIcon(waypoint));
@@ -214,7 +227,8 @@ public class WaypointsModule extends Module {
             if (!validDim) name.color = GRAY;
 
             WCheckbox visible = table.add(theme.checkbox(waypoint.visible.get())).widget();
-            visible.action = () -> {
+            visible.action = () ->
+            {
                 waypoint.visible.set(visible.checked);
                 Waypoints.get().save();
             };
@@ -223,9 +237,11 @@ public class WaypointsModule extends Module {
             edit.action = () -> mc.setScreen(new EditWaypointScreen(theme, waypoint, () -> initTable(theme, table)));
 
             // Goto
-            if (validDim) {
+            if (validDim)
+            {
                 WButton gotoB = table.add(theme.button("Goto")).widget();
-                gotoB.action = () -> {
+                gotoB.action = () ->
+                {
                     if (PathManagers.get().isPathing())
                         PathManagers.get().stop();
 
@@ -234,7 +250,8 @@ public class WaypointsModule extends Module {
             }
 
             WMinus remove = table.add(theme.minus()).widget();
-            remove.action = () -> {
+            remove.action = () ->
+            {
                 Waypoints.get().remove(waypoint);
                 initTable(theme, table);
             };
@@ -249,13 +266,16 @@ public class WaypointsModule extends Module {
         create.action = () -> mc.setScreen(new EditWaypointScreen(theme, null, () -> initTable(theme, table)));
     }
 
-    private static class EditWaypointScreen extends EditSystemScreen<Waypoint> {
-        public EditWaypointScreen(GuiTheme theme, Waypoint value, Runnable reload) {
+    private static class EditWaypointScreen extends EditSystemScreen<Waypoint>
+    {
+        public EditWaypointScreen(GuiTheme theme, Waypoint value, Runnable reload)
+        {
             super(theme, value, reload);
         }
 
         @Override
-        public Waypoint create() {
+        public Waypoint create()
+        {
             return new Waypoint.Builder()
                 .pos(MinecraftClient.getInstance().player.getBlockPos().up(2))
                 .dimension(PlayerUtils.getDimension())
@@ -263,7 +283,8 @@ public class WaypointsModule extends Module {
         }
 
         @Override
-        public boolean save() {
+        public boolean save()
+        {
             if (value.name.get().isBlank()) return false;
 
             Waypoints.get().add(value);
@@ -271,20 +292,24 @@ public class WaypointsModule extends Module {
         }
 
         @Override
-        public Settings getSettings() {
+        public Settings getSettings()
+        {
             return value.settings;
         }
     }
 
-    private static class WIcon extends WWidget {
+    private static class WIcon extends WWidget
+    {
         private final Waypoint waypoint;
 
-        public WIcon(Waypoint waypoint) {
+        public WIcon(Waypoint waypoint)
+        {
             this.waypoint = waypoint;
         }
 
         @Override
-        protected void onCalculateSize() {
+        protected void onCalculateSize()
+        {
             double s = theme.scale(32);
 
             width = s;
@@ -292,7 +317,8 @@ public class WaypointsModule extends Module {
         }
 
         @Override
-        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+        protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+        {
             renderer.post(() -> waypoint.renderIcon(x, y, 1, width));
         }
     }

@@ -18,7 +18,8 @@ import net.minecraft.block.Block;
 
 import java.util.List;
 
-public class WallHack extends Module {
+public class WallHack extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Integer> opacity = sgGeneral.add(new IntSetting.Builder()
@@ -27,8 +28,10 @@ public class WallHack extends Module {
         .defaultValue(0)
         .range(0, 255)
         .sliderMax(255)
-        .onChanged(onChanged -> {
-            if (this.isActive()) {
+        .onChanged(onChanged ->
+        {
+            if (this.isActive())
+            {
                 mc.worldRenderer.reload();
             }
         })
@@ -39,7 +42,8 @@ public class WallHack extends Module {
         .name("blocks")
         .description("What blocks should be targeted for Wall Hack.")
         .defaultValue()
-        .onChanged(onChanged -> {
+        .onChanged(onChanged ->
+        {
             if (isActive()) mc.worldRenderer.reload();
         })
         .build()
@@ -52,30 +56,37 @@ public class WallHack extends Module {
         .build()
     );
 
-    public WallHack() {
+    public WallHack()
+    {
         super(Categories.Render, "wall-hack", "Makes blocks translucent.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         mc.worldRenderer.reload();
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
         mc.worldRenderer.reload();
     }
 
     @Override
-    public WWidget getWidget(GuiTheme theme) {
-        if (MixinPlugin.isSodiumPresent) return theme.label("Warning: Due to Sodium in use, opacity is overridden to 0.");
-        if (MixinPlugin.isIrisPresent && IrisApi.getInstance().isShaderPackInUse()) return theme.label("Warning: Due to shaders in use, opacity is overridden to 0.");
+    public WWidget getWidget(GuiTheme theme)
+    {
+        if (MixinPlugin.isSodiumPresent)
+            return theme.label("Warning: Due to Sodium in use, opacity is overridden to 0.");
+        if (MixinPlugin.isIrisPresent && IrisApi.getInstance().isShaderPackInUse())
+            return theme.label("Warning: Due to shaders in use, opacity is overridden to 0.");
 
         return null;
     }
 
     @EventHandler
-    private void onChunkOcclusion(ChunkOcclusionEvent event) {
+    private void onChunkOcclusion(ChunkOcclusionEvent event)
+    {
         if (!occludeChunks.get()) event.cancel();
     }
 }

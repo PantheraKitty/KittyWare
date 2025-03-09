@@ -18,16 +18,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(LightmapTextureManager.class)
-public abstract class LightmapTextureManagerMixin {
+public abstract class LightmapTextureManagerMixin
+{
     @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/texture/NativeImage;setColor(III)V"))
-    private void update(Args args) {
-        if (Modules.get().get(Fullbright.class).getGamma() || Modules.get().isActive(Xray.class)) {
+    private void update(Args args)
+    {
+        if (Modules.get().get(Fullbright.class).getGamma() || Modules.get().isActive(Xray.class))
+        {
             args.set(2, 0xFFFFFFFF);
         }
     }
 
     @Inject(method = "getDarknessFactor(F)F", at = @At("HEAD"), cancellable = true)
-	private void getDarknessFactor(float tickDelta, CallbackInfoReturnable<Float> info) {
-		if (Modules.get().get(NoRender.class).noDarkness()) info.setReturnValue(0.0f);
-	}
+    private void getDarknessFactor(float tickDelta, CallbackInfoReturnable<Float> info)
+    {
+        if (Modules.get().get(NoRender.class).noDarkness()) info.setReturnValue(0.0f);
+    }
 }

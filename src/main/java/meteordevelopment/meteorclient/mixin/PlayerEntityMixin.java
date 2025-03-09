@@ -42,16 +42,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity {
-    @Shadow
-    public abstract PlayerAbilities getAbilities();
-
-    protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
+public abstract class PlayerEntityMixin extends LivingEntity
+{
+    protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world)
+    {
         super(entityType, world);
     }
 
+    @Shadow
+    public abstract PlayerAbilities getAbilities();
+
     @Inject(method = "clipAtLedge", at = @At("HEAD"), cancellable = true)
-    protected void clipAtLedge(CallbackInfoReturnable<Boolean> info) {
+    protected void clipAtLedge(CallbackInfoReturnable<Boolean> info)
+    {
         if (!getWorld().isClient)
             return;
 
@@ -61,33 +64,39 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Inject(method = "dropItem(Lnet/minecraft/item/ItemStack;ZZ)Lnet/minecraft/entity/ItemEntity;",
-            at = @At("HEAD"), cancellable = true)
+        at = @At("HEAD"), cancellable = true)
     private void onDropItem(ItemStack stack, boolean bl, boolean bl2,
-            CallbackInfoReturnable<ItemEntity> info) {
-        if (getWorld().isClient && !stack.isEmpty()) {
+                            CallbackInfoReturnable<ItemEntity> info)
+    {
+        if (getWorld().isClient && !stack.isEmpty())
+        {
             if (MeteorClient.EVENT_BUS.post(DropItemsEvent.get(stack)).isCancelled())
                 info.cancel();
         }
     }
 
     @ModifyReturnValue(method = "getBlockBreakingSpeed", at = @At(value = "RETURN"))
-    public float onGetBlockBreakingSpeed(float breakSpeed, BlockState block) {
+    public float onGetBlockBreakingSpeed(float breakSpeed, BlockState block)
+    {
         if (!getWorld().isClient)
             return breakSpeed;
 
         SpeedMine speedMine = Modules.get().get(SpeedMine.class);
         if (!speedMine.isActive() || speedMine.mode.get() != SpeedMine.Mode.Normal
-                || !speedMine.filter(block.getBlock()))
+            || !speedMine.filter(block.getBlock()))
             return breakSpeed;
 
         float breakSpeedMod = (float) (breakSpeed * speedMine.modifier.get());
 
-        if (mc.crosshairTarget instanceof BlockHitResult bhr) {
+        if (mc.crosshairTarget instanceof BlockHitResult bhr)
+        {
             BlockPos pos = bhr.getBlockPos();
             if (speedMine.modifier.get() < 1 || (BlockUtils.canInstaBreak(pos,
-                    breakSpeed) == BlockUtils.canInstaBreak(pos, breakSpeedMod))) {
+                breakSpeed) == BlockUtils.canInstaBreak(pos, breakSpeedMod)))
+            {
                 return breakSpeedMod;
-            } else {
+            } else
+            {
                 return 0.9f / BlockUtils.calcBlockBreakingDelta2(pos, 1);
             }
         }
@@ -96,7 +105,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Inject(method = "jump", at = @At("HEAD"), cancellable = true)
-    public void dontJump(CallbackInfo info) {
+    public void dontJump(CallbackInfo info)
+    {
         if (!getWorld().isClient)
             return;
 
@@ -108,7 +118,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @ModifyReturnValue(method = "getMovementSpeed", at = @At("RETURN"))
-    private float onGetMovementSpeed(float original) {
+    private float onGetMovementSpeed(float original)
+    {
         if (!getWorld().isClient)
             return original;
         if (!Modules.get().get(NoSlow.class).slowness())
@@ -116,7 +127,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
         float walkSpeed = getAbilities().getWalkSpeed();
 
-        if (original < walkSpeed) {
+        if (original < walkSpeed)
+        {
             if (isSprinting())
                 return (float) (walkSpeed * 1.30000001192092896);
             else
@@ -127,7 +139,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Inject(method = "getOffGroundSpeed", at = @At("HEAD"), cancellable = true)
-    private void onGetOffGroundSpeed(CallbackInfoReturnable<Float> info) {
+    private void onGetOffGroundSpeed(CallbackInfoReturnable<Float> info)
+    {
         if (!getWorld().isClient)
             return;
 
@@ -137,46 +150,54 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @WrapWithCondition(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;setVelocity(Lnet/minecraft/util/math/Vec3d;)V"))
-    private boolean keepSprint$setVelocity(PlayerEntity instance, Vec3d vec3d) {
+        target = "Lnet/minecraft/entity/player/PlayerEntity;setVelocity(Lnet/minecraft/util/math/Vec3d;)V"))
+    private boolean keepSprint$setVelocity(PlayerEntity instance, Vec3d vec3d)
+    {
         return Modules.get().get(Sprint.class).stopSprinting();
     }
 
     @WrapWithCondition(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V"))
-    private boolean keepSprint$setSprinting(PlayerEntity instance, boolean b) {
+        target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V"))
+    private boolean keepSprint$setSprinting(PlayerEntity instance, boolean b)
+    {
         return Modules.get().get(Sprint.class).stopSprinting();
     }
 
     @ModifyReturnValue(method = "getBlockInteractionRange", at = @At("RETURN"))
-    private double modifyBlockInteractionRange(double original) {
+    private double modifyBlockInteractionRange(double original)
+    {
         return Math.max(0, original + Modules.get().get(Reach.class).blockReach());
     }
 
     @ModifyReturnValue(method = "getEntityInteractionRange", at = @At("RETURN"))
-    private double modifyEntityInteractionRange(double original) {
+    private double modifyEntityInteractionRange(double original)
+    {
         return Math.max(0, original + Modules.get().get(Reach.class).entityReach());
     }
 
     @Inject(method = "jump", at = @At("HEAD"))
-    private void onJumpPre(CallbackInfo ci) {
+    private void onJumpPre(CallbackInfo ci)
+    {
         MeteorClient.EVENT_BUS.post(new PlayerJumpEvent.Pre());
     }
 
     @Inject(method = "jump", at = @At("RETURN"))
-    private void onJumpPost(CallbackInfo ci) {
+    private void onJumpPost(CallbackInfo ci)
+    {
         MeteorClient.EVENT_BUS.post(new PlayerJumpEvent.Post());
     }
 
     @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
-    private void onTravelPre(Vec3d movementInput, CallbackInfo ci) {
+    private void onTravelPre(Vec3d movementInput, CallbackInfo ci)
+    {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if (player != mc.player)
             return;
 
         PlayerTravelEvent.Pre event = new PlayerTravelEvent.Pre();
         MeteorClient.EVENT_BUS.post(event);
-        if (event.isCancelled()) {
+        if (event.isCancelled())
+        {
             ci.cancel();
             PlayerTravelEvent.Post forcedPostEvent = new PlayerTravelEvent.Post();
             MeteorClient.EVENT_BUS.post(forcedPostEvent);
@@ -184,7 +205,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Inject(method = "travel", at = @At("RETURN"))
-    private void onTravelPost(Vec3d movementInput, CallbackInfo ci) {
+    private void onTravelPost(Vec3d movementInput, CallbackInfo ci)
+    {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if (player != mc.player)
             return;
@@ -194,12 +216,14 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(Lnet/minecraft/entity/player/PlayerEntity;DDDLnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FF)V"))
-    private void poseNotCollide(World instance, PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch) {
+    private void poseNotCollide(World instance, PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch)
+    {
         SoundBlocker soundBlocker = Modules.get().get(SoundBlocker.class);
 
-        if (soundBlocker.isActive()) {
+        if (soundBlocker.isActive())
+        {
             instance.playSound(except, x, y, z, sound, category,
-                    (float) (volume * soundBlocker.getCrystalHitVolume()), pitch);
+                (float) (volume * soundBlocker.getCrystalHitVolume()), pitch);
             return;
         }
 

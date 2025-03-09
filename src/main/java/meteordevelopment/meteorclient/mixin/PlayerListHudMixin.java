@@ -25,12 +25,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(PlayerListHud.class)
-public abstract class PlayerListHudMixin {
+public abstract class PlayerListHudMixin
+{
     @Shadow
     protected abstract List<PlayerListEntry> collectPlayerEntries();
 
     @Inject(method = "collectPlayerEntries", at = @At("RETURN"), cancellable = true)
-    private void modifyPlayerEntries(CallbackInfoReturnable<List<PlayerListEntry>> cir) {
+    private void modifyPlayerEntries(CallbackInfoReturnable<List<PlayerListEntry>> cir)
+    {
         List<PlayerListEntry> originalList = cir.getReturnValue();
         BetterTab betterTab = Modules.get().get(BetterTab.class);
 
@@ -41,14 +43,16 @@ public abstract class PlayerListHudMixin {
 
 
     @ModifyConstant(constant = @Constant(longValue = 80L), method = "collectPlayerEntries")
-    private long modifyCount(long count) {
+    private long modifyCount(long count)
+    {
         BetterTab module = Modules.get().get(BetterTab.class);
 
         return module.isActive() ? module.tabSize.get() : count;
     }
 
     @Inject(method = "getPlayerName", at = @At("HEAD"), cancellable = true)
-    public void getPlayerName(PlayerListEntry playerListEntry, CallbackInfoReturnable<Text> info) {
+    public void getPlayerName(PlayerListEntry playerListEntry, CallbackInfoReturnable<Text> info)
+    {
         BetterTab betterTab = Modules.get().get(BetterTab.class);
 
         if (betterTab.isActive())
@@ -56,17 +60,19 @@ public abstract class PlayerListHudMixin {
     }
 
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I"),
-            index = 0)
-    private int modifyWidth(int width) {
+        index = 0)
+    private int modifyWidth(int width)
+    {
         BetterTab module = Modules.get().get(BetterTab.class);
 
         return module.isActive() && module.accurateLatency.get() ? width + 30 : width;
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I",
-            shift = At.Shift.BEFORE))
+        shift = At.Shift.BEFORE))
     private void modifyHeight(CallbackInfo ci, @Local(ordinal = 5) LocalIntRef o,
-            @Local(ordinal = 6) LocalIntRef p) {
+                              @Local(ordinal = 6) LocalIntRef p)
+    {
         BetterTab module = Modules.get().get(BetterTab.class);
         if (!module.isActive())
             return;
@@ -74,7 +80,8 @@ public abstract class PlayerListHudMixin {
         int newO;
         int newP = 1;
         int totalPlayers = newO = this.collectPlayerEntries().size();
-        while (newO > module.tabHeight.get()) {
+        while (newO > module.tabHeight.get())
+        {
             newO = (totalPlayers + ++newP - 1) / newP;
         }
 
@@ -84,10 +91,12 @@ public abstract class PlayerListHudMixin {
 
     @Inject(method = "renderLatencyIcon", at = @At("HEAD"), cancellable = true)
     private void onRenderLatencyIcon(DrawContext context, int width, int x, int y,
-            PlayerListEntry entry, CallbackInfo ci) {
+                                     PlayerListEntry entry, CallbackInfo ci)
+    {
         BetterTab betterTab = Modules.get().get(BetterTab.class);
 
-        if (betterTab.isActive() && betterTab.accurateLatency.get()) {
+        if (betterTab.isActive() && betterTab.accurateLatency.get())
+        {
             MinecraftClient mc = MinecraftClient.getInstance();
             TextRenderer textRenderer = mc.textRenderer;
 
@@ -95,7 +104,7 @@ public abstract class PlayerListHudMixin {
             int color = latency < 150 ? 0x00E970 : latency < 300 ? 0xE7D020 : 0xD74238;
             String text = latency + "ms";
             context.drawTextWithShadow(textRenderer, text, x + width - textRenderer.getWidth(text),
-                    y, color);
+                y, color);
             ci.cancel();
         }
     }

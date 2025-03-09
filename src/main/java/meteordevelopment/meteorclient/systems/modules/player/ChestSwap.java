@@ -21,45 +21,55 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 
-public class ChestSwap extends Module {
+public class ChestSwap extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Keybind> swapBind = sgGeneral.add(new KeybindSetting.Builder()
-            .name("swap-bind").description("Swaps on this key press.").build());
+        .name("swap-bind").description("Swaps on this key press.").build());
 
     private boolean keyUnpressed = false;
 
-    public ChestSwap() {
+    public ChestSwap()
+    {
         super(Categories.Player, "chest-swap",
-                "Automatically swaps between a chestplate and an elytra.");
+            "Automatically swaps between a chestplate and an elytra.");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         update();
     }
 
-    private void update() {
-        if (!swapBind.get().isPressed()) {
+    private void update()
+    {
+        if (!swapBind.get().isPressed())
+        {
             keyUnpressed = true;
         }
 
         if (swapBind.get().isPressed() && keyUnpressed
-                && !(mc.currentScreen instanceof ChatScreen)) {
+            && !(mc.currentScreen instanceof ChatScreen))
+        {
             swap();
             keyUnpressed = false;
         }
     }
 
-    public void swap() {
+    public void swap()
+    {
         Item currentItem = mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem();
 
-        if (currentItem == Items.ELYTRA) {
+        if (currentItem == Items.ELYTRA)
+        {
             PlayerUtils.silentSwapEquipChestplate();
         } else if (currentItem instanceof ArmorItem
-                && ((ArmorItem) currentItem).getSlotType() == EquipmentSlot.CHEST) {
+            && ((ArmorItem) currentItem).getSlotType() == EquipmentSlot.CHEST)
+        {
             PlayerUtils.silentSwapEquipElytra();
-        } else {
+        } else
+        {
             if (!PlayerUtils.silentSwapEquipChestplate())
                 PlayerUtils.silentSwapEquipElytra();
         }

@@ -15,14 +15,16 @@ import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.utils.Utils;
 import net.minecraft.client.gui.DrawContext;
 
-public class HudElementPresetsScreen extends WindowScreen {
+public class HudElementPresetsScreen extends WindowScreen
+{
     private final HudElementInfo<?> info;
     private final int x, y;
 
     private final WTextBox searchBar;
     private HudElementInfo<?>.Preset firstPreset;
 
-    public HudElementPresetsScreen(GuiTheme theme, HudElementInfo<?> info, int x, int y) {
+    public HudElementPresetsScreen(GuiTheme theme, HudElementInfo<?> info, int x, int y)
+    {
         super(theme, "Select preset for " + info.title);
 
         this.info = info;
@@ -30,19 +32,22 @@ public class HudElementPresetsScreen extends WindowScreen {
         this.y = y;
 
         searchBar = theme.textBox("");
-        searchBar.action = () -> {
+        searchBar.action = () ->
+        {
             clear();
             initWidgets();
         };
 
-        enterAction = () -> {
+        enterAction = () ->
+        {
             Hud.get().add(firstPreset, x, y);
             close();
         };
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         firstPreset = null;
 
         // Search bar
@@ -50,7 +55,8 @@ public class HudElementPresetsScreen extends WindowScreen {
         searchBar.setFocused(true);
 
         // Presets
-        for (HudElementInfo<?>.Preset preset : info.presets) {
+        for (HudElementInfo<?>.Preset preset : info.presets)
+        {
             if (!Utils.searchTextDefault(preset.title, searchBar.get(), false)) continue;
 
             WHorizontalList l = add(theme.horizontalList()).expandX().widget();
@@ -58,7 +64,8 @@ public class HudElementPresetsScreen extends WindowScreen {
             l.add(theme.label(preset.title));
 
             WPlus add = l.add(theme.plus()).expandCellX().right().widget();
-            add.action = () -> {
+            add.action = () ->
+            {
                 Hud.get().add(preset, x, y);
                 close();
             };
@@ -68,7 +75,8 @@ public class HudElementPresetsScreen extends WindowScreen {
     }
 
     @Override
-    protected void onRenderBefore(DrawContext drawContext, float delta) {
+    protected void onRenderBefore(DrawContext drawContext, float delta)
+    {
         HudEditorScreen.renderElements(drawContext);
     }
 }

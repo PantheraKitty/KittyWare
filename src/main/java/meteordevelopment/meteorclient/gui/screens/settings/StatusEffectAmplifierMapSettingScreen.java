@@ -25,24 +25,28 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class StatusEffectAmplifierMapSettingScreen extends WindowScreen {
+public class StatusEffectAmplifierMapSettingScreen extends WindowScreen
+{
     private final Setting<Reference2IntMap<StatusEffect>> setting;
 
     private WTable table;
 
     private String filterText = "";
 
-    public StatusEffectAmplifierMapSettingScreen(GuiTheme theme, Setting<Reference2IntMap<StatusEffect>> setting) {
+    public StatusEffectAmplifierMapSettingScreen(GuiTheme theme, Setting<Reference2IntMap<StatusEffect>> setting)
+    {
         super(theme, "Modify Amplifiers");
 
         this.setting = setting;
     }
 
     @Override
-    public void initWidgets() {
+    public void initWidgets()
+    {
         WTextBox filter = add(theme.textBox("")).minWidth(400).expandX().widget();
         filter.setFocused(true);
-        filter.action = () -> {
+        filter.action = () ->
+        {
             filterText = filter.get().trim();
 
             table.clear();
@@ -54,18 +58,21 @@ public class StatusEffectAmplifierMapSettingScreen extends WindowScreen {
         initTable();
     }
 
-    private void initTable() {
+    private void initTable()
+    {
         List<StatusEffect> statusEffects = new ArrayList<>(setting.get().keySet());
         statusEffects.sort(Comparator.comparing(Names::get));
 
-        for (StatusEffect statusEffect : statusEffects) {
+        for (StatusEffect statusEffect : statusEffects)
+        {
             String name = Names.get(statusEffect);
             if (!StringUtils.containsIgnoreCase(name, filterText)) continue;
 
             table.add(theme.itemWithLabel(getPotionStack(statusEffect), name)).expandCellX();
 
             WIntEdit level = theme.intEdit(setting.get().getInt(statusEffect), 0, Integer.MAX_VALUE, true);
-            level.action = () -> {
+            level.action = () ->
+            {
                 setting.get().put(statusEffect, level.get());
                 setting.onChanged();
             };
@@ -75,7 +82,8 @@ public class StatusEffectAmplifierMapSettingScreen extends WindowScreen {
         }
     }
 
-    private ItemStack getPotionStack(StatusEffect effect) {
+    private ItemStack getPotionStack(StatusEffect effect)
+    {
         ItemStack potion = Items.POTION.getDefaultStack();
 
         potion.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(

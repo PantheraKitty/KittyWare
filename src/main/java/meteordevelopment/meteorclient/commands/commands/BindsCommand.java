@@ -19,14 +19,18 @@ import net.minecraft.util.Formatting;
 
 import java.util.List;
 
-public class BindsCommand extends Command {
-    public BindsCommand() {
+public class BindsCommand extends Command
+{
+    public BindsCommand()
+    {
         super("binds", "List of all bound modules.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.executes(context ->
+        {
             // Modules
             List<Module> modules = Modules.get().getAll().stream()
                 .filter(module -> module.keybind.isSet())
@@ -34,7 +38,8 @@ public class BindsCommand extends Command {
 
             ChatUtils.info("--- Bound Modules ((highlight)%d(default)) ---", modules.size());
 
-            for (Module module : modules) {
+            for (Module module : modules)
+            {
                 HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, getTooltip(module));
 
                 MutableText text = Text.literal(module.title).formatted(Formatting.WHITE);
@@ -55,7 +60,8 @@ public class BindsCommand extends Command {
         });
     }
 
-    private MutableText getTooltip(Module module) {
+    private MutableText getTooltip(Module module)
+    {
         MutableText tooltip = Text.literal(Utils.nameToTitle(module.title)).formatted(Formatting.BLUE, Formatting.BOLD).append("\n\n");
         tooltip.append(Text.literal(module.description).formatted(Formatting.WHITE));
         return tooltip;

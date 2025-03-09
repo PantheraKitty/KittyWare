@@ -9,34 +9,41 @@ import net.minecraft.block.enums.NoteBlockInstrument;
 
 import java.util.Objects;
 
-public class Note {
+public class Note
+{
 
     private NoteBlockInstrument instrument;
     private int noteLevel;
 
-    public Note(NoteBlockInstrument instrument, int noteLevel) {
+    public Note(NoteBlockInstrument instrument, int noteLevel)
+    {
         this.instrument = instrument;
         this.noteLevel = noteLevel;
     }
 
-    public NoteBlockInstrument getInstrument() {
+    public NoteBlockInstrument getInstrument()
+    {
         return this.instrument;
     }
 
-    public void setInstrument(NoteBlockInstrument instrument) {
+    public void setInstrument(NoteBlockInstrument instrument)
+    {
         this.instrument = instrument;
     }
 
-    public int getNoteLevel() {
+    public int getNoteLevel()
+    {
         return noteLevel;
     }
 
-    public void setNoteLevel(int noteLevel) {
+    public void setNoteLevel(int noteLevel)
+    {
         this.noteLevel = noteLevel;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Note note = (Note) o;
@@ -44,12 +51,14 @@ public class Note {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hash(instrument, noteLevel);
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Note{" +
             "instrument=" + getInstrument() +
             ", noteLevel=" + getNoteLevel() +

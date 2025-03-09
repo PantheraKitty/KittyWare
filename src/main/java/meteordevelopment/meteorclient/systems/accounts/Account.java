@@ -29,41 +29,21 @@ import java.util.concurrent.CompletableFuture;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public abstract class Account<T extends Account<?>> implements ISerializable<T> {
+public abstract class Account<T extends Account<?>> implements ISerializable<T>
+{
+    protected final AccountCache cache;
     protected AccountType type;
     protected String name;
 
-    protected final AccountCache cache;
-
-    protected Account(AccountType type, String name) {
+    protected Account(AccountType type, String name)
+    {
         this.type = type;
         this.name = name;
         this.cache = new AccountCache();
     }
 
-    public abstract boolean fetchInfo();
-
-    public boolean login() {
-        YggdrasilAuthenticationService authenticationService = new YggdrasilAuthenticationService(((MinecraftClientAccessor) mc).getProxy());
-        applyLoginEnvironment(authenticationService, authenticationService.createMinecraftSessionService());
-
-        return true;
-    }
-
-    public String getUsername() {
-        if (cache.username.isEmpty()) return name;
-        return cache.username;
-    }
-
-    public AccountType getType() {
-        return type;
-    }
-
-    public AccountCache getCache() {
-        return cache;
-    }
-
-    public static void setSession(Session session) {
+    public static void setSession(Session session)
+    {
         MinecraftClientAccessor mca = (MinecraftClientAccessor) mc;
         mca.setSession(session);
         UserApiService apiService;
@@ -75,7 +55,8 @@ public abstract class Account<T extends Account<?>> implements ISerializable<T> 
         mca.setGameProfileFuture(CompletableFuture.supplyAsync(() -> mc.getSessionService().fetchProfile(mc.getSession().getUuidOrNull(), true), Util.getIoWorkerExecutor()));
     }
 
-    public static void applyLoginEnvironment(YggdrasilAuthenticationService authService, MinecraftSessionService sessService) {
+    public static void applyLoginEnvironment(YggdrasilAuthenticationService authService, MinecraftSessionService sessService)
+    {
         MinecraftClientAccessor mca = (MinecraftClientAccessor) mc;
         mca.setAuthenticationService(authService);
         SignatureVerifier.create(authService.getServicesKeySet(), ServicesKeyType.PROFILE_KEY);
@@ -85,8 +66,35 @@ public abstract class Account<T extends Account<?>> implements ISerializable<T> 
         mca.setSkinProvider(new PlayerSkinProvider(mc.getTextureManager(), skinCachePath, sessService, mc));
     }
 
+    public abstract boolean fetchInfo();
+
+    public boolean login()
+    {
+        YggdrasilAuthenticationService authenticationService = new YggdrasilAuthenticationService(((MinecraftClientAccessor) mc).getProxy());
+        applyLoginEnvironment(authenticationService, authenticationService.createMinecraftSessionService());
+
+        return true;
+    }
+
+    public String getUsername()
+    {
+        if (cache.username.isEmpty()) return name;
+        return cache.username;
+    }
+
+    public AccountType getType()
+    {
+        return type;
+    }
+
+    public AccountCache getCache()
+    {
+        return cache;
+    }
+
     @Override
-    public NbtCompound toTag() {
+    public NbtCompound toTag()
+    {
         NbtCompound tag = new NbtCompound();
 
         tag.putString("type", type.name());
@@ -97,7 +105,8 @@ public abstract class Account<T extends Account<?>> implements ISerializable<T> 
     }
 
     @Override
-    public T fromTag(NbtCompound tag) {
+    public T fromTag(NbtCompound tag)
+    {
         if (!tag.contains("name") || !tag.contains("cache")) throw new NbtException();
 
         name = tag.getString("name");

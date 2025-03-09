@@ -19,11 +19,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.util.math.Vec3d;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class PopChams extends Module {
+public class PopChams extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> onlyOne = sgGeneral.add(new BoolSetting.Builder()
@@ -88,26 +90,31 @@ public class PopChams extends Module {
 
     private final List<GhostPlayer> ghosts = new ArrayList<>();
 
-    public PopChams() {
+    public PopChams()
+    {
         super(Categories.Render, "pop-chams", "Renders a ghost where players pop totem.");
     }
 
     @Override
-    public void onDeactivate() {
-        synchronized (ghosts) {
+    public void onDeactivate()
+    {
+        synchronized (ghosts)
+        {
             ghosts.clear();
         }
     }
 
     @EventHandler
-    private void onReceivePacket(PacketEvent.Receive event) {
+    private void onReceivePacket(PacketEvent.Receive event)
+    {
         if (!(event.packet instanceof EntityStatusS2CPacket p)) return;
         if (p.getStatus() != 35) return;
 
         Entity entity = p.getEntity(mc.world);
         if (!(entity instanceof PlayerEntity player) || entity == mc.player) return;
 
-        synchronized (ghosts) {
+        synchronized (ghosts)
+        {
             if (onlyOne.get()) ghosts.removeIf(ghostPlayer -> ghostPlayer.uuid.equals(entity.getUuid()));
 
             ghosts.add(new GhostPlayer(player));
@@ -115,20 +122,24 @@ public class PopChams extends Module {
     }
 
     @EventHandler
-    private void onRender3D(Render3DEvent event) {
-        synchronized (ghosts) {
+    private void onRender3D(Render3DEvent event)
+    {
+        synchronized (ghosts)
+        {
             ghosts.removeIf(ghostPlayer -> ghostPlayer.render(event));
         }
     }
 
-    private class GhostPlayer {
+    private class GhostPlayer
+    {
         private final UUID uuid;
         private double timer, scale = 1;
         private PlayerEntity player;
         private List<WireframeEntityRenderer.RenderablePart> parts;
         private Vec3d pos;
 
-        public GhostPlayer(PlayerEntity player) {
+        public GhostPlayer(PlayerEntity player)
+        {
             //super(player, "ghost", 20, false);
 
             uuid = player.getUuid();
@@ -136,8 +147,10 @@ public class PopChams extends Module {
             pos = new Vec3d(0, 0, 0);
         }
 
-        public boolean render(Render3DEvent event) {
-            if (parts == null) {
+        public boolean render(Render3DEvent event)
+        {
+            if (parts == null)
+            {
                 parts = WireframeEntityRenderer.cloneEntityForRendering(event, player, pos);
             }
 
@@ -155,7 +168,8 @@ public class PopChams extends Module {
             int preSideA = sideColor.get().a;
             int preLineA = lineColor.get().a;
 
-            if (fadeOut.get()) {
+            if (fadeOut.get())
+            {
                 sideColor.get().a *= 1 - timer / renderTime.get();
                 lineColor.get().a *= 1 - timer / renderTime.get();
             }

@@ -18,7 +18,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
 
-public class AntiAnchor extends Module {
+public class AntiAnchor extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
@@ -35,14 +36,17 @@ public class AntiAnchor extends Module {
         .build()
     );
 
-    public AntiAnchor() {
+    public AntiAnchor()
+    {
         super(Categories.Combat, "anti-anchor", "Automatically prevents Anchor Aura by placing a slab on your head.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (mc.world.getBlockState(mc.player.getBlockPos().up(2)).getBlock() == Blocks.RESPAWN_ANCHOR
-            && mc.world.getBlockState(mc.player.getBlockPos().up()).getBlock() == Blocks.AIR) {
+            && mc.world.getBlockState(mc.player.getBlockPos().up()).getBlock() == Blocks.AIR)
+        {
 
             BlockUtils.place(
                 mc.player.getBlockPos().add(0, 1, 0),

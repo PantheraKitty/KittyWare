@@ -11,9 +11,11 @@ import meteordevelopment.meteorclient.gui.themes.meteor.MeteorWidget;
 import meteordevelopment.meteorclient.gui.widgets.WVerticalSeparator;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public class WMeteorVerticalSeparator extends WVerticalSeparator implements MeteorWidget {
+public class WMeteorVerticalSeparator extends WVerticalSeparator implements MeteorWidget
+{
     @Override
-    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
+    protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
+    {
         MeteorGuiTheme theme = theme();
         Color colorEdges = theme.separatorEdges.get();
         Color colorCenter = theme.separatorCenter.get();

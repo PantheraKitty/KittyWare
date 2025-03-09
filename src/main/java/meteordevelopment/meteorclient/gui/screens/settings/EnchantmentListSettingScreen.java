@@ -15,18 +15,22 @@ import net.minecraft.registry.RegistryKeys;
 
 import java.util.Set;
 
-public class EnchantmentListSettingScreen extends DynamicRegistryListSettingScreen<Enchantment> {
-    public EnchantmentListSettingScreen(GuiTheme theme, Setting<Set<RegistryKey<Enchantment>>> setting) {
+public class EnchantmentListSettingScreen extends DynamicRegistryListSettingScreen<Enchantment>
+{
+    public EnchantmentListSettingScreen(GuiTheme theme, Setting<Set<RegistryKey<Enchantment>>> setting)
+    {
         super(theme, "Select Enchantments", setting, setting.get(), RegistryKeys.ENCHANTMENT);
     }
 
     @Override
-    protected WWidget getValueWidget(RegistryKey<Enchantment> value) {
+    protected WWidget getValueWidget(RegistryKey<Enchantment> value)
+    {
         return theme.label(getValueName(value));
     }
 
     @Override
-    protected String getValueName(RegistryKey<Enchantment> value) {
+    protected String getValueName(RegistryKey<Enchantment> value)
+    {
         return Names.get(value);
     }
 }

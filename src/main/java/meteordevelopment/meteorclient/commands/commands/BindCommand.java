@@ -12,14 +12,18 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.command.CommandSource;
 
-public class BindCommand extends Command {
-    public BindCommand() {
+public class BindCommand extends Command
+{
+    public BindCommand()
+    {
         super("bind", "Binds a specified module to the next pressed key.");
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        builder.then(argument("module", ModuleArgumentType.create()).executes(context -> {
+    public void build(LiteralArgumentBuilder<CommandSource> builder)
+    {
+        builder.then(argument("module", ModuleArgumentType.create()).executes(context ->
+        {
             Module module = context.getArgument("module", Module.class);
             Modules.get().setModuleToBind(module);
             Modules.get().awaitKeyRelease();

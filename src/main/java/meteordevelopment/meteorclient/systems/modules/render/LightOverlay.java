@@ -25,7 +25,8 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LightOverlay extends Module {
+public class LightOverlay extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgColors = settings.createGroup("Colors");
 
@@ -82,18 +83,22 @@ public class LightOverlay extends Module {
 
     private final Mesh mesh = new ShaderMesh(Shaders.POS_COLOR, DrawMode.Lines, Mesh.Attrib.Vec3, Mesh.Attrib.Color);
 
-    public LightOverlay() {
+    public LightOverlay()
+    {
         super(Categories.Render, "light-overlay", "Shows blocks where mobs can spawn.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         for (Cross cross : crosses) crossPool.free(cross);
         crosses.clear();
 
         int spawnLightLevel = newMobSpawnLightLevel.get() ? 0 : 7;
-        BlockIterator.register(horizontalRange.get(), verticalRange.get(), (blockPos, blockState) -> {
-            switch (BlockUtils.isValidMobSpawn(blockPos, blockState, spawnLightLevel)) {
+        BlockIterator.register(horizontalRange.get(), verticalRange.get(), (blockPos, blockState) ->
+        {
+            switch (BlockUtils.isValidMobSpawn(blockPos, blockState, spawnLightLevel))
+            {
                 case Potential -> crosses.add(crossPool.get().set(blockPos, true));
                 case Always -> crosses.add((crossPool.get().set(blockPos, false)));
             }
@@ -101,7 +106,8 @@ public class LightOverlay extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (crosses.isEmpty()) return;
 
         mesh.depthTest = !seeThroughBlocks.get();
@@ -113,18 +119,28 @@ public class LightOverlay extends Module {
         mesh.render(event.matrices);
     }
 
-    private void line(double x1, double y1, double z1, double x2, double y2, double z2, Color color) {
+    private void line(double x1, double y1, double z1, double x2, double y2, double z2, Color color)
+    {
         mesh.line(
             mesh.vec3(x1, y1, z1).color(color).next(),
             mesh.vec3(x2, y2, z2).color(color).next()
         );
     }
 
-    private class Cross {
+    public enum Spawn
+    {
+        Never,
+        Potential,
+        Always
+    }
+
+    private class Cross
+    {
         private double x, y, z;
         private boolean potential;
 
-        public Cross set(BlockPos blockPos, boolean potential) {
+        public Cross set(BlockPos blockPos, boolean potential)
+        {
             x = blockPos.getX();
             y = blockPos.getY() + 0.0075;
             z = blockPos.getZ();
@@ -134,17 +150,12 @@ public class LightOverlay extends Module {
             return this;
         }
 
-        public void render() {
+        public void render()
+        {
             Color c = potential ? potentialColor.get() : color.get();
 
             line(x, y, z, x + 1, y, z + 1, c);
             line(x + 1, y, z, x, y, z + 1, c);
         }
-    }
-
-    public enum Spawn {
-        Never,
-        Potential,
-        Always
     }
 }

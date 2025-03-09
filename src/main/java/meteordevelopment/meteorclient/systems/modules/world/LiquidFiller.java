@@ -26,8 +26,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class LiquidFiller extends Module {
-    private final SettingGroup sgGeneral  = settings.getDefaultGroup();
+public class LiquidFiller extends Module
+{
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgWhitelist = settings.createGroup("Whitelist");
 
     private final Setting<PlaceIn> placeInLiquids = sgGeneral.add(new EnumSetting.Builder<PlaceIn>()
@@ -119,22 +120,36 @@ public class LiquidFiller extends Module {
 
     private int timer;
 
-    public LiquidFiller(){
+    public LiquidFiller()
+    {
         super(Categories.World, "liquid-filler", "Places blocks inside of liquid source blocks within range of you.");
     }
 
+    private static double maxDist(double x1, double y1, double z1, double x2, double y2, double z2)
+    {
+        // Gets the largest X, Y or Z difference, manhattan style
+        double dX = Math.ceil(Math.abs(x2 - x1));
+        double dY = Math.ceil(Math.abs(y2 - y1));
+        double dZ = Math.ceil(Math.abs(z2 - z1));
+        return Math.max(Math.max(dX, dY), dZ);
+    }
+
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         timer = 0;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         // Update timer according to delay
-        if (timer < delay.get()) {
+        if (timer < delay.get())
+        {
             timer++;
             return;
-        } else {
+        } else
+        {
             timer = 0;
         }
 
@@ -149,20 +164,24 @@ public class LiquidFiller extends Module {
 
         // Find slot with a block
         FindItemResult item;
-        if (listMode.get() == ListMode.Whitelist) {
+        if (listMode.get() == ListMode.Whitelist)
+        {
             item = InvUtils.findInHotbar(itemStack -> itemStack.getItem() instanceof BlockItem && whitelist.get().contains(Block.getBlockFromItem(itemStack.getItem())));
-        } else {
+        } else
+        {
             item = InvUtils.findInHotbar(itemStack -> itemStack.getItem() instanceof BlockItem && !blacklist.get().contains(Block.getBlockFromItem(itemStack.getItem())));
         }
         if (!item.found()) return;
 
         // Loop blocks around the player
-        BlockIterator.register((int) Math.ceil(range.get()+1), (int) Math.ceil(range.get()), (blockPos, blockState) -> {
+        BlockIterator.register((int) Math.ceil(range.get() + 1), (int) Math.ceil(range.get()), (blockPos, blockState) ->
+        {
             boolean toofarSphere = Utils.squaredDistance(pX, pY, pZ, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5) > rangeSq;
             boolean toofarUniformCube = maxDist(Math.floor(pX), Math.floor(pY), Math.floor(pZ), blockPos.getX(), blockPos.getY(), blockPos.getZ()) >= range.get();
 
             // Check distance
-            if ((toofarSphere && shape.get() == Shape.Sphere) || (toofarUniformCube && shape.get() == Shape.UniformCube)) return;
+            if ((toofarSphere && shape.get() == Shape.Sphere) || (toofarUniformCube && shape.get() == Shape.UniformCube))
+                return;
 
             // Check if the block is a source block and set to be filled
             Fluid fluid = blockState.getFluidState().getFluid();
@@ -178,7 +197,8 @@ public class LiquidFiller extends Module {
             blocks.add(blockPos.mutableCopy());
         });
 
-        BlockIterator.after(() -> {
+        BlockIterator.after(() ->
+        {
             // Sort blocks
             if (sortMode.get() == SortMode.TopDown || sortMode.get() == SortMode.BottomUp)
                 blocks.sort(Comparator.comparingDouble(value -> value.getY() * (sortMode.get() == SortMode.BottomUp ? 1 : -1)));
@@ -187,7 +207,8 @@ public class LiquidFiller extends Module {
 
             // Place and clear place positions
             int count = 0;
-            for (BlockPos pos : blocks) {
+            for (BlockPos pos : blocks)
+            {
                 if (count >= maxBlocksPerTick.get()) break;
                 BlockUtils.place(pos, item, rotate.get(), 0, true);
                 count++;
@@ -196,18 +217,21 @@ public class LiquidFiller extends Module {
         });
     }
 
-    public enum ListMode {
+    public enum ListMode
+    {
         Whitelist,
         Blacklist
     }
 
-    public enum PlaceIn {
+    public enum PlaceIn
+    {
         Both,
         Water,
         Lava
     }
 
-    public enum SortMode {
+    public enum SortMode
+    {
         None,
         Closest,
         Furthest,
@@ -215,16 +239,9 @@ public class LiquidFiller extends Module {
         BottomUp
     }
 
-    public enum Shape {
+    public enum Shape
+    {
         Sphere,
         UniformCube
-    }
-
-    private static double maxDist(double x1, double y1, double z1, double x2, double y2, double z2) {
-        // Gets the largest X, Y or Z difference, manhattan style
-        double dX = Math.ceil(Math.abs(x2 - x1));
-        double dY = Math.ceil(Math.abs(y2 - y1));
-        double dZ = Math.ceil(Math.abs(z2 - z1));
-        return Math.max(Math.max(dX, dY), dZ);
     }
 }

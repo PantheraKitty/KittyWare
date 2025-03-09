@@ -15,34 +15,42 @@ import meteordevelopment.meteorclient.utils.misc.NbtUtils;
 import meteordevelopment.meteorclient.utils.render.prompts.YesNoPrompt;
 import net.minecraft.client.gui.screen.Screen;
 
-public class ConfigTab extends Tab {
-    public ConfigTab() {
+public class ConfigTab extends Tab
+{
+    public ConfigTab()
+    {
         super("Config");
     }
 
     @Override
-    public TabScreen createScreen(GuiTheme theme) {
+    public TabScreen createScreen(GuiTheme theme)
+    {
         return new ConfigScreen(theme, this);
     }
 
     @Override
-    public boolean isScreen(Screen screen) {
+    public boolean isScreen(Screen screen)
+    {
         return screen instanceof ConfigScreen;
     }
 
-    public static class ConfigScreen extends WindowTabScreen {
+    public static class ConfigScreen extends WindowTabScreen
+    {
         private final Settings settings;
 
-        public ConfigScreen(GuiTheme theme, Tab tab) {
+        public ConfigScreen(GuiTheme theme, Tab tab)
+        {
             super(theme, tab);
 
             settings = Config.get().settings;
             settings.onActivated();
 
-            onClosed(() -> {
+            onClosed(() ->
+            {
                 String prefix = Config.get().prefix.get();
 
-                if (prefix.isBlank()) {
+                if (prefix.isBlank())
+                {
                     YesNoPrompt.create(theme, this.parent)
                         .title("Empty command prefix")
                         .message("You have set your command prefix to nothing.")
@@ -51,8 +59,8 @@ public class ConfigTab extends Tab {
                         .onYes(() -> Config.get().prefix.set("."))
                         .id("empty-command-prefix")
                         .show();
-                }
-                else if (prefix.equals("/")) {
+                } else if (prefix.equals("/"))
+                {
                     YesNoPrompt.create(theme, this.parent)
                         .title("Potential prefix conflict")
                         .message("You have set your command prefix to '/', which is used by minecraft.")
@@ -61,8 +69,8 @@ public class ConfigTab extends Tab {
                         .onYes(() -> Config.get().prefix.set("."))
                         .id("minecraft-prefix-conflict")
                         .show();
-                }
-                else if (prefix.length() > 7) {
+                } else if (prefix.length() > 7)
+                {
                     YesNoPrompt.create(theme, this.parent)
                         .title("Long command prefix")
                         .message("You have set your command prefix to a very long string.")
@@ -76,24 +84,28 @@ public class ConfigTab extends Tab {
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             add(theme.settings(settings)).expandX();
         }
 
         @Override
-        public void tick() {
+        public void tick()
+        {
             super.tick();
 
             settings.tick(window, theme);
         }
 
         @Override
-        public boolean toClipboard() {
+        public boolean toClipboard()
+        {
             return NbtUtils.toClipboard(Config.get());
         }
 
         @Override
-        public boolean fromClipboard() {
+        public boolean fromClipboard()
+        {
             return NbtUtils.fromClipboard(Config.get());
         }
     }

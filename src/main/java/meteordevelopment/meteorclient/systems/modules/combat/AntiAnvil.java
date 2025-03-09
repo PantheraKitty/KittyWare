@@ -18,7 +18,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 
-public class AntiAnvil extends Module {
+public class AntiAnvil extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> swing = sgGeneral.add(new BoolSetting.Builder()
@@ -35,16 +36,20 @@ public class AntiAnvil extends Module {
         .build()
     );
 
-    public AntiAnvil() {
+    public AntiAnvil()
+    {
         super(Categories.Combat, "anti-anvil", "Automatically prevents Auto Anvil by placing between you and the anvil.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        for (int i = 0; i <= mc.player.getBlockInteractionRange(); i++) {
+    private void onTick(TickEvent.Pre event)
+    {
+        for (int i = 0; i <= mc.player.getBlockInteractionRange(); i++)
+        {
             BlockPos pos = mc.player.getBlockPos().add(0, i + 3, 0);
 
-            if (mc.world.getBlockState(pos).getBlock() == Blocks.ANVIL && mc.world.getBlockState(pos.down()).isAir()) {
+            if (mc.world.getBlockState(pos).getBlock() == Blocks.ANVIL && mc.world.getBlockState(pos.down()).isAir())
+            {
                 if (BlockUtils.place(pos.down(), InvUtils.findInHotbar(Items.OBSIDIAN), rotate.get(), 15, swing.get(), true))
                     break;
             }

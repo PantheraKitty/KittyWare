@@ -24,20 +24,25 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class TexturePacker {
+public class TexturePacker
+{
     private static final int maxWidth = 2048;
 
     private final List<Image> images = new ArrayList<>();
 
-    public GuiTexture add(Identifier id) {
-        try {
+    public GuiTexture add(Identifier id)
+    {
+        try
+        {
             InputStream in = mc.getResourceManager().getResource(id).get().getInputStream();
             GuiTexture texture = new GuiTexture();
 
-            try (MemoryStack stack = MemoryStack.stackPush()) {
+            try (MemoryStack stack = MemoryStack.stackPush())
+            {
                 ByteBuffer rawImageBuffer = null;
 
-                try {
+                try
+                {
                     rawImageBuffer = TextureUtil.readResource(in);
                     ((Buffer) rawImageBuffer).rewind();
 
@@ -58,22 +63,29 @@ public class TexturePacker {
                     if (width > 20) addResized(texture, imageBuffer, width, height, 20);
                     if (width > 32) addResized(texture, imageBuffer, width, height, 32);
                     if (width > 48) addResized(texture, imageBuffer, width, height, 48);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     e.printStackTrace();
-                } finally {
+                }
+                finally
+                {
                     MemoryUtil.memFree(rawImageBuffer);
                 }
             }
 
             return texture;
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    private void addResized(GuiTexture texture, ByteBuffer srcImageBuffer, int srcWidth, int srcHeight, int width) {
+    private void addResized(GuiTexture texture, ByteBuffer srcImageBuffer, int srcWidth, int srcHeight, int width)
+    {
         double scaleFactor = (double) width / srcWidth;
         int height = (int) (srcHeight * scaleFactor);
 
@@ -86,7 +98,8 @@ public class TexturePacker {
         images.add(new Image(imageBuffer, region, width, height, false));
     }
 
-    public ByteTexture pack() {
+    public ByteTexture pack()
+    {
         // Calculate final width and height and image positions
         int width = 0;
         int height = 0;
@@ -94,8 +107,10 @@ public class TexturePacker {
         int rowWidth = 0;
         int rowHeight = 0;
 
-        for (Image image : images) {
-            if (rowWidth + image.width > maxWidth) {
+        for (Image image : images)
+        {
+            if (rowWidth + image.width > maxWidth)
+            {
                 width = Math.max(width, rowWidth);
                 height += rowHeight;
 
@@ -116,11 +131,13 @@ public class TexturePacker {
         // Create texture
         ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
 
-        for (Image image : images) {
+        for (Image image : images)
+        {
             // Copy pixels
             byte[] row = new byte[image.width * 4];
 
-            for (int i = 0; i < image.height; i++) {
+            for (int i = 0; i < image.height; i++)
+            {
                 ((Buffer) image.buffer).position(i * row.length);
                 image.buffer.get(row);
 
@@ -142,17 +159,17 @@ public class TexturePacker {
         return new ByteTexture(width, height, buffer, ByteTexture.Format.RGBA, ByteTexture.Filter.Linear, ByteTexture.Filter.Linear);
     }
 
-    private static class Image {
+    private static class Image
+    {
         public final ByteBuffer buffer;
         public final TextureRegion region;
 
         public final int width, height;
-
+        private final boolean stb;
         public int x, y;
 
-        private final boolean stb;
-
-        public Image(ByteBuffer buffer, TextureRegion region, int width, int height, boolean stb) {
+        public Image(ByteBuffer buffer, TextureRegion region, int width, int height, boolean stb)
+        {
             this.buffer = buffer;
             this.region = region;
             this.width = width;
@@ -160,7 +177,8 @@ public class TexturePacker {
             this.stb = stb;
         }
 
-        public void free() {
+        public void free()
+        {
             if (stb) STBImage.stbi_image_free(buffer);
         }
     }

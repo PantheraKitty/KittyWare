@@ -31,7 +31,8 @@ import net.minecraft.util.Hand;
 
 import java.util.Set;
 
-public class AutoMount extends Module {
+public class AutoMount extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> checkSaddle = sgGeneral.add(new BoolSetting.Builder()
@@ -55,28 +56,35 @@ public class AutoMount extends Module {
         .build()
     );
 
-    public AutoMount() {
+    public AutoMount()
+    {
         super(Categories.World, "auto-mount", "Automatically mounts entities.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private void onTick(TickEvent.Pre event)
+    {
         if (mc.player.hasVehicle()) return;
         if (mc.player.isSneaking()) return;
         if (mc.player.getMainHandStack().getItem() instanceof SpawnEggItem) return;
 
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (!entities.get().contains(entity.getType())) continue;
             if (!PlayerUtils.isWithin(entity, 4)) continue;
-            if ((entity instanceof PigEntity || entity instanceof SkeletonHorseEntity || entity instanceof StriderEntity || entity instanceof ZombieHorseEntity) && !((Saddleable) entity).isSaddled()) continue;
-            if (!(entity instanceof LlamaEntity) && entity instanceof Saddleable saddleable && checkSaddle.get() && !saddleable.isSaddled()) continue;
+            if ((entity instanceof PigEntity || entity instanceof SkeletonHorseEntity || entity instanceof StriderEntity || entity instanceof ZombieHorseEntity) && !((Saddleable) entity).isSaddled())
+                continue;
+            if (!(entity instanceof LlamaEntity) && entity instanceof Saddleable saddleable && checkSaddle.get() && !saddleable.isSaddled())
+                continue;
             interact(entity);
             return;
         }
     }
 
-    private void interact(Entity entity) {
-        if (rotate.get()) Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100, () -> mc.interactionManager.interactEntity(mc.player, entity, Hand.MAIN_HAND));
+    private void interact(Entity entity)
+    {
+        if (rotate.get())
+            Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100, () -> mc.interactionManager.interactEntity(mc.player, entity, Hand.MAIN_HAND));
         else mc.interactionManager.interactEntity(mc.player, entity, Hand.MAIN_HAND);
     }
 }

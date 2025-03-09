@@ -22,25 +22,31 @@ import net.minecraft.nbt.NbtCompound;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class HudTab extends Tab {
-    public HudTab() {
+public class HudTab extends Tab
+{
+    public HudTab()
+    {
         super("HUD");
     }
 
     @Override
-    public TabScreen createScreen(GuiTheme theme) {
+    public TabScreen createScreen(GuiTheme theme)
+    {
         return new HudScreen(theme, this);
     }
 
     @Override
-    public boolean isScreen(Screen screen) {
+    public boolean isScreen(Screen screen)
+    {
         return screen instanceof HudScreen;
     }
 
-    public static class HudScreen extends WindowTabScreen {
+    public static class HudScreen extends WindowTabScreen
+    {
         private final Hud hud;
 
-        public HudScreen(GuiTheme theme, Tab tab) {
+        public HudScreen(GuiTheme theme, Tab tab)
+        {
             super(theme, tab);
 
             hud = Hud.get();
@@ -48,7 +54,8 @@ public class HudTab extends Tab {
         }
 
         @Override
-        public void initWidgets() {
+        public void initWidgets()
+        {
             add(theme.settings(hud.settings)).expandX();
 
             add(theme.horizontalSeparator()).expandX();
@@ -73,20 +80,24 @@ public class HudTab extends Tab {
         }
 
         @Override
-        protected void onRenderBefore(DrawContext drawContext, float delta) {
+        protected void onRenderBefore(DrawContext drawContext, float delta)
+        {
             HudEditorScreen.renderElements(drawContext);
         }
 
         @Override
-        public boolean toClipboard() {
+        public boolean toClipboard()
+        {
             return NbtUtils.toClipboard("hud-settings", hud.settings.toTag());
         }
 
         @Override
-        public boolean fromClipboard() {
+        public boolean fromClipboard()
+        {
             NbtCompound clipboard = NbtUtils.fromClipboard(hud.settings.toTag());
 
-            if (clipboard != null) {
+            if (clipboard != null)
+            {
                 hud.settings.fromTag(clipboard);
                 return true;
             }

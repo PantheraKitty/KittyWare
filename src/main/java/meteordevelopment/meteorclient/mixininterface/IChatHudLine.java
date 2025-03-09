@@ -7,7 +7,8 @@ package meteordevelopment.meteorclient.mixininterface;
 
 import com.mojang.authlib.GameProfile;
 
-public interface IChatHudLine {
+public interface IChatHudLine
+{
     String meteor$getText();
 
     int meteor$getId();

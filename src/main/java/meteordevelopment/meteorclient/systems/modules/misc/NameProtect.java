@@ -12,7 +12,8 @@ import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 
-public class NameProtect extends Module {
+public class NameProtect extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> nameProtect = sgGeneral.add(new BoolSetting.Builder()
@@ -39,32 +40,39 @@ public class NameProtect extends Module {
 
     private String username = "If you see this, something is wrong.";
 
-    public NameProtect() {
+    public NameProtect()
+    {
         super(Categories.Player, "name-protect", "Hide player names and skins.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         username = mc.getSession().getUsername();
     }
 
-    public String replaceName(String string) {
-        if (string != null && isActive()) {
+    public String replaceName(String string)
+    {
+        if (string != null && isActive())
+        {
             return string.replace(username, name.get());
         }
 
         return string;
     }
 
-    public String getName(String original) {
-        if (!name.get().isEmpty() && isActive()) {
+    public String getName(String original)
+    {
+        if (!name.get().isEmpty() && isActive())
+        {
             return name.get();
         }
 
         return original;
     }
 
-    public boolean skinProtect() {
+    public boolean skinProtect()
+    {
         return isActive() && skinProtect.get();
     }
 }

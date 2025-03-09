@@ -31,148 +31,37 @@ import net.minecraft.item.Item;
 import net.minecraft.util.math.Vec2f;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-public class Tracers extends Module {
+public class Tracers extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private final SettingGroup sgAppearance = settings.createGroup("Appearance");
-    private final SettingGroup sgColors = settings.createGroup("Colors");
-
-    public enum TracerStyle {
-        Lines,
-        Offscreen
-    }
-
-    // General
-
-    private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
-        .name("entities")
-        .description("Select specific entities.")
-        .defaultValue(EntityType.PLAYER)
-        .build()
-    );
-
-    private final Setting<List<Item>> itemTargets = sgGeneral.add(new ItemListSetting.Builder()
-        .name("items")
-        .description("Select specific items to target.")
-        .visible(() ->  entities.get().contains(EntityType.ITEM))
-        .build()
-    );
-
-    private final Setting<Integer> minExperienceOrbSize = sgGeneral.add(new IntSetting.Builder()
-        .name("minimum-experience-orb-size")
-        .description("Only draws tracers to specific sizes of xp orbs.")
-        .visible(() ->  entities.get().contains(EntityType.EXPERIENCE_ORB))
-        .defaultValue(0)
-        .min(0).sliderMax(10)
-        .build()
-    );
-
-    private final Setting<Boolean> ignoreSelf = sgGeneral.add(new BoolSetting.Builder()
-        .name("ignore-self")
-        .description("Doesn't draw tracers to yourself when in third person or freecam.")
-        .defaultValue(false)
-        .build()
-    );
-
     public final Setting<Boolean> ignoreFriends = sgGeneral.add(new BoolSetting.Builder()
         .name("ignore-friends")
         .description("Doesn't draw tracers to friends.")
         .defaultValue(false)
         .build()
     );
-
     public final Setting<Boolean> showInvis = sgGeneral.add(new BoolSetting.Builder()
         .name("show-invisible")
         .description("Shows invisible entities.")
         .defaultValue(true)
         .build()
     );
+    private final SettingGroup sgAppearance = settings.createGroup("Appearance");
 
-    // Appearance
-
-    private final Setting<TracerStyle> style = sgAppearance.add(new EnumSetting.Builder<TracerStyle>()
-        .name("style")
-        .description("What display mode should be used")
-        .defaultValue(TracerStyle.Lines)
-        .build()
-    );
-
-    private final Setting<Target> target = sgAppearance.add(new EnumSetting.Builder<Target>()
-        .name("target")
-        .description("What part of the entity to target.")
-        .defaultValue(Target.Body)
-        .visible(() ->  style.get() == TracerStyle.Lines)
-        .build()
-    );
-
-    private final Setting<Boolean> stem = sgAppearance.add(new BoolSetting.Builder()
-        .name("stem")
-        .description("Draw a line through the center of the tracer target.")
-        .defaultValue(true)
-        .visible(() ->  style.get() == TracerStyle.Lines)
-        .build()
-    );
-
-    private final Setting<Integer> maxDist = sgAppearance.add(new IntSetting.Builder()
-        .name("max-distance")
-        .description("Maximum distance for tracers to show.")
-        .defaultValue(256)
-        .min(0)
-        .sliderMax(256)
-        .build()
-    );
-
-    private final Setting<Integer> distanceOffscreen = sgAppearance.add(new IntSetting.Builder()
-        .name("distance-offscreen")
-        .description("Offscreen's distance from center.")
-        .defaultValue(200)
-        .min(0)
-        .sliderMax(500)
-        .visible(() ->  style.get() == TracerStyle.Offscreen)
-        .build()
-    );
-
-    private final Setting<Integer> sizeOffscreen = sgAppearance.add(new IntSetting.Builder()
-        .name("size-offscreen")
-        .description("Offscreen's size.")
-        .defaultValue(10)
-        .min(2)
-        .sliderMax(50)
-        .visible(() ->  style.get() == TracerStyle.Offscreen)
-        .build()
-    );
-
-    private final Setting<Boolean> blinkOffscreen = sgAppearance.add(new BoolSetting.Builder()
-        .name("blink-offscreen")
-        .description("Make offscreen Blink.")
-        .defaultValue(true)
-        .visible(() ->  style.get() == TracerStyle.Offscreen)
-        .build()
-    );
-
-    private final Setting<Double> blinkOffscreenSpeed = sgAppearance.add(new DoubleSetting.Builder()
-        .name("blink-offscreen-speed")
-        .description("Offscreen's blink speed.")
-        .defaultValue(4)
-        .min(1)
-        .sliderMax(15)
-        .visible(() ->  style.get() == TracerStyle.Offscreen && blinkOffscreen.get())
-        .build()
-    );
-
-    // Colors
-
+    // General
+    private final SettingGroup sgColors = settings.createGroup("Colors");
     public final Setting<Boolean> distance = sgColors.add(new BoolSetting.Builder()
         .name("distance-colors")
         .description("Changes the color of tracers depending on distance.")
         .defaultValue(false)
         .build()
     );
-
     public final Setting<Boolean> friendOverride = sgColors.add(new BoolSetting.Builder()
         .name("show-friend-colors")
         .description("Whether or not to override the distance color of friends with the friend color.")
@@ -180,7 +69,6 @@ public class Tracers extends Module {
         .visible(() -> distance.get() && !ignoreFriends.get())
         .build()
     );
-
     private final Setting<SettingColor> playersColor = sgColors.add(new ColorSetting.Builder()
         .name("players-colors")
         .description("The player's color.")
@@ -188,7 +76,6 @@ public class Tracers extends Module {
         .visible(() -> !distance.get())
         .build()
     );
-
     private final Setting<SettingColor> animalsColor = sgColors.add(new ColorSetting.Builder()
         .name("animals-color")
         .description("The animal's color.")
@@ -196,7 +83,6 @@ public class Tracers extends Module {
         .visible(() -> !distance.get())
         .build()
     );
-
     private final Setting<SettingColor> waterAnimalsColor = sgColors.add(new ColorSetting.Builder()
         .name("water-animals-color")
         .description("The water animal's color.")
@@ -205,6 +91,7 @@ public class Tracers extends Module {
         .build()
     );
 
+    // Appearance
     private final Setting<SettingColor> monstersColor = sgColors.add(new ColorSetting.Builder()
         .name("monsters-color")
         .description("The monster's color.")
@@ -212,7 +99,6 @@ public class Tracers extends Module {
         .visible(() -> !distance.get())
         .build()
     );
-
     private final Setting<SettingColor> ambientColor = sgColors.add(new ColorSetting.Builder()
         .name("ambient-color")
         .description("The ambient color.")
@@ -220,7 +106,6 @@ public class Tracers extends Module {
         .visible(() -> !distance.get())
         .build()
     );
-
     private final Setting<SettingColor> miscColor = sgColors.add(new ColorSetting.Builder()
         .name("misc-color")
         .description("The misc color.")
@@ -228,29 +113,124 @@ public class Tracers extends Module {
         .visible(() -> !distance.get())
         .build()
     );
+    private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
+        .name("entities")
+        .description("Select specific entities.")
+        .defaultValue(EntityType.PLAYER)
+        .build()
+    );
+    private final Setting<List<Item>> itemTargets = sgGeneral.add(new ItemListSetting.Builder()
+        .name("items")
+        .description("Select specific items to target.")
+        .visible(() -> entities.get().contains(EntityType.ITEM))
+        .build()
+    );
+    private final Setting<Integer> minExperienceOrbSize = sgGeneral.add(new IntSetting.Builder()
+        .name("minimum-experience-orb-size")
+        .description("Only draws tracers to specific sizes of xp orbs.")
+        .visible(() -> entities.get().contains(EntityType.EXPERIENCE_ORB))
+        .defaultValue(0)
+        .min(0).sliderMax(10)
+        .build()
+    );
+    private final Setting<Boolean> ignoreSelf = sgGeneral.add(new BoolSetting.Builder()
+        .name("ignore-self")
+        .description("Doesn't draw tracers to yourself when in third person or freecam.")
+        .defaultValue(false)
+        .build()
+    );
+    private final Setting<TracerStyle> style = sgAppearance.add(new EnumSetting.Builder<TracerStyle>()
+        .name("style")
+        .description("What display mode should be used")
+        .defaultValue(TracerStyle.Lines)
+        .build()
+    );
 
+    // Colors
+    private final Setting<Target> target = sgAppearance.add(new EnumSetting.Builder<Target>()
+        .name("target")
+        .description("What part of the entity to target.")
+        .defaultValue(Target.Body)
+        .visible(() -> style.get() == TracerStyle.Lines)
+        .build()
+    );
+    private final Setting<Boolean> stem = sgAppearance.add(new BoolSetting.Builder()
+        .name("stem")
+        .description("Draw a line through the center of the tracer target.")
+        .defaultValue(true)
+        .visible(() -> style.get() == TracerStyle.Lines)
+        .build()
+    );
+    private final Setting<Integer> distanceOffscreen = sgAppearance.add(new IntSetting.Builder()
+        .name("distance-offscreen")
+        .description("Offscreen's distance from center.")
+        .defaultValue(200)
+        .min(0)
+        .sliderMax(500)
+        .visible(() -> style.get() == TracerStyle.Offscreen)
+        .build()
+    );
+    private final Setting<Integer> sizeOffscreen = sgAppearance.add(new IntSetting.Builder()
+        .name("size-offscreen")
+        .description("Offscreen's size.")
+        .defaultValue(10)
+        .min(2)
+        .sliderMax(50)
+        .visible(() -> style.get() == TracerStyle.Offscreen)
+        .build()
+    );
+    private final Setting<Boolean> blinkOffscreen = sgAppearance.add(new BoolSetting.Builder()
+        .name("blink-offscreen")
+        .description("Make offscreen Blink.")
+        .defaultValue(true)
+        .visible(() -> style.get() == TracerStyle.Offscreen)
+        .build()
+    );
+    private final Setting<Double> blinkOffscreenSpeed = sgAppearance.add(new DoubleSetting.Builder()
+        .name("blink-offscreen-speed")
+        .description("Offscreen's blink speed.")
+        .defaultValue(4)
+        .min(1)
+        .sliderMax(15)
+        .visible(() -> style.get() == TracerStyle.Offscreen && blinkOffscreen.get())
+        .build()
+    );
+    private final Setting<Integer> maxDist = sgAppearance.add(new IntSetting.Builder()
+        .name("max-distance")
+        .description("Maximum distance for tracers to show.")
+        .defaultValue(256)
+        .min(0)
+        .sliderMax(256)
+        .build()
+    );
     private int count;
     private Instant initTimer = Instant.now();
-
-    public Tracers() {
+    public Tracers()
+    {
         super(Categories.Render, "tracers", "Displays tracer lines to specified entities.");
     }
 
-    private boolean shouldBeIgnored(Entity entity) {
+    private boolean shouldBeIgnored(Entity entity)
+    {
         boolean normalIgnore = !PlayerUtils.isWithin(entity, maxDist.get()) || (!Modules.get().isActive(Freecam.class) && entity == mc.player) || !entities.get().contains(entity.getType()) || (ignoreSelf.get() && entity == mc.player) || (ignoreFriends.get() && entity instanceof PlayerEntity && Friends.get().isFriend((PlayerEntity) entity)) || (!showInvis.get() && entity.isInvisible()) | !EntityUtils.isInRenderDistance(entity);
-    
-        if (normalIgnore) {
+
+        if (normalIgnore)
+        {
             return true;
         }
 
-        if (entity instanceof ItemEntity item) {
-            if (!itemTargets.get().contains(item.getStack().getItem())) {
+        if (entity instanceof ItemEntity item)
+        {
+            if (!itemTargets.get().contains(item.getStack().getItem()))
+            {
                 return true;
             }
         }
 
-        if (entity instanceof ExperienceOrbEntity exp) {
-            if (exp.getOrbSize() < minExperienceOrbSize.get()) {
+        if (entity instanceof ExperienceOrbEntity exp)
+        {
+            if (exp.getOrbSize() < minExperienceOrbSize.get())
+            {
                 return true;
             }
         }
@@ -258,20 +238,23 @@ public class Tracers extends Module {
         return false;
     }
 
-    private Color getEntityColor(Entity entity) {
+    private Color getEntityColor(Entity entity)
+    {
         Color color;
 
-        if (distance.get()) {
-            if (friendOverride.get() && entity instanceof PlayerEntity && Friends.get().isFriend((PlayerEntity) entity)) {
+        if (distance.get())
+        {
+            if (friendOverride.get() && entity instanceof PlayerEntity && Friends.get().isFriend((PlayerEntity) entity))
+            {
                 color = Config.get().friendColor.get();
-            }
-            else color = EntityUtils.getColorFromDistance(entity);
-        }
-        else if (entity instanceof PlayerEntity) {
+            } else color = EntityUtils.getColorFromDistance(entity);
+        } else if (entity instanceof PlayerEntity)
+        {
             color = PlayerUtils.getPlayerColor(((PlayerEntity) entity), playersColor.get());
-        }
-        else {
-            color = switch (entity.getType().getSpawnGroup()) {
+        } else
+        {
+            color = switch (entity.getType().getSpawnGroup())
+            {
                 case CREATURE -> animalsColor.get();
                 case WATER_AMBIENT, WATER_CREATURE, UNDERGROUND_WATER_CREATURE, AXOLOTLS -> waterAnimalsColor.get();
                 case MONSTER -> monstersColor.get();
@@ -284,11 +267,13 @@ public class Tracers extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (mc.options.hudHidden || style.get() == TracerStyle.Offscreen) return;
         count = 0;
 
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (shouldBeIgnored(entity)) continue;
 
             Color color = getEntityColor(entity);
@@ -309,13 +294,15 @@ public class Tracers extends Module {
     }
 
     @EventHandler
-    public void onRender2D(Render2DEvent event) {
+    public void onRender2D(Render2DEvent event)
+    {
         if (mc.options.hudHidden || style.get() != TracerStyle.Offscreen) return;
         count = 0;
 
         Renderer2D.COLOR.begin();
 
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.world.getEntities())
+        {
             if (shouldBeIgnored(entity)) continue;
 
             Color color = getEntityColor(entity);
@@ -359,13 +346,15 @@ public class Tracers extends Module {
         Renderer2D.COLOR.render(null);
     }
 
-    private void rotateTriangle(Vector2f[] points, float ang) {
+    private void rotateTriangle(Vector2f[] points, float ang)
+    {
         Vector2f triangleCenter = new Vector2f(0, 0);
         triangleCenter.add(points[0]).add(points[1]).add(points[2]).div(3.f);
-        float theta = (float)Math.toRadians(ang);
-        float cos = (float)Math.cos(theta);
-        float sin = (float)Math.sin(theta);
-        for (int i = 0; i < 3; i++) {
+        float theta = (float) Math.toRadians(ang);
+        float cos = (float) Math.cos(theta);
+        float sin = (float) Math.sin(theta);
+        for (int i = 0; i < 3; i++)
+        {
             Vector2f point = new Vector2f(points[i].x, points[i].y).sub(triangleCenter);
 
             Vector2f newPoint = new Vector2f(point.x * cos - point.y * sin, point.x * sin + point.y * cos);
@@ -375,22 +364,25 @@ public class Tracers extends Module {
         }
     }
 
-    private Vector2f vectorAngles(final Vector3d forward) {
+    private Vector2f vectorAngles(final Vector3d forward)
+    {
         float tmp, yaw, pitch;
 
-        if (forward.x == 0 && forward.y == 0) {
+        if (forward.x == 0 && forward.y == 0)
+        {
             yaw = 0;
             if (forward.z > 0)
                 pitch = 270;
             else
                 pitch = 90;
-        } else {
-            yaw = (float)(Math.atan2(forward.y, forward.x) * 180 / Math.PI);
+        } else
+        {
+            yaw = (float) (Math.atan2(forward.y, forward.x) * 180 / Math.PI);
             if (yaw < 0)
                 yaw += 360;
 
-            tmp = (float)Math.sqrt(forward.x * forward.x + forward.y * forward.y);
-            pitch = (float)(Math.atan2(-forward.z, tmp) * 180 / Math.PI);
+            tmp = (float) Math.sqrt(forward.x * forward.x + forward.y * forward.y);
+            pitch = (float) (Math.atan2(-forward.z, tmp) * 180 / Math.PI);
             if (pitch < 0)
                 pitch += 360;
         }
@@ -398,15 +390,23 @@ public class Tracers extends Module {
         return new Vector2f(pitch, yaw);
     }
 
-    private float getAlpha() {
+    private float getAlpha()
+    {
         double speed = blinkOffscreenSpeed.get() / 4.0;
         double duration = Math.abs(Duration.between(Instant.now(), initTimer).toMillis()) * speed;
 
-        return (float)Math.abs((duration % 1000) - 500) / 500.f;
+        return (float) Math.abs((duration % 1000) - 500) / 500.f;
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return Integer.toString(count);
+    }
+
+    public enum TracerStyle
+    {
+        Lines,
+        Offscreen
     }
 }

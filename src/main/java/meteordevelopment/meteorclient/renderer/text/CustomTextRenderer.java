@@ -13,13 +13,11 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
 
-public class CustomTextRenderer implements TextRenderer {
+public class CustomTextRenderer implements TextRenderer
+{
     public static final Color SHADOW_COLOR = new Color(60, 60, 60, 180);
-
-    private final Mesh mesh = new ShaderMesh(Shaders.TEXT, DrawMode.Triangles, Mesh.Attrib.Vec2, Mesh.Attrib.Vec2, Mesh.Attrib.Color);
-
     public final FontFace fontFace;
-
+    private final Mesh mesh = new ShaderMesh(Shaders.TEXT, DrawMode.Triangles, Mesh.Attrib.Vec2, Mesh.Attrib.Vec2, Mesh.Attrib.Color);
     private final Font[] fonts;
     private Font font;
 
@@ -28,33 +26,38 @@ public class CustomTextRenderer implements TextRenderer {
     private double fontScale = 1;
     private double scale = 1;
 
-    public CustomTextRenderer(FontFace fontFace) {
+    public CustomTextRenderer(FontFace fontFace)
+    {
         this.fontFace = fontFace;
 
         byte[] bytes = Utils.readBytes(fontFace.toStream());
         ByteBuffer buffer = BufferUtils.createByteBuffer(bytes.length).put(bytes).flip();
 
         fonts = new Font[5];
-        for (int i = 0; i < fonts.length; i++) {
+        for (int i = 0; i < fonts.length; i++)
+        {
             fonts[i] = new Font(buffer, (int) Math.round(27 * ((i * 0.5) + 1)));
         }
     }
 
     @Override
-    public void setAlpha(double a) {
+    public void setAlpha(double a)
+    {
         mesh.alpha = a;
     }
 
     @Override
-    public void begin(double scale, boolean scaleOnly, boolean big) {
+    public void begin(double scale, boolean scaleOnly, boolean big)
+    {
         if (building) throw new RuntimeException("CustomTextRenderer.begin() called twice");
 
         if (!scaleOnly) mesh.begin();
 
-        if (big) {
+        if (big)
+        {
             this.font = fonts[fonts.length - 1];
-        }
-        else {
+        } else
+        {
             double scaleA = Math.floor(scale * 10) / 10;
 
             int scaleI;
@@ -75,7 +78,8 @@ public class CustomTextRenderer implements TextRenderer {
     }
 
     @Override
-    public double getWidth(String text, int length, boolean shadow) {
+    public double getWidth(String text, int length, boolean shadow)
+    {
         if (text.isEmpty()) return 0;
 
         Font font = building ? this.font : fonts[0];
@@ -83,18 +87,21 @@ public class CustomTextRenderer implements TextRenderer {
     }
 
     @Override
-    public double getHeight(boolean shadow) {
+    public double getHeight(boolean shadow)
+    {
         Font font = building ? this.font : fonts[0];
         return (font.getHeight() + 1 + (shadow ? 1 : 0)) * scale / 1.5;
     }
 
     @Override
-    public double render(String text, double x, double y, Color color, boolean shadow) {
+    public double render(String text, double x, double y, Color color, boolean shadow)
+    {
         boolean wasBuilding = building;
         if (!wasBuilding) begin();
 
         double width;
-        if (shadow) {
+        if (shadow)
+        {
             int preShadowA = SHADOW_COLOR.a;
             SHADOW_COLOR.a = (int) (color.a / 255.0 * preShadowA);
 
@@ -102,8 +109,8 @@ public class CustomTextRenderer implements TextRenderer {
             font.render(mesh, text, x, y, color, scale / 1.5);
 
             SHADOW_COLOR.a = preShadowA;
-        }
-        else {
+        } else
+        {
             width = font.render(mesh, text, x, y, color, scale / 1.5);
         }
 
@@ -112,15 +119,18 @@ public class CustomTextRenderer implements TextRenderer {
     }
 
     @Override
-    public boolean isBuilding() {
+    public boolean isBuilding()
+    {
         return building;
     }
 
     @Override
-    public void end(MatrixStack matrices) {
+    public void end(MatrixStack matrices)
+    {
         if (!building) throw new RuntimeException("CustomTextRenderer.end() called without calling begin()");
 
-        if (!scaleOnly) {
+        if (!scaleOnly)
+        {
             mesh.end();
 
             GL.bindTexture(font.texture.getGlId());
@@ -131,7 +141,8 @@ public class CustomTextRenderer implements TextRenderer {
         scale = 1;
     }
 
-    public void destroy() {
+    public void destroy()
+    {
         mesh.destroy();
     }
 }

@@ -8,19 +8,22 @@ package meteordevelopment.meteorclient.gui.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class WMultiLabel extends WLabel {
+public abstract class WMultiLabel extends WLabel
+{
     protected List<String> lines = new ArrayList<>(2);
 
     protected double maxWidth;
 
-    public WMultiLabel(String text, boolean title, double maxWidth) {
+    public WMultiLabel(String text, boolean title, double maxWidth)
+    {
         super(text, title);
 
         this.maxWidth = maxWidth;
     }
 
     @Override
-    protected void onCalculateSize() {
+    protected void onCalculateSize()
+    {
         lines.clear();
 
         String[] words = text.split(" ");
@@ -34,13 +37,15 @@ public abstract class WMultiLabel extends WLabel {
 
         int iInLine = 0;
 
-        for (int i = 0; i < words.length; i++) {
+        for (int i = 0; i < words.length; i++)
+        {
             double wordWidth = theme.textWidth(words[i], words[i].length(), title);
 
             double toAdd = wordWidth;
             if (iInLine > 0) toAdd += spaceWidth;
 
-            if (lineWidth + toAdd > maxWidth) {
+            if (lineWidth + toAdd > maxWidth)
+            {
                 lines.add(sb.toString());
                 sb.setLength(0);
 
@@ -48,9 +53,10 @@ public abstract class WMultiLabel extends WLabel {
                 iInLine = 0;
 
                 i--;
-            }
-            else {
-                if (iInLine > 0) {
+            } else
+            {
+                if (iInLine > 0)
+                {
                     sb.append(' ');
                     lineWidth += spaceWidth;
                 }
@@ -70,7 +76,8 @@ public abstract class WMultiLabel extends WLabel {
     }
 
     @Override
-    public void set(String text) {
+    public void set(String text)
+    {
         if (!text.equals(this.text)) invalidate();
 
         this.text = text;

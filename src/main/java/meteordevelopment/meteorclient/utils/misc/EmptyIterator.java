@@ -7,14 +7,17 @@ package meteordevelopment.meteorclient.utils.misc;
 
 import java.util.Iterator;
 
-public class EmptyIterator<T> implements Iterator<T> {
+public class EmptyIterator<T> implements Iterator<T>
+{
     @Override
-    public boolean hasNext() {
+    public boolean hasNext()
+    {
         return false;
     }
 
     @Override
-    public T next() {
+    public T next()
+    {
         return null;
     }
 }

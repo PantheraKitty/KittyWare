@@ -25,7 +25,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(MultiplayerScreen.class)
-public abstract class MultiplayerScreenMixin extends Screen {
+public abstract class MultiplayerScreenMixin extends Screen
+{
     @Unique
     private int textColor1;
     @Unique
@@ -36,12 +37,14 @@ public abstract class MultiplayerScreenMixin extends Screen {
     @Unique
     private int loggedInAsLength;
 
-    public MultiplayerScreenMixin(Text title) {
+    public MultiplayerScreenMixin(Text title)
+    {
         super(title);
     }
 
     @Inject(method = "init", at = @At("TAIL"))
-    private void onInit(CallbackInfo info) {
+    private void onInit(CallbackInfo info)
+    {
         textColor1 = Color.fromRGBA(255, 255, 255, 255);
         textColor2 = Color.fromRGBA(175, 175, 175, 255);
 
@@ -64,7 +67,8 @@ public abstract class MultiplayerScreenMixin extends Screen {
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci)
+    {
         int x = 3;
         int y = 3;
 

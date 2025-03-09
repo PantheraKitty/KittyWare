@@ -10,25 +10,27 @@ import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.misc.Keybind;
 
-public class WKeybind extends WHorizontalList {
-    public Runnable action;
-    public Runnable actionOnSet;
-
-    private WButton button;
-
+public class WKeybind extends WHorizontalList
+{
     private final Keybind keybind;
     private final Keybind defaultValue;
+    public Runnable action;
+    public Runnable actionOnSet;
+    private WButton button;
     private boolean listening;
 
-    public WKeybind(Keybind keybind, Keybind defaultValue) {
+    public WKeybind(Keybind keybind, Keybind defaultValue)
+    {
         this.keybind = keybind;
         this.defaultValue = defaultValue;
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         button = add(theme.button("")).widget();
-        button.action = () -> {
+        button.action = () ->
+        {
             listening = true;
             button.set("...");
 
@@ -38,8 +40,10 @@ public class WKeybind extends WHorizontalList {
         refreshLabel();
     }
 
-    public boolean onClear() {
-        if (listening) {
+    public boolean onClear()
+    {
+        if (listening)
+        {
             keybind.reset();
             reset();
 
@@ -49,8 +53,10 @@ public class WKeybind extends WHorizontalList {
         return false;
     }
 
-    public boolean onAction(boolean isKey, int value, int modifiers) {
-        if (listening && keybind.canBindTo(isKey, value, modifiers)) {
+    public boolean onAction(boolean isKey, int value, int modifiers)
+    {
+        if (listening && keybind.canBindTo(isKey, value, modifiers))
+        {
             keybind.set(isKey, value, modifiers);
             reset();
 
@@ -60,20 +66,24 @@ public class WKeybind extends WHorizontalList {
         return false;
     }
 
-    public void resetBind() {
+    public void resetBind()
+    {
         keybind.set(defaultValue);
         reset();
     }
 
-    public void reset() {
+    public void reset()
+    {
         listening = false;
         refreshLabel();
-        if (Modules.get().isBinding()) {
+        if (Modules.get().isBinding())
+        {
             Modules.get().setModuleToBind(null);
         }
     }
 
-    private void refreshLabel() {
+    private void refreshLabel()
+    {
         button.set(keybind.toString());
     }
 }

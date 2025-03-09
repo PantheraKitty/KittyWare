@@ -13,18 +13,22 @@ import net.minecraft.sound.SoundEvent;
 
 import java.util.List;
 
-public class SoundEventListSettingScreen extends RegistryListSettingScreen<SoundEvent> {
-    public SoundEventListSettingScreen(GuiTheme theme, Setting<List<SoundEvent>> setting) {
+public class SoundEventListSettingScreen extends RegistryListSettingScreen<SoundEvent>
+{
+    public SoundEventListSettingScreen(GuiTheme theme, Setting<List<SoundEvent>> setting)
+    {
         super(theme, "Select Sounds", setting, setting.get(), Registries.SOUND_EVENT);
     }
 
     @Override
-    protected WWidget getValueWidget(SoundEvent value) {
+    protected WWidget getValueWidget(SoundEvent value)
+    {
         return theme.label(getValueName(value));
     }
 
     @Override
-    protected String getValueName(SoundEvent value) {
+    protected String getValueName(SoundEvent value)
+    {
         return value.getId().getPath();
     }
 }
