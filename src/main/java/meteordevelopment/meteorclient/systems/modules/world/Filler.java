@@ -24,8 +24,6 @@ public final class Filler extends Module
 {
     private final SettingGroup sgGeneral = this.settings.getDefaultGroup();
     private final SettingGroup sgRender = this.settings.createGroup("Render");
-    private final Mutable mutablePos = new Mutable();
-    private final Map<BlockPos, Long> renderLastPlacedBlock = new HashMap<>();
 
     private final Setting<FillerMode> mode = sgGeneral.add(
         new EnumSetting.Builder<FillerMode>()
@@ -118,6 +116,9 @@ public final class Filler extends Module
             .visible(() -> shapeMode.get() != ShapeMode.Sides)
             .build()
     );
+
+    private final Mutable mutablePos = new Mutable();
+    private final Map<BlockPos, Long> renderLastPlacedBlock = new HashMap<>();
 
     public Filler()
     {
