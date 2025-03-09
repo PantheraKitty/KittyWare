@@ -3,16 +3,16 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WHorizontalSeparator;
 
-public class WGonbleWareHorizontalSeparator extends WHorizontalSeparator implements GonbleWareWidget
+public class WKittyWareHorizontalSeparator extends WHorizontalSeparator implements KittyWareWidget
 {
-    public WGonbleWareHorizontalSeparator(String text)
+    public WKittyWareHorizontalSeparator(String text)
     {
         super(text);
     }
@@ -26,7 +26,7 @@ public class WGonbleWareHorizontalSeparator extends WHorizontalSeparator impleme
 
     private void renderWithoutText(GuiRenderer renderer)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
         double s = theme.scale(1);
         double w = width / 2;
 
@@ -36,7 +36,7 @@ public class WGonbleWareHorizontalSeparator extends WHorizontalSeparator impleme
 
     private void renderWithText(GuiRenderer renderer)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
         double s = theme.scale(2);
         double h = theme.scale(1);
 

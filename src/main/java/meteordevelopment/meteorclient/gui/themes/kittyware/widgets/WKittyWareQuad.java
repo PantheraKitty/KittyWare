@@ -3,15 +3,15 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.widgets.WQuad;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public class WGonbleWareQuad extends WQuad
+public class WKittyWareQuad extends WQuad
 {
-    public WGonbleWareQuad(Color color)
+    public WKittyWareQuad(Color color)
     {
         super(color);
     }

@@ -3,19 +3,19 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.pressable;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets.pressable;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WCheckbox;
 import net.minecraft.util.math.MathHelper;
 
-public class WGonbleWareCheckbox extends WCheckbox implements GonbleWareWidget
+public class WKittyWareCheckbox extends WCheckbox implements KittyWareWidget
 {
     private double animProgress;
 
-    public WGonbleWareCheckbox(boolean checked)
+    public WKittyWareCheckbox(boolean checked)
     {
         super(checked);
         animProgress = checked ? 1 : 0;
@@ -24,7 +24,7 @@ public class WGonbleWareCheckbox extends WCheckbox implements GonbleWareWidget
     @Override
     protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
 
         animProgress += (checked ? 1 : -1) * delta * 14;
         animProgress = MathHelper.clamp(animProgress, 0, 1);

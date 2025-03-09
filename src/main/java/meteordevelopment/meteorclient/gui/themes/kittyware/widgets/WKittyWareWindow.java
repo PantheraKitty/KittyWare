@@ -3,16 +3,16 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WWindow;
 
-public class WGonbleWareWindow extends WWindow implements GonbleWareWidget
+public class WKittyWareWindow extends WWindow implements KittyWareWidget
 {
-    public WGonbleWareWindow(WWidget icon, String title)
+    public WKittyWareWindow(WWidget icon, String title)
     {
         super(icon, title);
     }
@@ -20,7 +20,7 @@ public class WGonbleWareWindow extends WWindow implements GonbleWareWidget
     @Override
     protected WHeader header(WWidget icon)
     {
-        return new WGonbleWareHeader(icon);
+        return new WKittyWarHeader(icon);
     }
 
     @Override
@@ -32,9 +32,9 @@ public class WGonbleWareWindow extends WWindow implements GonbleWareWidget
         }
     }
 
-    private class WGonbleWareHeader extends WHeader
+    private class WKittyWarHeader extends WHeader
     {
-        public WGonbleWareHeader(WWidget icon)
+        public WKittyWarHeader(WWidget icon)
         {
             super(icon);
         }

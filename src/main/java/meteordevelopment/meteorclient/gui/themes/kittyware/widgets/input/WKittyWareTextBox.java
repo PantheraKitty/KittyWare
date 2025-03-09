@@ -3,12 +3,12 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.input;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets.input;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.WGonbleWareLabel;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.widgets.WKittyWareLabel;
 import meteordevelopment.meteorclient.gui.utils.CharFilter;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
@@ -17,14 +17,14 @@ import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import net.minecraft.util.math.MathHelper;
 
-public class WGonbleWareTextBox extends WTextBox implements GonbleWareWidget
+public class WKittyWareTextBox extends WTextBox implements KittyWareWidget
 {
     private boolean cursorVisible;
     private double cursorTimer;
 
     private double animProgress;
 
-    public WGonbleWareTextBox(String text, String placeholder, CharFilter filter, Class<? extends Renderer> renderer)
+    public WKittyWareTextBox(String text, String placeholder, CharFilter filter, Class<? extends Renderer> renderer)
     {
         super(text, placeholder, filter, renderer);
     }
@@ -37,7 +37,7 @@ public class WGonbleWareTextBox extends WTextBox implements GonbleWareWidget
             @Override
             protected void onRender(GuiRenderer renderer1, double mouseX, double mouseY, double delta)
             {
-                GonbleWareGuiTheme theme1 = theme();
+                KittyWareGuiTheme theme1 = theme();
                 double s = theme1.scale(2);
                 Color c = theme1.outlineColor.get();
 
@@ -83,7 +83,7 @@ public class WGonbleWareTextBox extends WTextBox implements GonbleWareWidget
 
         renderBackground(renderer, this, false, false);
 
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
         double pad = pad();
         double overflowWidth = getOverflowWidthForRender();
 
@@ -121,7 +121,7 @@ public class WGonbleWareTextBox extends WTextBox implements GonbleWareWidget
         renderer.scissorEnd();
     }
 
-    private static class CompletionItem extends WGonbleWareLabel implements ICompletionItem
+    private static class CompletionItem extends WKittyWareLabel implements ICompletionItem
     {
         private static final Color SELECTED_COLOR = new Color(255, 255, 255, 15);
 

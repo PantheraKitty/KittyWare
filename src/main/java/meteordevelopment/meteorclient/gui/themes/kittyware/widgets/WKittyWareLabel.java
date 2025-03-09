@@ -3,15 +3,15 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WLabel;
 
-public class WGonbleWareLabel extends WLabel implements GonbleWareWidget
+public class WKittyWareLabel extends WLabel implements KittyWareWidget
 {
-    public WGonbleWareLabel(String text, boolean title)
+    public WKittyWareLabel(String text, boolean title)
     {
         super(text, title);
     }

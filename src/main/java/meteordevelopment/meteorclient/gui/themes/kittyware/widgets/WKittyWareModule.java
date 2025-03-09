@@ -3,11 +3,11 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.utils.AlignmentX;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WPressable;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -18,7 +18,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
 
-public class WGonbleWareModule extends WPressable implements GonbleWareWidget
+public class WKittyWareModule extends WPressable implements KittyWareWidget
 {
     private final Module module;
 
@@ -28,7 +28,7 @@ public class WGonbleWareModule extends WPressable implements GonbleWareWidget
 
     private double animationProgress2;
 
-    public WGonbleWareModule(Module module)
+    public WKittyWareModule(Module module)
     {
         this.module = module;
         this.tooltip = module.description;
@@ -71,7 +71,7 @@ public class WGonbleWareModule extends WPressable implements GonbleWareWidget
     @Override
     protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
         double pad = pad();
 
         animationProgress1 += delta * 4 * ((module.isActive() || mouseOver) ? 1 : -1);

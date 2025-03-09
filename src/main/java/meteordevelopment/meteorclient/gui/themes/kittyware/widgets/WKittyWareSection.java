@@ -3,17 +3,17 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WSection;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WTriangle;
 
-public class WGonbleWareSection extends WSection
+public class WKittyWareSection extends WSection
 {
-    public WGonbleWareSection(String title, boolean expanded, WWidget headerWidget)
+    public WKittyWareSection(String title, boolean expanded, WWidget headerWidget)
     {
         super(title, expanded, headerWidget);
     }
@@ -24,7 +24,7 @@ public class WGonbleWareSection extends WSection
         return new WMeteorHeader(title);
     }
 
-    protected static class WHeaderTriangle extends WTriangle implements GonbleWareWidget
+    protected static class WHeaderTriangle extends WTriangle implements KittyWareWidget
     {
         @Override
         protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)

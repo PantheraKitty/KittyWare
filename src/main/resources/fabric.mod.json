@@ -3,7 +3,7 @@
   "name": "KittyWare",
   "id": "meteor-client",
   "version": "${version}",
-  "description": "Based utility mod.",
+  "description": "KittyWare :3",
   "authors": [
     "PantheraKitty"
   ],
@@ -13,7 +13,7 @@
     "sources": "",
     "discord": ""
   },
-  "license": "GPL-3.0",
+  "license": "NSO license",
   "icon": "assets/meteor-client/icon.png",
   "environment": "client",
   "entrypoints": {
@@ -32,7 +32,7 @@
   "accessWidener": "meteor-client.accesswidener",
   "custom": {
     "meteor-client:devbuild": "${devbuild}",
-    "meteor-client:color": "200,165,255",
+    "meteor-client:color": "156,200,255",
     "meteor-client:commit": "${commit}",
     "modmenu": {
       "links": {

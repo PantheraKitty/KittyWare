@@ -40,7 +40,7 @@ public final class ItemDropper extends Module
 
     public ItemDropper()
     {
-        super(Categories.Misc, "item-dropper", "description");
+        super(Categories.Misc, "item-dropper", "Drop single items from hoppers");
     }
 
     @Override
@@ -74,7 +74,6 @@ public final class ItemDropper extends Module
                 }
 
                 dropOneItem(slot);
-                System.out.println(slot);
                 delayTimer.reset();
                 break;
             }

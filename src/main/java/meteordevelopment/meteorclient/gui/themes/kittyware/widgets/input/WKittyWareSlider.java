@@ -3,16 +3,16 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.input;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets.input;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.input.WSlider;
 
-public class WGonbleWareSlider extends WSlider implements GonbleWareWidget
+public class WKittyWareSlider extends WSlider implements KittyWareWidget
 {
-    public WGonbleWareSlider(double value, double min, double max)
+    public WKittyWareSlider(double value, double min, double max)
     {
         super(value, min, max);
     }
@@ -28,7 +28,7 @@ public class WGonbleWareSlider extends WSlider implements GonbleWareWidget
 
     private void renderBar(GuiRenderer renderer, double valueWidth)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
 
         double s = theme.scale(3);
         double handleSize = handleSize();
@@ -42,7 +42,7 @@ public class WGonbleWareSlider extends WSlider implements GonbleWareWidget
 
     private void renderHandle(GuiRenderer renderer, double valueWidth)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
         double s = handleSize();
 
         renderer.quad(x + valueWidth, y, s, s, GuiRenderer.CIRCLE, theme.sliderHandle.get(dragging, handleMouseOver));

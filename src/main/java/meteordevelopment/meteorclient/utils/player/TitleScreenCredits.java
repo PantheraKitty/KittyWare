@@ -109,7 +109,7 @@ public class TitleScreenCredits
                 credit.text.append(Text.literal(i == addon.authors.length - 1 ? " & " : ", ").formatted(Formatting.GRAY));
             }
 
-            credit.text.append(Text.literal(addon.authors[i]).formatted(Formatting.WHITE));
+            credit.text.append(Text.literal(addon.authors[i]).formatted(Formatting.LIGHT_PURPLE));
         }
 
         credits.add(credit);

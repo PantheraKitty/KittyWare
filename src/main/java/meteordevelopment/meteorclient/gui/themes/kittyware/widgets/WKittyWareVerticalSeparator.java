@@ -3,20 +3,20 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.WVerticalSeparator;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
-public class WGonbleWareVerticalSeparator extends WVerticalSeparator implements GonbleWareWidget
+public class WKittyWareVerticalSeparator extends WVerticalSeparator implements KittyWareWidget
 {
     @Override
     protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
         Color colorEdges = theme.separatorEdges.get();
         Color colorCenter = theme.separatorCenter.get();
 

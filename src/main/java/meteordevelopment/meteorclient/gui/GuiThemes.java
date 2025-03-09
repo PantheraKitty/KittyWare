@@ -6,7 +6,7 @@
 package meteordevelopment.meteorclient.gui;
 
 import meteordevelopment.meteorclient.MeteorClient;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
 import meteordevelopment.meteorclient.gui.themes.meteor.MeteorGuiTheme;
 import meteordevelopment.meteorclient.utils.PostInit;
 import meteordevelopment.meteorclient.utils.PreInit;
@@ -27,7 +27,7 @@ public class GuiThemes
 
     private static final List<GuiTheme> themes = new ArrayList<>();
     private static GuiTheme theme;
-    private static boolean hadGonbleWareTheme = false;
+    private static boolean hadKittyWareTheme = false;
 
     private GuiThemes()
     {
@@ -36,7 +36,7 @@ public class GuiThemes
     @PreInit
     public static void init()
     {
-        add(new GonbleWareGuiTheme());
+        add(new KittyWareGuiTheme());
         add(new MeteorGuiTheme());
     }
 
@@ -57,7 +57,7 @@ public class GuiThemes
             }
         }
 
-        if (theme == null) select("GonbleWare");
+        if (theme == null) select("KittyWare");
 
         if (FILE.exists())
         {
@@ -67,10 +67,10 @@ public class GuiThemes
 
                 if (tag != null)
                 {
-                    if (!tag.getBoolean("hadGonbleWareTheme"))
+                    if (!tag.getBoolean("hadKittyWareTheme"))
                     {
-                        select("GonbleWare");
-                        hadGonbleWareTheme = true;
+                        select("KittyWare");
+                        hadKittyWareTheme = true;
                     }
                 }
             }
@@ -183,7 +183,7 @@ public class GuiThemes
         {
             NbtCompound tag = new NbtCompound();
             tag.putString("currentTheme", get().name);
-            tag.putBoolean("hadGonbleWareTheme", hadGonbleWareTheme);
+            tag.putBoolean("hadKittyWareTheme", hadKittyWareTheme);
 
             FOLDER.mkdirs();
             NbtIo.write(tag, FILE.toPath());

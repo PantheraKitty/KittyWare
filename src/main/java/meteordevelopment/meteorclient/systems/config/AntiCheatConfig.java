@@ -30,7 +30,7 @@ public class AntiCheatConfig extends System<AntiCheatConfig>
     public final Setting<Boolean> blockRotatePlace =
         sgBlockPlacement.add(new BoolSetting.Builder().name("block-rotate-place")
             .description("Rotates to place blcks")
-            .defaultValue(false).build());
+            .defaultValue(true).build());
 
     public final Setting<Boolean> blockPlaceAirPlace =
         sgBlockPlacement.add(new BoolSetting.Builder().name("grim-air-place")
@@ -39,7 +39,7 @@ public class AntiCheatConfig extends System<AntiCheatConfig>
 
     public final Setting<Boolean> forceAirPlace = sgBlockPlacement.add(new BoolSetting.Builder()
         .name("force-air-place").description("Only air-places blocks")
-        .defaultValue(true).build());
+        .defaultValue(false).build());
 
     public final Setting<BlockPlacementManager.ItemSwapMode> blockPlaceItemSwapMode =
         sgBlockPlacement.add(

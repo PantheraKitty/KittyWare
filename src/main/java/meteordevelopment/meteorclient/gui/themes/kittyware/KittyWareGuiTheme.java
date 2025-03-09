@@ -3,17 +3,17 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware;
+package meteordevelopment.meteorclient.gui.themes.kittyware;
 
 import meteordevelopment.meteorclient.gui.DefaultSettingsWidgetFactory;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WidgetScreen;
 import meteordevelopment.meteorclient.gui.renderer.packer.GuiTexture;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.*;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.input.WGbonleWareDropdown;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.input.WGonbleWareSlider;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.input.WGonbleWareTextBox;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.pressable.*;
+import meteordevelopment.meteorclient.gui.themes.kittyware.widgets.*;
+import meteordevelopment.meteorclient.gui.themes.kittyware.widgets.input.WKittyWareDropdown;
+import meteordevelopment.meteorclient.gui.themes.kittyware.widgets.input.WKittyWareSlider;
+import meteordevelopment.meteorclient.gui.themes.kittyware.widgets.input.WKittyWareTextBox;
+import meteordevelopment.meteorclient.gui.themes.kittyware.widgets.pressable.*;
 import meteordevelopment.meteorclient.gui.utils.AlignmentX;
 import meteordevelopment.meteorclient.gui.utils.CharFilter;
 import meteordevelopment.meteorclient.gui.widgets.*;
@@ -34,7 +34,7 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC;
 
-public class GonbleWareGuiTheme extends GuiTheme
+public class KittyWareGuiTheme extends GuiTheme
 {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     public final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
@@ -73,8 +73,8 @@ public class GonbleWareGuiTheme extends GuiTheme
         .build()
     );
     private final SettingGroup sgColors = settings.createGroup("Colors");
-    public final Setting<SettingColor> accentColor = color("accent", "Main color of the GUI.", new SettingColor(200, 165, 255, 50));
-    public final Setting<SettingColor> checkboxColor = color("checkbox", "Color of checkbox.", new SettingColor(115, 65, 225, 250));
+    public final Setting<SettingColor> accentColor = color("accent", "Main color of the GUI.", new SettingColor(83, 165, 253, 243));
+    public final Setting<SettingColor> checkboxColor = color("checkbox", "Color of checkbox.", new SettingColor(36, 84, 218, 255));
     public final Setting<SettingColor> plusColor = color("plus", "Color of plus button.", new SettingColor(50, 255, 50));
 
     // General
@@ -84,7 +84,7 @@ public class GonbleWareGuiTheme extends GuiTheme
     public final Setting<SettingColor> highlightColor = color(sgTextColors, "highlight", "Color of highlighting.", new SettingColor(45, 125, 245, 255));
 
     // Colors
-    public final Setting<SettingColor> textColor = color(sgTextColors, "text", "Color of text.", new SettingColor(255, 255, 255));
+    public final Setting<SettingColor> textColor = color(sgTextColors, "text", "Color of text.", new SettingColor(235, 225, 255));
     public final Setting<SettingColor> textDimColor = color(sgTextColors, "text-deactive-color", "Color of deactivated text.", new SettingColor(40, 40, 40, 80));
     public final Setting<SettingColor> textHighlightColor = color(sgTextColors, "text-highlight", "Color of text highlighting.", new SettingColor(45, 125, 245, 255));
     public final Setting<SettingColor> textSecondaryColor = color(sgTextColors, "text-secondary-text", "Color of secondary text.", new SettingColor(150, 150, 150));
@@ -134,13 +134,13 @@ public class GonbleWareGuiTheme extends GuiTheme
     public final ThreeStateColorSetting sliderHandle = new ThreeStateColorSetting(
         sgSlider,
         "slider-handle",
-        new SettingColor(100, 0, 255, 250),
-        new SettingColor(110, 5, 255, 250),
-        new SettingColor(130, 10, 255, 250)
+        new SettingColor(255, 44, 237, 250),
+        new SettingColor(175, 0, 167, 250),
+        new SettingColor(193, 0, 170, 250)
     );
 
     // Slider
-    public final Setting<SettingColor> sliderLeft = color(sgSlider, "slider-left", "Color of slider left part.", new SettingColor(100, 45, 170, 140));
+    public final Setting<SettingColor> sliderLeft = color(sgSlider, "slider-left", "Color of slider left part.", new SettingColor(235, 65, 251, 213));
     public final Setting<SettingColor> sliderRight = color(sgSlider, "slider-right", "Color of slider right part.", new SettingColor(50, 50, 50));
     private final SettingGroup sgStarscript = settings.createGroup("Starscript");
 
@@ -156,9 +156,9 @@ public class GonbleWareGuiTheme extends GuiTheme
     private final Setting<SettingColor> starscriptKeywords = color(sgStarscript, "starscript-keywords", "Color of keywords in Starscript code.", new SettingColor(204, 120, 50));
     private final Setting<SettingColor> starscriptAccessedObjects = color(sgStarscript, "starscript-accessed-objects", "Color of accessed objects (before a dot) in Starscript code.", new SettingColor(152, 118, 170));
 
-    public GonbleWareGuiTheme()
+    public KittyWareGuiTheme()
     {
-        super("GonbleWare");
+        super("KittyWare");
 
         settingsFactory = new DefaultSettingsWidgetFactory(this);
     }
@@ -182,122 +182,122 @@ public class GonbleWareGuiTheme extends GuiTheme
     @Override
     public WWindow window(WWidget icon, String title)
     {
-        return w(new WGonbleWareWindow(icon, title));
+        return w(new WKittyWareWindow(icon, title));
     }
 
     @Override
     public WLabel label(String text, boolean title, double maxWidth)
     {
-        if (maxWidth == 0) return w(new WGonbleWareLabel(text, title));
-        return w(new WGonbleWareMultiLabel(text, title, maxWidth));
+        if (maxWidth == 0) return w(new WKittyWareLabel(text, title));
+        return w(new WKittyWareMultiLabel(text, title, maxWidth));
     }
 
     @Override
     public WHorizontalSeparator horizontalSeparator(String text)
     {
-        return w(new WGonbleWareHorizontalSeparator(text));
+        return w(new WKittyWareHorizontalSeparator(text));
     }
 
     @Override
     public WVerticalSeparator verticalSeparator()
     {
-        return w(new WGonbleWareVerticalSeparator());
+        return w(new WKittyWareVerticalSeparator());
     }
 
     @Override
     protected WButton button(String text, GuiTexture texture)
     {
-        return w(new WGonbleWareButton(text, texture));
+        return w(new WKittyWareButton(text, texture));
     }
 
     @Override
     public WMinus minus()
     {
-        return w(new WGonbleWareMinus());
+        return w(new WKittyWareMinus());
     }
 
     @Override
     public WPlus plus()
     {
-        return w(new WGonbleWarePlus());
+        return w(new WKittyWarePlus());
     }
 
     @Override
     public WCheckbox checkbox(boolean checked)
     {
-        return w(new WGonbleWareCheckbox(checked));
+        return w(new WKittyWareCheckbox(checked));
     }
 
     @Override
     public WSlider slider(double value, double min, double max)
     {
-        return w(new WGonbleWareSlider(value, min, max));
+        return w(new WKittyWareSlider(value, min, max));
     }
 
     @Override
     public WTextBox textBox(String text, String placeholder, CharFilter filter, Class<? extends WTextBox.Renderer> renderer)
     {
-        return w(new WGonbleWareTextBox(text, placeholder, filter, renderer));
+        return w(new WKittyWareTextBox(text, placeholder, filter, renderer));
     }
 
     @Override
     public <T> WDropdown<T> dropdown(T[] values, T value)
     {
-        return w(new WGbonleWareDropdown<>(values, value));
+        return w(new WKittyWareDropdown<>(values, value));
     }
 
     @Override
     public WTriangle triangle()
     {
-        return w(new WGonbleWareTriangle());
+        return w(new WKittyWareTriangle());
     }
 
     @Override
     public WTooltip tooltip(String text)
     {
-        return w(new WGonbleWareTooltip(text));
+        return w(new WKittyWareTooltip(text));
     }
 
     @Override
     public WView view()
     {
-        return w(new WGonbleWareView());
+        return w(new WKittyWareView());
     }
 
     @Override
     public WSection section(String title, boolean expanded, WWidget headerWidget)
     {
-        return w(new WGonbleWareSection(title, expanded, headerWidget));
+        return w(new WKittyWareSection(title, expanded, headerWidget));
     }
 
     @Override
     public WAccount account(WidgetScreen screen, Account<?> account)
     {
-        return w(new WGonbleWareAccount(screen, account));
+        return w(new WKittyWareAccount(screen, account));
     }
 
     @Override
     public WWidget module(Module module)
     {
-        return w(new WGonbleWareModule(module));
+        return w(new WKittyWareModule(module));
     }
 
     @Override
     public WQuad quad(Color color)
     {
-        return w(new WGonbleWareQuad(color));
+        return w(new WKittyWareQuad(color));
     }
 
     @Override
     public WTopBar topBar()
     {
-        return w(new WGonbleWareTopBar());
+        return w(new WKittyWareTopBar());
     }
 
     @Override
     public WFavorite favorite(boolean checked)
     {
-        return w(new WGonbleWareFavorite(checked));
+        return w(new WKittyWareFavorite(checked));
     }
 
     // Colors

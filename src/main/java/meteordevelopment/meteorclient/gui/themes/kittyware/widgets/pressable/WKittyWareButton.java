@@ -3,17 +3,17 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets.pressable;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets.pressable;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.renderer.packer.GuiTexture;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareGuiTheme;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareGuiTheme;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 
-public class WGonbleWareButton extends WButton implements GonbleWareWidget
+public class WKittyWareButton extends WButton implements KittyWareWidget
 {
-    public WGonbleWareButton(String text, GuiTexture texture)
+    public WKittyWareButton(String text, GuiTexture texture)
     {
         super(text, texture);
     }
@@ -21,7 +21,7 @@ public class WGonbleWareButton extends WButton implements GonbleWareWidget
     @Override
     protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
     {
-        GonbleWareGuiTheme theme = theme();
+        KittyWareGuiTheme theme = theme();
         double pad = pad();
 
         renderBackground(renderer, this, pressed, mouseOver);

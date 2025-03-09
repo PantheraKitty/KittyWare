@@ -65,7 +65,7 @@ public class Config extends System<Config>
     public final Setting<Boolean> customWindowTitle = sgVisual.add(new BoolSetting.Builder()
         .name("custom-window-title")
         .description("Show custom text in the window title.")
-        .defaultValue(false)
+        .defaultValue(true)
         .onModuleActivated(setting -> mc.updateWindowTitle())
         .onChanged(value -> mc.updateWindowTitle())
         .build()
@@ -74,7 +74,7 @@ public class Config extends System<Config>
         .name("window-title-text")
         .description("The text it displays in the window title.")
         .visible(customWindowTitle::get)
-        .defaultValue("Minecraft {mc_version} - {meteor.name} {meteor.version}")
+        .defaultValue("{meteor.name} :3")
         .onChanged(value -> mc.updateWindowTitle())
         .build()
     );

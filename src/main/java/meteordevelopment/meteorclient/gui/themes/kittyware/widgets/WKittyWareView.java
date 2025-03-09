@@ -3,13 +3,13 @@
  * Copyright (c) Meteor Development.
  */
 
-package meteordevelopment.meteorclient.gui.themes.gonbleware.widgets;
+package meteordevelopment.meteorclient.gui.themes.kittyware.widgets;
 
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
-import meteordevelopment.meteorclient.gui.themes.gonbleware.GonbleWareWidget;
+import meteordevelopment.meteorclient.gui.themes.kittyware.KittyWareWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WView;
 
-public class WGonbleWareView extends WView implements GonbleWareWidget
+public class WKittyWareView extends WView implements KittyWareWidget
 {
     @Override
     protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta)
