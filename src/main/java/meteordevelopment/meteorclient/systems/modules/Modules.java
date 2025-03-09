@@ -524,7 +524,6 @@ public class Modules extends System<Modules>
         add(new Criticals());
         add(new Hitboxes());
         add(new HoleFiller());
-        add(new KillAura());
         add(new Offhand());
         add(new Quiver());
         add(new SelfAnvil());

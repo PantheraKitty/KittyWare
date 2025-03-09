@@ -11,8 +11,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.combat.AnchorAura;
 import meteordevelopment.meteorclient.systems.modules.combat.BedAura;
-import meteordevelopment.meteorclient.systems.modules.combat.KillAura;
 import meteordevelopment.meteorclient.systems.modules.combat.Surround;
+import meteordevelopment.meteorclient.systems.modules.combat.SwordAura;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class ModuleInfosHud extends HudElement
     private final Setting<List<Module>> modules = sgGeneral.add(new ModuleListSetting.Builder()
         .name("modules")
         .description("Which modules to display")
-        .defaultValue(KillAura.class, AnchorAura.class, BedAura.class, Surround.class)
+        .defaultValue(SwordAura.class, AnchorAura.class, BedAura.class, Surround.class)
         .build()
     );
     private final Setting<Boolean> additionalInfo = sgGeneral.add(new BoolSetting.Builder()

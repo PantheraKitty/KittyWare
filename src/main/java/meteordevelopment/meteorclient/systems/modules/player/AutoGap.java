@@ -17,7 +17,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.combat.AnchorAura;
 import meteordevelopment.meteorclient.systems.modules.combat.BedAura;
-import meteordevelopment.meteorclient.systems.modules.combat.KillAura;
+import meteordevelopment.meteorclient.systems.modules.combat.SwordAura;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.orbit.EventHandler;
@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class AutoGap extends Module
 {
-    private static final Class<? extends Module>[] AURAS = new Class[]{KillAura.class, AnchorAura.class, BedAura.class};
+    private static final Class<? extends Module>[] AURAS = new Class[]{SwordAura.class, AnchorAura.class, BedAura.class};
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgPotions = settings.createGroup("Potions");
