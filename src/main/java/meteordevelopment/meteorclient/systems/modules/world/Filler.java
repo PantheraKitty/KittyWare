@@ -1,10 +1,20 @@
 package meteordevelopment.meteorclient.systems.modules.world;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
-import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.settings.BlockListSetting;
+import meteordevelopment.meteorclient.settings.ColorSetting;
+import meteordevelopment.meteorclient.settings.DoubleSetting;
+import meteordevelopment.meteorclient.settings.EnumSetting;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
@@ -13,18 +23,16 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.*;
-
-public final class Filler extends Module
-{
-    private final SettingGroup sgGeneral = this.settings.getDefaultGroup();
-    private final SettingGroup sgRender = this.settings.createGroup("Render");
+public class Filler extends Module {
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgRender = settings.createGroup("Render");
 
     private final Setting<FillerMode> mode = sgGeneral.add(
         new EnumSetting.Builder<FillerMode>()
@@ -35,7 +43,8 @@ public final class Filler extends Module
     );
 
     private final Setting<List<Block>> blocks = sgGeneral.add(
-        new BlockListSetting.Builder()
+        new BlockListSetting
+            .Builder()
             .name("blocks")
             .description("Which blocks to use.")
             .defaultValue(Blocks.OBSIDIAN)
@@ -44,8 +53,8 @@ public final class Filler extends Module
     );
 
     private final Setting<HorizontalDirection> horizontalDirection = sgGeneral.add(
-        new EnumSetting.Builder<HorizontalDirection>()
-            .name("horizontal-direction")
+        new EnumSetting
+            .Builder<HorizontalDirection>().name("horizontal-direction")
             .description("What direction to fill in horizontally.")
             .defaultValue(HorizontalDirection.East)
             .visible(() -> mode.get() == FillerMode.Horizontal || mode.get() == FillerMode.HorizontalSwim)
@@ -53,7 +62,8 @@ public final class Filler extends Module
     );
 
     private final Setting<PlaneDirection> planeDirection = sgGeneral.add(
-        new EnumSetting.Builder<PlaneDirection>()
+        new EnumSetting
+            .Builder<PlaneDirection>()
             .name("plane-direction")
             .description("What axis to put the plane on.")
             .defaultValue(PlaneDirection.X)
@@ -62,11 +72,11 @@ public final class Filler extends Module
     );
 
     private final Setting<Integer> planeValue = sgGeneral.add(
-        new IntSetting.Builder()
+        new IntSetting
+            .Builder()
             .name("plane-value")
-            .description("The value for the axis on the plane.")
-            .defaultValue(-39)
-            .noSlider()
+            .description("The value for the axis on the plane. Think Direction = X, value = -39 to mean place on X = -39.")
+            .defaultValue(-39).noSlider()
             .visible(() -> mode.get() == FillerMode.Plane)
             .build()
     );
@@ -74,7 +84,7 @@ public final class Filler extends Module
     private final Setting<Integer> planeThickness = sgGeneral.add(
         new IntSetting.Builder()
             .name("plane-thickness")
-            .description("How thick to build the plane.")
+            .description("How thick to build the plane. Useful for building walls.")
             .min(1)
             .sliderMax(4)
             .defaultValue(1)
@@ -82,18 +92,19 @@ public final class Filler extends Module
             .build()
     );
 
-    private final Setting<Double> fadeTime = sgGeneral.add(
+    private final Setting<Double> fadeTime = sgRender.add(
         new DoubleSetting.Builder()
             .name("fade-time")
             .description("How many seconds it takes to fade.")
-            .defaultValue(0.2D)
-            .min(0.0D)
-            .sliderMax(1.0D)
+            .defaultValue(0.2)
+            .min(0)
+            .sliderMax(1.0)
             .build()
     );
 
-    private final Setting<ShapeMode> shapeMode = sgGeneral.add(
-        new EnumSetting.Builder<ShapeMode>()
+    private final Setting<ShapeMode> shapeMode = sgRender.add(
+        new EnumSetting
+            .Builder<ShapeMode>()
             .name("shape-mode")
             .description("How the shapes are rendered.")
             .defaultValue(ShapeMode.Both)
@@ -101,7 +112,8 @@ public final class Filler extends Module
     );
 
     private final Setting<SettingColor> sideColor = sgRender.add(
-        new ColorSetting.Builder()
+        new ColorSetting
+            .Builder()
             .name("side-color")
             .description("The side color.")
             .defaultValue(new SettingColor(85, 0, 255, 40))
@@ -110,16 +122,18 @@ public final class Filler extends Module
     );
 
     private final Setting<SettingColor> lineColor = sgRender.add(
-        new ColorSetting.Builder()
-            .name("line-color")
-            .description("The line color.")
-            .defaultValue(new SettingColor(255, 255, 255, 60))
-            .visible(() -> shapeMode.get() != ShapeMode.Sides)
-            .build()
-    );
+            new ColorSetting
+                    .Builder()
+                    .name("line-color")
+                    .description("The line color.")
+                    .defaultValue(new SettingColor(255, 255, 255, 60))
+                    .visible(() -> shapeMode.get() != ShapeMode.Sides)
+                    .build()
+            );
 
-    private final Mutable mutablePos = new Mutable();
-    private final Map<BlockPos, Long> renderLastPlacedBlock = new HashMap<>();
+    private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+
+    private Map<BlockPos, Long> renderLastPlacedBlock = new HashMap<>();
 
     public Filler()
     {
@@ -127,223 +141,255 @@ public final class Filler extends Module
     }
 
     @EventHandler
-    private void onTick(final TickEvent.Post event)
+    private void onTick(TickEvent.Post event)
     {
-        final long currentTime = System.currentTimeMillis();
-        if (!mc.player.isUsingItem())
+        long currentTime = System.currentTimeMillis();
+
+        if (mc.player.isUsingItem())
         {
-            if (mode.get() != FillerMode.Litematica)
+            return;
+        }
+
+        if (mode.get() != FillerMode.Litematica)
+        {
+            List<BlockPos> placePoses = getBlockPoses();
+
+            boolean canMove = true;
+
+            for (Map.Entry<BlockPos, Long> entry : renderLastPlacedBlock.entrySet())
             {
-                final List<BlockPos> placePoses = getBlockPoses();
-                boolean canMove = true;
-
-                for (final Map.Entry<BlockPos, Long> entry : renderLastPlacedBlock.entrySet())
+                if (currentTime - entry.getValue() > fadeTime.get() * 1000)
                 {
-                    if (!((double) (currentTime - entry.getValue()) > fadeTime.get() * 1000.0))
-                    {
-                        canMove = false;
-                    }
+                    continue;
                 }
 
-                if (!canMove)
-                {
-                    mc.player.input.movementForward = 0.0f;
-                    mc.player.input.movementSideways = 0.0f;
-                }
-
-                placePoses.sort((x, y) -> Double.compare(x.getSquaredDistance(mc.player.getPos()), y.getSquaredDistance(mc.player.getPos())));
-                final Item useItem = findUseItem();
-                if (!MeteorClient.BLOCK.beginPlacement(placePoses, useItem))
-                {
-                    return;
-                }
-
-                placePoses.forEach(blockPos ->
-                {
-                    if (MeteorClient.BLOCK.placeBlock(blockPos))
-                    {
-                        renderLastPlacedBlock.put(blockPos, currentTime);
-                    }
-                });
-                MeteorClient.BLOCK.endPlacement();
+                canMove = false;
             }
+
+            if (!canMove)
+            {
+                mc.player.input.movementForward = 0;
+                mc.player.input.movementSideways = 0;
+            }
+
+            placePoses.sort((x, y) ->
+            {
+                return Double.compare(x.getSquaredDistance(mc.player.getPos()),
+                        y.getSquaredDistance(mc.player.getPos()));
+            });
+
+            Item useItem = findUseItem();
+
+            if (!MeteorClient.BLOCK.beginPlacement(placePoses, useItem))
+            {
+                return;
+            }
+
+            placePoses.forEach(blockPos ->
+            {
+                if (MeteorClient.BLOCK.placeBlock(useItem, blockPos))
+                {
+                    renderLastPlacedBlock.put(blockPos, currentTime);
+                }
+            });
+
+            MeteorClient.BLOCK.endPlacement();
         }
     }
 
     @EventHandler
-    private void onRender3D(final Render3DEvent event)
+    private void onRender3D(Render3DEvent event)
     {
-        final long currentTime = System.currentTimeMillis();
-        final Iterator<Map.Entry<BlockPos, Long>> iterator = renderLastPlacedBlock.entrySet().iterator();
+        long currentTime = System.currentTimeMillis();
 
-        while (iterator.hasNext())
+        for (Map.Entry<BlockPos, Long> entry : renderLastPlacedBlock.entrySet())
         {
-            final Map.Entry<BlockPos, Long> entry = iterator.next();
-            if (!((double) (currentTime - entry.getValue()) > fadeTime.get() * 1000.0))
+            if (currentTime - entry.getValue() > fadeTime.get() * 1000)
             {
-                final double time = (double) (currentTime - entry.getValue()) / 1000.0;
-                final double timeCompletion = time / fadeTime.get();
-                final Color fadedSideColor = (sideColor.get()).copy()
-                    .a((int) ((sideColor.get()).a * (1.0 - timeCompletion)));
-                final Color fadedLineColor = (lineColor.get()).copy()
-                    .a((int) ((lineColor.get()).a * (1.0 - timeCompletion)));
-
-                event.renderer.box(entry.getKey(), fadedSideColor, fadedLineColor,
-                    shapeMode.get(), 0);
+                continue;
             }
+
+            double time = (currentTime - entry.getValue()) / 1000.0;
+
+            double timeCompletion = time / fadeTime.get();
+
+            Color fadedSideColor =
+                    sideColor.get().copy().a((int) (sideColor.get().a * (1 - timeCompletion)));
+            Color fadedLineColor =
+                    lineColor.get().copy().a((int) (lineColor.get().a * (1 - timeCompletion)));
+
+            event.renderer.box(entry.getKey(), fadedSideColor, fadedLineColor, shapeMode.get(), 0);
         }
     }
 
     private List<BlockPos> getBlockPoses()
     {
-        final List<BlockPos> placePoses = new ArrayList<>();
-        final int r = 5;
-        final BlockPos eyePos = BlockPos.ofFloored(mc.player.getEyePos());
-        final int ex = eyePos.getX();
-        final int ey = eyePos.getY();
-        final int ez = eyePos.getZ();
+        List<BlockPos> placePoses = new ArrayList<>();
 
-        for (int x = -r; x <= r; ++x)
+        int r = 5;
+        BlockPos eyePos = BlockPos.ofFloored(mc.player.getEyePos());
+
+        int ex = eyePos.getX();
+        int ey = eyePos.getY();
+        int ez = eyePos.getZ();
+
+        for (int x = -r; x <= r; x++)
         {
-            for (int y = -r; y <= r; ++y)
+            for (int y = -r; y <= r; y++)
             {
-                for (int z = -r; z <= r; ++z)
+                for (int z = -r; z <= r; z++)
                 {
-                    final BlockPos pos = mutablePos.set(ex + x, ey + y, ez + z);
-                    switch ((mode.get()).ordinal())
+                    BlockPos pos = mutablePos.set(ex + x, ey + y, ez + z);
+
+                    switch (mode.get())
                     {
-                        case 0:
+                        case Below ->
+                        {
                             if (pos.getY() >= mc.player.getBlockY())
                             {
                                 continue;
                             }
-                            break;
-                        case 1:
+                        }
+                        case Horizontal ->
+                        {
                             if (!directionCheck(pos))
                             {
                                 continue;
                             }
-                            break;
-                        case 2:
+                        }
+                        case HorizontalSwim ->
+                        {
                             if (pos.getY() == mc.player.getBlockY() && !directionCheck(pos))
                             {
                                 continue;
                             }
-                            break;
-                        case 3:
+                        }
+                        case Plane ->
+                        {
                             if (!planeCheck(pos))
                             {
                                 continue;
                             }
+                        }
+                        default ->
+                        {
+
+                        }
                     }
 
-                    if (MeteorClient.BLOCK.checkPlacement(pos) && inPlaceRange(pos))
-                    {
+                    BlockState state = mc.world.getBlockState(pos);
+
+                    if (MeteorClient.BLOCK.checkPlacement(Items.OBSIDIAN, pos, state)
+                            && inPlaceRange(pos)) {
                         placePoses.add(new BlockPos(pos));
                     }
                 }
             }
         }
+
         return placePoses;
     }
 
-
-    private boolean directionCheck(final BlockPos blockPos)
+    private boolean directionCheck(BlockPos blockPos)
     {
-        switch ((horizontalDirection.get()).ordinal())
+        switch (horizontalDirection.get())
         {
-            case 0:
-                if (blockPos.getZ() <= mc.player.getZ())
+            case East ->
+            {
+                if (blockPos.getX() >= mc.player.getBlockX())
                 {
                     return false;
                 }
-                break;
-            case 1:
-                if (blockPos.getZ() >= mc.player.getZ())
+            }
+            case West ->
+            {
+                if (blockPos.getX() <= mc.player.getBlockX())
                 {
                     return false;
                 }
-                break;
-            case 2:
-                if (blockPos.getX() >= mc.player.getX())
+            }
+
+            case South ->
+            {
+                if (blockPos.getZ() >= mc.player.getBlockZ())
                 {
                     return false;
                 }
-                break;
-            case 3:
-                if (blockPos.getX() <= mc.player.getX())
+            }
+            case North ->
+            {
+                if (blockPos.getZ() <= mc.player.getBlockZ())
                 {
                     return false;
                 }
+            }
         }
+
         return true;
     }
 
-    private boolean planeCheck(final BlockPos blockPos)
+    private boolean planeCheck(BlockPos blockPos)
     {
         int blockValue = 0;
-        switch ((planeDirection.get()).ordinal())
-        {
-            case 0:
-                blockValue = blockPos.getX();
-                break;
-            case 2:
-                blockValue = blockPos.getY();
-                break;
-            case 3:
-                blockValue = blockPos.getZ();
-        }
-        return Math.abs(planeValue.get() - blockValue) <= planeThickness.get() - 1;
-    }
 
+        switch (planeDirection.get())
+        {
+            case X -> blockValue = blockPos.getX();
+            case Y -> blockValue = blockPos.getY();
+            case Z -> blockValue = blockPos.getZ();
+        }
+
+        // -1 becuase if planeValue = 32 and blockValue = 32, 32 - 32 = 0, so 0 difference
+        if (Math.abs(planeValue.get() - blockValue) <= (planeThickness.get() - 1))
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     private Item findUseItem()
     {
-        final FindItemResult result = InvUtils.find(itemStack ->
+        FindItemResult result = InvUtils.find(itemStack ->
         {
-            for (final Block blocks : blocks.get())
+            for (Block blocks : blocks.get())
             {
                 if (blocks.asItem() == itemStack.getItem())
                 {
                     return true;
                 }
             }
+
             return false;
         });
-        return !result.found() ? null : mc.player.getInventory().getStack(result.slot()).getItem();
+
+        if (!result.found())
+        {
+            return null;
+        }
+
+        return mc.player.getInventory().getStack(result.slot()).getItem();
     }
 
-    private boolean inPlaceRange(final BlockPos blockPos)
+    private boolean inPlaceRange(BlockPos blockPos)
     {
-        final Vec3d from = mc.player.getPos();
-        return blockPos.toCenterPos().distanceTo(from) <= 5.1D;
+        Vec3d from = mc.player.getEyePos();
+
+        return blockPos.toCenterPos().distanceTo(from) <= 5.1;
     }
 
     private enum FillerMode
     {
-        Below,
-        Horizontal,
-        HorizontalSwim,
-        Plane,
-        Litematica;
+        Below, Horizontal, HorizontalSwim, Plane, Litematica,
     }
 
-    private enum HorizontalDirection
+    public enum HorizontalDirection
     {
-        North,
-        South,
-        East,
-        West;
+        North, South, East, West
     }
 
-    private enum PlaneDirection
+    public enum PlaneDirection
     {
-        X,
-        Y,
-        Z;
+        X, Y, Z
     }
 }
-
-
-
-

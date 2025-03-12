@@ -19,6 +19,7 @@ import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.managers.BlockPlacementManager;
 import meteordevelopment.meteorclient.systems.managers.InformationManager;
 import meteordevelopment.meteorclient.systems.managers.RotationManager;
+import meteordevelopment.meteorclient.systems.managers.SwapManager;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.misc.DiscordPresence;
@@ -46,25 +47,27 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 
-public class MeteorClient implements ClientModInitializer
-{
+public class MeteorClient implements ClientModInitializer {
     public static final String MOD_ID = "meteor-client";
     public static final ModMetadata MOD_META;
     public static final String NAME;
-    public static final Version VERSION;
-    public static final String DEV_BUILD;
+    public static final  Version VERSION;
+    public static final  String DEV_BUILD;
+
+    public static MeteorClient INSTANCE;
+    public static MeteorAddon ADDON;
+
+    public static MinecraftClient mc;
     public static final IEventBus EVENT_BUS = new EventBus();
     public static final File FOLDER = FabricLoader.getInstance().getGameDir().resolve(MOD_ID).toFile();
     public static final Logger LOG;
-    public static MeteorClient INSTANCE;
-    public static MeteorAddon ADDON;
-    public static MinecraftClient mc;
+
     public static RotationManager ROTATION;
     public static BlockPlacementManager BLOCK;
     public static InformationManager INFO;
+    public static SwapManager SWAP;
 
-    static
-    {
+    static {
         MOD_META = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata();
 
         NAME = MOD_META.getName();
@@ -80,18 +83,9 @@ public class MeteorClient implements ClientModInitializer
         DEV_BUILD = MOD_META.getCustomValue(MeteorClient.MOD_ID + ":devbuild").getAsString();
     }
 
-    private boolean wasWidgetScreen, wasHudHiddenRoot;
-
-    public static Identifier identifier(String path)
-    {
-        return Identifier.of(MeteorClient.MOD_ID, path);
-    }
-
     @Override
-    public void onInitializeClient()
-    {
-        if (INSTANCE == null)
-        {
+    public void onInitializeClient() {
+        if (INSTANCE == null) {
             INSTANCE = this;
             return;
         }
@@ -102,8 +96,7 @@ public class MeteorClient implements ClientModInitializer
         mc = MinecraftClient.getInstance();
 
         // Pre-load
-        if (!FOLDER.exists())
-        {
+        if (!FOLDER.exists()) {
             FOLDER.getParentFile().mkdirs();
             FOLDER.mkdir();
             Systems.addPreLoadTask(() -> Modules.get().get(DiscordPresence.class).toggle());
@@ -113,14 +106,10 @@ public class MeteorClient implements ClientModInitializer
         AddonManager.init();
 
         // Register event handlers
-        AddonManager.ADDONS.forEach(addon ->
-        {
-            try
-            {
+        AddonManager.ADDONS.forEach(addon -> {
+            try {
                 EVENT_BUS.registerLambdaFactory(addon.getPackage(), (lookupInMethod, klass) -> (MethodHandles.Lookup) lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
-            }
-            catch (AbstractMethodError e)
-            {
+            } catch (AbstractMethodError e) {
                 throw new RuntimeException("Addon \"%s\" is too old and cannot be ran.".formatted(addon.name), e);
             }
         });
@@ -153,8 +142,7 @@ public class MeteorClient implements ClientModInitializer
         ReflectInit.init(PostInit.class);
 
         // Save on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread(() ->
-        {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             OnlinePlayers.leave();
             Systems.save();
             GuiThemes.save();
@@ -163,51 +151,45 @@ public class MeteorClient implements ClientModInitializer
         ROTATION = new RotationManager();
         BLOCK = new BlockPlacementManager();
         INFO = new InformationManager();
+        SWAP = new SwapManager();
         // BOAT_PATH_FINDER = new NetherPathFindManager();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event)
-    {
-        if (mc.currentScreen == null && mc.getOverlay() == null && KeyBinds.OPEN_COMMANDS.wasPressed())
-        {
+    private void onTick(TickEvent.Post event) {
+        if (mc.currentScreen == null && mc.getOverlay() == null && KeyBinds.OPEN_COMMANDS.wasPressed()) {
             mc.setScreen(new ChatScreen(Config.get().prefix.get()));
         }
     }
 
     @EventHandler
-    private void onKey(KeyEvent event)
-    {
-        if (event.action == KeyAction.Press && KeyBinds.OPEN_GUI.matchesKey(event.key, 0))
-        {
+    private void onKey(KeyEvent event) {
+        if (event.action == KeyAction.Press && KeyBinds.OPEN_GUI.matchesKey(event.key, 0)) {
             toggleGui();
         }
     }
-
-    // Hide HUD
 
     @EventHandler
-    private void onMouseButton(MouseButtonEvent event)
-    {
-        if (event.action == KeyAction.Press && KeyBinds.OPEN_GUI.matchesMouse(event.button))
-        {
+    private void onMouseButton(MouseButtonEvent event) {
+        if (event.action == KeyAction.Press && KeyBinds.OPEN_GUI.matchesMouse(event.button)) {
             toggleGui();
         }
     }
 
-    private void toggleGui()
-    {
+    private void toggleGui() {
         if (Utils.canCloseGui()) mc.currentScreen.close();
         else if (Utils.canOpenGui()) Tabs.get().getFirst().openScreen(GuiThemes.get());
     }
 
+    // Hide HUD
+
+    private boolean wasWidgetScreen, wasHudHiddenRoot;
+
     @EventHandler(priority = EventPriority.LOWEST)
-    private void onOpenScreen(OpenScreenEvent event)
-    {
+    private void onOpenScreen(OpenScreenEvent event) {
         boolean hideHud = GuiThemes.get().hideHUD();
 
-        if (hideHud)
-        {
+        if (hideHud) {
             if (!wasWidgetScreen) wasHudHiddenRoot = mc.options.hudHidden;
 
             if (event.screen instanceof WidgetScreen) mc.options.hudHidden = true;
@@ -215,5 +197,9 @@ public class MeteorClient implements ClientModInitializer
         }
 
         wasWidgetScreen = event.screen instanceof WidgetScreen;
+    }
+
+    public static Identifier identifier(String path) {
+        return Identifier.of(MeteorClient.MOD_ID, path);
     }
 }

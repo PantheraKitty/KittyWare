@@ -416,7 +416,7 @@ public class BetterChat extends Module
 
         // Offset
         // Dont offset when it's the GWare
-        if (!((IChatHudLine) (Object) line).meteor$getText().trim().startsWith("[GWare]"))
+        if (!((IChatHudLine) (Object) line).meteor$getText().trim().startsWith("[KittyWare]"))
         {
             context.getMatrices().translate(10, 0, 0);
         }

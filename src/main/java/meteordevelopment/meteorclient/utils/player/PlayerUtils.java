@@ -41,39 +41,35 @@ import net.minecraft.world.RaycastContext;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static meteordevelopment.meteorclient.utils.Utils.WHITE;
 
-public class PlayerUtils
-{
+public class PlayerUtils {
     private static final double diagonal = 1 / Math.sqrt(2);
     private static final Vec3d horizontalVelocity = new Vec3d(0, 0, 0);
 
     private static final Color color = new Color();
 
-    private PlayerUtils()
-    {
-    }
+    private PlayerUtils() {}
 
-    public static Color getPlayerColor(PlayerEntity entity, Color defaultColor)
-    {
-        if (Friends.get().isFriend(entity))
-        {
+    public static Color getPlayerColor(PlayerEntity entity, Color defaultColor) {
+        if (Friends.get().isFriend(entity)) {
             return color.set(Config.get().friendColor.get()).a(defaultColor.a);
         }
 
+        if (Friends.get().isEnemy(entity)) {
+            return color.set(Config.get().enemyColor.get()).a(defaultColor.a);
+        }
+
         if (Config.get().useTeamColor.get() && !color
-            .set(TextUtils.getMostPopularColor(entity.getDisplayName())).equals(WHITE))
-        {
+                .set(TextUtils.getMostPopularColor(entity.getDisplayName())).equals(WHITE)) {
             return color.a(defaultColor.a);
         }
 
         return defaultColor;
     }
 
-    public static Vec3d getHorizontalVelocity(double bps)
-    {
+    public static Vec3d getHorizontalVelocity(double bps) {
         float yaw = mc.player.getYaw();
 
-        if (PathManagers.get().isPathing())
-        {
+        if (PathManagers.get().isPathing()) {
             yaw = PathManagers.get().getTargetYaw();
         }
 
@@ -83,35 +79,30 @@ public class PlayerUtils
         double velZ = 0;
 
         boolean a = false;
-        if (mc.player.input.pressingForward)
-        {
+        if (mc.player.input.pressingForward) {
             velX += forward.x / 20 * bps;
             velZ += forward.z / 20 * bps;
             a = true;
         }
-        if (mc.player.input.pressingBack)
-        {
+        if (mc.player.input.pressingBack) {
             velX -= forward.x / 20 * bps;
             velZ -= forward.z / 20 * bps;
             a = true;
         }
 
         boolean b = false;
-        if (mc.player.input.pressingRight)
-        {
+        if (mc.player.input.pressingRight) {
             velX += right.x / 20 * bps;
             velZ += right.z / 20 * bps;
             b = true;
         }
-        if (mc.player.input.pressingLeft)
-        {
+        if (mc.player.input.pressingLeft) {
             velX -= right.x / 20 * bps;
             velZ -= right.z / 20 * bps;
             b = true;
         }
 
-        if (a && b)
-        {
+        if (a && b) {
             velX *= diagonal;
             velZ *= diagonal;
         }
@@ -120,42 +111,39 @@ public class PlayerUtils
         return horizontalVelocity;
     }
 
-    public static void centerPlayer()
-    {
+    public static void centerPlayer() {
         double x = MathHelper.floor(mc.player.getX()) + 0.5;
         double z = MathHelper.floor(mc.player.getZ()) + 0.5;
         mc.player.setPosition(x, mc.player.getY(), z);
         mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
-            mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.isOnGround()));
+                mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.isOnGround()));
     }
 
-    public static boolean canSeeEntity(Entity entity)
-    {
+    public static boolean canSeeEntity(Entity entity) {
         Vec3d vec1 = new Vec3d(0, 0, 0);
         Vec3d vec2 = new Vec3d(0, 0, 0);
 
         ((IVec3d) vec1).set(mc.player.getX(), mc.player.getY() + mc.player.getStandingEyeHeight(),
-            mc.player.getZ());
+                mc.player.getZ());
         ((IVec3d) vec2).set(entity.getX(), entity.getY(), entity.getZ());
         boolean canSeeFeet = mc.world
-            .raycast(new RaycastContext(vec1, vec2, RaycastContext.ShapeType.COLLIDER,
-                RaycastContext.FluidHandling.NONE, mc.player))
-            .getType() == HitResult.Type.MISS;
+                .raycast(new RaycastContext(vec1, vec2, RaycastContext.ShapeType.COLLIDER,
+                        RaycastContext.FluidHandling.NONE, mc.player))
+                .getType() == HitResult.Type.MISS;
 
         ((IVec3d) vec2).set(entity.getX(), entity.getY() + entity.getStandingEyeHeight(),
-            entity.getZ());
+                entity.getZ());
         boolean canSeeEyes = mc.world
-            .raycast(new RaycastContext(vec1, vec2, RaycastContext.ShapeType.COLLIDER,
-                RaycastContext.FluidHandling.NONE, mc.player))
-            .getType() == HitResult.Type.MISS;
+                .raycast(new RaycastContext(vec1, vec2, RaycastContext.ShapeType.COLLIDER,
+                        RaycastContext.FluidHandling.NONE, mc.player))
+                .getType() == HitResult.Type.MISS;
 
         return canSeeFeet || canSeeEyes;
     }
 
-    public static float[] calculateAngle(Vec3d target)
-    {
+    public static float[] calculateAngle(Vec3d target) {
         Vec3d eyesPos = new Vec3d(mc.player.getX(),
-            mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ());
+                mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()), mc.player.getZ());
 
         double dX = target.x - eyesPos.x;
         double dY = (target.y - eyesPos.y) * -1.0D;
@@ -163,68 +151,60 @@ public class PlayerUtils
 
         double dist = Math.sqrt(dX * dX + dZ * dZ);
 
-        return new float[]{
-            (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(dZ, dX)) - 90.0D),
-            (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(dY, dist)))};
+        return new float[] {
+                (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(dZ, dX)) - 90.0D),
+                (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(dY, dist)))};
     }
 
-    public static boolean shouldPause(boolean ifBreaking, boolean ifEating, boolean ifDrinking)
-    {
+    public static boolean shouldPause(boolean ifBreaking, boolean ifEating, boolean ifDrinking) {
         if (ifBreaking && mc.interactionManager.isBreakingBlock())
             return true;
         if (ifEating && (mc.player.isUsingItem() && (mc.player.getMainHandStack().getItem()
-            .getComponents().contains(DataComponentTypes.FOOD)
-            || mc.player.getOffHandStack().getItem().getComponents()
-            .contains(DataComponentTypes.FOOD))))
+                .getComponents().contains(DataComponentTypes.FOOD)
+                || mc.player.getOffHandStack().getItem().getComponents()
+                        .contains(DataComponentTypes.FOOD))))
             return true;
         return ifDrinking && (mc.player.isUsingItem()
-            && (mc.player.getMainHandStack().getItem() instanceof PotionItem
-            || mc.player.getOffHandStack().getItem() instanceof PotionItem));
+                && (mc.player.getMainHandStack().getItem() instanceof PotionItem
+                        || mc.player.getOffHandStack().getItem() instanceof PotionItem));
     }
 
-    public static boolean isMoving()
-    {
+    public static boolean isMoving() {
         return mc.player.forwardSpeed != 0 || mc.player.sidewaysSpeed != 0;
     }
 
-    public static boolean isSprinting()
-    {
+    public static boolean isSprinting() {
         return mc.player.isSprinting()
-            && (mc.player.forwardSpeed != 0 || mc.player.sidewaysSpeed != 0);
+                && (mc.player.forwardSpeed != 0 || mc.player.sidewaysSpeed != 0);
     }
 
-    public static boolean isInHole(boolean doubles)
-    {
+    public static boolean isInHole(boolean doubles) {
         if (!Utils.canUpdate())
             return false;
 
         BlockPos blockPos = mc.player.getBlockPos();
         int air = 0;
 
-        for (Direction direction : Direction.values())
-        {
+        for (Direction direction : Direction.values()) {
             if (direction == Direction.UP)
                 continue;
 
             BlockState state = mc.world.getBlockState(blockPos.offset(direction));
 
-            if (state.getBlock().getBlastResistance() < 600)
-            {
+            if (state.getBlock().getBlastResistance() < 600) {
                 if (!doubles || direction == Direction.DOWN)
                     return false;
 
                 air++;
 
-                for (Direction dir : Direction.values())
-                {
+                for (Direction dir : Direction.values()) {
                     if (dir == direction.getOpposite() || dir == Direction.UP)
                         continue;
 
                     BlockState blockState1 =
-                        mc.world.getBlockState(blockPos.offset(direction).offset(dir));
+                            mc.world.getBlockState(blockPos.offset(direction).offset(dir));
 
-                    if (blockState1.getBlock().getBlastResistance() < 600)
-                    {
+                    if (blockState1.getBlock().getBlastResistance() < 600) {
                         return false;
                     }
                 }
@@ -234,30 +214,24 @@ public class PlayerUtils
         return air < 2;
     }
 
-    public static float possibleHealthReductions()
-    {
+    public static float possibleHealthReductions() {
         return possibleHealthReductions(true, true);
     }
 
-    public static float possibleHealthReductions(boolean entities, boolean fall)
-    {
+    public static float possibleHealthReductions(boolean entities, boolean fall) {
         float damageTaken = 0;
 
-        if (entities)
-        {
-            for (Entity entity : mc.world.getEntities())
-            {
+        if (entities) {
+            for (Entity entity : mc.world.getEntities()) {
                 // Check for end crystals
-                if (entity instanceof EndCrystalEntity)
-                {
+                if (entity instanceof EndCrystalEntity) {
                     float crystalDamage = DamageUtils.crystalDamage(mc.player, entity.getPos());
                     if (crystalDamage > damageTaken)
                         damageTaken = crystalDamage;
                 }
                 // Check for players holding swords
                 else if (entity instanceof PlayerEntity player && !Friends.get().isFriend(player)
-                    && isWithin(entity, 5))
-                {
+                        && isWithin(entity, 5)) {
                     float attackDamage = DamageUtils.getAttackDamage(player, mc.player);
                     if (attackDamage > damageTaken)
                         damageTaken = attackDamage;
@@ -265,15 +239,12 @@ public class PlayerUtils
             }
 
             // Check for beds if in nether
-            if (PlayerUtils.getDimension() != Dimension.Overworld)
-            {
-                for (BlockEntity blockEntity : Utils.blockEntities())
-                {
+            if (PlayerUtils.getDimension() != Dimension.Overworld) {
+                for (BlockEntity blockEntity : Utils.blockEntities()) {
                     BlockPos bp = blockEntity.getPos();
                     Vec3d pos = new Vec3d(bp.getX(), bp.getY(), bp.getZ());
 
-                    if (blockEntity instanceof BedBlockEntity)
-                    {
+                    if (blockEntity instanceof BedBlockEntity) {
                         float explosionDamage = DamageUtils.bedDamage(mc.player, pos);
                         if (explosionDamage > damageTaken)
                             damageTaken = explosionDamage;
@@ -283,14 +254,11 @@ public class PlayerUtils
         }
 
         // Check for fall distance with water check
-        if (fall)
-        {
-            if (!Modules.get().isActive(NoFall.class) && mc.player.fallDistance > 3)
-            {
+        if (fall) {
+            if (!Modules.get().isActive(NoFall.class) && mc.player.fallDistance > 3) {
                 float damage = DamageUtils.fallDamage(mc.player);
 
-                if (damage > damageTaken && !EntityUtils.isAboveWater(mc.player))
-                {
+                if (damage > damageTaken && !EntityUtils.isAboveWater(mc.player)) {
                     damageTaken = damage;
                 }
             }
@@ -300,242 +268,200 @@ public class PlayerUtils
     }
 
     public static double distance(double x1, double y1, double z1, double x2, double y2,
-                                  double z2)
-    {
+            double z2) {
         return Math.sqrt(squaredDistance(x1, y1, z1, x2, y2, z2));
     }
 
-    public static double distanceTo(Entity entity)
-    {
+    public static double distanceTo(Entity entity) {
         return distanceTo(entity.getX(), entity.getY(), entity.getZ());
     }
 
-    public static double distanceTo(BlockPos blockPos)
-    {
+    public static double distanceTo(BlockPos blockPos) {
         return distanceTo(blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
 
-    public static double distanceTo(Vec3d vec3d)
-    {
+    public static double distanceTo(Vec3d vec3d) {
         return distanceTo(vec3d.getX(), vec3d.getY(), vec3d.getZ());
     }
 
-    public static double distanceTo(double x, double y, double z)
-    {
+    public static double distanceTo(double x, double y, double z) {
         return Math.sqrt(squaredDistanceTo(x, y, z));
     }
 
-    public static double squaredDistanceTo(Entity entity)
-    {
+    public static double squaredDistanceTo(Entity entity) {
         return squaredDistanceTo(entity.getX(), entity.getY(), entity.getZ());
     }
 
-    public static double squaredDistanceTo(BlockPos blockPos)
-    {
+    public static double squaredDistanceTo(BlockPos blockPos) {
         return squaredDistanceTo(blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
 
-    public static double squaredDistanceTo(double x, double y, double z)
-    {
+    public static double squaredDistanceTo(double x, double y, double z) {
         return squaredDistance(mc.player.getX(), mc.player.getY(), mc.player.getZ(), x, y, z);
     }
 
     public static double squaredDistance(double x1, double y1, double z1, double x2, double y2,
-                                         double z2)
-    {
+            double z2) {
         double f = x1 - x2;
         double g = y1 - y2;
         double h = z1 - z2;
         return org.joml.Math.fma(f, f, org.joml.Math.fma(g, g, h * h));
     }
 
-    public static boolean isWithin(Entity entity, double r)
-    {
+    public static boolean isWithin(Entity entity, double r) {
         return squaredDistanceTo(entity.getX(), entity.getY(), entity.getZ()) <= r * r;
     }
 
-    public static boolean isWithin(Vec3d vec3d, double r)
-    {
+    public static boolean isWithin(Vec3d vec3d, double r) {
         return squaredDistanceTo(vec3d.getX(), vec3d.getY(), vec3d.getZ()) <= r * r;
     }
 
-    public static boolean isWithin(BlockPos blockPos, double r)
-    {
+    public static boolean isWithin(BlockPos blockPos, double r) {
         return squaredDistanceTo(blockPos.getX(), blockPos.getY(), blockPos.getZ()) <= r * r;
     }
 
-    public static boolean isWithin(double x, double y, double z, double r)
-    {
+    public static boolean isWithin(double x, double y, double z, double r) {
         return squaredDistanceTo(x, y, z) <= r * r;
     }
 
-    public static double distanceToCamera(double x, double y, double z)
-    {
+    public static double distanceToCamera(double x, double y, double z) {
         return Math.sqrt(squaredDistanceToCamera(x, y, z));
     }
 
-    public static double distanceToCamera(Entity entity)
-    {
+    public static double distanceToCamera(Entity entity) {
         return distanceToCamera(entity.getX(),
-            entity.getY() + entity.getEyeHeight(entity.getPose()), entity.getZ());
+                entity.getY() + entity.getEyeHeight(entity.getPose()), entity.getZ());
     }
 
-    public static double squaredDistanceToCamera(double x, double y, double z)
-    {
+    public static double squaredDistanceToCamera(double x, double y, double z) {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         return squaredDistance(cameraPos.x, cameraPos.y, cameraPos.z, x, y, z);
     }
 
-    public static double squaredDistanceToCamera(Entity entity)
-    {
+    public static double squaredDistanceToCamera(Entity entity) {
         return squaredDistanceToCamera(entity.getX(),
-            entity.getY() + entity.getEyeHeight(entity.getPose()), entity.getZ());
+                entity.getY() + entity.getEyeHeight(entity.getPose()), entity.getZ());
     }
 
-    public static boolean isWithinCamera(Entity entity, double r)
-    {
+    public static boolean isWithinCamera(Entity entity, double r) {
         return squaredDistanceToCamera(entity.getX(), entity.getY(), entity.getZ()) <= r * r;
     }
 
-    public static boolean isWithinCamera(Vec3d vec3d, double r)
-    {
+    public static boolean isWithinCamera(Vec3d vec3d, double r) {
         return squaredDistanceToCamera(vec3d.getX(), vec3d.getY(), vec3d.getZ()) <= r * r;
     }
 
-    public static boolean isWithinCamera(BlockPos blockPos, double r)
-    {
+    public static boolean isWithinCamera(BlockPos blockPos, double r) {
         return squaredDistanceToCamera(blockPos.getX(), blockPos.getY(), blockPos.getZ()) <= r * r;
     }
 
-    public static boolean isWithinCamera(double x, double y, double z, double r)
-    {
+    public static boolean isWithinCamera(double x, double y, double z, double r) {
         return squaredDistanceToCamera(x, y, z) <= r * r;
     }
 
-    public static boolean isWithinReach(Entity entity)
-    {
+    public static boolean isWithinReach(Entity entity) {
         return isWithinReach(entity.getX(), entity.getY(), entity.getZ());
     }
 
-    public static boolean isWithinReach(Vec3d vec3d)
-    {
+    public static boolean isWithinReach(Vec3d vec3d) {
         return isWithinReach(vec3d.getX(), vec3d.getY(), vec3d.getZ());
     }
 
-    public static boolean isWithinReach(BlockPos blockPos)
-    {
+    public static boolean isWithinReach(BlockPos blockPos) {
         return isWithinReach(blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
 
-    public static boolean isWithinReach(double x, double y, double z)
-    {
+    public static boolean isWithinReach(double x, double y, double z) {
         return squaredDistance(mc.player.getX(), mc.player.getEyeY(), mc.player.getZ(), x, y,
-            z) <= mc.player.getBlockInteractionRange() * mc.player.getBlockInteractionRange();
+                z) <= mc.player.getBlockInteractionRange() * mc.player.getBlockInteractionRange();
     }
 
-    public static Dimension getDimension()
-    {
+    public static Dimension getDimension() {
         if (mc.world == null)
             return Dimension.Overworld;
 
-        return switch (mc.world.getRegistryKey().getValue().getPath())
-        {
+        return switch (mc.world.getRegistryKey().getValue().getPath()) {
             case "the_nether" -> Dimension.Nether;
             case "the_end" -> Dimension.End;
             default -> Dimension.Overworld;
         };
     }
 
-    public static GameMode getGameMode()
-    {
+    public static GameMode getGameMode() {
         if (mc.player == null)
             return null;
         PlayerListEntry playerListEntry =
-            mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid());
+                mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid());
         if (playerListEntry == null)
             return null;
         return playerListEntry.getGameMode();
     }
 
-    public static float getTotalHealth()
-    {
+    public static float getTotalHealth() {
         return mc.player.getHealth() + mc.player.getAbsorptionAmount();
     }
 
-    public static boolean isAlive()
-    {
+    public static boolean isAlive() {
         return mc.player.isAlive() && !mc.player.isDead();
     }
 
-    public static int getPing()
-    {
+    public static int getPing() {
         if (mc.getNetworkHandler() == null)
             return 0;
 
         PlayerListEntry playerListEntry =
-            mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid());
+                mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid());
         if (playerListEntry == null)
             return 0;
         return playerListEntry.getLatency();
     }
 
-    public static Vec3d movementInputToVelocity(Vec3d movementInput, float speed, float yaw)
-    {
+    public static Vec3d movementInputToVelocity(Vec3d movementInput, float speed, float yaw) {
         double d = movementInput.lengthSquared();
-        if (d < 1.0E-7)
-        {
+        if (d < 1.0E-7) {
             return Vec3d.ZERO;
-        } else
-        {
+        } else {
             Vec3d vec3d = (d > 1.0 ? movementInput.normalize() : movementInput).multiply(speed);
             float f = MathHelper.sin(yaw * 0.017453292F);
             float g = MathHelper.cos(yaw * 0.017453292F);
             return new Vec3d(vec3d.x * (double) g - vec3d.z * (double) f, vec3d.y,
-                vec3d.z * (double) g + vec3d.x * (double) f);
+                    vec3d.z * (double) g + vec3d.x * (double) f);
         }
     }
 
-    public static boolean silentSwapEquipChestplate()
-    {
+    public static boolean silentSwapEquipChestplate() {
         if (mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem()
-            .equals(Items.DIAMOND_CHESTPLATE)
-            || mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem()
-            .equals(Items.NETHERITE_CHESTPLATE))
-        {
+                .equals(Items.DIAMOND_CHESTPLATE)
+                || mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem()
+                        .equals(Items.NETHERITE_CHESTPLATE)) {
             return false;
         }
 
         FindItemResult hotbarChestplateSlot = InvUtils.findInHotbar(Items.NETHERITE_CHESTPLATE);
-        if (!hotbarChestplateSlot.found())
-        {
+        if (!hotbarChestplateSlot.found()) {
             hotbarChestplateSlot = InvUtils.findInHotbar(Items.DIAMOND_CHESTPLATE);
         }
 
         // If we have a chestplate in our hotbar, we can immediately swap
-        if (hotbarChestplateSlot.found())
-        {
+        if (hotbarChestplateSlot.found()) {
             mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, 6,
-                hotbarChestplateSlot.slot(), SlotActionType.SWAP, mc.player);
+                    hotbarChestplateSlot.slot(), SlotActionType.SWAP, mc.player);
             return true;
         }
 
         // Search for the chestplate in the inventory
         FindItemResult inventorySlot = InvUtils.find(Items.NETHERITE_CHESTPLATE);
-        if (!inventorySlot.found())
-        {
+        if (!inventorySlot.found()) {
             inventorySlot = InvUtils.find(Items.DIAMOND_CHESTPLATE);
         }
 
-        if (!inventorySlot.found())
-        {
+        if (!inventorySlot.found()) {
             return false;
         }
 
         // Pick a good slot in the hotbar that isn't a totem (try to prevent tfails while dhanding?)
-        FindItemResult hotbarSlot = InvUtils.findInHotbar(x ->
-        {
-            if (x.getItem() == Items.TOTEM_OF_UNDYING)
-            {
+        FindItemResult hotbarSlot = InvUtils.findInHotbar(x -> {
+            if (x.getItem() == Items.TOTEM_OF_UNDYING) {
                 return false;
             }
             return true;
@@ -543,46 +469,40 @@ public class PlayerUtils
 
         // Move chestplate to hotbarSlot
         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, inventorySlot.slot(),
-            hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
+                hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
 
         // Equip chestplate
         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, 6,
-            hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
+                hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
 
         // Move old item back to hotbar slot
         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, inventorySlot.slot(),
-            hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
+                hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
 
         return true;
     }
 
-    public static boolean silentSwapEquipElytra()
-    {
-        if (mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem().equals(Items.ELYTRA))
-        {
+    public static boolean silentSwapEquipElytra() {
+        if (mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem().equals(Items.ELYTRA)) {
             return false;
         }
 
         FindItemResult inventorySlot = InvUtils.findInHotbar(Items.ELYTRA);
 
-        if (inventorySlot.found())
-        {
+        if (inventorySlot.found()) {
             mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, 6,
-                inventorySlot.slot(), SlotActionType.SWAP, mc.player);
+                    inventorySlot.slot(), SlotActionType.SWAP, mc.player);
             return true;
         }
 
         inventorySlot = InvUtils.find(Items.ELYTRA);
 
-        if (!inventorySlot.found())
-        {
+        if (!inventorySlot.found()) {
             return false;
         }
 
-        FindItemResult hotbarSlot = InvUtils.findInHotbar(x ->
-        {
-            if (x.getItem() == Items.TOTEM_OF_UNDYING)
-            {
+        FindItemResult hotbarSlot = InvUtils.findInHotbar(x -> {
+            if (x.getItem() == Items.TOTEM_OF_UNDYING) {
                 return false;
             }
             return true;
@@ -590,16 +510,26 @@ public class PlayerUtils
 
         // Move elytra to hotbarSlot
         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, inventorySlot.slot(),
-            hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
+                hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
 
         // Equip elytra
         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, 6,
-            hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
+                hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
 
         // Move old item back to hotbar slot
         mc.interactionManager.clickSlot(mc.player.playerScreenHandler.syncId, inventorySlot.slot(),
-            hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
+                hotbarSlot.found() ? hotbarSlot.slot() : 0, SlotActionType.SWAP, mc.player);
 
         return true;
+    }
+
+    // Thanks Vasler
+    public static boolean isPlayerPhased() {
+        return mc.world.getBlockCollisions(mc.player, mc.player.getBoundingBox()).iterator()
+                .hasNext();
+    }
+
+    public static boolean isPlayerPhased(PlayerEntity player) {
+        return mc.world.getBlockCollisions(player, player.getBoundingBox()).iterator().hasNext();
     }
 }
