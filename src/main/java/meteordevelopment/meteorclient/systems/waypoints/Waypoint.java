@@ -38,13 +38,6 @@ public class Waypoint implements ISerializable<Waypoint>
         .description("The color of the waypoint.")
         .defaultValue(MeteorClient.ADDON.color.toSetting())
         .build()
-    );    public Setting<String> icon = sgVisual.add(new ProvidedStringSetting.Builder()
-        .name("icon")
-        .description("The icon of the waypoint.")
-        .defaultValue("Square")
-        .supplier(() -> Waypoints.BUILTIN_ICONS)
-        .onChanged(v -> validateIcon())
-        .build()
     );
     public Setting<Boolean> visible = sgVisual.add(new BoolSetting.Builder()
         .name("visible")
@@ -56,6 +49,13 @@ public class Waypoint implements ISerializable<Waypoint>
         .name("max-visible-distance")
         .description("How far away to render the waypoint.")
         .defaultValue(5000)
+        .build()
+    );    public Setting<String> icon = sgVisual.add(new ProvidedStringSetting.Builder()
+        .name("icon")
+        .description("The icon of the waypoint.")
+        .defaultValue("Square")
+        .supplier(() -> Waypoints.BUILTIN_ICONS)
+        .onChanged(v -> validateIcon())
         .build()
     );
     public Setting<Double> scale = sgVisual.add(new DoubleSetting.Builder()
@@ -71,14 +71,12 @@ public class Waypoint implements ISerializable<Waypoint>
         .defaultValue(BlockPos.ORIGIN)
         .build()
     );
-
     public Setting<Dimension> dimension = sgPosition.add(new EnumSetting.Builder<Dimension>()
         .name("dimension")
         .description("Which dimension the waypoint is in.")
         .defaultValue(Dimension.Overworld)
         .build()
     );
-
     public Setting<Boolean> opposite = sgPosition.add(new BoolSetting.Builder()
         .name("opposite-dimension")
         .description("Whether to show the waypoint in the opposite dimension.")
@@ -86,7 +84,6 @@ public class Waypoint implements ISerializable<Waypoint>
         .visible(() -> dimension.get() != Dimension.End)
         .build()
     );
-
     private Waypoint()
     {
         uuid = UUID.randomUUID();
@@ -230,6 +227,8 @@ public class Waypoint implements ISerializable<Waypoint>
             return waypoint;
         }
     }
+
+
 
 
 }

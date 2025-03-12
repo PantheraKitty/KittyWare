@@ -168,7 +168,7 @@ public class Notifier extends Module
             if (event.entity instanceof PlayerEntity player)
             {
                 if ((!visualRangeIgnoreFriends.get()
-                    || !Friends.get().isFriend(((PlayerEntity) event.entity)))
+                    || !Friends.get().isFriend(player))
                     && (!visualRangeIgnoreFakes.get()
                     || !(event.entity instanceof FakePlayerEntity)))
                 {
@@ -204,7 +204,7 @@ public class Notifier extends Module
             if (event.entity instanceof PlayerEntity player)
             {
                 if ((!visualRangeIgnoreFriends.get()
-                    || !Friends.get().isFriend(((PlayerEntity) event.entity)))
+                    || !Friends.get().isFriend(player))
                     && (!visualRangeIgnoreFakes.get()
                     || !(event.entity instanceof FakePlayerEntity)))
                 {

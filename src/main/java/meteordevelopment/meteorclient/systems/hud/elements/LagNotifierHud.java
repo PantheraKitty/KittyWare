@@ -16,16 +16,15 @@ import meteordevelopment.meteorclient.utils.world.TickRate;
 
 public class LagNotifierHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<LagNotifierHud> INFO = new HudElementInfo<>(Hud.GROUP, "lag-notifier", "Displays if the server is lagging in ticks.", LagNotifierHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgScale = settings.createGroup("Scale");
-    private final SettingGroup sgBackground = settings.createGroup("Background");
+    private final SettingGroup sgBackground = settings.createGroup("Background");    public static final HudElementInfo<LagNotifierHud> INFO = new HudElementInfo<>(Hud.GROUP, "lag-notifier", "Displays if the server is lagging in ticks.", LagNotifierHud::new);
     private final Setting<Boolean> shadow = sgGeneral.add(new BoolSetting.Builder()
         .name("shadow")
         .description("Text shadow.")
         .defaultValue(true)
         .build()
     );
-
     // General
     private final Setting<SettingColor> textColor = sgGeneral.add(new ColorSetting.Builder()
         .name("text-color")
@@ -63,7 +62,6 @@ public class LagNotifierHud extends HudElement
         .defaultValue(false)
         .build()
     );
-
     // Scale
     private final Setting<Double> scale = sgScale.add(new DoubleSetting.Builder()
         .name("scale")
@@ -80,7 +78,6 @@ public class LagNotifierHud extends HudElement
         .defaultValue(false)
         .build()
     );
-
     // Background
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
@@ -89,7 +86,6 @@ public class LagNotifierHud extends HudElement
         .defaultValue(new SettingColor(25, 25, 25, 50))
         .build()
     );
-
     public LagNotifierHud()
     {
         super(INFO);
@@ -144,6 +140,8 @@ public class LagNotifierHud extends HudElement
     {
         return customScale.get() ? scale.get() : -1;
     }
+
+
 
 
 }

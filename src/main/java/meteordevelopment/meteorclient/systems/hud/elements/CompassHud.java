@@ -17,16 +17,15 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class CompassHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<CompassHud> INFO = new HudElementInfo<>(Hud.GROUP, "compass", "Displays a compass.", CompassHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgTextScale = settings.createGroup("Text Scale");
-    private final SettingGroup sgBackground = settings.createGroup("Background");
+    private final SettingGroup sgBackground = settings.createGroup("Background");    public static final HudElementInfo<CompassHud> INFO = new HudElementInfo<>(Hud.GROUP, "compass", "Displays a compass.", CompassHud::new);
     private final Setting<CompassHud.Mode> mode = sgGeneral.add(new EnumSetting.Builder<CompassHud.Mode>()
         .name("type")
         .description("Which type of direction information to show.")
         .defaultValue(Mode.Axis)
         .build()
     );
-
     // General
     private final Setting<SettingColor> colorNorth = sgGeneral.add(new ColorSetting.Builder()
         .name("color-north")
@@ -38,14 +37,6 @@ public class CompassHud extends HudElement
         .name("color-north")
         .description("Color of other directions.")
         .defaultValue(new SettingColor())
-        .build()
-    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("The scale.")
-        .defaultValue(1)
-        .min(1)
-        .sliderRange(1, 5)
-        .onChanged(aDouble -> calculateSize())
         .build()
     );
     private final Setting<Boolean> shadow = sgGeneral.add(new BoolSetting.Builder()
@@ -74,14 +65,15 @@ public class CompassHud extends HudElement
         .description("Displays background.")
         .defaultValue(false)
         .build()
-    );    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
-        .name("border")
-        .description("How much space to add around the element.")
-        .defaultValue(0)
-        .onChanged(integer -> calculateSize())
+    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("The scale.")
+        .defaultValue(1)
+        .min(1)
+        .sliderRange(1, 5)
+        .onChanged(aDouble -> calculateSize())
         .build()
     );
-
     // Scale
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
@@ -90,15 +82,12 @@ public class CompassHud extends HudElement
         .defaultValue(new SettingColor(25, 25, 25, 50))
         .build()
     );
-
     public CompassHud()
     {
         super(INFO);
 
         calculateSize();
     }
-
-    // Background
 
     @Override
     public void setSize(double width, double height)
@@ -146,7 +135,13 @@ public class CompassHud extends HudElement
     private double getX(Direction direction, double yaw)
     {
         return Math.sin(getPos(direction, yaw)) * scale.get() * 40;
-    }
+    }    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
+        .name("border")
+        .description("How much space to add around the element.")
+        .defaultValue(0)
+        .onChanged(integer -> calculateSize())
+        .build()
+    );
 
     private double getY(Direction direction, double yaw, double pitch)
     {
@@ -157,6 +152,8 @@ public class CompassHud extends HudElement
     {
         return yaw + direction.ordinal() * Math.PI / 2;
     }
+
+    // Background
 
     private double getTextScale()
     {
@@ -188,6 +185,8 @@ public class CompassHud extends HudElement
         Direction,
         Axis
     }
+
+
 
 
 

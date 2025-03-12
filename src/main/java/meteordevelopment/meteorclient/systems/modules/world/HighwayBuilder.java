@@ -12,7 +12,6 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.combat.SwordAura;
 import meteordevelopment.meteorclient.systems.modules.player.AutoEat;
 import meteordevelopment.meteorclient.systems.modules.player.AutoGap;
 import meteordevelopment.meteorclient.systems.modules.player.AutoTool;
@@ -453,9 +452,9 @@ public class HighwayBuilder extends Module
     {
         return switch (width.get())
         {
-            default -> 0;
             case 2, 3 -> 1;
             case 4, 5 -> 2;
+            default -> 0;
         };
     }
 
@@ -463,9 +462,9 @@ public class HighwayBuilder extends Module
     {
         return switch (width.get())
         {
-            default -> 0;
             case 3, 4 -> 1;
             case 5 -> 2;
+            default -> 0;
         };
     }
 
@@ -1526,10 +1525,10 @@ public class HighwayBuilder extends Module
                     return switch (i)
                     {
                         case -1 -> pos;
-                        default -> pos.offset(dir.opposite());
                         case 1 -> pos.offset(leftDir);
                         case 2 -> pos.offset(rightDir);
                         case 3 -> pos.offset(dir, 2);
+                        default -> pos.offset(dir.opposite());
                     };
                 }
 
@@ -1868,10 +1867,10 @@ public class HighwayBuilder extends Module
                     return switch (i)
                     {
                         case -1 -> pos;
-                        default -> pos.offset(dir2);
                         case 1 -> pos.offset(dir2.rotateLeftSkipOne());
                         case 2 -> pos.offset(dir2.rotateLeftSkipOne().opposite());
                         case 3 -> pos.offset(dir2.opposite(), 2);
+                        default -> pos.offset(dir2);
                     };
                 }
 

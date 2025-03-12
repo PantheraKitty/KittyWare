@@ -34,6 +34,7 @@ public class Mesh
     private boolean building, rendering3D;
     private double cameraX, cameraZ;
     private boolean beganRendering;
+
     public Mesh(DrawMode drawMode, Attrib... attributes)
     {
         int stride = 0;

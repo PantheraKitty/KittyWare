@@ -6,8 +6,8 @@ public class SilentMineFinishedEvent
 {
     public static class Pre
     {
-        private boolean isRebreak;
-        private BlockPos blockPos;
+        private final boolean isRebreak;
+        private final BlockPos blockPos;
 
         public Pre(BlockPos blockPos, boolean isRebreak)
         {
@@ -28,8 +28,8 @@ public class SilentMineFinishedEvent
 
     public static class Post
     {
-        private boolean isRebreak;
-        private BlockPos blockPos;
+        private final boolean isRebreak;
+        private final BlockPos blockPos;
 
         public Post(BlockPos blockPos, boolean isRebreak)
         {

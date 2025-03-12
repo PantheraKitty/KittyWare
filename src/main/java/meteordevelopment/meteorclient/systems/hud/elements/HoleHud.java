@@ -24,15 +24,14 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class HoleHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<HoleHud> INFO = new HudElementInfo<>(Hud.GROUP, "hole", "Displays information about the hole you are standing in.", HoleHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     public final Setting<List<Block>> safe = sgGeneral.add(new BlockListSetting.Builder()
         .name("safe-blocks")
         .description("Which blocks to consider safe.")
         .defaultValue(Blocks.OBSIDIAN, Blocks.BEDROCK, Blocks.CRYING_OBSIDIAN, Blocks.NETHERITE_BLOCK)
         .build()
     );
-    private final SettingGroup sgBackground = settings.createGroup("Background");
-
+    private final SettingGroup sgBackground = settings.createGroup("Background");    public static final HudElementInfo<HoleHud> INFO = new HudElementInfo<>(Hud.GROUP, "hole", "Displays information about the hole you are standing in.", HoleHud::new);
     // General
     private final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
@@ -46,26 +45,10 @@ public class HoleHud extends HudElement
         .visible(background::get)
         .defaultValue(new SettingColor(25, 25, 25, 50))
         .build()
-    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("The scale.")
-        .defaultValue(2)
-        .onChanged(aDouble -> calculateSize())
-        .min(1)
-        .sliderRange(1, 5)
-        .build()
     );
-    private final Color BG_COLOR = new Color(255, 25, 25, 100);    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
-        .name("border")
-        .description("How much space to add around the element.")
-        .defaultValue(0)
-        .onChanged(integer -> calculateSize())
-        .build()
-    );
-
+    private final Color BG_COLOR = new Color(255, 25, 25, 100);
     // Background
     private final Color OL_COLOR = new Color(255, 25, 25, 255);
-
     public HoleHud()
     {
         super(INFO);
@@ -77,7 +60,15 @@ public class HoleHud extends HudElement
     public void setSize(double width, double height)
     {
         super.setSize(width + border.get() * 2, height + border.get() * 2);
-    }
+    }    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("The scale.")
+        .defaultValue(2)
+        .onChanged(aDouble -> calculateSize())
+        .min(1)
+        .sliderRange(1, 5)
+        .build()
+    );
 
     private void calculateSize()
     {
@@ -108,7 +99,13 @@ public class HoleHud extends HudElement
     {
         if (isInEditor()) return Direction.DOWN;
         return Direction.fromRotation(MathHelper.wrapDegrees(mc.player.getYaw() + dir.offset));
-    }
+    }    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
+        .name("border")
+        .description("How much space to add around the element.")
+        .defaultValue(0)
+        .onChanged(integer -> calculateSize())
+        .build()
+    );
 
     private void drawBlock(HudRenderer renderer, Direction dir, double x, double y)
     {
@@ -151,6 +148,8 @@ public class HoleHud extends HudElement
             this.offset = offset;
         }
     }
+
+
 
 
 

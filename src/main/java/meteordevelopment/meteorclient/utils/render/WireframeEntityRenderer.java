@@ -873,7 +873,7 @@ public class WireframeEntityRenderer
 
         try
         {
-            part.matrix = (Matrix4f) ((Object) matrices.peek().getPositionMatrix().clone());
+            part.matrix = (Matrix4f) matrices.peek().getPositionMatrix().clone();
         }
         catch (CloneNotSupportedException ex)
         {

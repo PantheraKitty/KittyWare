@@ -229,21 +229,17 @@ public class AutoCrystal extends Module
     private final List<Boolean> cachedValidSpots = new ArrayList<>();
 
     private final Set<UUID> deadPlayers = new HashSet<>();
-
+    private final Timer simpleRenderTimer = new Timer();
+    private final Set<BlockPos> _calcIgnoreSet = new HashSet<>();
+    private final Set<BlockPos> _preplaceSet = new HashSet<>();
     private long lastSlowPlaceTimeMS = 0;
     private long lastPlaceTimeMS = 0;
     private long lastBreakTimeMS = 0;
-
     private int silentInvSlot;
     private int selectedSlot;
     private boolean didSilentSwap;
-
     private BlockPos simpleRenderPos = null;
-    private Timer simpleRenderTimer = new Timer();
-
     private AutoMine autoMine;
-    private Set<BlockPos> _calcIgnoreSet = new HashSet<>();
-    private Set<BlockPos> _preplaceSet = new HashSet<>();
 
     public AutoCrystal()
     {
@@ -324,12 +320,7 @@ public class AutoCrystal extends Module
             {
                 PlayerEntity entity = mc.world.getPlayerByUuid(uuid);
 
-                if (entity == null || entity.isDead())
-                {
-                    return false;
-                }
-
-                return true;
+                return entity != null && !entity.isDead();
             });
         }
     }
@@ -991,12 +982,7 @@ public class AutoCrystal extends Module
             }
         }
 
-        if (!damageCheck)
-        {
-            return false;
-        }
-
-        return true;
+        return damageCheck;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -1009,10 +995,7 @@ public class AutoCrystal extends Module
         }
 
         BlockPos blockPos = entity.getBlockPos().down();
-        if (crystalPlaceDelays.containsKey(blockPos))
-        {
-            crystalPlaceDelays.remove(blockPos);
-        }
+        crystalPlaceDelays.remove(blockPos);
 
         if (breakCrystals.get() && packetBreak.get())
         {

@@ -23,76 +23,88 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
+
 import java.util.List;
 
-public class AntiDigDown extends Module {
+public class AntiDigDown extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
     // General
     private final Setting<List<Block>> blocks = sgGeneral.add(
-            new BlockListSetting.Builder().name("whitelist").description("Which blocks to use.")
-                    .defaultValue(Blocks.OBSIDIAN, Blocks.NETHERITE_BLOCK).build());
+        new BlockListSetting.Builder().name("whitelist").description("Which blocks to use.")
+            .defaultValue(Blocks.OBSIDIAN, Blocks.NETHERITE_BLOCK).build());
 
     private final Setting<Integer> range =
-            sgGeneral.add(new IntSetting.Builder().name("target-range")
-                    .description("The range players can be targeted.").defaultValue(4).build());
+        sgGeneral.add(new IntSetting.Builder().name("target-range")
+            .description("The range players can be targeted.").defaultValue(4).build());
 
     private final Setting<SortPriority> priority =
-            sgGeneral.add(new EnumSetting.Builder<SortPriority>().name("target-priority")
-                    .description("How to select the player to target.")
-                    .defaultValue(SortPriority.LowestHealth).build());
+        sgGeneral.add(new EnumSetting.Builder<SortPriority>().name("target-priority")
+            .description("How to select the player to target.")
+            .defaultValue(SortPriority.LowestHealth).build());
 
     private final Setting<Boolean> pauseEat = sgGeneral.add(new BoolSetting.Builder()
-            .name("pause-eat").description("Pauses while eating.").defaultValue(true).build());
+        .name("pause-eat").description("Pauses while eating.").defaultValue(true).build());
 
     // Render
     private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder().name("render")
-            .description("Renders an overlay where blocks will be placed.").defaultValue(true)
-            .build());
+        .description("Renders an overlay where blocks will be placed.").defaultValue(true)
+        .build());
 
     private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("shape-mode").description("How the shapes are rendered.")
-            .defaultValue(ShapeMode.Both).build());
+        .name("shape-mode").description("How the shapes are rendered.")
+        .defaultValue(ShapeMode.Both).build());
 
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-            .name("side-color").description("The side color of the target block rendering.")
-            .defaultValue(new SettingColor(197, 137, 232, 10)).build());
+        .name("side-color").description("The side color of the target block rendering.")
+        .defaultValue(new SettingColor(197, 137, 232, 10)).build());
 
     private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-            .name("line-color").description("The line color of the target block rendering.")
-            .defaultValue(new SettingColor(197, 137, 232)).build());
+        .name("line-color").description("The line color of the target block rendering.")
+        .defaultValue(new SettingColor(197, 137, 232)).build());
 
     private PlayerEntity target;
 
-    public AntiDigDown() {
+    public AntiDigDown()
+    {
         super(Categories.Combat, "anti-dig-down",
-                "Places blocks directly below other players to stop them from digging down.");
+            "Places blocks directly below other players to stop them from digging down.");
     }
 
     @Override
-    public void onActivate() {
+    public void onActivate()
+    {
         target = null;
     }
 
     @Override
-    public void onDeactivate() {
+    public void onDeactivate()
+    {
 
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        if (target == null || TargetUtils.isBadTarget(target, range.get())) {
+    private void onTick(TickEvent.Pre event)
+    {
+        if (target == null || TargetUtils.isBadTarget(target, range.get()))
+        {
             target = TargetUtils.getPlayerTarget(range.get(), priority.get());
             if (TargetUtils.isBadTarget(target, range.get()))
-                return;
+            {
+            }
         }
     }
 
-    private Item findUseItem() {
-        FindItemResult result = InvUtils.findInHotbar(itemStack -> {
-            for (Block blocks : blocks.get()) {
-                if (blocks.asItem() == itemStack.getItem()) {
+    private Item findUseItem()
+    {
+        FindItemResult result = InvUtils.findInHotbar(itemStack ->
+        {
+            for (Block blocks : blocks.get())
+            {
+                if (blocks.asItem() == itemStack.getItem())
+                {
                     return true;
                 }
             }
@@ -100,37 +112,45 @@ public class AntiDigDown extends Module {
             return false;
         });
 
-        if (!result.found()) {
+        if (!result.found())
+        {
             return null;
         }
 
         return mc.player.getInventory().getStack(result.slot()).getItem();
     }
 
-    private BlockPos getBelowBlockPos() {
+    private BlockPos getBelowBlockPos()
+    {
         return target.getBlockPos().down();
     }
 
     @EventHandler
-    private void onPacketReceive(PacketEvent.Receive event) {
-        if (event.packet instanceof BlockUpdateS2CPacket packet) {
-            if (target == null) {
+    private void onPacketReceive(PacketEvent.Receive event)
+    {
+        if (event.packet instanceof BlockUpdateS2CPacket packet)
+        {
+            if (target == null)
+            {
                 return;
             }
 
-            if (pauseEat.get() && mc.player.isUsingItem()) {
+            if (pauseEat.get() && mc.player.isUsingItem())
+            {
                 return;
             }
 
             Item useItem = findUseItem();
 
-            if (useItem == null) {
+            if (useItem == null)
+            {
                 return;
             }
 
             BlockPos belowPos = getBelowBlockPos();
 
-            if (belowPos == null) {
+            if (belowPos == null)
+            {
                 return;
             }
 
@@ -138,15 +158,18 @@ public class AntiDigDown extends Module {
 
             // Don't target blocks we're targeting
             if ((silentMine.getDelayedDestroyBlockPos() != null
-                    && belowPos.equals(silentMine.getDelayedDestroyBlockPos()))
-                    || (silentMine.getRebreakBlockPos() != null
-                            && belowPos.equals(silentMine.getRebreakBlockPos()))) {
+                && belowPos.equals(silentMine.getDelayedDestroyBlockPos()))
+                || (silentMine.getRebreakBlockPos() != null
+                && belowPos.equals(silentMine.getRebreakBlockPos())))
+            {
                 return;
             }
 
-            if (packet.getPos().equals(belowPos) && packet.getState().isAir()) {
+            if (packet.getPos().equals(belowPos) && packet.getState().isAir())
+            {
 
-                if (!MeteorClient.BLOCK.beginPlacement(belowPos, packet.getState(), useItem)) {
+                if (!MeteorClient.BLOCK.beginPlacement(belowPos, packet.getState(), useItem))
+                {
                     return;
                 }
 
@@ -158,17 +181,20 @@ public class AntiDigDown extends Module {
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
+    private void onRender(Render3DEvent event)
+    {
         if (!render.get())
             return;
 
-        if (target == null) {
+        if (target == null)
+        {
             return;
         }
 
         BlockPos pos = getBelowBlockPos();
 
-        if (pos == null) {
+        if (pos == null)
+        {
             return;
         }
 
@@ -176,7 +202,8 @@ public class AntiDigDown extends Module {
     }
 
     @Override
-    public String getInfoString() {
+    public String getInfoString()
+    {
         return EntityUtils.getName(target);
     }
 }

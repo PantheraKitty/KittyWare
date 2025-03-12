@@ -142,6 +142,7 @@ public class AntiAFK extends Module
         .build()
     );
     private float prevYaw;
+
     public AntiAFK()
     {
         super(Categories.Player, "anti-afk", "Performs different actions to prevent getting kicked while AFK.");

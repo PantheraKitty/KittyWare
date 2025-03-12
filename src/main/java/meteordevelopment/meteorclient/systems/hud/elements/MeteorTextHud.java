@@ -10,9 +10,9 @@ import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 
 public class MeteorTextHud
 {
-    public static final HudElementInfo<TextHud>.Preset FPS;    public static final HudElementInfo<TextHud> INFO = new HudElementInfo<>(Hud.GROUP, "text", "Displays arbitrary text with Starscript.", MeteorTextHud::create);
+    public static final HudElementInfo<TextHud>.Preset FPS;
     public static final HudElementInfo<TextHud>.Preset TPS;
-    public static final HudElementInfo<TextHud>.Preset PING;
+    public static final HudElementInfo<TextHud>.Preset PING;    public static final HudElementInfo<TextHud> INFO = new HudElementInfo<>(Hud.GROUP, "text", "Displays arbitrary text with Starscript.", MeteorTextHud::create);
     public static final HudElementInfo<TextHud>.Preset SPEED;
     public static final HudElementInfo<TextHud>.Preset GAME_MODE;
     public static final HudElementInfo<TextHud>.Preset DURABILITY;
@@ -74,6 +74,8 @@ public class MeteorTextHud
     {
         return addPreset(title, text, -1);
     }
+
+
 
 
 }

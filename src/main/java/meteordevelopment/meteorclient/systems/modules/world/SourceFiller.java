@@ -75,10 +75,8 @@ public class SourceFiller extends Module
     // private final BlockPos.Mutable renderPos = new BlockPos.Mutable();
     // private final BlockPos.Mutable testPos = new BlockPos.Mutable();
     // private int ticks;
-
+    private final List<BlockPos> placePoses = new ArrayList<>();
     private long lastPlaceTimeMS = 0;
-
-    private List<BlockPos> placePoses = new ArrayList<>();
 
     public SourceFiller()
     {

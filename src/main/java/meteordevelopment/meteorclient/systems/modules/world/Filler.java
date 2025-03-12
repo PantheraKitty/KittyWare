@@ -1,20 +1,10 @@
 package meteordevelopment.meteorclient.systems.modules.world;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
-import meteordevelopment.meteorclient.settings.BlockListSetting;
-import meteordevelopment.meteorclient.settings.ColorSetting;
-import meteordevelopment.meteorclient.settings.DoubleSetting;
-import meteordevelopment.meteorclient.settings.EnumSetting;
-import meteordevelopment.meteorclient.settings.IntSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
@@ -30,7 +20,13 @@ import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class Filler extends Module {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Filler extends Module
+{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
@@ -122,18 +118,18 @@ public class Filler extends Module {
     );
 
     private final Setting<SettingColor> lineColor = sgRender.add(
-            new ColorSetting
-                    .Builder()
-                    .name("line-color")
-                    .description("The line color.")
-                    .defaultValue(new SettingColor(255, 255, 255, 60))
-                    .visible(() -> shapeMode.get() != ShapeMode.Sides)
-                    .build()
-            );
+        new ColorSetting
+            .Builder()
+            .name("line-color")
+            .description("The line color.")
+            .defaultValue(new SettingColor(255, 255, 255, 60))
+            .visible(() -> shapeMode.get() != ShapeMode.Sides)
+            .build()
+    );
 
     private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-    private Map<BlockPos, Long> renderLastPlacedBlock = new HashMap<>();
+    private final Map<BlockPos, Long> renderLastPlacedBlock = new HashMap<>();
 
     public Filler()
     {
@@ -175,7 +171,7 @@ public class Filler extends Module {
             placePoses.sort((x, y) ->
             {
                 return Double.compare(x.getSquaredDistance(mc.player.getPos()),
-                        y.getSquaredDistance(mc.player.getPos()));
+                    y.getSquaredDistance(mc.player.getPos()));
             });
 
             Item useItem = findUseItem();
@@ -214,9 +210,9 @@ public class Filler extends Module {
             double timeCompletion = time / fadeTime.get();
 
             Color fadedSideColor =
-                    sideColor.get().copy().a((int) (sideColor.get().a * (1 - timeCompletion)));
+                sideColor.get().copy().a((int) (sideColor.get().a * (1 - timeCompletion)));
             Color fadedLineColor =
-                    lineColor.get().copy().a((int) (lineColor.get().a * (1 - timeCompletion)));
+                lineColor.get().copy().a((int) (lineColor.get().a * (1 - timeCompletion)));
 
             event.renderer.box(entry.getKey(), fadedSideColor, fadedLineColor, shapeMode.get(), 0);
         }
@@ -280,7 +276,8 @@ public class Filler extends Module {
                     BlockState state = mc.world.getBlockState(pos);
 
                     if (MeteorClient.BLOCK.checkPlacement(Items.OBSIDIAN, pos, state)
-                            && inPlaceRange(pos)) {
+                        && inPlaceRange(pos))
+                    {
                         placePoses.add(new BlockPos(pos));
                     }
                 }
@@ -340,12 +337,7 @@ public class Filler extends Module {
         }
 
         // -1 becuase if planeValue = 32 and blockValue = 32, 32 - 32 = 0, so 0 difference
-        if (Math.abs(planeValue.get() - blockValue) <= (planeThickness.get() - 1))
-        {
-            return true;
-        }
-
-        return false;
+        return Math.abs(planeValue.get() - blockValue) <= (planeThickness.get() - 1);
     }
 
     private Item findUseItem()

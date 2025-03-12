@@ -184,12 +184,6 @@ public class InventoryTweaks extends Module
         .defaultValue(50)
         .sliderMax(1000)
         .build()
-    );    private final Setting<Boolean> autoSteal = sgAutoSteal.add(new BoolSetting.Builder()
-        .name("auto-steal")
-        .description("Automatically removes all possible items when you open a container.")
-        .defaultValue(false)
-        .onChanged(val -> checkAutoStealSettings())
-        .build()
     );
     private final Setting<Integer> autoStealRandomDelay = sgAutoSteal.add(new IntSetting.Builder()
         .name("random")
@@ -198,14 +192,14 @@ public class InventoryTweaks extends Module
         .sliderMax(1000)
         .defaultValue(50)
         .build()
-    );    private final Setting<Boolean> autoDump = sgAutoSteal.add(new BoolSetting.Builder()
-        .name("auto-dump")
-        .description("Automatically dumps all possible items when you open a container.")
+    );
+    private InventorySorter sorter;    private final Setting<Boolean> autoSteal = sgAutoSteal.add(new BoolSetting.Builder()
+        .name("auto-steal")
+        .description("Automatically removes all possible items when you open a container.")
         .defaultValue(false)
         .onChanged(val -> checkAutoStealSettings())
         .build()
     );
-    private InventorySorter sorter;
     private boolean invOpened;
     private final Setting<Boolean> xCarry = sgGeneral.add(new BoolSetting.Builder()
         .name("xcarry")
@@ -219,11 +213,16 @@ public class InventoryTweaks extends Module
         })
         .build()
     );
-
     public InventoryTweaks()
     {
         super(Categories.Misc, "inventory-tweaks", "Various inventory related utilities.");
-    }
+    }    private final Setting<Boolean> autoDump = sgAutoSteal.add(new BoolSetting.Builder()
+        .name("auto-dump")
+        .description("Automatically dumps all possible items when you open a container.")
+        .defaultValue(false)
+        .onChanged(val -> checkAutoStealSettings())
+        .build()
+    );
 
     @Override
     public void onActivate()
@@ -263,8 +262,6 @@ public class InventoryTweaks extends Module
             if (sort()) event.cancel();
         }
     }
-
-    // Sorting and armour swapping
 
     private boolean sort()
     {
@@ -306,6 +303,8 @@ public class InventoryTweaks extends Module
         if (sorter != null && sorter.tick(sortingDelay.get())) sorter = null;
     }
 
+    // Sorting and armour swapping
+
     @EventHandler
     private void onTickPost(TickEvent.Post event)
     {
@@ -330,8 +329,6 @@ public class InventoryTweaks extends Module
         if (antiDropItems.get().contains(event.itemStack.getItem())) event.cancel();
     }
 
-    // Auto Drop
-
     @EventHandler
     private void onSendPacket(PacketEvent.Send event)
     {
@@ -353,14 +350,10 @@ public class InventoryTweaks extends Module
         }
     }
 
-    // XCarry
-
     private int getSleepTime()
     {
         return autoStealDelay.get() + (autoStealRandomDelay.get() > 0 ? ThreadLocalRandom.current().nextInt(0, autoStealRandomDelay.get()) : 0);
     }
-
-    // Auto Steal
 
     private void moveSlots(ScreenHandler handler, int start, int end, boolean steal)
     {
@@ -416,6 +409,8 @@ public class InventoryTweaks extends Module
         }
     }
 
+    // Auto Drop
+
     public void steal(ScreenHandler handler)
     {
         MeteorExecutor.execute(() -> moveSlots(handler, 0, SlotUtils.indexToId(SlotUtils.MAIN_START), true));
@@ -427,10 +422,14 @@ public class InventoryTweaks extends Module
         MeteorExecutor.execute(() -> moveSlots(handler, playerInvOffset, playerInvOffset + 4 * 9, false));
     }
 
+    // XCarry
+
     public boolean showButtons()
     {
         return isActive() && buttons.get();
     }
+
+    // Auto Steal
 
     public boolean mouseDragItemMove()
     {
@@ -476,6 +475,8 @@ public class InventoryTweaks extends Module
         Blacklist,
         None
     }
+
+
 
 
 

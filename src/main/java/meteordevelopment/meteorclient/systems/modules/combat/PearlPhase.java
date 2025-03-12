@@ -92,7 +92,6 @@ public class PearlPhase extends Module
         if (mc.options.sneakKey.isPressed())
         {
             deactivate(false);
-            return;
         }
     }
 
@@ -159,7 +158,6 @@ public class PearlPhase extends Module
         if (mc.options.sneakKey.isPressed())
         {
             deactivate(false);
-            return;
         }
 
 

@@ -133,10 +133,10 @@ public class PopChams extends Module
     private class GhostPlayer
     {
         private final UUID uuid;
+        private final PlayerEntity player;
+        private final Vec3d pos;
         private double timer, scale = 1;
-        private PlayerEntity player;
         private List<WireframeEntityRenderer.RenderablePart> parts;
-        private Vec3d pos;
 
         public GhostPlayer(PlayerEntity player)
         {

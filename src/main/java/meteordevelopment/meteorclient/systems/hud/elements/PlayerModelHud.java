@@ -24,15 +24,14 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class PlayerModelHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<PlayerModelHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-model", "Displays a model of your player.", PlayerModelHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgBackground = settings.createGroup("Background");
     private final Setting<Boolean> copyYaw = sgGeneral.add(new BoolSetting.Builder()
         .name("copy-yaw")
         .description("Makes the player model's yaw equal to yours.")
         .defaultValue(true)
         .build()
-    );
-
+    );    public static final HudElementInfo<PlayerModelHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-model", "Displays a model of your player.", PlayerModelHud::new);
     // General
     private final Setting<Integer> customYaw = sgGeneral.add(new IntSetting.Builder()
         .name("custom-yaw")
@@ -41,14 +40,6 @@ public class PlayerModelHud extends HudElement
         .range(-180, 180)
         .sliderRange(-180, 180)
         .visible(() -> !copyYaw.get())
-        .build()
-    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("The scale.")
-        .defaultValue(2)
-        .min(1)
-        .sliderRange(1, 5)
-        .onChanged(aDouble -> calculateSize())
         .build()
     );
     private final Setting<Boolean> copyPitch = sgGeneral.add(new BoolSetting.Builder()
@@ -77,6 +68,14 @@ public class PlayerModelHud extends HudElement
         .description("Displays background.")
         .defaultValue(false)
         .build()
+    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("The scale.")
+        .defaultValue(2)
+        .min(1)
+        .sliderRange(1, 5)
+        .onChanged(aDouble -> calculateSize())
+        .build()
     );
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
@@ -85,9 +84,6 @@ public class PlayerModelHud extends HudElement
         .defaultValue(new SettingColor(25, 25, 25, 50))
         .build()
     );
-
-    // Background
-
     public PlayerModelHud()
     {
         super(INFO);
@@ -179,11 +175,15 @@ public class PlayerModelHud extends HudElement
         entity.headYaw = prevHeadYaw;
     }
 
+    // Background
+
     private enum CenterOrientation
     {
         North,
         South
     }
+
+
 
 
 

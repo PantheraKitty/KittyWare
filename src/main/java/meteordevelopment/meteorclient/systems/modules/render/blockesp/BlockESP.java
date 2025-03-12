@@ -53,14 +53,6 @@ public class BlockESP extends Module
             )
         )
         .build()
-    );    private final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
-        .name("blocks")
-        .description("Blocks to search for.")
-        .onChanged(blocks1 ->
-        {
-            if (isActive() && Utils.canUpdate()) onActivate();
-        })
-        .build()
     );
     private final Setting<Map<Block, ESPBlockData>> blockConfigs = sgGeneral.add(new BlockDataSetting.Builder<ESPBlockData>()
         .name("block-configs")
@@ -73,15 +65,17 @@ public class BlockESP extends Module
         .description("Render tracer lines.")
         .defaultValue(false)
         .build()
-    );
-    private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
-    private final Long2ObjectMap<ESPChunk> chunks = new Long2ObjectOpenHashMap<>();    private final Setting<Boolean> activatedSpawners = sgGeneral.add(new BoolSetting.Builder()
-        .name("activated-spawners")
-        .description("Only highlights activated spawners")
-        .defaultValue(true)
-        .visible(() -> blocks.get().contains(Blocks.SPAWNER))
+    );    private final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
+        .name("blocks")
+        .description("Blocks to search for.")
+        .onChanged(blocks1 ->
+        {
+            if (isActive() && Utils.canUpdate()) onActivate();
+        })
         .build()
     );
+    private final BlockPos.Mutable blockPos = new BlockPos.Mutable();
+    private final Long2ObjectMap<ESPChunk> chunks = new Long2ObjectOpenHashMap<>();
     private final Set<ESPGroup> groups = new ReferenceOpenHashSet<>();
     private final ExecutorService workerThread = Executors.newSingleThreadExecutor();
     private Dimension lastDimension;
@@ -90,7 +84,13 @@ public class BlockESP extends Module
         super(Categories.Render, "block-esp", "Renders specified blocks through walls.", "search");
 
         RainbowColors.register(this::onTickRainbow);
-    }
+    }    private final Setting<Boolean> activatedSpawners = sgGeneral.add(new BoolSetting.Builder()
+        .name("activated-spawners")
+        .description("Only highlights activated spawners")
+        .defaultValue(true)
+        .visible(() -> blocks.get().contains(Blocks.SPAWNER))
+        .build()
+    );
 
     @Override
     public void onActivate()
@@ -302,6 +302,8 @@ public class BlockESP extends Module
     {
         return "%s groups".formatted(groups.size());
     }
+
+
 
 
 

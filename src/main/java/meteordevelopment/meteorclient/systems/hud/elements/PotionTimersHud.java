@@ -23,15 +23,14 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class PotionTimersHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<PotionTimersHud> INFO = new HudElementInfo<>(Hud.GROUP, "potion-timers", "Displays active potion effects with timers.", PotionTimersHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgScale = settings.createGroup("Scale");
-    private final SettingGroup sgBackground = settings.createGroup("Background");
+    private final SettingGroup sgBackground = settings.createGroup("Background");    public static final HudElementInfo<PotionTimersHud> INFO = new HudElementInfo<>(Hud.GROUP, "potion-timers", "Displays active potion effects with timers.", PotionTimersHud::new);
     private final Setting<List<StatusEffect>> hiddenEffects = sgGeneral.add(new StatusEffectListSetting.Builder()
         .name("hidden-effects")
         .description("Which effects not to show in the list.")
         .build()
     );
-
     // General
     private final Setting<Boolean> showAmbient = sgGeneral.add(new BoolSetting.Builder()
         .name("show-ambient")
@@ -112,7 +111,6 @@ public class PotionTimersHud extends HudElement
         .defaultValue(false)
         .build()
     );
-
     // Scale
     private final Setting<Double> scale = sgScale.add(new DoubleSetting.Builder()
         .name("scale")
@@ -129,7 +127,6 @@ public class PotionTimersHud extends HudElement
         .defaultValue(false)
         .build()
     );
-
     // Background
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
@@ -264,6 +261,8 @@ public class PotionTimersHud extends HudElement
         Flat,
         Rainbow
     }
+
+
 
 
 }

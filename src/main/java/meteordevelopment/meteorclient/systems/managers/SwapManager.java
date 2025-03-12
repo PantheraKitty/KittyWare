@@ -10,67 +10,80 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.item.Item;
 import net.minecraft.util.Hand;
+
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class SwapManager {
-    public SwapManager() {
+public class SwapManager
+{
+    private final AntiCheatConfig antiCheatConfig = AntiCheatConfig.get();
+    private final Object swapLock = new Object();
+    private final SwapState multiTickSwapState = new SwapState();
+    private final SwapState instantSwapState = new SwapState();
+
+    public SwapManager()
+    {
         MeteorClient.EVENT_BUS.subscribe(this);
     }
 
-    private final AntiCheatConfig antiCheatConfig = AntiCheatConfig.get();
-
-    private final Object swapLock = new Object();
-
-    private SwapState multiTickSwapState = new SwapState();
-    private SwapState instantSwapState = new SwapState();;
-
-    public boolean beginSwap(Item item, boolean instant) {
+    public boolean beginSwap(Item item, boolean instant)
+    {
         FindItemResult result = InvUtils.findInHotbar(item);
 
         // If the mode is none, we just give up if it's not in our main hand
-        if (getItemSwapMode() == SwapMode.None && !result.isMainHand()) {
+        if (getItemSwapMode() == SwapMode.None && !result.isMainHand())
+        {
             return false;
         }
 
         // If the mode is silent hotbar, we can only swap to items in the hotbar
-        if (getItemSwapMode() == SwapMode.SilentHotbar && !result.found()) {
+        if (getItemSwapMode() == SwapMode.SilentHotbar && !result.found())
+        {
             return false;
         }
 
-        if (!result.found()) {
+        if (!result.found())
+        {
             result = InvUtils.find(item);
         }
 
-        if (!result.found()) {
+        if (!result.found())
+        {
             return false;
         }
 
         return beginSwap(result, instant);
     }
 
-    public boolean beginSwap(FindItemResult result, boolean instant) {
-        if (!result.found()) {
+    public boolean beginSwap(FindItemResult result, boolean instant)
+    {
+        if (!result.found())
+        {
             return false;
         }
 
         // If the mode is none, we just give up if it's not in our main hand
-        if (getItemSwapMode() == SwapMode.None && !result.isMainHand()) {
+        if (getItemSwapMode() == SwapMode.None && !result.isMainHand())
+        {
             return false;
         }
 
-        if (!instant && mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND) {
+        if (!instant && mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND)
+        {
             return false;
         }
 
         // Ues a mutex to swap to support multithreaded calls (idk like from network thread or
         // something)
-        synchronized (swapLock) {
+        synchronized (swapLock)
+        {
             // If we're doing an instant swap (like sub tick), we have to wait for the swap to end
 
             // If we're doing a multi tick swap, we can only do instant swaps
-            if (instantSwapState.isSwapped) {
+            if (instantSwapState.isSwapped)
+            {
                 return false;
-            } else if (multiTickSwapState.isSwapped && !instant) {
+            } else if (multiTickSwapState.isSwapped && !instant)
+            {
                 return false;
             }
 
@@ -79,8 +92,10 @@ public class SwapManager {
 
         SwapState swapState = getSwapState(instant);
 
-        switch (getItemSwapMode()) {
-            case SilentHotbar -> {
+        switch (getItemSwapMode())
+        {
+            case SilentHotbar ->
+            {
                 swapState.hotbarSelectedSlot = mc.player.getInventory().selectedSlot;
                 swapState.hotbarItemSlot = result.slot();
                 swapState.didSilentSwap = false;
@@ -88,14 +103,18 @@ public class SwapManager {
                 mc.player.getInventory().selectedSlot = result.slot();
                 ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
             }
-            case Auto -> {
+            case Auto ->
+            {
                 boolean shouldSilentSwap = !result.isHotbar()
-                        || (multiTickSwapState.isSwapped && instant)
-                        || (mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND);
+                    || (multiTickSwapState.isSwapped && instant)
+                    || (mc.player.isUsingItem() && mc.player.getActiveHand() == Hand.MAIN_HAND);
 
-                if (shouldSilentSwap) {
-                    if (antiCheatConfig.swapAntiScreenClose.get()) {
-                        if (mc.currentScreen instanceof GameMenuScreen) {
+                if (shouldSilentSwap)
+                {
+                    if (antiCheatConfig.swapAntiScreenClose.get())
+                    {
+                        if (mc.currentScreen instanceof GameMenuScreen)
+                        {
                             getSwapState(instant).isSwapped = false;
                             return false;
                         }
@@ -106,8 +125,9 @@ public class SwapManager {
                     swapState.didSilentSwap = true;
 
                     InvUtils.quickSwap().fromId(mc.player.getInventory().selectedSlot)
-                            .to(result.slot());
-                } else {
+                        .to(result.slot());
+                } else
+                {
                     swapState.hotbarSelectedSlot = mc.player.getInventory().selectedSlot;
                     swapState.hotbarItemSlot = result.slot();
                     swapState.didSilentSwap = false;
@@ -116,9 +136,12 @@ public class SwapManager {
                     ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
                 }
             }
-            case SilentSwap -> {
-                if (antiCheatConfig.swapAntiScreenClose.get()) {
-                    if (mc.currentScreen instanceof GameMenuScreen) {
+            case SilentSwap ->
+            {
+                if (antiCheatConfig.swapAntiScreenClose.get())
+                {
+                    if (mc.currentScreen instanceof GameMenuScreen)
+                    {
                         getSwapState(instant).isSwapped = false;
                         return false;
                     }
@@ -129,9 +152,10 @@ public class SwapManager {
                 swapState.didSilentSwap = true;
 
                 InvUtils.quickSwap().fromId(mc.player.getInventory().selectedSlot)
-                        .to(result.slot());
+                    .to(result.slot());
             }
-            case None -> {
+            case None ->
+            {
                 // Fall
             }
         }
@@ -139,47 +163,58 @@ public class SwapManager {
         return true;
     }
 
-    public boolean canSwap(Item item) {
+    public boolean canSwap(Item item)
+    {
         return getSlot(item).found();
     }
 
-    public FindItemResult getSlot(Item item) {
+    public FindItemResult getSlot(Item item)
+    {
         FindItemResult result = InvUtils.findInHotbar(item);
 
         // If the mode is none, we just give up if it's not in our main hand
-        if (getItemSwapMode() == SwapMode.None && !result.isMainHand()) {
+        if (getItemSwapMode() == SwapMode.None && !result.isMainHand())
+        {
             return new FindItemResult(-1, 0);
         }
 
         // If the mode is silent hotbar, we can only swap to items in the hotbar
-        if (getItemSwapMode() == SwapMode.SilentHotbar && !result.found()) {
+        if (getItemSwapMode() == SwapMode.SilentHotbar && !result.found())
+        {
             return new FindItemResult(-1, 0);
         }
 
-        if (!result.found()) {
+        if (!result.found())
+        {
             result = InvUtils.find(item);
         }
 
-        if (!result.found()) {
+        if (!result.found())
+        {
             return new FindItemResult(-1, 0);
         }
 
         return result;
     }
 
-    public void endSwap(boolean instantSwap) {
-        synchronized (swapLock) {
-            if (instantSwap && !getSwapState(instantSwap).isSwapped) {
+    public void endSwap(boolean instantSwap)
+    {
+        synchronized (swapLock)
+        {
+            if (instantSwap && !getSwapState(instantSwap).isSwapped)
+            {
                 return;
             }
         }
 
         SwapState swapState = getSwapState(instantSwap);
 
-        if (swapState.didSilentSwap) {
+        if (swapState.didSilentSwap)
+        {
             InvUtils.quickSwap().fromId(swapState.silentSwapSelectedSlot)
-                    .to(swapState.silentSwapInventorySlot);
-        } else {
+                .to(swapState.silentSwapInventorySlot);
+        } else
+        {
             mc.player.getInventory().selectedSlot = swapState.hotbarSelectedSlot;
             ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
         }
@@ -187,25 +222,33 @@ public class SwapManager {
         swapState.isSwapped = false;
     }
 
-    public SwapMode getItemSwapMode() {
+    public SwapMode getItemSwapMode()
+    {
         return antiCheatConfig.swapMode.get();
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        if (mc.world == null || mc.player == null) {
+    private void onTick(TickEvent.Pre event)
+    {
+        if (mc.world == null || mc.player == null)
+        {
             return;
         }
 
         // Ensure that the selected slot hasn't changed
-        if (multiTickSwapState.isSwapped) {
-            if (multiTickSwapState.didSilentSwap) {
-                if (multiTickSwapState.silentSwapSelectedSlot != mc.player.getInventory().selectedSlot) {
+        if (multiTickSwapState.isSwapped)
+        {
+            if (multiTickSwapState.didSilentSwap)
+            {
+                if (multiTickSwapState.silentSwapSelectedSlot != mc.player.getInventory().selectedSlot)
+                {
                     mc.player.getInventory().selectedSlot = multiTickSwapState.silentSwapSelectedSlot;
                     ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
                 }
-            } else {
-                if (multiTickSwapState.hotbarItemSlot != mc.player.getInventory().selectedSlot) {
+            } else
+            {
+                if (multiTickSwapState.hotbarItemSlot != mc.player.getInventory().selectedSlot)
+                {
                     mc.player.getInventory().selectedSlot = multiTickSwapState.hotbarItemSlot;
                     ((IClientPlayerInteractionManager) mc.interactionManager).meteor$syncSelected();
                 }
@@ -213,19 +256,24 @@ public class SwapManager {
         }
     }
 
-    private SwapState getSwapState(boolean instantSwap) {
-        if (instantSwap) {
+    private SwapState getSwapState(boolean instantSwap)
+    {
+        if (instantSwap)
+        {
             return instantSwapState;
-        } else {
+        } else
+        {
             return multiTickSwapState;
         }
     }
 
-    public enum SwapMode {
+    public enum SwapMode
+    {
         None, Auto, SilentHotbar, SilentSwap
     }
 
-    private class SwapState {
+    private class SwapState
+    {
         public boolean isSwapped = false;
 
         public boolean didSilentSwap = false;

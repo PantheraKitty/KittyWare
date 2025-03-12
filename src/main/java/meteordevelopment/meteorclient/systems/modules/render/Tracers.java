@@ -203,8 +203,9 @@ public class Tracers extends Module
         .sliderMax(256)
         .build()
     );
+    private final Instant initTimer = Instant.now();
     private int count;
-    private Instant initTimer = Instant.now();
+
     public Tracers()
     {
         super(Categories.Render, "tracers", "Displays tracer lines to specified entities.");
@@ -229,10 +230,7 @@ public class Tracers extends Module
 
         if (entity instanceof ExperienceOrbEntity exp)
         {
-            if (exp.getOrbSize() < minExperienceOrbSize.get())
-            {
-                return true;
-            }
+            return exp.getOrbSize() < minExperienceOrbSize.get();
         }
 
         return false;

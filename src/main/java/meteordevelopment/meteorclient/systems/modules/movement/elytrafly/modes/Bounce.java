@@ -29,6 +29,7 @@ public class Bounce extends ElytraFlightMode
     boolean rubberbanded = false;
     int tickDelay = elytraFly.restartDelay.get();
     double prevFov;
+
     public Bounce()
     {
         super(ElytraFlightModes.Bounce);

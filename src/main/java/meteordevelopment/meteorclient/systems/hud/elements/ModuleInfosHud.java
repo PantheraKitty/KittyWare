@@ -19,7 +19,7 @@ import java.util.List;
 
 public class ModuleInfosHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<ModuleInfosHud> INFO = new HudElementInfo<>(Hud.GROUP, "module-infos", "Displays if selected modules are enabled or disabled.", ModuleInfosHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final Setting<List<Module>> modules = sgGeneral.add(new ModuleListSetting.Builder()
         .name("modules")
         .description("Which modules to display")
@@ -31,7 +31,7 @@ public class ModuleInfosHud extends HudElement
         .description("Shows additional info from the module next to the name in the module info list.")
         .defaultValue(true)
         .build()
-    );
+    );    public static final HudElementInfo<ModuleInfosHud> INFO = new HudElementInfo<>(Hud.GROUP, "module-infos", "Displays if selected modules are enabled or disabled.", ModuleInfosHud::new);
     private final Setting<Boolean> textShadow = sgGeneral.add(new BoolSetting.Builder()
         .name("text-shadow")
         .description("Renders shadow behind text.")
@@ -62,7 +62,6 @@ public class ModuleInfosHud extends HudElement
         .defaultValue(Alignment.Auto)
         .build()
     );
-
     public ModuleInfosHud()
     {
         super(INFO);
@@ -115,6 +114,8 @@ public class ModuleInfosHud extends HudElement
 
         setSize(width, height);
     }
+
+
 
 
 }

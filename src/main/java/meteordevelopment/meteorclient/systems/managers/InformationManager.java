@@ -1,7 +1,5 @@
 package meteordevelopment.meteorclient.systems.managers;
 
-import static meteordevelopment.meteorclient.MeteorClient.mc;
-import java.util.UUID;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import meteordevelopment.meteorclient.MeteorClient;
@@ -18,28 +16,37 @@ import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
 
-public class InformationManager {
-    public InformationManager() {
-        MeteorClient.EVENT_BUS.subscribe(this);
-    }
+import java.util.UUID;
 
+import static meteordevelopment.meteorclient.MeteorClient.mc;
+
+public class InformationManager
+{
     private final Object2IntMap<UUID> totemPopMap = new Object2IntOpenHashMap<>();
-
     // Check for if the PlayerListS2C packet is the initial join packet
     private boolean isLoginPacket = true;
 
+    public InformationManager()
+    {
+        MeteorClient.EVENT_BUS.subscribe(this);
+    }
+
     @EventHandler
-    private void onReceivePacket(PacketEvent.Receive event) {
+    private void onReceivePacket(PacketEvent.Receive event)
+    {
         if (mc.world == null || mc.player == null)
             return;
 
-        switch (event.packet) {
+        switch (event.packet)
+        {
             case EntityStatusS2CPacket packet when packet.getStatus() == 35
-                    && packet.getEntity(mc.world) instanceof PlayerEntity entity -> {
+                && packet.getEntity(mc.world) instanceof PlayerEntity entity ->
+            {
 
                 int pops = 0;
 
-                synchronized (totemPopMap) {
+                synchronized (totemPopMap)
+                {
                     pops = totemPopMap.getOrDefault(entity.getUuid(), 0);
                     totemPopMap.put(entity.getUuid(), ++pops);
                 }
@@ -47,23 +54,29 @@ public class InformationManager {
                 MeteorClient.EVENT_BUS.post(PlayerDeathEvent.TotemPop.get(entity, pops));
             }
 
-            case PlayerListS2CPacket packet -> {
-                if (isLoginPacket) {
+            case PlayerListS2CPacket packet ->
+            {
+                if (isLoginPacket)
+                {
                     isLoginPacket = false;
                     return;
                 }
 
-                if (packet.getActions().contains(PlayerListS2CPacket.Action.ADD_PLAYER)) {
-                    for (PlayerListS2CPacket.Entry entry : packet.getPlayerAdditionEntries()) {
+                if (packet.getActions().contains(PlayerListS2CPacket.Action.ADD_PLAYER))
+                {
+                    for (PlayerListS2CPacket.Entry entry : packet.getPlayerAdditionEntries())
+                    {
                         MeteorClient.EVENT_BUS.post(PlayerJoinLeaveEvent.Join.get(entry));
                     }
                 }
             }
 
-            case PlayerRemoveS2CPacket packet -> {
+            case PlayerRemoveS2CPacket packet ->
+            {
                 if (mc.getNetworkHandler() == null) return;
 
-                for (UUID uuid : packet.profileIds()) {
+                for (UUID uuid : packet.profileIds())
+                {
                     PlayerListEntry toRemove = mc.getNetworkHandler().getPlayerListEntry(uuid);
                     if (toRemove == null)
                         continue;
@@ -73,37 +86,45 @@ public class InformationManager {
             }
 
             case EntityStatusS2CPacket packet when packet.getStatus() == 3
-                    && packet.getEntity(mc.world) instanceof PlayerEntity entity -> {
+                && packet.getEntity(mc.world) instanceof PlayerEntity entity ->
+            {
 
                 int pops = 0;
-                if (totemPopMap.containsKey(entity.getUuid())) {
+                if (totemPopMap.containsKey(entity.getUuid()))
+                {
                     pops = totemPopMap.removeInt(entity.getUuid());
                 }
 
                 MeteorClient.EVENT_BUS.post(PlayerDeathEvent.Death.get(entity, pops));
             }
 
-            default -> {
+            default ->
+            {
             }
         }
     }
 
     @EventHandler
-    private void onGameLeave(GameLeftEvent event) {
+    private void onGameLeave(GameLeftEvent event)
+    {
         isLoginPacket = true;
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private void onTick(TickEvent.Post event)
+    {
         if (mc.world == null || mc.player == null)
-            return;
+        {
+        }
     }
 
-    public int getPops(Entity entity) {
+    public int getPops(Entity entity)
+    {
         return totemPopMap.getOrDefault(entity.getUuid(), 0);
     }
 
-    public int getPops(UUID uuid) {
+    public int getPops(UUID uuid)
+    {
         return totemPopMap.getOrDefault(uuid, 0);
     }
 }

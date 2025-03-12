@@ -69,12 +69,7 @@ public class MapAura extends Module
 
         FindItemResult mapItemResult = InvUtils.findInHotbar(item ->
         {
-            if (item.getItem() instanceof FilledMapItem && item.getCount() > 1)
-            {
-                return true;
-            }
-
-            return false;
+            return item.getItem() instanceof FilledMapItem && item.getCount() > 1;
         });
 
         if (mapItemResult.found())
@@ -230,12 +225,7 @@ public class MapAura extends Module
                 return false;
             }
 
-            if (itemFrame.getHeldItemStack() == null || itemFrame.getHeldItemStack().isEmpty())
-            {
-                return true;
-            }
-
-            return false;
+            return itemFrame.getHeldItemStack() == null || itemFrame.getHeldItemStack().isEmpty();
         } else
         {
             // Sanity check for not being an item frame

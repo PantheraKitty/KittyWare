@@ -113,6 +113,7 @@ public class LongJump extends Module
     private int airTicks;
     private int groundTicks;
     private boolean jumped = false;
+
     public LongJump()
     {
         super(Categories.Movement, "long-jump", "Allows you to jump further than normal.");

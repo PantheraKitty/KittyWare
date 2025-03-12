@@ -23,9 +23,9 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class PlayerRadarHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<PlayerRadarHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-radar", "Displays players in your visual range.", PlayerRadarHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgScale = settings.createGroup("Scale");
-    private final SettingGroup sgBackground = settings.createGroup("Background");
+    private final SettingGroup sgBackground = settings.createGroup("Background");    public static final HudElementInfo<PlayerRadarHud> INFO = new HudElementInfo<>(Hud.GROUP, "player-radar", "Displays players in your visual range.", PlayerRadarHud::new);
     private final Setting<Integer> limit = sgGeneral.add(new IntSetting.Builder()
         .name("limit")
         .description("The max number of players to show.")
@@ -34,7 +34,6 @@ public class PlayerRadarHud extends HudElement
         .sliderRange(1, 20)
         .build()
     );
-
     // General
     private final Setting<Boolean> distance = sgGeneral.add(new BoolSetting.Builder()
         .name("distance")
@@ -96,7 +95,6 @@ public class PlayerRadarHud extends HudElement
         .defaultValue(false)
         .build()
     );
-
     // Scale
     private final Setting<Double> scale = sgScale.add(new DoubleSetting.Builder()
         .name("scale")
@@ -113,7 +111,6 @@ public class PlayerRadarHud extends HudElement
         .defaultValue(false)
         .build()
     );
-
     // Background
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
         .name("background-color")
@@ -123,7 +120,6 @@ public class PlayerRadarHud extends HudElement
         .build()
     );
     private final List<AbstractClientPlayerEntity> players = new ArrayList<>();
-
     public PlayerRadarHud()
     {
         super(INFO);
@@ -236,6 +232,8 @@ public class PlayerRadarHud extends HudElement
     {
         return customScale.get() ? scale.get() : -1;
     }
+
+
 
 
 }

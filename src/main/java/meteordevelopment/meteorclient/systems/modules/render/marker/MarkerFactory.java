@@ -14,6 +14,7 @@ public class MarkerFactory
 {
     private final Map<String, Factory> factories;
     private final String[] names;
+
     public MarkerFactory()
     {
         factories = new HashMap<>();

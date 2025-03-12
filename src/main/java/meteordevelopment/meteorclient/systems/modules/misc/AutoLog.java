@@ -118,7 +118,7 @@ public class AutoLog extends Module
     // Declaring variables outside the loop for better efficiency
     private final Object2IntMap<EntityType<?>> entityCounts = new Object2IntOpenHashMap<>();
     private final StaticListener staticListener = new StaticListener();
-    private LongSet chainPops = new LongOpenHashSet();
+    private final LongSet chainPops = new LongOpenHashSet();
 
     public AutoLog()
     {

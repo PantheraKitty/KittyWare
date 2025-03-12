@@ -343,11 +343,7 @@ public class ElytraFakeFly extends Module
 
             FindItemResult hotbarSlotToSwapToResult = InvUtils.findInHotbar(x ->
             {
-                if (x.getItem() == Items.TOTEM_OF_UNDYING)
-                {
-                    return false;
-                }
-                return true;
+                return x.getItem() != Items.TOTEM_OF_UNDYING;
             });
 
             inventorySilentSwapSlot = invResult.slot();

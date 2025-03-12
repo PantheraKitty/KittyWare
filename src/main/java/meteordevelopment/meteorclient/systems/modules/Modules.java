@@ -186,7 +186,7 @@ public class Modules extends System<Modules>
 
     public int getCount()
     {
-        return moduleInstances.values().size();
+        return moduleInstances.size();
     }
 
     public List<Module> getActive()

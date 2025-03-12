@@ -19,15 +19,14 @@ import net.minecraft.item.Items;
 
 public class ItemHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<ItemHud> INFO = new HudElementInfo<>(Hud.GROUP, "item", "Displays the item count.", ItemHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgBackground = settings.createGroup("Background");
     private final Setting<Item> item = sgGeneral.add(new ItemSetting.Builder()
         .name("item")
         .description("Item to display")
         .defaultValue(Items.TOTEM_OF_UNDYING)
         .build()
-    );
-
+    );    public static final HudElementInfo<ItemHud> INFO = new HudElementInfo<>(Hud.GROUP, "item", "Displays the item count.", ItemHud::new);
     // General
     private final Setting<NoneMode> noneMode = sgGeneral.add(new EnumSetting.Builder<NoneMode>()
         .name("none-mode")
@@ -47,30 +46,13 @@ public class ItemHud extends HudElement
         .visible(background::get)
         .defaultValue(new SettingColor(25, 25, 25, 50))
         .build()
-    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("Scale of the item.")
-        .defaultValue(2)
-        .onChanged(aDouble -> calculateSize())
-        .min(1)
-        .sliderRange(1, 4)
-        .build()
     );
-
     private ItemHud()
     {
         super(INFO);
 
         calculateSize();
-    }    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
-        .name("border")
-        .description("How much space to add around the element.")
-        .defaultValue(0)
-        .onChanged(integer -> calculateSize())
-        .build()
-    );
-
-    // Background
+    }
 
     @Override
     public void setSize(double width, double height)
@@ -107,7 +89,15 @@ public class ItemHud extends HudElement
         }
 
         if (background.get()) renderer.quad(x, y, getWidth(), getHeight(), backgroundColor.get());
-    }
+    }    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("Scale of the item.")
+        .defaultValue(2)
+        .onChanged(aDouble -> calculateSize())
+        .min(1)
+        .sliderRange(1, 4)
+        .build()
+    );
 
     private void render(HudRenderer renderer, ItemStack itemStack, int x, int y)
     {
@@ -152,6 +142,16 @@ public class ItemHud extends HudElement
             };
         }
     }
+
+    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
+        .name("border")
+        .description("How much space to add around the element.")
+        .defaultValue(0)
+        .onChanged(integer -> calculateSize())
+        .build()
+    );
+
+    // Background
 
 
 

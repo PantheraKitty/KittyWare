@@ -68,6 +68,7 @@ public class MiddleClickExtra extends Module
     private boolean wasHeld;
     private int itemSlot;
     private int selectedSlot;
+
     public MiddleClickExtra()
     {
         super(Categories.Player, "middle-click-extra",

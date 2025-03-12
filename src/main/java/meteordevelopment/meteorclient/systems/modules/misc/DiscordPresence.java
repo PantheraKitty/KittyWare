@@ -53,14 +53,7 @@ public class DiscordPresence extends Module
 
     // Line 1
 
-    private final SettingGroup sgLine1 = settings.createGroup("Line 1");    private final Setting<List<String>> line1Strings = sgLine1.add(new StringListSetting.Builder()
-        .name("line-1-messages")
-        .description("Messages used for the first line.")
-        .defaultValue("{player}", "{server}")
-        .onChanged(strings -> recompileLine1())
-        .renderer(StarscriptTextBoxRenderer.class)
-        .build()
-    );
+    private final SettingGroup sgLine1 = settings.createGroup("Line 1");
     private final SettingGroup sgLine2 = settings.createGroup("Line 2");
     private final Setting<Integer> line1UpdateDelay = sgLine1.add(new IntSetting.Builder()
         .name("line-1-update-delay")
@@ -69,20 +62,19 @@ public class DiscordPresence extends Module
         .min(10)
         .sliderRange(10, 200)
         .build()
+    );    private final Setting<List<String>> line1Strings = sgLine1.add(new StringListSetting.Builder()
+        .name("line-1-messages")
+        .description("Messages used for the first line.")
+        .defaultValue("{player}", "{server}")
+        .onChanged(strings -> recompileLine1())
+        .renderer(StarscriptTextBoxRenderer.class)
+        .build()
     );
-
     // Line 2
     private final Setting<SelectMode> line1SelectMode = sgLine1.add(new EnumSetting.Builder<SelectMode>()
         .name("line-1-select-mode")
         .description("How to select messages for the first line.")
         .defaultValue(SelectMode.Sequential)
-        .build()
-    );    private final Setting<List<String>> line2Strings = sgLine2.add(new StringListSetting.Builder()
-        .name("line-2-messages")
-        .description("Messages used for the second line.")
-        .defaultValue("Meteor on Crack!", "{round(server.tps, 1)} TPS", "Playing on {server.difficulty} difficulty.", "{server.player_count} Players online")
-        .onChanged(strings -> recompileLine2())
-        .renderer(StarscriptTextBoxRenderer.class)
         .build()
     );
     private final Setting<Integer> line2UpdateDelay = sgLine2.add(new IntSetting.Builder()
@@ -93,7 +85,6 @@ public class DiscordPresence extends Module
         .sliderRange(10, 200)
         .build()
     );
-
     private final Setting<SelectMode> line2SelectMode = sgLine2.add(new EnumSetting.Builder<SelectMode>()
         .name("line-2-select-mode")
         .description("How to select messages for the second line.")
@@ -101,7 +92,14 @@ public class DiscordPresence extends Module
         .build()
     );
     private final List<Script> line1Scripts = new ArrayList<>();
-    private final List<Script> line2Scripts = new ArrayList<>();
+    private final List<Script> line2Scripts = new ArrayList<>();    private final Setting<List<String>> line2Strings = sgLine2.add(new StringListSetting.Builder()
+        .name("line-2-messages")
+        .description("Messages used for the second line.")
+        .defaultValue("Meteor on Crack!", "{round(server.tps, 1)} TPS", "Playing on {server.difficulty} difficulty.", "{server.player_count} Players online")
+        .onChanged(strings -> recompileLine2())
+        .renderer(StarscriptTextBoxRenderer.class)
+        .build()
+    );
     private SmallImage currentSmallImage;
     private int ticks;
     private boolean forceUpdate, lastWasInMainMenu;
@@ -344,6 +342,8 @@ public class DiscordPresence extends Module
             return MineGame;
         }
     }
+
+
 
 
 

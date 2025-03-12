@@ -60,6 +60,7 @@ public class PhaseESP extends Module
         .visible(() -> shapeMode.get().lines()).build());
     private final Pool<PhaseBlock> phaseBlockPool = new Pool<>(PhaseBlock::new);
     private final List<PhaseBlock> phaseBlocks = new ArrayList<>();
+
     public PhaseESP()
     {
         super(Categories.Render, "phase-esp", "Shows you where it's safe to phase.");
@@ -80,13 +81,8 @@ public class PhaseESP extends Module
         Box feetBox = new Box(boundingBox.minX, feetY, boundingBox.minZ, boundingBox.maxX,
             feetY + 0.1, boundingBox.maxZ);
 
-        boolean isAccorssMultipleBlocks = false;
-
-        if ((int) Math.floor(feetBox.maxX) - (int) Math.floor(feetBox.minX) >= 1
-            || (int) Math.floor(feetBox.maxZ) - (int) Math.floor(feetBox.minZ) >= 1)
-        {
-            isAccorssMultipleBlocks = true;
-        }
+        boolean isAccorssMultipleBlocks = (int) Math.floor(feetBox.maxX) - (int) Math.floor(feetBox.minX) >= 1
+            || (int) Math.floor(feetBox.maxZ) - (int) Math.floor(feetBox.minZ) >= 1;
 
         for (int x = (int) Math.floor(feetBox.minX); x <= (int) Math.floor(feetBox.maxX); x++)
         {

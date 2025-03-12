@@ -107,6 +107,7 @@ public class Sphere2dMarker extends BaseMarker
         })
         .build()
     );
+
     public Sphere2dMarker()
     {
         super(type);

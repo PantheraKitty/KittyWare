@@ -22,9 +22,9 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class InventoryHud extends HudElement
 {
-    private static final Identifier TEXTURE = MeteorClient.identifier("textures/container.png");    public static final HudElementInfo<InventoryHud> INFO = new HudElementInfo<>(Hud.GROUP, "inventory", "Displays your inventory.", InventoryHud::new);
+    private static final Identifier TEXTURE = MeteorClient.identifier("textures/container.png");
     private static final Identifier TEXTURE_TRANSPARENT = MeteorClient.identifier("textures/container-transparent.png");
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<InventoryHud> INFO = new HudElementInfo<>(Hud.GROUP, "inventory", "Displays your inventory.", InventoryHud::new);
     private final Setting<Boolean> containers = sgGeneral.add(new BoolSetting.Builder()
         .name("containers")
         .description("Shows the contents of a container when holding them.")
@@ -32,21 +32,12 @@ public class InventoryHud extends HudElement
         .build()
     );
     private final ItemStack[] containerItems = new ItemStack[9 * 3];
-
     private InventoryHud()
     {
         super(INFO);
 
         calculateSize();
-    }    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("The scale.")
-        .defaultValue(2)
-        .min(1)
-        .sliderRange(1, 5)
-        .onChanged(aDouble -> calculateSize())
-        .build()
-    );
+    }
 
     @Override
     public void render(HudRenderer renderer)
@@ -82,24 +73,12 @@ public class InventoryHud extends HudElement
                 }
             }
         });
-    }    private final Setting<Background> background = sgGeneral.add(new EnumSetting.Builder<Background>()
-        .name("background")
-        .description("Background of inventory viewer.")
-        .defaultValue(Background.Texture)
-        .onChanged(bg -> calculateSize())
-        .build()
-    );
+    }
 
     private void calculateSize()
     {
         setSize(background.get().width * scale.get(), background.get().height * scale.get());
-    }    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
-        .name("background-color")
-        .description("Color of the background.")
-        .defaultValue(new SettingColor(255, 255, 255))
-        .visible(() -> background.get() != Background.None)
-        .build()
-    );
+    }
 
     private void drawBackground(HudRenderer renderer, int x, int y, Color color)
     {
@@ -125,7 +104,15 @@ public class InventoryHud extends HudElement
         if (Utils.hasItems(stack) || stack.getItem() == Items.ENDER_CHEST) return stack;
 
         return null;
-    }
+    }    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("The scale.")
+        .defaultValue(2)
+        .min(1)
+        .sliderRange(1, 5)
+        .onChanged(aDouble -> calculateSize())
+        .build()
+    );
 
     public enum Background
     {
@@ -145,9 +132,23 @@ public class InventoryHud extends HudElement
 
 
 
+    private final Setting<Background> background = sgGeneral.add(new EnumSetting.Builder<Background>()
+        .name("background")
+        .description("Background of inventory viewer.")
+        .defaultValue(Background.Texture)
+        .onChanged(bg -> calculateSize())
+        .build()
+    );
 
 
 
+    private final Setting<SettingColor> color = sgGeneral.add(new ColorSetting.Builder()
+        .name("background-color")
+        .description("Color of the background.")
+        .defaultValue(new SettingColor(255, 255, 255))
+        .visible(() -> background.get() != Background.None)
+        .build()
+    );
 
 
 }

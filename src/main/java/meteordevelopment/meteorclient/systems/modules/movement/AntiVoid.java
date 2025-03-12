@@ -18,13 +18,7 @@ import meteordevelopment.orbit.EventHandler;
 public class AntiVoid extends Module
 {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-    private boolean wasFlightEnabled, hasRun;    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
-        .name("mode")
-        .description("The method to prevent you from falling into the void.")
-        .defaultValue(Mode.Jump)
-        .onChanged(a -> onActivate())
-        .build()
-    );
+    private boolean wasFlightEnabled, hasRun;
 
     public AntiVoid()
     {
@@ -35,7 +29,13 @@ public class AntiVoid extends Module
     public void onActivate()
     {
         if (mode.get() == Mode.Flight) wasFlightEnabled = Modules.get().isActive(Flight.class);
-    }
+    }    private final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
+        .name("mode")
+        .description("The method to prevent you from falling into the void.")
+        .defaultValue(Mode.Jump)
+        .onChanged(a -> onActivate())
+        .build()
+    );
 
     @Override
     public void onDeactivate()
@@ -77,6 +77,8 @@ public class AntiVoid extends Module
         Flight,
         Jump
     }
+
+
 
 
 }

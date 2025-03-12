@@ -74,6 +74,7 @@ public class Excavator extends Module
     );
     private Status status = Status.SEL_START;
     private BetterBlockPos start, end;
+
     public Excavator()
     {
         super(Categories.World, "excavator", "Excavate a selection area.");

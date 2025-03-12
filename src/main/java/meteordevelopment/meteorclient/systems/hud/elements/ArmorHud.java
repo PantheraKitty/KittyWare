@@ -18,27 +18,20 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class ArmorHud extends HudElement
 {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<ArmorHud> INFO = new HudElementInfo<>(Hud.GROUP, "armor", "Displays your armor.", ArmorHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgDurability = settings.createGroup("Durability");
-    private final SettingGroup sgBackground = settings.createGroup("Background");
+    private final SettingGroup sgBackground = settings.createGroup("Background");    public static final HudElementInfo<ArmorHud> INFO = new HudElementInfo<>(Hud.GROUP, "armor", "Displays your armor.", ArmorHud::new);
     private final Setting<Boolean> flipOrder = sgGeneral.add(new BoolSetting.Builder()
         .name("flip-order")
         .description("Flips the order of armor items.")
         .defaultValue(true)
         .build()
     );
-
     // General
     private final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
         .description("Displays background.")
         .defaultValue(false)
-        .build()
-    );    private final Setting<Orientation> orientation = sgGeneral.add(new EnumSetting.Builder<Orientation>()
-        .name("orientation")
-        .description("How to display armor.")
-        .defaultValue(Orientation.Horizontal)
-        .onChanged(val -> calculateSize())
         .build()
     );
     private final Setting<SettingColor> backgroundColor = sgBackground.add(new ColorSetting.Builder()
@@ -48,35 +41,18 @@ public class ArmorHud extends HudElement
         .defaultValue(new SettingColor(25, 25, 25, 50))
         .build()
     );
-
     public ArmorHud()
     {
         super(INFO);
 
         calculateSize();
-    }    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("The scale.")
-        .defaultValue(2)
-        .onChanged(aDouble -> calculateSize())
-        .min(1)
-        .sliderRange(1, 5)
-        .build()
-    );
+    }
 
     @Override
     public void setSize(double width, double height)
     {
         super.setSize(width + border.get() * 2, height + border.get() * 2);
-    }    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
-        .name("border")
-        .description("How much space to add around the element.")
-        .defaultValue(0)
-        .onChanged(integer -> calculateSize())
-        .build()
-    );
-
-    // Durability
+    }
 
     private void calculateSize()
     {
@@ -85,11 +61,11 @@ public class ArmorHud extends HudElement
             case Horizontal -> setSize(16 * scale.get() * 4 + 2 * 4, 16 * scale.get());
             case Vertical -> setSize(16 * scale.get(), 16 * scale.get() * 4 + 2 * 4);
         }
-    }    private final Setting<Durability> durability = sgDurability.add(new EnumSetting.Builder<Durability>()
-        .name("durability")
-        .description("How to display armor durability.")
-        .defaultValue(Durability.Bar)
-        .onChanged(durability1 -> calculateSize())
+    }    private final Setting<Orientation> orientation = sgGeneral.add(new EnumSetting.Builder<Orientation>()
+        .name("orientation")
+        .description("How to display armor.")
+        .defaultValue(Orientation.Horizontal)
+        .onChanged(val -> calculateSize())
         .build()
     );
 
@@ -151,13 +127,7 @@ public class ArmorHud extends HudElement
         {
             renderer.quad(this.x, this.y, getWidth(), getHeight(), backgroundColor.get());
         }
-    }    private final Setting<SettingColor> durabilityColor = sgDurability.add(new ColorSetting.Builder()
-        .name("durability-color")
-        .description("Color of the text.")
-        .visible(() -> durability.get() == Durability.Total || durability.get() == Durability.Percentage)
-        .defaultValue(new SettingColor())
-        .build()
-    );
+    }
 
     private ItemStack getItem(int i)
     {
@@ -165,23 +135,15 @@ public class ArmorHud extends HudElement
         {
             return switch (i)
             {
-                default -> Items.NETHERITE_BOOTS.getDefaultStack();
                 case 1 -> Items.NETHERITE_LEGGINGS.getDefaultStack();
                 case 2 -> Items.NETHERITE_CHESTPLATE.getDefaultStack();
                 case 3 -> Items.NETHERITE_HELMET.getDefaultStack();
+                default -> Items.NETHERITE_BOOTS.getDefaultStack();
             };
         }
 
         return mc.player.getInventory().getArmorStack(i);
-    }    private final Setting<Boolean> durabilityShadow = sgDurability.add(new BoolSetting.Builder()
-        .name("durability-shadow")
-        .description("Text shadow.")
-        .visible(() -> durability.get() == Durability.Total || durability.get() == Durability.Percentage)
-        .defaultValue(true)
-        .build()
-    );
-
-    // Background
+    }
 
     public enum Durability
     {
@@ -195,19 +157,59 @@ public class ArmorHud extends HudElement
     {
         Horizontal,
         Vertical
-    }
+    }    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("The scale.")
+        .defaultValue(2)
+        .onChanged(aDouble -> calculateSize())
+        .min(1)
+        .sliderRange(1, 5)
+        .build()
+    );
 
 
 
 
 
+    private final Setting<Integer> border = sgGeneral.add(new IntSetting.Builder()
+        .name("border")
+        .description("How much space to add around the element.")
+        .defaultValue(0)
+        .onChanged(integer -> calculateSize())
+        .build()
+    );
+
+    // Durability
 
 
 
+    private final Setting<Durability> durability = sgDurability.add(new EnumSetting.Builder<Durability>()
+        .name("durability")
+        .description("How to display armor durability.")
+        .defaultValue(Durability.Bar)
+        .onChanged(durability1 -> calculateSize())
+        .build()
+    );
 
 
+    private final Setting<SettingColor> durabilityColor = sgDurability.add(new ColorSetting.Builder()
+        .name("durability-color")
+        .description("Color of the text.")
+        .visible(() -> durability.get() == Durability.Total || durability.get() == Durability.Percentage)
+        .defaultValue(new SettingColor())
+        .build()
+    );
 
 
+    private final Setting<Boolean> durabilityShadow = sgDurability.add(new BoolSetting.Builder()
+        .name("durability-shadow")
+        .description("Text shadow.")
+        .visible(() -> durability.get() == Durability.Total || durability.get() == Durability.Percentage)
+        .defaultValue(true)
+        .build()
+    );
+
+    // Background
 
 
 }

@@ -17,7 +17,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class AccountInfoScreen extends WindowScreen
 {
-    private Account<?> account;
+    private final Account<?> account;
 
     public AccountInfoScreen(GuiTheme theme, Account<?> account)
     {

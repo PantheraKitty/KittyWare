@@ -85,7 +85,7 @@ public class SettingCommand extends Command
                                     {
                                         if (setting instanceof BoolSetting _setting)
                                         {
-                                            Setting<Boolean> boolSetting = (Setting<Boolean>) _setting;
+                                            Setting<Boolean> boolSetting = _setting;
 
                                             ChatUtils.forceNextPrefixClass(getClass());
                                             ChatUtils.sendMsg(this.hashCode(), Formatting.GRAY, "Toggled (highlight)%s %s(default) %s(default).", ModuleArgumentType.get(context).title, setting.title, boolSetting.get() ? Formatting.GREEN + "on" : Formatting.RED + "off");

@@ -29,7 +29,7 @@ public class GrimDisabler extends Module
                     .visible(() -> horizontalDisblerMode.get() != HorizontalDisablerMode.None)
                     .build());*/
 
-    private boolean fallFlyingBoostState = false;
+    private final boolean fallFlyingBoostState = false;
 
     public GrimDisabler()
     {

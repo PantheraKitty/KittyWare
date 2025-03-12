@@ -52,7 +52,7 @@ public class CombatHud extends HudElement
     private static final Color GREEN = new Color(15, 255, 15);
     private static final Color RED = new Color(255, 15, 15);
     private static final Color BLACK = new Color(0, 0, 0, 255);
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();    public static final HudElementInfo<CombatHud> INFO = new HudElementInfo<>(Hud.GROUP, "combat", "Displays information about your combat target.", CombatHud::new);
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
         .name("range")
         .description("The range to target players.")
@@ -66,15 +66,7 @@ public class CombatHud extends HudElement
         .description("Shows the player's ping.")
         .defaultValue(true)
         .build()
-    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
-        .name("scale")
-        .description("The scale.")
-        .defaultValue(2)
-        .min(1)
-        .sliderRange(1, 5)
-        .onChanged(aDouble -> calculateSize())
-        .build()
-    );
+    );    public static final HudElementInfo<CombatHud> INFO = new HudElementInfo<>(Hud.GROUP, "combat", "Displays information about your combat target.", CombatHud::new);
     private final Setting<SettingColor> pingColor1 = sgGeneral.add(new ColorSetting.Builder()
         .name("ping-stage-1")
         .description("Color of ping text when under 75.")
@@ -100,6 +92,14 @@ public class CombatHud extends HudElement
         .name("distance")
         .description("Shows the distance between you and the player.")
         .defaultValue(true)
+        .build()
+    );    private final Setting<Double> scale = sgGeneral.add(new DoubleSetting.Builder()
+        .name("scale")
+        .description("The scale.")
+        .defaultValue(2)
+        .min(1)
+        .sliderRange(1, 5)
+        .onChanged(aDouble -> calculateSize())
         .build()
     );
     private final Setting<SettingColor> distColor1 = sgGeneral.add(new ColorSetting.Builder()
@@ -160,7 +160,6 @@ public class CombatHud extends HudElement
         .build()
     );
     private PlayerEntity playerEntity;
-
     public CombatHud()
     {
         super(INFO);
@@ -447,6 +446,8 @@ public class CombatHud extends HudElement
             default -> playerEntity.getInventory().getArmorStack(i);
         };
     }
+
+
 
 
 

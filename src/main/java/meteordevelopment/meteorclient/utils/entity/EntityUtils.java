@@ -42,7 +42,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class EntityUtils
 {
-    private static BlockPos.Mutable testPos = new BlockPos.Mutable();
+    private static final BlockPos.Mutable testPos = new BlockPos.Mutable();
 
     private EntityUtils()
     {
@@ -163,7 +163,7 @@ public class EntityUtils
         {
             testPos.set(player.getBlockPos().offset(direction));
 
-            if (excludeBlockPos != null && testPos.equals(excludeBlockPos))
+            if (testPos.equals(excludeBlockPos))
             {
                 continue;
             }

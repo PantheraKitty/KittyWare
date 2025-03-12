@@ -57,24 +57,19 @@ public class AutoMine extends Module
         sgGeneral.add(new EnumSetting.Builder<AntiSurroundMode>().name("anti-surround-mode")
             .description("Places crystals in places to prevent surround")
             .defaultValue(AntiSurroundMode.Auto).build());
-
+    private final Map<BlockPos, Long> crystalSpamTargets = new HashMap<>();
+    private final List<BlockPos> removePoses = new ArrayList<>();
     private SilentMine silentMine = null;
-
     private PlayerEntity targetPlayer = null;
-
     private CityBlock target1 = null;
     private CityBlock target2 = null;
-
-    private Map<BlockPos, Long> crystalSpamTargets = new HashMap<>();
-
-    private List<BlockPos> removePoses = new ArrayList<>();
 
     public AutoMine()
     {
         super(Categories.Combat, "auto-mine",
             "Automatically mines blocks. Requires SilentMine to work.");
 
-        silentMine = (SilentMine) Modules.get().get(SilentMine.class);
+        silentMine = Modules.get().get(SilentMine.class);
     }
 
     @Override
@@ -84,7 +79,7 @@ public class AutoMine extends Module
 
         if (silentMine == null)
         {
-            silentMine = (SilentMine) Modules.get().get(SilentMine.class);
+            silentMine = Modules.get().get(SilentMine.class);
         }
 
         crystalSpamTargets.clear();
@@ -95,7 +90,7 @@ public class AutoMine extends Module
     {
         if (silentMine == null)
         {
-            silentMine = (SilentMine) Modules.get().get(SilentMine.class);
+            silentMine = Modules.get().get(SilentMine.class);
         }
 
         Long currentTime = System.currentTimeMillis();
@@ -177,7 +172,7 @@ public class AutoMine extends Module
     {
         if (silentMine == null)
         {
-            silentMine = (SilentMine) Modules.get().get(SilentMine.class);
+            silentMine = Modules.get().get(SilentMine.class);
         }
 
         BlockState selfFeetBlock = mc.world.getBlockState(mc.player.getBlockPos());
@@ -245,11 +240,10 @@ public class AutoMine extends Module
 
             if (ignoreNakeds.get())
             {
-                if (player.getInventory().armor.get(0).isEmpty()
-                    && player.getInventory().armor.get(1).isEmpty()
-                    && player.getInventory().armor.get(2).isEmpty()
-                    && player.getInventory().armor.get(3).isEmpty())
-                    return false;
+                return !player.getInventory().armor.get(0).isEmpty()
+                    || !player.getInventory().armor.get(1).isEmpty()
+                    || !player.getInventory().armor.get(2).isEmpty()
+                    || !player.getInventory().armor.get(3).isEmpty();
             }
 
             return true;

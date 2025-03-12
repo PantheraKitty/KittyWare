@@ -17,13 +17,13 @@ import java.util.List;
 
 public class ActiveModulesHud extends HudElement
 {
-    private static final Color WHITE = new Color();    public static final HudElementInfo<ActiveModulesHud> INFO = new HudElementInfo<>(Hud.GROUP, "active-modules", "Displays your active modules.", ActiveModulesHud::new);
+    private static final Color WHITE = new Color();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final Setting<List<Module>> shownModules = sgGeneral.add(new ModuleListSetting.Builder()
         .name("visible-modules")
         .description("Which modules to show in the list")
         .build()
-    );
+    );    public static final HudElementInfo<ActiveModulesHud> INFO = new HudElementInfo<>(Hud.GROUP, "active-modules", "Displays your active modules.", ActiveModulesHud::new);
     private final Setting<Sort> sort = sgGeneral.add(new EnumSetting.Builder<Sort>()
         .name("sort")
         .description("How to sort active modules.")
@@ -331,6 +331,8 @@ public class ActiveModulesHud extends HudElement
         Random,
         Rainbow
     }
+
+
 
 
 }

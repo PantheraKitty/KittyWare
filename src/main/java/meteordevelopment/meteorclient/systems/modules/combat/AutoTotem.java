@@ -108,12 +108,7 @@ public class AutoTotem extends Module
 
         FindItemResult hotbarResult = InvUtils.find(x ->
         {
-            if (x.getItem().equals(Items.TOTEM_OF_UNDYING))
-            {
-                return true;
-            }
-
-            return false;
+            return x.getItem().equals(Items.TOTEM_OF_UNDYING);
         }, 0, 8);
 
         if (shouldOffhandTotem && mc.player.getOffHandStack().getItem() != Items.TOTEM_OF_UNDYING)
@@ -149,12 +144,7 @@ public class AutoTotem extends Module
 
         FindItemResult hotbarResult = InvUtils.find(x ->
         {
-            if (x.getItem().equals(Items.TOTEM_OF_UNDYING))
-            {
-                return true;
-            }
-
-            return false;
+            return x.getItem().equals(Items.TOTEM_OF_UNDYING);
         }, 0, 8);
 
         if (antiTFailUseBackupSwapEat.get() && mc.player.isUsingItem())
@@ -215,7 +205,6 @@ public class AutoTotem extends Module
                     mc.player);
             }
 
-            return;
         }
 
     }
@@ -224,12 +213,7 @@ public class AutoTotem extends Module
     {
         return InvUtils.find(x ->
         {
-            if (x.getItem().equals(Items.TOTEM_OF_UNDYING))
-            {
-                return true;
-            }
-
-            return false;
+            return x.getItem().equals(Items.TOTEM_OF_UNDYING);
         }, 9, 35);
     }
 

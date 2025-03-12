@@ -127,12 +127,7 @@ public class BetterTab extends Module
     {
         if (isActive() && onlyFriendsAndEnemeies.get())
         {
-            if (Friends.get().isFriend(playerListEntry) || Friends.get().isEnemy(playerListEntry))
-            {
-                return true;
-            }
-
-            return false;
+            return Friends.get().isFriend(playerListEntry) || Friends.get().isEnemy(playerListEntry);
         }
 
         return true;

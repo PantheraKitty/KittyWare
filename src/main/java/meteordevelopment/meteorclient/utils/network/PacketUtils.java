@@ -485,7 +485,7 @@ public class PacketUtils
         @Override
         public int size()
         {
-            return S2C_PACKETS.keySet().size() + C2S_PACKETS.keySet().size();
+            return S2C_PACKETS.size() + C2S_PACKETS.size();
         }
 
         @Override

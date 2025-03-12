@@ -102,6 +102,7 @@ public class SelfTrap extends Module
     private final List<BlockPos> placePositions = new ArrayList<>();
     private boolean placed;
     private int delay;
+
     public SelfTrap()
     {
         super(Categories.Combat, "self-trap", "Places blocks above your head.");

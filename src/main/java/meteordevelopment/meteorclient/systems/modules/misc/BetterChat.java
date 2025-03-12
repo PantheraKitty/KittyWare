@@ -84,7 +84,8 @@ public class BetterChat extends Module
             .defaultValue(false).build());
     private final Setting<Boolean> playerHeads = sgGeneral.add(new BoolSetting.Builder()
         .name("player-heads").description("Displays player heads next to their messages.")
-        .defaultValue(true).build());    private final Setting<List<String>> regexFilters = sgFilter.add(new StringListSetting.Builder()
+        .defaultValue(true).build());
+    private final Setting<List<String>> regexFilters = sgFilter.add(new StringListSetting.Builder()
         .name("regex-filter").description("Regex filter used for filtering chat messages.")
         .build());
 
