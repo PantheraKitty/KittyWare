@@ -18,6 +18,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
@@ -35,6 +36,16 @@ public class Filler extends Module
             .name("mode")
             .description("What mode to use.")
             .defaultValue(FillerMode.Below)
+            .build()
+    );
+
+    private final Setting<Integer> range = sgGeneral.add(
+        new IntSetting.Builder()
+            .name("block-range")
+            .description("How far to place blocks")
+            .defaultValue(5)
+            .min(2)
+            .sliderMax(6)
             .build()
     );
 
@@ -200,13 +211,14 @@ public class Filler extends Module
 
         for (Map.Entry<BlockPos, Long> entry : renderLastPlacedBlock.entrySet())
         {
-            if (currentTime - entry.getValue() > fadeTime.get() * 1000)
+            long placedTime = entry.getValue();
+
+            if (currentTime - placedTime > fadeTime.get() * 1000)
             {
                 continue;
             }
 
-            double time = (currentTime - entry.getValue()) / 1000.0;
-
+            double time = (currentTime - placedTime) / 1000.0;
             double timeCompletion = time / fadeTime.get();
 
             Color fadedSideColor =
@@ -214,15 +226,45 @@ public class Filler extends Module
             Color fadedLineColor =
                 lineColor.get().copy().a((int) (lineColor.get().a * (1 - timeCompletion)));
 
-            event.renderer.box(entry.getKey(), fadedSideColor, fadedLineColor, shapeMode.get(), 0);
+            BlockPos pos = entry.getKey();
+
+            for (Direction dir : Direction.values())
+            {
+                if (!isSharedFace(pos, dir))
+                {  // Only render if not shared
+                    event.renderer.face(pos, dir, fadedSideColor, fadedLineColor, shapeMode.get());
+                }
+            }
+
+
         }
     }
+
+    private boolean isSharedFace(BlockPos pos, Direction direction)
+    {
+        BlockPos adjacentPos = pos.offset(direction);
+
+        // Check if the adjacent block is also a rendered block and is still valid
+        if (renderLastPlacedBlock.containsKey(adjacentPos))
+        {
+            long adjacentPlacedTime = renderLastPlacedBlock.get(adjacentPos);
+            long currentTime = System.currentTimeMillis();
+
+            // If the adjacent block is still within fade time, skip rendering the face
+            if (currentTime - adjacentPlacedTime <= fadeTime.get() * 1000)
+            {
+                return true;  // The face should not be rendered
+            }
+        }
+        return false; // The face should be rendered
+    }
+
 
     private List<BlockPos> getBlockPoses()
     {
         List<BlockPos> placePoses = new ArrayList<>();
 
-        int r = 5;
+        int r = range.get();
         BlockPos eyePos = BlockPos.ofFloored(mc.player.getEyePos());
 
         int ex = eyePos.getX();
@@ -293,14 +335,14 @@ public class Filler extends Module
         {
             case East ->
             {
-                if (blockPos.getX() >= mc.player.getBlockX())
+                if (blockPos.getX() <= mc.player.getBlockX())
                 {
                     return false;
                 }
             }
             case West ->
             {
-                if (blockPos.getX() <= mc.player.getBlockX())
+                if (blockPos.getX() >= mc.player.getBlockX())
                 {
                     return false;
                 }
@@ -308,14 +350,14 @@ public class Filler extends Module
 
             case South ->
             {
-                if (blockPos.getZ() >= mc.player.getBlockZ())
+                if (blockPos.getZ() <= mc.player.getBlockZ())
                 {
                     return false;
                 }
             }
             case North ->
             {
-                if (blockPos.getZ() <= mc.player.getBlockZ())
+                if (blockPos.getZ() >= mc.player.getBlockZ())
                 {
                     return false;
                 }
