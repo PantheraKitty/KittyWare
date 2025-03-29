@@ -246,8 +246,10 @@ public class Renderer3D
         if (mode.sides()) boxSides(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, sideColor, excludeDir);
     }
 
-    public void face(BlockPos pos, Direction direction, Color sideColor, Color lineColor, ShapeMode shapeMode) {
-        switch (direction) {
+    public void face(BlockPos pos, Direction direction, Color sideColor, Color lineColor, ShapeMode shapeMode)
+    {
+        switch (direction)
+        {
             case UP, EAST, SOUTH, DOWN, NORTH, WEST:
                 this.box(pos, sideColor, lineColor, shapeMode, 0);
                 break;
