@@ -1,126 +1,96 @@
 package meteordevelopment.meteorclient.systems.modules.combat;
 
+import java.util.ArrayList;
+import java.util.List;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.EnumSetting;
+import meteordevelopment.meteorclient.settings.KeybindSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.systems.managers.RotationManager;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.movement.MovementFix;
+import meteordevelopment.meteorclient.utils.entity.ProjectileEntitySimulator;
 import meteordevelopment.meteorclient.utils.misc.Keybind;
-import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-public class PearlPhase extends Module
-{
+public class PearlPhase extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<SwitchMode> switchMode =
-        sgGeneral.add(new EnumSetting.Builder<SwitchMode>().name("Switch Mode")
-            .description("Which method of switching should be used.")
-            .defaultValue(SwitchMode.SilentHotbar).build());
-
     private final Setting<Keybind> phaseBind = sgGeneral.add(new KeybindSetting.Builder()
-        .name("key-bind").description("Phase on keybind press").build());
-
-    private final Setting<Double> movementPredictionFactor =
-        sgGeneral.add(new DoubleSetting.Builder().name("movement-prediction-factor")
-            .description("How far to predict your movement ahead").defaultValue(0)
-            .range(-5, 5).sliderRange(-5, 5).build());
+            .name("key-bind").description("Phase on keybind press").build());
 
     private final Setting<RotateMode> rotateMode =
-        sgGeneral.add(new EnumSetting.Builder<RotateMode>().name("rotate-mode")
-            .description("Which method of rotating should be used.")
-            .defaultValue(RotateMode.DelayedInstantWebOnly).build());
+            sgGeneral.add(new EnumSetting.Builder<RotateMode>().name("rotate-mode")
+                    .description("Which method of rotating should be used.")
+                    .defaultValue(RotateMode.DelayedInstantWebOnly).build());
+
+    private final Setting<Boolean> burrow =
+            sgGeneral.add(new BoolSetting.Builder().name("borrow")
+                    .description("Places a block where you phase.").defaultValue(true).build());
+
+    private final Setting<Boolean> antiPearlFail = sgGeneral.add(new BoolSetting.Builder()
+            .name("anti-pearl-fail").description("Hits entites below you when you phase.")
+            .defaultValue(true).build());
+
+    private final Setting<Boolean> antiPearlFailStrict =
+            sgGeneral.add(new BoolSetting.Builder().name("anti-pearl-fail-strict")
+                    .description("Waits for the entity to disapear before phasing.")
+                    .defaultValue(false).build());
 
     private boolean active = false;
     private boolean keyUnpressed = false;
+    private final ProjectileEntitySimulator simulator = new ProjectileEntitySimulator();
 
-    public PearlPhase()
-    {
+    public PearlPhase() {
         super(Categories.Combat, "pearl-phase", "Phases into walls using pearls");
     }
 
-    private void activate()
-    {
+    private void activate() {
         active = true;
 
         if (mc.player == null || mc.world == null)
             return;
 
-        Box boundingBox = mc.player.getBoundingBox().shrink(0.05, 0.1, 0.05);
-        double feetY = mc.player.getY();
-
-        Box feetBox = new Box(boundingBox.minX, feetY, boundingBox.minZ, boundingBox.maxX,
-            feetY + 0.1, boundingBox.maxZ);
-
-        for (BlockPos pos : BlockPos.iterate((int) Math.floor(feetBox.minX),
-            (int) Math.floor(feetBox.minY), (int) Math.floor(feetBox.minZ),
-            (int) Math.floor(feetBox.maxX), (int) Math.floor(feetBox.maxY),
-            (int) Math.floor(feetBox.maxZ)))
-        {
-            Block block = mc.world.getBlockState(pos).getBlock();
-
-            if (block.equals(Blocks.OBSIDIAN) || block.equals(Blocks.BEDROCK))
-            {
-                deactivate(false);
-                return;
-            }
-        }
-
-        if (switch (switchMode.get())
-        {
-            case SilentHotbar -> !InvUtils.findInHotbar(Items.ENDER_PEARL).found();
-            case SilentSwap -> !InvUtils.find(Items.ENDER_PEARL).found();
-        })
-        {
-            deactivate(false);
-            return;
-        }
-
-        if (mc.options.sneakKey.isPressed())
-        {
-            deactivate(false);
-        }
+        update();
     }
 
-    private void deactivate(boolean phased)
-    {
+    private void deactivate(boolean phased) {
         active = false;
 
-        if (phased)
-        {
+        if (phased) {
             info("Phased");
         }
     }
 
-    private void update()
-    {
-        if (!phaseBind.get().isPressed())
-        {
-            keyUnpressed = true;
+    private void update() {
+        if (mc.player == null || mc.world == null) {
+            return;
         }
 
-        if (phaseBind.get().isPressed() && keyUnpressed
-            && !(mc.currentScreen instanceof ChatScreen))
-        {
-            activate();
-            keyUnpressed = false;
-        }
-
-        if (!active)
-        {
+        if (!active) {
             return;
         }
 
@@ -128,46 +98,35 @@ public class PearlPhase extends Module
         double feetY = mc.player.getY();
 
         Box feetBox = new Box(boundingBox.minX, feetY, boundingBox.minZ, boundingBox.maxX,
-            feetY + 0.1, boundingBox.maxZ);
+                feetY + 0.1, boundingBox.maxZ);
 
-        for (BlockPos pos : BlockPos.iterate((int) Math.floor(feetBox.minX),
-            (int) Math.floor(feetBox.minY), (int) Math.floor(feetBox.minZ),
-            (int) Math.floor(feetBox.maxX), (int) Math.floor(feetBox.maxY),
-            (int) Math.floor(feetBox.maxZ)))
-        {
-            Block block = mc.world.getBlockState(pos).getBlock();
-
-            if (block.equals(Blocks.OBSIDIAN) || block.equals(Blocks.BEDROCK))
-            {
-                deactivate(false);
-                return;
-            }
+        // Can't phase if we're already phased
+        if (BlockPos.stream(feetBox).anyMatch(blockPos -> {
+            return mc.world.getBlockState(blockPos).isSolidBlock(mc.world, blockPos);
+        })) {
+            deactivate(false);
         }
 
-
-        if (switch (switchMode.get())
-        {
-            case SilentHotbar -> !InvUtils.findInHotbar(Items.ENDER_PEARL).found();
-            case SilentSwap -> !InvUtils.find(Items.ENDER_PEARL).found();
-        })
-        {
+        if (!MeteorClient.SWAP.canSwap(Items.ENDER_PEARL)) {
             deactivate(false);
             return;
         }
 
-        if (mc.options.sneakKey.isPressed())
-        {
+        if (mc.player.getItemCooldownManager().isCoolingDown(Items.ENDER_PEARL)) {
             deactivate(false);
+            return;
         }
 
-
+        // Can't phase while sneaking/crawling
+        if (mc.options.sneakKey.isPressed() || mc.player.isCrawling()) {
+            deactivate(false);
+            return;
+        }
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event)
-    {
-        if (!active)
-        {
+    private void onTick(TickEvent.Post event) {
+        if (!active) {
             return;
         }
 
@@ -177,52 +136,44 @@ public class PearlPhase extends Module
         // Rotation Modes:
         // Movement: Requests a rotation from the RotationManager and waits for it to be fulfilled
         // Instant: Instantly sends a movement packet with the rotation
-        // DelayedInstant: Requests a rotation from the RotationManager and waits for it to be fulfilled, then sends a movement packet with the rotation
-        // DelayedInstantWebOnly: Same as DelayedInstant, but only sends a movement packet when in webs
+        // DelayedInstant: Requests a rotation from the RotationManager and waits for it to be
+        // fulfilled, then sends a movement packet with the rotation
+        // DelayedInstantWebOnly: Same as DelayedInstant, but only sends a movement packet when in
+        // webs
 
         // Movement fails in webs on Grim,
         // instant is a bit iffy since it doesn't work when you rubberband
 
         // DelayedInstantWebOnly should work best for grim?
-        switch (rotateMode.get())
-        {
-            case Movement ->
-            {
+        switch (rotateMode.get()) {
+            case Movement -> {
                 MeteorClient.ROTATION.requestRotation(targetPos, 1000f);
 
-                if (MeteorClient.ROTATION.lookingAt(Box.of(targetPos, 0.05, 0.05, 0.05)))
-                {
+                if (MeteorClient.ROTATION.lookingAt(Box.of(targetPos, 0.05, 0.05, 0.05))) {
                     throwPearl(angle[0], angle[1]);
                 }
             }
-            case Instant ->
-            {
-                if (mc.player.isOnGround())
-                {
+            case Instant -> {
+                if (mc.player.isOnGround()) {
                     MeteorClient.ROTATION.snapAt(targetPos);
 
                     throwPearl(angle[0], angle[1]);
                 }
             }
-            case DelayedInstant ->
-            {
+            case DelayedInstant -> {
                 MeteorClient.ROTATION.requestRotation(targetPos, 1000f);
 
-                if (MeteorClient.ROTATION.lookingAt(Box.of(targetPos, 0.05, 0.05, 0.05)))
-                {
+                if (MeteorClient.ROTATION.lookingAt(Box.of(targetPos, 0.05, 0.05, 0.05))) {
                     MeteorClient.ROTATION.snapAt(targetPos);
 
                     throwPearl(angle[0], angle[1]);
                 }
             }
-            case DelayedInstantWebOnly ->
-            {
+            case DelayedInstantWebOnly -> {
                 MeteorClient.ROTATION.requestRotation(targetPos, 1000f);
 
-                if (MeteorClient.ROTATION.lookingAt(Box.of(targetPos, 0.05, 0.05, 0.05)))
-                {
-                    if (MovementFix.inWebs)
-                    {
+                if (MeteorClient.ROTATION.lookingAt(Box.of(targetPos, 0.05, 0.05, 0.05))) {
+                    if (MovementFix.inWebs) {
                         MeteorClient.ROTATION.snapAt(targetPos);
                     }
 
@@ -232,106 +183,166 @@ public class PearlPhase extends Module
         }
     }
 
+    private void throwPearl(float yaw, float pitch) {
+        if (antiPearlFail.get()) {
+            HitResult hitResult = getEnderPearlHitResult();
 
-    private void throwPearl(float yaw, float pitch)
-    {
-        int invSlot = InvUtils.find(Items.ENDER_PEARL).slot();
-        int selectedSlot = mc.player.getInventory().selectedSlot;
-        boolean didSilentSwap = false;
+            if (hitResult != null) {
+                if (hitResult.getType() == HitResult.Type.ENTITY) {
+                    Entity hitEntity = ((EntityHitResult) hitResult).getEntity();
 
-        switch (switchMode.get())
-        {
-            case SilentHotbar ->
-            {
-                InvUtils.swap(InvUtils.findInHotbar(Items.ENDER_PEARL).slot(), true);
+                    if (hitEntity instanceof EndCrystalEntity
+                            || hitEntity instanceof ItemFrameEntity) {
+                        // Forcibly request breaking the entity if it's thjere
+
+                        MeteorClient.ROTATION.requestRotation(hitEntity.getPos(), 11);
+
+                        if (!MeteorClient.ROTATION.lookingAt(hitEntity.getBoundingBox())
+                                && RotationManager.lastGround) {
+                            MeteorClient.ROTATION.snapAt(hitEntity.getPos());
+                        }
+
+                        if (MeteorClient.ROTATION.lookingAt(hitEntity.getBoundingBox())) {
+                            mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket
+                                    .attack(hitEntity, mc.player.isSneaking()));
+                        }
+                    }
+
+                    if (antiPearlFailStrict.get() && hitEntity != null) {
+                        return;
+                    }
+                }
             }
-            case SilentSwap ->
-            {
-                if (invSlot != mc.player.getInventory().selectedSlot)
-                {
-                    InvUtils.quickSwap().fromId(selectedSlot).to(invSlot);
-                    didSilentSwap = true;
+
+
+            // If we're in a scaffold, break it cause it causes unhappiness
+            if (mc.world.getBlockState(mc.player.getBlockPos()).isOf(Blocks.SCAFFOLDING)) {
+                // Since we insta-break scaffolding, we can just send the
+                // START_DESTROY_BLOCK packet
+                // See Paper-Server ServerPlayerGameMode.java:278
+                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
+                        PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, mc.player.getBlockPos(), Direction.UP,
+                        mc.world.getPendingUpdateManager().incrementSequence().getSequence()));
+
+                if (antiPearlFailStrict.get()) {
+                    return;
                 }
             }
         }
 
-        int sequence = mc.world.getPendingUpdateManager().incrementSequence().getSequence();
+        if (burrow.get() && !mc.player.isUsingItem()) {
+            Vec3d targetPos = calculateTargetPos();
+            Box newHitbox = mc.player.getBoundingBox()
+                    .offset(targetPos.x - mc.player.getX(), 0, targetPos.z - mc.player.getZ())
+                    .expand(0.05);
 
-        mc.getNetworkHandler()
-            .sendPacket(new PlayerInteractItemC2SPacket(Hand.MAIN_HAND, sequence, yaw, pitch));
+            List<BlockPos> placePoses = new ArrayList<>();
 
-        deactivate(true);
+            // Calculate the corners of the bounding box at the feet level
+            int minX = (int) Math.floor(newHitbox.minX);
+            int maxX = (int) Math.floor(newHitbox.maxX);
+            int minZ = (int) Math.floor(newHitbox.minZ);
+            int maxZ = (int) Math.floor(newHitbox.maxZ);
 
-        switch (switchMode.get())
-        {
-            case SilentHotbar -> InvUtils.swapBack();
-            case SilentSwap ->
-            {
-                if (didSilentSwap)
-                {
-                    InvUtils.quickSwap().fromId(selectedSlot).to(invSlot);
+            for (int x = minX; x <= maxX; x++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    BlockPos feetPos = new BlockPos(x, mc.player.getBlockPos().getY(), z);
+
+                    placePoses.add(feetPos);
                 }
             }
+
+            if (MeteorClient.BLOCK.beginPlacement(placePoses, Items.OBSIDIAN)) {
+                placePoses.forEach(blockPos -> {
+                    MeteorClient.BLOCK.placeBlock(Items.OBSIDIAN, blockPos);
+                });
+
+                MeteorClient.BLOCK.endPlacement();
+            }
+        }
+
+        if (MeteorClient.SWAP.beginSwap(Items.ENDER_PEARL, true)) {
+            int sequence = mc.world.getPendingUpdateManager().incrementSequence().getSequence();
+
+            mc.getNetworkHandler().sendPacket(
+                    new PlayerInteractItemC2SPacket(Hand.MAIN_HAND, sequence, yaw, pitch));
+
+            deactivate(true);
+
+            MeteorClient.SWAP.endSwap(true);
         }
     }
 
-
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onRender(Render3DEvent event)
-    {
+    private void onRender(Render3DEvent event) {
+        // Custom keypress implementation because.... I don't like binding modules like this? idk
+        if (!phaseBind.get().isPressed()) {
+            keyUnpressed = true;
+        }
+
+        if (phaseBind.get().isPressed() && keyUnpressed
+                && !(mc.currentScreen instanceof ChatScreen)) {
+            activate();
+            keyUnpressed = false;
+        }
+
         update();
     }
 
-    private Vec3d calculateTargetPos()
-    {
+    private HitResult getEnderPearlHitResult() {
+        if (!simulator.set(mc.player, Items.ENDER_PEARL.getDefaultStack(), 0, false, 1f)) {
+            return null;
+        }
+
+        for (int i = 0; i < 256; i++) {
+            HitResult result = simulator.tick();
+
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    private Vec3d calculateTargetPos() {
         final double X_OFFSET = Math.PI / 13;
         final double Z_OFFSET = Math.PI / 4;
 
-        // Get the player's current velocity
-        Vec3d velocity = mc.player.getVelocity();
+        // cache pos
+        double playerX = mc.player.getX();
+        double playerZ = mc.player.getZ();
 
-        // Predict future player position
-        double predictedX = mc.player.getX() + velocity.x * movementPredictionFactor.get();
-        double predictedZ = mc.player.getZ() + velocity.z * movementPredictionFactor.get();
+        // Calculate position based on the x and z offets
+        double x = playerX + MathHelper.clamp(
+                toClosest(playerX, Math.floor(playerX) + X_OFFSET, Math.floor(playerX) + Z_OFFSET)
+                        - playerX,
+                -0.2, 0.2);
 
-        // Calculate target Y position
-        double y = mc.player.getY() - 0.5;
+        double z = playerZ + MathHelper.clamp(
+                toClosest(playerZ, Math.floor(playerZ) + X_OFFSET, Math.floor(playerZ) + Z_OFFSET)
+                        - playerZ,
+                -0.2, 0.2);
 
-        // Calculate target X position
-        double x = predictedX
-            + MathHelper.clamp(toClosest(predictedX, Math.floor(predictedX) + X_OFFSET,
-            Math.floor(predictedX) + Z_OFFSET) - predictedX, -0.2, 0.2);
-
-        // Calculate target Z position
-        double z = predictedZ
-            + MathHelper.clamp(toClosest(predictedZ, Math.floor(predictedZ) + X_OFFSET,
-            Math.floor(predictedZ) + Z_OFFSET) - predictedZ, -0.2, 0.2);
-
-        return new Vec3d(x, y, z);
+        return new Vec3d(x, mc.player.getY() - 0.5, z);
     }
 
-
-    private double toClosest(double num, double min, double max)
-    {
+    private double toClosest(double num, double min, double max) {
         double dmin = num - min;
         double dmax = max - num;
 
-        if (dmax > dmin)
-        {
+        if (dmax > dmin) {
             return min;
-        } else
-        {
+        } else {
             return max;
         }
     }
 
-    public enum SwitchMode
-    {
+    public enum SwitchMode {
         SilentHotbar, SilentSwap
     }
 
-    public enum RotateMode
-    {
+    public enum RotateMode {
         Movement, Instant, DelayedInstant, DelayedInstantWebOnly
     }
 }
