@@ -32,6 +32,7 @@ public abstract class SplashTextResourceSupplierMixin
     {
         return List.of(
             "§bPantheraKitty :3",
+            "§bMeow :3",
             "§bKittyWare :3"
         );
     }

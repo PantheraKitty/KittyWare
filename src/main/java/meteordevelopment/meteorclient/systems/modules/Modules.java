@@ -522,6 +522,7 @@ public class Modules extends System<Modules>
         add(new BowAimbot());
         add(new BowSpam());
         add(new Burrow());
+        add(new ChineseAura());
         add(new Criticals());
         add(new Hitboxes());
         add(new HoleFiller());

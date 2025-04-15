@@ -15,7 +15,7 @@ public class AntiCheatConfig extends System<AntiCheatConfig>
     // Rotations
     public final Setting<Boolean> tickSync = sgRotations.add(new BoolSetting.Builder()
         .name("tick-sync").description("Lets rotations be rotated. Should always be on.")
-        .defaultValue(true).build());
+        .defaultValue(false).build());
     public final Setting<Boolean> grimSync = sgRotations.add(new BoolSetting.Builder()
         .name("grim-sync").description("Sends a full movement packet every tick")
         .defaultValue(false).visible(() -> tickSync.get()).build());
