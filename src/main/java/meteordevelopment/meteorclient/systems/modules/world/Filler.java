@@ -103,7 +103,7 @@ public class Filler extends Module
         new DoubleSetting.Builder()
             .name("fade-time")
             .description("How many seconds it takes to fade.")
-            .defaultValue(0.2)
+            .defaultValue(0.36)
             .min(0)
             .sliderMax(1.0)
             .build()
@@ -123,7 +123,7 @@ public class Filler extends Module
             .Builder()
             .name("side-color")
             .description("The side color.")
-            .defaultValue(new SettingColor(85, 0, 255, 40))
+            .defaultValue(new SettingColor(58, 94, 255, 35))
             .visible(() -> shapeMode.get() != ShapeMode.Lines)
             .build()
     );
@@ -133,7 +133,7 @@ public class Filler extends Module
             .Builder()
             .name("line-color")
             .description("The line color.")
-            .defaultValue(new SettingColor(255, 255, 255, 60))
+            .defaultValue(new SettingColor(173, 203, 255, 129))
             .visible(() -> shapeMode.get() != ShapeMode.Sides)
             .build()
     );

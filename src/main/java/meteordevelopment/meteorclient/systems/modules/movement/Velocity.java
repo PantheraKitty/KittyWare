@@ -16,13 +16,11 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.managers.RotationManager;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 
-public class Velocity extends Module
-{
+public class Velocity extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Boolean> knockback = sgGeneral.add(new BoolSetting.Builder()
@@ -31,6 +29,23 @@ public class Velocity extends Module
         .defaultValue(true)
         .build()
     );
+
+    public final Setting<Boolean> knockbackPhaseOnly = sgGeneral.add(new BoolSetting.Builder()
+        .name("knockback-phase-only")
+        .description("Only modifies knockback when phased into a wall.")
+        .defaultValue(true)
+        .visible(() -> knockback.get())
+        .build()
+    );
+
+    public final Setting<Boolean> knockbackPhaseInAir = sgGeneral.add(new BoolSetting.Builder()
+        .name("knockback-phase-disable-in-air")
+        .description("Doesn't modify knockback in a phase when you're in the air (like jumping).")
+        .defaultValue(true)
+        .visible(() -> knockback.get() && knockbackPhaseOnly.get())
+        .build()
+    );
+
     public final Setting<Double> knockbackHorizontal = sgGeneral.add(new DoubleSetting.Builder()
         .name("knockback-horizontal")
         .description("How much horizontal knockback you will take.")
@@ -39,6 +54,7 @@ public class Velocity extends Module
         .visible(knockback::get)
         .build()
     );
+
     public final Setting<Double> knockbackVertical = sgGeneral.add(new DoubleSetting.Builder()
         .name("knockback-vertical")
         .description("How much vertical knockback you will take.")
@@ -47,12 +63,7 @@ public class Velocity extends Module
         .visible(knockback::get)
         .build()
     );
-    public final Setting<Boolean> knockbackPhaseOnly = sgGeneral.add(new BoolSetting.Builder()
-        .name("knockback-phase-only")
-        .description("Only disables knockback when phased into a wall.")
-        .defaultValue(true)
-        .build()
-    );
+
     public final Setting<Boolean> explosions = sgGeneral.add(new BoolSetting.Builder()
         .name("explosions")
         .description("Modifies your knockback from explosions.")
@@ -147,60 +158,33 @@ public class Velocity extends Module
         .build()
     );
 
-    public Velocity()
-    {
+    public Velocity() {
         super(Categories.Movement, "velocity", "Prevents you from being moved by external forces.");
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event)
-    {
+    private void onTick(TickEvent.Post event) {
         if (!sinking.get()) return;
         if (mc.options.jumpKey.isPressed() || mc.options.sneakKey.isPressed()) return;
 
-        if ((mc.player.isTouchingWater() || mc.player.isInLava()) && mc.player.getVelocity().y < 0)
-        {
+        if ((mc.player.isTouchingWater() || mc.player.isInLava()) && mc.player.getVelocity().y < 0) {
             ((IVec3d) mc.player.getVelocity()).setY(0);
         }
     }
 
     @EventHandler
-    private void onPacketReceive(PacketEvent.Receive event)
-    {
+    private void onPacketReceive(PacketEvent.Receive event) {
         if (knockback.get() && event.packet instanceof EntityVelocityUpdateS2CPacket packet
-            && packet.getEntityId() == mc.player.getId())
-        {
-            if (knockbackPhaseOnly.get())
-            {
-                boolean isPhased = false;
-
-                Box boundingBox = mc.player.getBoundingBox().shrink(0.05, 0.1, 0.05);
-                double feetY = mc.player.getY();
-
-                Box feetBox = new Box(boundingBox.minX, feetY, boundingBox.minZ, boundingBox.maxX,
-                    feetY + 0.1, boundingBox.maxZ);
-
-                for (BlockPos pos : BlockPos.iterate((int) Math.floor(feetBox.minX),
-                    (int) Math.floor(feetBox.minY), (int) Math.floor(feetBox.minZ),
-                    (int) Math.floor(feetBox.maxX), (int) Math.floor(feetBox.maxY),
-                    (int) Math.floor(feetBox.maxZ)))
-                {
-
-                    if (mc.world.getBlockState(pos).isSolidBlock(mc.world, pos))
-                    {
-                        if (RotationManager.lastGround)
-                        {
-                            isPhased = true;
-                        }
-                        break;
-                    }
-                }
-
-                if (!isPhased)
-                {
+            && packet.getEntityId() == mc.player.getId()) {
+            if (knockbackPhaseOnly.get()) {
+                if (knockbackPhaseInAir.get() && !RotationManager.lastGround) {
                     return;
                 }
-            }
+                
+                if (!PlayerUtils.isPlayerPhased()) {
+                    return;
+                }
+            } 
 
             double velX = (packet.getVelocityX() / 8000d - mc.player.getVelocity().x) * knockbackHorizontal.get();
             double velY = (packet.getVelocityY() / 8000d - mc.player.getVelocity().y) * knockbackVertical.get();
@@ -211,13 +195,11 @@ public class Velocity extends Module
         }
     }
 
-    public double getHorizontal(Setting<Double> setting)
-    {
+    public double getHorizontal(Setting<Double> setting) {
         return isActive() ? setting.get() : 1;
     }
 
-    public double getVertical(Setting<Double> setting)
-    {
+    public double getVertical(Setting<Double> setting) {
         return isActive() ? setting.get() : 1;
     }
 }
