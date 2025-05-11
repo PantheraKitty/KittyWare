@@ -213,7 +213,7 @@ public class Surround extends Module
 
                 if (blocking != null && System.currentTimeMillis() - lastAttackTime >= 50)
                 {
-                    MeteorClient.ROTATION.requestRotation(blocking.getPos(), 11);
+                    MeteorClient.ROTATION.requestRotation(blocking.getPos(), 900);
 
                     if (!MeteorClient.ROTATION.lookingAt(blocking.getBoundingBox())
                         && RotationManager.lastGround)
