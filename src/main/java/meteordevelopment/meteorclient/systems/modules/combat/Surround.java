@@ -71,6 +71,9 @@ public class Surround extends Module
     private final Setting<Boolean> extendEnabled = sgGeneral.add(new BoolSetting.Builder()
         .name("extend").description("Enables extend placing").defaultValue(true).build());
 
+    private final Setting<Boolean> mineCheck = sgGeneral.add(new BoolSetting.Builder()
+        .name("Mine-Check").description("Check if the block is a silent mine target -jaxui").defaultValue(true).build());
+
     private final Setting<ExtendMode> extendMode =
         sgGeneral.add(new EnumSetting.Builder<ExtendMode>().name("extend-mode")
             .description("When to place extend blocks").defaultValue(ExtendMode.Smart)
@@ -172,12 +175,11 @@ public class Surround extends Module
                 }
 
                 // Blocks below players feet
-                BlockPos belowFeetPos = new BlockPos(x, feetY - 1, z);
+                BlockPos belowFeetPos = new BlockPos(x, (int) (mc.player.getBoundingBox().minY-1), z);
                 BlockState belowFeetState = mc.world.getBlockState(belowFeetPos);
 
                 // Don't place if we're mining that block
-                if (belowFeetPos.equals(silentMine.getRebreakBlockPos())
-                    || belowFeetPos.equals(silentMine.getDelayedDestroyBlockPos()))
+                if (belowFeetPos.equals(silentMine.getRebreakBlockPos()) || belowFeetPos.equals(silentMine.getDelayedDestroyBlockPos()) || belowFeetPos.equals(silentMine.getLastDelayedDestroyBlockPos()))
                 {
                     continue;
                 }
@@ -243,6 +245,12 @@ public class Surround extends Module
 
         placePoses.forEach(blockPos ->
         {
+            // Check mining positions -jaxui
+            if (mineCheck.get() && (blockPos == silentMine.getRebreakBlockPos() || blockPos == silentMine.getDelayedDestroyBlockPos()) || blockPos == silentMine.getLastDelayedDestroyBlockPos())
+            {
+                return;
+            }
+
             // Use the last ticks delayed destroy block because it gets instantly cleared
             if (blockPos.equals(silentMine.getRebreakBlockPos())
                 || blockPos.equals(silentMine.getDelayedDestroyBlockPos()))
