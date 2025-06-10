@@ -1,5 +1,8 @@
 package meteordevelopment.meteorclient.systems.modules.world;
 
+import baritone.api.BaritoneAPI;
+import baritone.api.IBaritone;
+import baritone.api.selection.ISelection;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -30,6 +33,13 @@ public class Filler extends Module
 {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
+
+    private final Setting<Boolean> baritonesel = sgGeneral.add(new BoolSetting.Builder()
+        .name("baritone-selections")
+        .description("places only within baritone selections")
+        .defaultValue(false)
+        .build()
+    );
 
     private final Setting<FillerMode> mode = sgGeneral.add(
         new EnumSetting.Builder<FillerMode>()
@@ -202,6 +212,8 @@ public class Filler extends Module
 
             MeteorClient.BLOCK.endPlacement();
         }
+
+
     }
 
     @EventHandler
@@ -238,6 +250,19 @@ public class Filler extends Module
 
 
         }
+    }
+
+    private boolean isWithinABaritoneSelection(BlockPos pos) {
+        for (IBaritone baritone : BaritoneAPI.getProvider().getAllBaritones()) {
+            for (ISelection sel : baritone.getSelectionManager().getSelections()) {
+                if (pos.getX() >= sel.min().x && pos.getX() <= sel.max().x &&
+                    pos.getY() >= sel.min().y && pos.getY() <= sel.max().y &&
+                    pos.getZ() >= sel.min().z && pos.getZ() <= sel.max().z) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isSharedFace(BlockPos pos, Direction direction)
@@ -279,11 +304,17 @@ public class Filler extends Module
                 {
                     BlockPos pos = mutablePos.set(ex + x, ey + y, ez + z);
 
+                    if (baritonesel.get() && !isWithinABaritoneSelection(pos))
+                    {
+                        continue;
+                    }
+
                     switch (mode.get())
                     {
                         case Below ->
                         {
                             if (pos.getY() >= mc.player.getBlockY())
+
                             {
                                 continue;
                             }

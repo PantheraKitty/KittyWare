@@ -178,13 +178,8 @@ public class Surround extends Module
                 BlockPos belowFeetPos = new BlockPos(x, (int) (mc.player.getBoundingBox().minY-1), z);
                 BlockState belowFeetState = mc.world.getBlockState(belowFeetPos);
 
-                // Don't place if we're mining that block
-                if (belowFeetPos.equals(silentMine.getRebreakBlockPos()) || belowFeetPos.equals(silentMine.getDelayedDestroyBlockPos()) || belowFeetPos.equals(silentMine.getLastDelayedDestroyBlockPos()))
-                {
-                    continue;
-                }
 
-                if (belowFeetState.isAir() || belowFeetState.isReplaceable())
+                if (!belowFeetState.isAir() && !belowFeetState.isReplaceable())
                 {
                     placePoses.add(belowFeetPos);
                 }
