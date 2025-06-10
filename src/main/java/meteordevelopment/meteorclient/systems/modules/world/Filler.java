@@ -212,8 +212,6 @@ public class Filler extends Module
 
             MeteorClient.BLOCK.endPlacement();
         }
-
-
     }
 
     @EventHandler
@@ -247,8 +245,6 @@ public class Filler extends Module
                     event.renderer.face(pos, dir, fadedSideColor, fadedLineColor, shapeMode.get());
                 }
             }
-
-
         }
     }
 
@@ -284,7 +280,6 @@ public class Filler extends Module
         return false; // The face should be rendered
     }
 
-
     private List<BlockPos> getBlockPoses()
     {
         List<BlockPos> placePoses = new ArrayList<>();
@@ -314,7 +309,6 @@ public class Filler extends Module
                         case Below ->
                         {
                             if (pos.getY() >= mc.player.getBlockY())
-
                             {
                                 continue;
                             }
